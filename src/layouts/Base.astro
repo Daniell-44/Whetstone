@@ -6,7 +6,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Devil's Advocate — sharpen your thinking against every argument you read." } = Astro.props;
+const { title, description = "The Whetstone — sharpen your thinking against the strongest version of every argument you read." } = Astro.props;
 ---
 <!doctype html>
 <html lang="en" class="bg-gray-50">
@@ -21,9 +21,8 @@ const { title, description = "Devil's Advocate — sharpen your thinking against
     <slot />
     <footer class="border-t border-gray-100 mt-24 py-8">
       <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-400">
-        <span>Devil's Advocate — <em>the whetstone</em></span>
+        <a href="/" class="hover:text-gray-600 transition-colors">The Whetstone <span class="text-gray-300">·</span> Devil's Advocate Chrome extension</a>
         <nav class="flex gap-5">
-          <a href="/" class="hover:text-gray-600 transition-colors">Home</a>
           <a href="/how-it-works" class="hover:text-gray-600 transition-colors">How it works</a>
           <a href="/privacy" class="hover:text-gray-600 transition-colors">Privacy</a>
         </nav>
