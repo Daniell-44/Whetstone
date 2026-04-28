@@ -1,0 +1,36 @@
+---
+// Option B: single source of truth — read from extension/PRIVACY.md at build time.
+// If this path breaks (e.g. in a CI environment where the two repos are checked out
+// separately), resolve it by passing the canonical path via an env var or build arg.
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { marked } from 'marked';
+import Base from '../layouts/Base.astro';
+
+const privacyPath = resolve(process.cwd(), '../extension/PRIVACY.md');
+const rawMd = readFileSync(privacyPath, 'utf-8');
+const content = await marked.parse(rawMd);
+---
+<Base
+  title="Privacy policy — Devil's Advocate"
+  description="How Devil's Advocate handles your data — what leaves your device, what is stored locally, and how to remove it."
+>
+  <main class="max-w-2xl mx-auto px-6 pt-20 pb-16">
+
+    <nav class="mb-12">
+      <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Devil's Advocate</a>
+    </nav>
+
+    <article
+      class="prose prose-gray prose-sm sm:prose-base max-w-none
+             prose-headings:font-serif prose-headings:font-normal
+             prose-h1:text-3xl prose-h1:mb-2
+             prose-h2:text-base prose-h2:font-semibold prose-h2:tracking-widest prose-h2:uppercase prose-h2:text-indigo-500 prose-h2:mt-10
+             prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline
+             prose-strong:font-semibold prose-strong:text-gray-900
+             prose-li:my-0.5"
+      set:html={content}
+    />
+
+  </main>
+</Base>

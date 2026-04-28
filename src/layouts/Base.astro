@@ -1,0 +1,33 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Devil's Advocate — sharpen your thinking against every argument you read." } = Astro.props;
+---
+<!doctype html>
+<html lang="en" class="bg-gray-50">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen text-gray-900 font-sans antialiased">
+    <slot />
+    <footer class="border-t border-gray-100 mt-24 py-8">
+      <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-400">
+        <span>Devil's Advocate — <em>the whetstone</em></span>
+        <nav class="flex gap-5">
+          <a href="/" class="hover:text-gray-600 transition-colors">Home</a>
+          <a href="/how-it-works" class="hover:text-gray-600 transition-colors">How it works</a>
+          <a href="/privacy" class="hover:text-gray-600 transition-colors">Privacy</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

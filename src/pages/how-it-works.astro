@@ -1,0 +1,124 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base
+  title="How it works — Devil's Advocate"
+  description="How Devil's Advocate analyses argument structure, what the Toulmin frame is, and what the tool does not do."
+>
+  <main class="max-w-2xl mx-auto px-6 pt-20 pb-16">
+
+    <nav class="mb-12">
+      <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Devil's Advocate</a>
+    </nav>
+
+    <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mb-3">
+      How it works
+    </h1>
+    <p class="text-sm text-gray-400 mb-12">A plain-English guide to the tool and the frame it uses.</p>
+
+    <!-- Section 1: What the tool does -->
+    <section class="mb-12">
+      <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">What it does</h2>
+      <p class="text-base text-gray-700 leading-relaxed">
+        When you highlight text on any article and open Devil's Advocate, the tool reads the passage
+        as an argument — not as prose, not as opinion, not as fact. It identifies what position is
+        being argued for, what evidence is offered in support, what assumption connects them, and
+        whether any familiar reasoning patterns appear. It then writes the strongest single-paragraph
+        case for the opposing position. The result is a structured view of the argument, not a
+        verdict on who is right.
+      </p>
+    </section>
+
+    <!-- Section 2: The Toulmin frame -->
+    <section class="mb-12">
+      <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">The Toulmin frame</h2>
+      <p class="text-base text-gray-700 leading-relaxed mb-6">
+        The tool uses the Toulmin model of argumentation — a framework from philosophy of language
+        that breaks any argument into six components. You do not need to know the framework to use
+        the tool, but understanding it makes the output more useful.
+      </p>
+      <dl class="space-y-5">
+        <div class="pl-4 border-l-2 border-indigo-200">
+          <dt class="text-sm font-semibold text-gray-900 mb-1">Claim</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            The main position being argued for. <em>"Remote work increases productivity."</em>
+          </dd>
+        </div>
+        <div class="pl-4 border-l-2 border-indigo-200">
+          <dt class="text-sm font-semibold text-gray-900 mb-1">Grounds</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            The evidence or reasons offered in support.
+            <em>"Studies show output rose 13% after companies moved to remote."</em>
+          </dd>
+        </div>
+        <div class="pl-4 border-l-4 border-indigo-400">
+          <dt class="text-sm font-semibold text-indigo-800 mb-1">Warrant <span class="font-normal text-indigo-500">(the load-bearing field)</span></dt>
+          <dd class="text-sm text-indigo-700 leading-relaxed">
+            The usually-unstated assumption that connects the grounds to the claim — the thing the
+            argument requires you to accept without arguing for it explicitly.
+            <em>"Output measured in those studies is representative of productivity in general."</em>
+            The warrant is where most arguments are actually contested.
+          </dd>
+        </div>
+        <div class="pl-4 border-l-2 border-gray-200">
+          <dt class="text-sm font-semibold text-gray-900 mb-1">Backing</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            Support for the warrant itself, when present.
+            <em>"The studies used a consistent output metric validated across industries."</em>
+          </dd>
+        </div>
+        <div class="pl-4 border-l-2 border-gray-200">
+          <dt class="text-sm font-semibold text-gray-900 mb-1">Qualifier</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            A word or phrase limiting the claim's scope.
+            <em>"Remote work <strong>generally</strong> increases productivity."</em>
+          </dd>
+        </div>
+        <div class="pl-4 border-l-2 border-gray-200">
+          <dt class="text-sm font-semibold text-gray-900 mb-1">Rebuttal</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            Conditions the argument itself acknowledges as exceptions.
+            <em>"Unless the role requires intensive real-time collaboration."</em>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Section 3: What it isn't -->
+    <section class="mb-12">
+      <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">What it isn't</h2>
+      <ul class="space-y-3 text-base text-gray-700">
+        <li class="pl-4 border-l-2 border-amber-300">
+          <strong class="font-medium">It doesn't adjudicate claims.</strong> The tool analyses argument structure — not whether specific assertions are accurate. Whether the study cited is real, or whether the statistic holds up, is your job. Tier 3 retrieval (coming later) will help you check sources. The tool never asserts that a claim is true or false.
+        </li>
+        <li class="pl-4 border-l-2 border-amber-300">
+          <strong class="font-medium">Not a political moderator.</strong> It does not decide which side of a contested question is correct. The same analysis runs on a climate-change argument and a sceptic's counter-argument. The frame is neutral; the conclusions are yours.
+        </li>
+        <li class="pl-4 border-l-2 border-amber-300">
+          <strong class="font-medium">Not a writing improver.</strong> The tool helps you understand the argument in front of you. It does not suggest how to make your own writing more persuasive, more shareable, or better-optimised for any platform.
+        </li>
+        <li class="pl-4 border-l-2 border-amber-300">
+          <strong class="font-medium">Not always right.</strong> The tool surfaces reasoning patterns when confidence is high (&ge;75%). It will sometimes miss things; it will sometimes flag patterns that, on closer reading, are not present. Treat it as a prompt, not a verdict.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 4: What's coming -->
+    <section class="mb-12">
+      <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">What's coming</h2>
+      <p class="text-base text-gray-700 leading-relaxed">
+        The current extension is the Reader surface — analysis of text you encounter. A Creator
+        Studio is in development: the same analysis engine, applied to your own writing before
+        you post it. The studio is aimed at people who care whether their arguments are well-formed
+        — students, journalists, Substackers, anyone whose work depends on reasoning clearly in
+        public. No timeline commitment here; the extension ships first, and the studio follows when
+        the analysis engine is battle-tested.
+      </p>
+    </section>
+
+    <footer class="pt-6 border-t border-gray-100">
+      <a href="/privacy" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">Privacy policy →</a>
+    </footer>
+
+  </main>
+</Base>
