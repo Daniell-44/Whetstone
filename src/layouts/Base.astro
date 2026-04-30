@@ -4,9 +4,18 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description?: string;
+  canonicalPath?: string;
 }
 
-const { title, description = "The Whetstone — sharpen your thinking against the strongest version of every argument you read." } = Astro.props;
+const {
+  title,
+  description = "The Whetstone — sharpen your thinking against the strongest version of every argument you read.",
+  canonicalPath = '/',
+} = Astro.props;
+
+const siteUrl  = 'https://devils-advocate-site.pages.dev';
+const ogImage  = `${siteUrl}/og-image.png`;
+const pageUrl  = `${siteUrl}${canonicalPath}`;
 ---
 <!doctype html>
 <html lang="en" class="bg-gray-50">
@@ -14,8 +23,22 @@ const { title, description = "The Whetstone — sharpen your thinking against th
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={pageUrl} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content={pageUrl} />
+    <meta property="og:title"       content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image"       content={ogImage} />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image"       content={ogImage} />
   </head>
   <body class="min-h-screen text-gray-900 font-sans antialiased">
     <slot />
