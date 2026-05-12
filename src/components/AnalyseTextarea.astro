@@ -1,0 +1,426 @@
+---
+// Demo component — calls /api/analyze and renders results client-side.
+// Used on /reader; will be reused on /creator/studio.
+---
+
+<section class="da-demo-wrapper">
+  <div class="da-demo-inner">
+    <h2 class="da-demo-heading">Try it now</h2>
+    <p class="da-demo-sub">
+      Paste any argument — an article paragraph, an op-ed claim, a news piece — and see how the tool reads it.
+    </p>
+
+    <textarea
+      id="da-input"
+      class="da-textarea"
+      placeholder="Paste a paragraph here. At least 50 words works best."
+      rows="7"
+      spellcheck="false"
+    ></textarea>
+
+    <div class="da-textarea-meta">
+      <span id="da-word-count" class="da-word-count">0 words</span>
+      <span id="da-min-notice" class="da-min-notice hidden">Minimum 50 words</span>
+    </div>
+
+    <button id="da-submit" class="da-submit" disabled>
+      Analyse
+    </button>
+
+    <div id="da-status" class="da-status hidden" aria-live="polite"></div>
+    <div id="da-result" class="da-result hidden" aria-live="polite"></div>
+  </div>
+</section>
+
+<style is:global>
+  .da-demo-wrapper {
+    margin-top: 3rem;
+    padding: 2rem 1.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+  }
+  .da-demo-inner { max-width: 36rem; }
+  .da-demo-heading {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6366f1;
+    margin-bottom: 0.5rem;
+  }
+  .da-demo-sub {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .da-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #111827;
+    background: #f9fafb;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+  }
+  .da-textarea:focus { outline: none; border-color: #6366f1; background: white; }
+  .da-textarea-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.375rem;
+    margin-bottom: 0.75rem;
+  }
+  .da-word-count { font-size: 0.75rem; color: #9ca3af; }
+  .da-min-notice { font-size: 0.75rem; color: #f59e0b; }
+  .da-min-notice.hidden { display: none; }
+  .da-submit {
+    padding: 0.625rem 1.5rem;
+    background: #4f46e5;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .da-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+  .da-submit:not(:disabled):hover { background: #4338ca; }
+
+  /* Status / loading */
+  .da-status {
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    color: #6b7280;
+  }
+  .da-status.hidden { display: none; }
+
+  /* Result container */
+  .da-result { margin-top: 1.5rem; }
+  .da-result.hidden { display: none; }
+
+  /* Result internals */
+  .da-result-inner { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .da-pill-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .da-strength-pill {
+    display: inline-block;
+    padding: 0.2rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .da-strength-label { font-size: 0.75rem; color: #9ca3af; }
+  .pill-strong   { background: #d1fae5; color: #065f46; }
+  .pill-moderate { background: #fef3c7; color: #92400e; }
+  .pill-weak     { background: #fee2e2; color: #991b1b; }
+  .pill-other    { background: #f3f4f6; color: #6b7280; }
+
+  .da-card {
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    background: #fafafa;
+  }
+  .da-card-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 0.375rem;
+  }
+  .da-card-text {
+    font-size: 0.875rem;
+    color: #374151;
+    line-height: 1.6;
+  }
+  .da-card-items { display: flex; flex-direction: column; gap: 0.375rem; }
+  .da-card-item {
+    font-size: 0.875rem;
+    color: #374151;
+    line-height: 1.5;
+    padding-left: 0.875rem;
+    border-left: 2px solid #d1d5db;
+  }
+
+  /* Warrant — most prominent */
+  .da-warrant {
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #c7d2fe;
+    background: #eef2ff;
+  }
+  .da-warrant .da-card-label { color: #6366f1; }
+  .da-warrant .da-card-text  { color: #312e81; }
+  .da-warrant-sub {
+    font-size: 0.6875rem;
+    color: #818cf8;
+    margin-top: 0.125rem;
+  }
+
+  /* Fallacies */
+  .da-fallacy {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border-left: 3px solid #fbbf24;
+    background: #fffbeb;
+  }
+  .da-fallacy-type {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #d97706;
+    margin-bottom: 0.25rem;
+  }
+  .da-fallacy-span {
+    font-size: 0.75rem;
+    color: #92400e;
+    font-style: italic;
+    margin-bottom: 0.25rem;
+  }
+  .da-fallacy-explanation { font-size: 0.8125rem; color: #374151; line-height: 1.5; }
+
+  /* Steelman */
+  .da-steelman {
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    background: white;
+  }
+  .da-steelman .da-card-label { color: #6b7280; }
+  .da-steelman-text {
+    font-size: 0.875rem;
+    color: #374151;
+    line-height: 1.65;
+    font-style: italic;
+  }
+
+  /* Not-argument state */
+  .da-not-argument {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.6;
+  }
+
+  /* Error state */
+  .da-error {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    font-size: 0.875rem;
+    color: #991b1b;
+    line-height: 1.6;
+  }
+</style>
+
+<script>
+  const textarea    = document.getElementById('da-input')      as HTMLTextAreaElement;
+  const wordCountEl = document.getElementById('da-word-count') as HTMLElement;
+  const minNotice   = document.getElementById('da-min-notice') as HTMLElement;
+  const submitBtn   = document.getElementById('da-submit')     as HTMLButtonElement;
+  const statusEl    = document.getElementById('da-status')     as HTMLElement;
+  const resultEl    = document.getElementById('da-result')     as HTMLElement;
+
+  function countWords(text: string): number {
+    return text.trim().split(/\s+/).filter(Boolean).length;
+  }
+
+  function capitalise(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function pillClass(strength: string): string {
+    if (strength === 'strong')   return 'pill-strong';
+    if (strength === 'moderate') return 'pill-moderate';
+    if (strength === 'weak')     return 'pill-weak';
+    return 'pill-other';
+  }
+
+  function escHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderResult(data: {
+    kind: string;
+    reason?: string;
+    result?: {
+      toulmin: {
+        claim: { text: string };
+        data: Array<{ text: string }>;
+        warrant: { text: string } | null;
+        backing: Array<{ text: string }>;
+        qualifier: string | null;
+        rebuttal: string | null;
+        argumentStrength: string;
+      };
+      fallacies: Array<{ type: string; span: string; explanation: string }>;
+      steelman: string;
+    };
+  }): string {
+    if (data.kind === 'not_an_argument') {
+      return `<div class="da-not-argument">${escHtml(data.reason ?? 'The tool did not find a substantive argument in this text.')}</div>`;
+    }
+
+    if (data.kind !== 'result' || !data.result) {
+      return `<div class="da-error">Unexpected response from the analysis engine.</div>`;
+    }
+
+    const { toulmin, fallacies, steelman } = data.result;
+    const strength = toulmin.argumentStrength;
+
+    let html = `<div class="da-result-inner">`;
+
+    // Strength pill
+    html += `
+      <div class="da-pill-row">
+        <span class="da-strength-pill ${pillClass(strength)}">${escHtml(strength.replace('_', ' '))}</span>
+        <span class="da-strength-label">argument structure</span>
+      </div>`;
+
+    // Claim
+    html += `
+      <div class="da-card">
+        <div class="da-card-label">Claim</div>
+        <div class="da-card-text">${escHtml(toulmin.claim.text)}</div>
+      </div>`;
+
+    // Warrant (most prominent)
+    if (toulmin.warrant) {
+      html += `
+        <div class="da-warrant">
+          <div class="da-card-label">Warrant</div>
+          <div class="da-warrant-sub">the unstated assumption</div>
+          <div class="da-card-text" style="margin-top:0.375rem">${escHtml(toulmin.warrant.text)}</div>
+        </div>`;
+    }
+
+    // Grounds
+    if (toulmin.data.length > 0) {
+      const items = toulmin.data.map(d => `<div class="da-card-item">${escHtml(d.text)}</div>`).join('');
+      html += `
+        <div class="da-card">
+          <div class="da-card-label">Grounds</div>
+          <div class="da-card-items">${items}</div>
+        </div>`;
+    }
+
+    // Backing (if present)
+    if (toulmin.backing.length > 0) {
+      const items = toulmin.backing.map(b => `<div class="da-card-item">${escHtml(b.text)}</div>`).join('');
+      html += `
+        <div class="da-card">
+          <div class="da-card-label">Backing</div>
+          <div class="da-card-items">${items}</div>
+        </div>`;
+    }
+
+    // Fallacies (max 3)
+    const topFallacies = fallacies.slice(0, 3);
+    if (topFallacies.length > 0) {
+      const fallacyHtml = topFallacies.map(f => `
+        <div class="da-fallacy">
+          <div class="da-fallacy-type">${escHtml(f.type.replace(/_/g, ' '))}</div>
+          <div class="da-fallacy-span">"${escHtml(f.span)}"</div>
+          <div class="da-fallacy-explanation">${escHtml(f.explanation)}</div>
+        </div>`).join('');
+      html += fallacyHtml;
+    }
+
+    // Steelman
+    if (steelman) {
+      html += `
+        <div class="da-steelman">
+          <div class="da-card-label">Strongest opposing case</div>
+          <div class="da-steelman-text">${escHtml(steelman)}</div>
+        </div>`;
+    }
+
+    html += `</div>`;
+    return html;
+  }
+
+  // Word count update
+  textarea.addEventListener('input', () => {
+    const count = countWords(textarea.value);
+    wordCountEl.textContent = `${count} word${count === 1 ? '' : 's'}`;
+
+    if (count > 0 && count < 50) {
+      minNotice.classList.remove('hidden');
+    } else {
+      minNotice.classList.add('hidden');
+    }
+
+    submitBtn.disabled = count < 50;
+  });
+
+  // Submit
+  submitBtn.addEventListener('click', async () => {
+    const text = textarea.value.trim();
+    if (countWords(text) < 50) return;
+
+    submitBtn.disabled = true;
+    statusEl.textContent = 'Analysing…';
+    statusEl.classList.remove('hidden');
+    resultEl.classList.add('hidden');
+    resultEl.innerHTML = '';
+
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, mode: 'reader' }),
+      });
+
+      if (res.status === 429) {
+        const data = await res.json() as { retryAfterSeconds?: number };
+        statusEl.textContent = '';
+        statusEl.classList.add('hidden');
+        resultEl.innerHTML = `<div class="da-error">Rate limit reached — try again in ${data.retryAfterSeconds ?? 'a while'}.</div>`;
+        resultEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json() as Parameters<typeof renderResult>[0];
+      statusEl.textContent = '';
+      statusEl.classList.add('hidden');
+      resultEl.innerHTML = renderResult(data);
+      resultEl.classList.remove('hidden');
+    } catch (err) {
+      statusEl.textContent = '';
+      statusEl.classList.add('hidden');
+      resultEl.innerHTML = `<div class="da-error">Something went wrong. Check your connection and try again.</div>`;
+      resultEl.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = countWords(textarea.value) < 50;
+    }
+  });
+</script>

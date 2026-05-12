@@ -1,0 +1,87 @@
+---
+// Server-side rendering of an analysis result — same layout as the client-side
+// rendering in AnalyseTextarea.astro. Used when data is available at build/request time.
+// (Currently for documentation; /reader uses the client-side demo path.)
+
+interface ConfidentText { text: string; confidence: number }
+interface FallacyFlag   { type: string; span: string; explanation: string; confidence: number }
+
+interface Props {
+  toulmin: {
+    claim:            ConfidentText;
+    data:             ConfidentText[];
+    warrant:          ConfidentText | null;
+    backing:          ConfidentText[];
+    qualifier:        string | null;
+    rebuttal:         string | null;
+    argumentStrength: 'strong' | 'moderate' | 'weak' | 'not_an_argument';
+  };
+  fallacies: FallacyFlag[];
+  steelman:  string;
+}
+
+const { toulmin, fallacies, steelman } = Astro.props;
+const strength = toulmin.argumentStrength;
+
+const pillClass =
+  strength === 'strong'   ? 'pill-strong'   :
+  strength === 'moderate' ? 'pill-moderate' :
+  strength === 'weak'     ? 'pill-weak'     : 'pill-other';
+
+const topFallacies = fallacies.slice(0, 3);
+---
+
+<div class="da-result-inner">
+
+  <div class="da-pill-row">
+    <span class={`da-strength-pill ${pillClass}`}>{strength.replace('_', ' ')}</span>
+    <span class="da-strength-label">argument structure</span>
+  </div>
+
+  <div class="da-card">
+    <div class="da-card-label">Claim</div>
+    <div class="da-card-text">{toulmin.claim.text}</div>
+  </div>
+
+  {toulmin.warrant && (
+    <div class="da-warrant">
+      <div class="da-card-label">Warrant</div>
+      <div class="da-warrant-sub">the unstated assumption</div>
+      <div class="da-card-text" style="margin-top:0.375rem">{toulmin.warrant.text}</div>
+    </div>
+  )}
+
+  {toulmin.data.length > 0 && (
+    <div class="da-card">
+      <div class="da-card-label">Grounds</div>
+      <div class="da-card-items">
+        {toulmin.data.map(d => <div class="da-card-item">{d.text}</div>)}
+      </div>
+    </div>
+  )}
+
+  {toulmin.backing.length > 0 && (
+    <div class="da-card">
+      <div class="da-card-label">Backing</div>
+      <div class="da-card-items">
+        {toulmin.backing.map(b => <div class="da-card-item">{b.text}</div>)}
+      </div>
+    </div>
+  )}
+
+  {topFallacies.map(f => (
+    <div class="da-fallacy">
+      <div class="da-fallacy-type">{f.type.replace(/_/g, ' ')}</div>
+      <div class="da-fallacy-span">"{f.span}"</div>
+      <div class="da-fallacy-explanation">{f.explanation}</div>
+    </div>
+  ))}
+
+  {steelman && (
+    <div class="da-steelman">
+      <div class="da-card-label">Strongest opposing case</div>
+      <div class="da-steelman-text">{steelman}</div>
+    </div>
+  )}
+
+</div>

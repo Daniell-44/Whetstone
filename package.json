@@ -9,17 +9,21 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "pages:dev": "astro build && wrangler pages dev ./dist"
   },
   "dependencies": {
     "astro": "^6.1.10",
-    "marked": "^18.0.2"
+    "jspdf": "^2.5.2",
+    "marked": "^18.0.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@astrojs/sitemap": "^3.7.2",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.4",
     "sharp": "^0.34.5",
-    "tailwindcss": "^4.2.4"
+    "tailwindcss": "^4.2.4",
+    "wrangler": "^3.0.0"
   }
 }

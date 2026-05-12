@@ -1,0 +1,141 @@
+---
+import Base from '../layouts/Base.astro';
+import AnalyseTextarea from '../components/AnalyseTextarea.astro';
+---
+<Base
+  title="Devil's Advocate — for readers | The Whetstone"
+  description="Highlight any argument online and see its structure, its assumptions, and the strongest case against it. Free Chrome extension — coming to the Web Store."
+  canonicalPath="/reader"
+>
+  <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
+
+    <nav class="mb-10">
+      <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← The Whetstone</a>
+    </nav>
+
+    <!-- Hero -->
+    <header class="mb-10">
+      <p class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">For readers</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-4">
+        Devil's Advocate
+      </h1>
+      <p class="text-xl text-gray-500 leading-relaxed max-w-xl">
+        Highlight any argument online and see its structure, its assumptions, and the strongest case against it.
+      </p>
+    </header>
+
+    <!-- CTA -->
+    <section class="mb-14">
+      <span class="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white text-sm font-medium rounded-lg cursor-default select-none opacity-90">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke-width="2"/>
+          <polyline points="12 6 12 12 16 14" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Coming to the Chrome Web Store
+      </span>
+      <p class="mt-3 text-xs text-gray-400">
+        Free, ad-supported. Premium ~£5/mo when launched.
+        <a href="/how-it-works" class="text-indigo-500 hover:text-indigo-700 underline underline-offset-2 ml-1">How it works →</a>
+      </p>
+    </section>
+
+    <!-- Live demo -->
+    <AnalyseTextarea />
+
+    <!-- Three modes -->
+    <section class="mt-16 mb-14">
+      <h2 class="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-8">Three reading modes</h2>
+      <div class="grid sm:grid-cols-3 gap-6">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-900 mb-1">Casual</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            For news, Substack, social media, and most long-form web reading. Short, non-judgmental output. The default.
+          </p>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-900 mb-1">Research</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            For academic papers, preprints, and reports. Full Toulmin diagram, deeper citation chains, BibTeX export. Premium.
+          </p>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-900 mb-1">Review</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            For evaluating someone else's draft or submission. Rubric-style output you can paste into feedback. Premium.
+          </p>
+        </div>
+      </div>
+      <p class="mt-5 text-xs text-gray-400">Casual mode is live in the demo above. Research and Review are in development.</p>
+    </section>
+
+    <!-- FAQ -->
+    <section class="mb-14">
+      <h2 class="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-8">Questions</h2>
+      <dl class="space-y-8">
+
+        <div>
+          <dt class="text-sm font-semibold text-gray-900 mb-1">What does this actually do?</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            It reads the text you give it as an argument — not as prose, not as opinion. It surfaces what's
+            being claimed, what evidence is offered, and the usually-unstated assumption connecting them
+            (the warrant). Then it writes the strongest single-paragraph case for the opposing position.
+            The result is a structural view of the argument, not a verdict on who is right.
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-semibold text-gray-900 mb-1">What doesn't it do?</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            It doesn't adjudicate whether specific claims are accurate. It doesn't label content as
+            good or bad. It doesn't tell you what to think or what to share. It analyses structure —
+            how the argument is built — not whether the underlying assertions are true. That remains
+            the reader's job.
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-semibold text-gray-900 mb-1">Why "the whetstone"?</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            A whetstone is what you sharpen a blade against. The tool functions the same way for
+            thinking: it gives your reasoning something to push against. You leave the encounter
+            with a clearer sense of where the argument is strong and where it needs more work — and
+            with the strongest possible counter-position in hand.
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-semibold text-gray-900 mb-1">How is my data handled?</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            The extension sends text to Google's Gemini API directly from your browser using an API
+            key you supply. Nothing passes through any server operated by the developer.
+            The web demo (this page) sends text to a Cloudflare Pages Function which forwards it to
+            Gemini. Neither Cloudflare nor the developer stores the text.
+            Full details: <a href="/privacy" class="text-indigo-600 hover:text-indigo-800 underline underline-offset-2">privacy policy</a>.
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-semibold text-gray-900 mb-1">Why open-source?</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            The prompts that drive the analysis and the Toulmin schema the tool uses are visible and
+            auditable in the public repository. A tool that shapes how people read arguments should
+            be transparent about how it works.
+            <a href="https://github.com/Daniell-44/The_Whetstone_Project" class="text-indigo-600 hover:text-indigo-800 underline underline-offset-2" target="_blank" rel="noopener">View on GitHub →</a>
+          </dd>
+        </div>
+
+        <div>
+          <dt class="text-sm font-semibold text-gray-900 mb-1">When does Creator Studio ship?</dt>
+          <dd class="text-sm text-gray-600 leading-relaxed">
+            The same analysis engine, pointed at your own writing, is in development. No timeline
+            commitment here. The extension ships first, the engine gets validated on real reading
+            sessions, then the studio follows.
+            <a href="/creator" class="text-indigo-600 hover:text-indigo-800 underline underline-offset-2">See what's planned →</a>
+          </dd>
+        </div>
+
+      </dl>
+    </section>
+
+  </main>
+</Base>
