@@ -1,0 +1,30 @@
+# Cloudflare Pages project configuration.
+# Used by `wrangler pages dev ./dist` for local development.
+# Bindings and secrets in production are set in the Cloudflare Pages dashboard:
+#   Settings → Functions → KV namespace bindings / Environment variables.
+
+name = "devils-advocate-site"
+pages_build_output_dir = "dist"
+
+# ---------------------------------------------------------------------------
+# KV namespace — rate limiting
+# Create in the Cloudflare dashboard: Workers & Pages → KV → Create namespace
+# Name it "RATE_LIMIT_DEV" (dev) / "RATE_LIMIT" (production), then paste the
+# namespace ID below and in the Pages dashboard binding (name: RATE_LIMIT).
+# ---------------------------------------------------------------------------
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id      = "f28cc72968cb476f809fe2047fe5b563"
+
+# ---------------------------------------------------------------------------
+# Environment variables (non-secret defaults shown here for documentation).
+# Secrets (API keys, COST_TEST_SECRET) must be set in the Pages dashboard or
+# .dev.vars — never in this file.
+# ---------------------------------------------------------------------------
+
+[vars]
+LLM_PROVIDER        = "gemini"
+FREE_TIER_DAILY_CAP = "25"
+# ALLOWED_ORIGINS: comma-separated. Example:
+# ALLOWED_ORIGINS = "chrome-extension://YOUR_EXTENSION_ID,https://whetstone.so"
