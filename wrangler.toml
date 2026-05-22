@@ -25,6 +25,6 @@ id      = "f28cc72968cb476f809fe2047fe5b563"
 
 [vars]
 LLM_PROVIDER        = "gemini"
-FREE_TIER_DAILY_CAP = "25"
+FREE_TIER_DAILY_CAP = "20"
 # ALLOWED_ORIGINS: comma-separated. Example:
 # ALLOWED_ORIGINS = "chrome-extension://YOUR_EXTENSION_ID,https://whetstone.so"
