@@ -6,6 +6,7 @@ export interface ProxyRequest {
   responseFormat:    'json' | 'text';
   maxTokens?:        number;
   temperature?:      number;
+  thinkingBudget?:   number;
   providerOverride?: 'gemini' | 'anthropic'; // only honoured when X-Cost-Test auth passes
 }
 

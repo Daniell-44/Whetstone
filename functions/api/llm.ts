@@ -52,6 +52,7 @@ const ProxyRequestSchema = z.object({
   responseFormat:    z.enum(['json', 'text']),
   maxTokens:         z.number().int().positive().optional(),
   temperature:       z.number().min(0).max(2).optional(),
+  thinkingBudget:    z.number().int().min(0).optional(),
   providerOverride:  z.enum(['gemini', 'anthropic']).optional(),
 });
 

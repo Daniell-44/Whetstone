@@ -20,7 +20,7 @@ export class GeminiProvider implements LlmProvider {
   readonly name = 'gemini';
 
   async complete(req: ProxyRequest, apiKey: string): Promise<ProxyResponse> {
-    const { model, systemInstruction, messages, responseFormat, maxTokens, temperature } = req;
+    const { model, systemInstruction, messages, responseFormat, maxTokens, temperature, thinkingBudget } = req;
 
     const body: Record<string, unknown> = {
       contents: messages.map((m) => ({
@@ -31,8 +31,9 @@ export class GeminiProvider implements LlmProvider {
     };
 
     const genConfig: Record<string, unknown> = {};
-    if (maxTokens !== undefined)    genConfig.maxOutputTokens = maxTokens;
-    if (temperature !== undefined)  genConfig.temperature = temperature;
+    if (maxTokens !== undefined)       genConfig.maxOutputTokens = maxTokens;
+    if (temperature !== undefined)     genConfig.temperature = temperature;
+    if (thinkingBudget !== undefined)  genConfig.thinkingConfig = { thinkingBudget };
     // JSON mode without schema — extension validates structure locally with Zod.
     if (responseFormat === 'json')  genConfig.responseMimeType = 'application/json';
     if (Object.keys(genConfig).length > 0) body.generationConfig = genConfig;
