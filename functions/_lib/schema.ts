@@ -58,3 +58,36 @@ export const ApiRequestSchema = z.object({
   text: z.string().min(1).max(50_000),
   mode: z.enum(['reader', 'creator']),
 });
+
+// ---------------------------------------------------------------------------
+// Retrieved sources — Tavily + citation step
+// ---------------------------------------------------------------------------
+
+export const RetrievedSourceSchema = z.object({
+  url:         z.string(),
+  title:       z.string(),
+  description: z.string(),
+  stance:      z.enum(['supports', 'contradicts', 'context']),
+  quote:       z.string(),
+});
+export type RetrievedSource = z.infer<typeof RetrievedSourceSchema>;
+
+// Schema Gemini populates during citation classification
+export const CitationResultSchema = z.object({
+  citations: z.array(z.object({
+    url:         z.string(),
+    stance:      z.enum(['supports', 'contradicts', 'context']),
+    quote:       z.string(),
+    description: z.string(),
+  })),
+});
+export type CitationResult = z.infer<typeof CitationResultSchema>;
+
+export const RetrieveRequestSchema = z.object({
+  claimText:     z.string().min(1).max(5000),
+  mode:          z.enum(['reader', 'creator']),
+  sourceContext: z.object({
+    url:   z.string().optional(),
+    title: z.string().optional(),
+  }).optional(),
+});

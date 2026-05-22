@@ -145,3 +145,32 @@ export function buildAnalysisSystemPrompt(creatorMode: boolean): string {
 
 export const analysisUserPrompt = (text: string): string =>
   `Analyse the following text:\n\n<text>\n${text}\n</text>`;
+
+// ---------------------------------------------------------------------------
+// Retrieved sources — citation classification prompt
+// ---------------------------------------------------------------------------
+
+export const CITATION_SYSTEM_PROMPT =
+  'You are a citation classifier. Given a claim and a list of sources, for each source: ' +
+  '(1) assign a stance — "supports" if the source provides evidence for the claim, ' +
+  '"contradicts" if the source provides evidence against the claim, ' +
+  '"context" if it provides neutral background; ' +
+  '(2) extract a verbatim quote from the source content that evidences this stance — ' +
+  'the quote must appear word-for-word in the provided content; do not paraphrase; ' +
+  '(3) write a one-sentence description of what this source contributes. ' +
+  'Voice rules: observe, do not evaluate; locate uncertainty in the tool. ' +
+  'Respond only with the JSON object specified — no preamble.';
+
+export function citationUserPrompt(
+  claimText: string,
+  sources: Array<{ url: string; title: string; content: string }>,
+): string {
+  const sourceList = sources
+    .map(
+      (s, i) =>
+        `Source ${i + 1}:\nURL: ${s.url}\nTitle: ${s.title}\nContent:\n${s.content.slice(0, 800)}`,
+    )
+    .join('\n\n---\n\n');
+
+  return `Claim:\n${claimText}\n\nSources:\n\n${sourceList}\n\nReturn a citation for each of the ${sources.length} sources.`;
+}

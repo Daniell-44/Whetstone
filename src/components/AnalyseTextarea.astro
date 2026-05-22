@@ -1,7 +1,9 @@
 ---
 // Demo component — calls /api/analyze and renders results client-side.
 // Used on /reader; will be reused on /creator/studio.
+import WorthKnowing from './WorthKnowing.astro';
 ---
+<WorthKnowing />
 
 <section class="da-demo-wrapper">
   <div class="da-demo-inner">
@@ -29,6 +31,7 @@
 
     <div id="da-status" class="da-status hidden" aria-live="polite"></div>
     <div id="da-result" class="da-result hidden" aria-live="polite"></div>
+    <div id="da-sources"></div>
   </div>
 </section>
 
@@ -240,6 +243,7 @@
   const submitBtn   = document.getElementById('da-submit')     as HTMLButtonElement;
   const statusEl    = document.getElementById('da-status')     as HTMLElement;
   const resultEl    = document.getElementById('da-result')     as HTMLElement;
+  const sourcesEl   = document.getElementById('da-sources')    as HTMLElement;
 
   function countWords(text: string): number {
     return text.trim().split(/\s+/).filter(Boolean).length;
@@ -363,6 +367,72 @@
     return html;
   }
 
+  // ---------------------------------------------------------------------------
+  // Retrieved sources — WorthKnowing rendering
+  // ---------------------------------------------------------------------------
+
+  type RetrievedSource = {
+    url:         string;
+    title:       string;
+    description: string;
+    stance:      'supports' | 'contradicts' | 'context';
+    quote:       string;
+  };
+
+  function renderWorthKnowing(sources: RetrievedSource[]): string {
+    if (sources.length === 0) return '';
+
+    const cards = sources.map((s) => `
+      <div class="wk-card">
+        <div class="wk-card-top">
+          <span class="wk-badge wk-badge-${escHtml(s.stance)}">${escHtml(s.stance)}</span>
+          <a class="wk-title" href="${escHtml(s.url)}" target="_blank" rel="noopener noreferrer">${escHtml(s.title)}</a>
+        </div>
+        <p class="wk-description">${escHtml(s.description)}</p>
+        <blockquote class="wk-quote">${escHtml(s.quote)}</blockquote>
+      </div>`).join('');
+
+    return `
+      <div class="wk-section">
+        <div class="wk-heading">Worth knowing</div>
+        <div class="wk-list">${cards}</div>
+      </div>`;
+  }
+
+  async function fetchSources(claimText: string): Promise<void> {
+    sourcesEl.innerHTML = '<div class="wk-section"><div class="wk-loading">Looking up sources…</div></div>';
+
+    try {
+      const res = await fetch('/api/retrieve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ claimText, mode: 'reader' }),
+      });
+
+      // Our per-IP rate limit
+      if (res.status === 429) {
+        sourcesEl.innerHTML = '<p class="wk-notice">Source lookup is rate-limited — try again in a few minutes.</p>';
+        return;
+      }
+
+      if (!res.ok) {
+        sourcesEl.innerHTML = '';
+        return;
+      }
+
+      const data = await res.json() as { sources?: RetrievedSource[]; error?: string };
+
+      if (data.error === 'lookup_unavailable') {
+        sourcesEl.innerHTML = '<p class="wk-notice">Source lookup is paused for now. Premium will lift this limit once it launches.</p>';
+        return;
+      }
+
+      sourcesEl.innerHTML = renderWorthKnowing(data.sources ?? []);
+    } catch {
+      sourcesEl.innerHTML = '';
+    }
+  }
+
   // Word count update
   textarea.addEventListener('input', () => {
     const count = countWords(textarea.value);
@@ -387,6 +457,7 @@
     statusEl.classList.remove('hidden');
     resultEl.classList.add('hidden');
     resultEl.innerHTML = '';
+    sourcesEl.innerHTML = '';
 
     try {
       const res = await fetch('/api/analyze', {
@@ -414,6 +485,9 @@
       statusEl.classList.add('hidden');
       resultEl.innerHTML = renderResult(data);
       resultEl.classList.remove('hidden');
+      if (data.kind === 'result' && data.result) {
+        void fetchSources(data.result.toulmin.claim.text);
+      }
     } catch (err) {
       statusEl.textContent = '';
       statusEl.classList.add('hidden');
