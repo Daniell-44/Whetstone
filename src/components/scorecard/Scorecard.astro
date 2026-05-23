@@ -1,0 +1,70 @@
+---
+import type { Scorecard } from '../../lib/scorecard';
+import PositionCard from './PositionCard.astro';
+
+interface Props {
+  scorecard: Scorecard;
+}
+
+const { scorecard } = Astro.props;
+
+const n = scorecard.positions.length;
+const gridClass =
+  n === 2 || n === 4
+    ? 'sm:grid-cols-2'
+    : 'sm:grid-cols-2 lg:grid-cols-3';
+
+const dateFormatted = new Date(scorecard.publishedDate).toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<!-- Scorecard header -->
+<header class="mb-12">
+  <p class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">Logic Scorecard</p>
+  <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mb-4">
+    {scorecard.question}
+  </h1>
+  <p class="text-lg text-gray-500 leading-relaxed max-w-2xl mb-4">
+    {scorecard.dek}
+  </p>
+  <p class="text-xs text-gray-400">Published {dateFormatted}</p>
+</header>
+
+<!-- Positions grid -->
+<section aria-label="Positions" class="mb-16">
+  <h2 class="sr-only">Positions</h2>
+  <div class={`grid grid-cols-1 ${gridClass} gap-6`}>
+    {scorecard.positions.map(position => (
+      <PositionCard position={position} />
+    ))}
+  </div>
+</section>
+
+<!-- Meta-Analysis -->
+<section aria-label="Meta-Analysis" class="mb-16">
+  <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-8">
+    <p class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">Meta-Analysis</p>
+    <h2 class="font-serif text-xl text-gray-900 mb-2">The shared assumption</h2>
+    <p class="text-base font-medium text-indigo-900 mb-4 leading-relaxed">
+      {scorecard.metaAnalysis.bridgingWarrant}
+    </p>
+    <p class="text-sm text-gray-700 leading-relaxed">
+      {scorecard.metaAnalysis.explanation}
+    </p>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="text-center py-8 border-t border-gray-100">
+  <p class="text-sm text-gray-500 mb-4">Want to stress-test your own argument before you publish it?</p>
+  <a
+    href="/studio"
+    class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+  >
+    Run this audit on your own draft
+    <span aria-hidden="true">→</span>
+  </a>
+</section>

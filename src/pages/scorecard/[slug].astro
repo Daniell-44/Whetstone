@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import ScorecardView from '../../components/scorecard/Scorecard.astro';
+import { scorecards } from '../../data/scorecards';
+import type { Scorecard } from '../../lib/scorecard';
+
+export function getStaticPaths() {
+  return scorecards.map(sc => ({
+    params: { slug: sc.slug },
+    props: { scorecard: sc },
+  }));
+}
+
+interface Props {
+  scorecard: Scorecard;
+}
+
+const { scorecard } = Astro.props;
+---
+
+<Base
+  title={`${scorecard.question} — Logic Scorecard | The Whetstone`}
+  description={scorecard.dek}
+  canonicalPath={`/scorecard/${scorecard.slug}`}
+>
+  <main class="max-w-5xl mx-auto px-6 pt-16 pb-16">
+
+    <nav class="mb-10">
+      <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← The Whetstone</a>
+    </nav>
+
+    <ScorecardView scorecard={scorecard} />
+
+  </main>
+</Base>
