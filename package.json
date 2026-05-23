@@ -11,7 +11,10 @@
     "preview": "astro preview",
     "astro": "astro",
     "pages:dev": "astro build && wrangler pages dev ./dist",
-    "typecheck": "tsc --noEmit -p tsconfig.functions.json"
+    "typecheck": "tsc --noEmit -p tsconfig.functions.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "scorecard:demo": "tsx scripts/run-scorecard.ts"
   },
   "dependencies": {
     "astro": "^6.1.10",
@@ -27,7 +30,9 @@
     "@tailwindcss/vite": "^4.2.4",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.2.4",
+    "tsx": "^4.19.2",
     "typescript": "^6.0.3",
+    "vitest": "^3.2.2",
     "wrangler": "^3.0.0"
   }
 }
