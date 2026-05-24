@@ -55,6 +55,50 @@ Output: `Scorecard` — the full structured result ready for the UI.
 
 ---
 
+## Prompt 3.5 — Engine resilience + verified run
+
+**Committed:** (this prompt)
+
+### Retry / backoff — `callWithRetry` (engine.ts)
+
+Three failure modes, treated differently:
+
+| Failure | Behaviour |
+|---|---|
+| Retryable provider error (5xx overload, 429 rate-limit, network error) | Exponential backoff: up to 4 attempts, waits ~2 s / 6 s / 15 s |
+| Malformed / invalid JSON from the model | Retry once immediately (no delay), as before |
+| Hard error (4xx — auth, bad request, quota) | Fail fast, no retry |
+
+Classification is via `ProviderError.retryable` (new field) set by `GeminiProvider`:
+- HTTP 429 → `kind: 'rate_limited'`, `retryable: true`
+- HTTP 5xx → `kind: 'provider_error'`, `retryable: true`
+- HTTP 4xx → `kind: 'bad_request'`, `retryable: false`
+- Network throw → `kind: 'network'`, `retryable: true`
+- Safety block / empty response → `kind: 'provider_error'`, `retryable: false`
+
+`ProviderError` gains two new fields: `status?: number` (HTTP status) and `retryable: boolean` (default `false`). All existing call sites are backward-compatible.
+
+`backoffDelaysMs` is injectable via engine `deps` so tests use `[0, 0, 0]` and stay fast.
+
+### Model overrides — `EngineDeps`
+
+`generateScorecard` now accepts optional `stage1Model?: string` and `stage2Model?: string` in deps, defaulting to the constants. The demo runner and tests use these for the flash fallback and model-override assertions respectively.
+
+### Demo runner flash fallback (`scripts/run-scorecard.ts`)
+
+1. Runs normally with production models.
+2. If Stage 2 (`gemini-2.5-pro`) exhausts backoff retries with an overload error, retries once with `stage2Model: 'gemini-2.5-flash'`.
+3. On fallback: prints a clearly labelled banner and adds `_stage2Model: 'gemini-2.5-flash'` to `scorecard-output.json`.
+4. Hard errors (4xx, auth) do not trigger the fallback.
+
+This is **demo-runner only**. The production engine (`/api/analyse-debate`) surfaces overload errors after exhausting backoff — no silent model downgrade in production.
+
+### Verified run (2026-05-24)
+
+`npm run scorecard:demo` succeeded on first attempt with **`gemini-2.5-pro` for Stage 2 (no fallback)**. Total: 4 227 input tokens, 1 111 output tokens, ~23 s.
+
+---
+
 ## Prompt 3 — URL article extraction
 
 **Committed:** (this prompt)

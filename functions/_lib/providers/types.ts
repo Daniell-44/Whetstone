@@ -25,6 +25,10 @@ export class ProviderError extends Error {
   constructor(
     public readonly kind: 'network' | 'rate_limited' | 'provider_error' | 'bad_request',
     message: string,
+    /** HTTP status code from the provider, if known. */
+    public readonly status?: number,
+    /** Whether this error is a transient failure that warrants a retry with backoff. */
+    public readonly retryable: boolean = false,
   ) {
     super(message);
     this.name = 'ProviderError';

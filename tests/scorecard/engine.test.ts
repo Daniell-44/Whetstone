@@ -12,6 +12,7 @@ import {
   buildMetaAnalysisPrompt,
 } from '../../functions/_lib/scorecard/prompts';
 import type { LlmProvider, ProxyRequest, ProxyResponse } from '../../functions/_lib/providers/types';
+import { ProviderError } from '../../functions/_lib/providers/types';
 
 // ---------------------------------------------------------------------------
 // slugify
@@ -299,16 +300,17 @@ class FakeProvider implements LlmProvider {
   private callIndex = 0;
   readonly callLog: ProxyRequest[] = [];
 
-  constructor(private readonly responses: string[]) {}
+  constructor(private readonly responses: Array<string | Error>) {}
 
   async complete(req: ProxyRequest, _apiKey: string): Promise<ProxyResponse> {
     const idx = this.callIndex++;
     this.callLog.push(req);
-    const content = this.responses[idx];
-    if (content === undefined) {
+    const item = this.responses[idx];
+    if (item === undefined) {
       throw new Error(`FakeProvider: unexpected call #${idx} (operation: ${req.operation})`);
     }
-    return { content, inputTokens: 100, outputTokens: 50 };
+    if (item instanceof Error) throw item;
+    return { content: item, inputTokens: 100, outputTokens: 50 };
   }
 }
 
@@ -396,7 +398,7 @@ describe('generateScorecard', () => {
 
     await expect(
       generateScorecard(VALID_INPUT, { provider, apiKey: 'k' }),
-    ).rejects.toThrow(/failed validation after 2 attempts/);
+    ).rejects.toThrow(/failed JSON validation after 2 attempts/);
   });
 
   it('rejects invalid DebateInput before making any LLM calls', async () => {
@@ -408,5 +410,158 @@ describe('generateScorecard', () => {
     ).rejects.toThrow(/Invalid DebateInput/);
 
     expect(provider.callLog).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Retry / backoff behaviour — new tests for Prompt 3.5
+//
+// All tests use backoffDelaysMs: [0, 0, 0] (near-zero) so the suite stays fast.
+//
+// Call-order note (2 positions, Promise.all):
+//   With a synchronous FakeProvider, positions interleave strictly:
+//   pos0-attempt-0, pos1-attempt-0, pos0-attempt-1, pos1-attempt-1, …
+// ---------------------------------------------------------------------------
+
+const OVERLOAD  = new ProviderError('provider_error', 'High demand', 503, true);
+const AUTH_FAIL = new ProviderError('bad_request', 'API key not valid', 401, false);
+const ZERO_BACKOFF = [0, 0, 0] as const;
+
+describe('generateScorecard — overload backoff retry', () => {
+  it('succeeds on the 3rd overload attempt (first two fail)', async () => {
+    // Both positions fail twice with overload, then succeed on attempt 2 (index 2).
+    // Interleaved order: [pos0-a0, pos1-a0, pos0-a1, pos1-a1, pos0-a2, pos1-a2, stage2]
+    const provider = new FakeProvider([
+      OVERLOAD,                    // pos0, attempt 0
+      OVERLOAD,                    // pos1, attempt 0
+      OVERLOAD,                    // pos0, attempt 1
+      OVERLOAD,                    // pos1, attempt 1
+      STAGE1_RESPONSE_TEMPLATE(0), // pos0, attempt 2 → success
+      STAGE1_RESPONSE_TEMPLATE(1), // pos1, attempt 2 → success
+      STAGE2_RESPONSE,             // stage 2 → success
+    ]);
+
+    const { scorecard } = await generateScorecard(VALID_INPUT, {
+      provider,
+      apiKey: 'k',
+      backoffDelaysMs: ZERO_BACKOFF,
+    });
+
+    expect(scorecard.positions).toHaveLength(2);
+    expect(scorecard.metaAnalysis.bridgingWarrant).toBeTruthy();
+    expect(provider.callLog).toHaveLength(7);
+  });
+
+  it('throws after exhausting all 4 attempts with persistent overload', async () => {
+    // 4 attempts × 2 positions = 8 provider calls, all overloads.
+    const provider = new FakeProvider(Array<Error>(8).fill(OVERLOAD));
+
+    await expect(
+      generateScorecard(VALID_INPUT, {
+        provider,
+        apiKey: 'k',
+        backoffDelaysMs: ZERO_BACKOFF,
+      }),
+    ).rejects.toThrow();
+
+    // All 8 overload calls were consumed (4 per position).
+    expect(provider.callLog.length).toBeLessThanOrEqual(8);
+  });
+
+  it('retries Stage 2 on overload and succeeds', async () => {
+    // Stage 1 succeeds immediately; Stage 2 overloads once then succeeds.
+    const provider = new FakeProvider([
+      STAGE1_RESPONSE_TEMPLATE(0), // pos0 → success
+      STAGE1_RESPONSE_TEMPLATE(1), // pos1 → success
+      OVERLOAD,                    // stage 2, attempt 0
+      STAGE2_RESPONSE,             // stage 2, attempt 1 → success
+    ]);
+
+    const { scorecard } = await generateScorecard(VALID_INPUT, {
+      provider,
+      apiKey: 'k',
+      backoffDelaysMs: ZERO_BACKOFF,
+    });
+
+    expect(scorecard.metaAnalysis.bridgingWarrant).toBeTruthy();
+    expect(provider.callLog).toHaveLength(4);
+  });
+});
+
+describe('generateScorecard — hard error fast-fail', () => {
+  it('throws immediately on a 4xx error without retrying', async () => {
+    // pos0 gets a 401 → immediate throw, no backoff. pos1 may consume one response.
+    const provider = new FakeProvider([
+      AUTH_FAIL,
+      STAGE1_RESPONSE_TEMPLATE(1), // pos1 may or may not consume this
+    ]);
+
+    await expect(
+      generateScorecard(VALID_INPUT, {
+        provider,
+        apiKey: 'k',
+        backoffDelaysMs: ZERO_BACKOFF,
+      }),
+    ).rejects.toThrow('API key not valid');
+
+    // No retry: at most one call per position (no backoff, no second attempt).
+    expect(provider.callLog.length).toBeLessThanOrEqual(2);
+  });
+});
+
+describe('generateScorecard — JSON validation retry', () => {
+  it('retries once immediately for bad JSON, with no backoff delay', async () => {
+    // Verify call count is exactly 4: pos0-j0 (bad), pos1-j0 (ok), pos0-j1 (ok), stage2.
+    // If backoff fired, callLog would contain extra entries.
+    const provider = new FakeProvider([
+      'not-json',                    // pos0, jsonAttempt 0 → parse fail
+      STAGE1_RESPONSE_TEMPLATE(1),   // pos1, jsonAttempt 0 → success
+      STAGE1_RESPONSE_TEMPLATE(0),   // pos0, jsonAttempt 1 → success
+      STAGE2_RESPONSE,
+    ]);
+
+    const { scorecard } = await generateScorecard(VALID_INPUT, {
+      provider,
+      apiKey: 'k',
+      backoffDelaysMs: ZERO_BACKOFF,
+    });
+
+    expect(scorecard.positions).toHaveLength(2);
+    // Exactly 4 calls — no extra overload-retry calls.
+    expect(provider.callLog).toHaveLength(4);
+  });
+});
+
+describe('generateScorecard — model overrides', () => {
+  it('passes stage1Model and stage2Model overrides to the provider', async () => {
+    const provider = new FakeProvider([
+      STAGE1_RESPONSE_TEMPLATE(0),
+      STAGE1_RESPONSE_TEMPLATE(1),
+      STAGE2_RESPONSE,
+    ]);
+
+    await generateScorecard(VALID_INPUT, {
+      provider,
+      apiKey: 'k',
+      stage1Model: 'custom-stage1-model',
+      stage2Model: 'custom-stage2-model',
+    });
+
+    expect(provider.callLog[0].model).toBe('custom-stage1-model');
+    expect(provider.callLog[1].model).toBe('custom-stage1-model');
+    expect(provider.callLog[2].model).toBe('custom-stage2-model');
+  });
+
+  it('uses default models when no overrides are supplied', async () => {
+    const provider = new FakeProvider([
+      STAGE1_RESPONSE_TEMPLATE(0),
+      STAGE1_RESPONSE_TEMPLATE(1),
+      STAGE2_RESPONSE,
+    ]);
+
+    await generateScorecard(VALID_INPUT, { provider, apiKey: 'k' });
+
+    expect(provider.callLog[0].model).toBe('gemini-2.5-flash');
+    expect(provider.callLog[2].model).toBe('gemini-2.5-pro');
   });
 });

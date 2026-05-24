@@ -48,26 +48,42 @@ export class GeminiProvider implements LlmProvider {
         body:    JSON.stringify(body),
       });
     } catch (err) {
-      throw new ProviderError('network', `Gemini network error: ${err instanceof Error ? err.message : 'unknown'}`);
+      // Network-level failure — retryable (transient connectivity issue).
+      throw new ProviderError(
+        'network',
+        `Gemini network error: ${err instanceof Error ? err.message : 'unknown'}`,
+        undefined,
+        true,
+      );
     }
 
     const data = (await res.json()) as GeminiResponseBody;
 
     if (!res.ok || data.error) {
-      const code = data.error?.code ?? res.status;
-      const msg  = data.error?.message ?? `HTTP ${res.status}`;
-      if (code === 429) throw new ProviderError('rate_limited', 'Gemini rate limit exceeded');
-      throw new ProviderError('provider_error', msg);
+      const httpStatus = res.status;
+      const msg        = data.error?.message ?? `HTTP ${httpStatus}`;
+
+      if (httpStatus === 429) {
+        // Rate-limit — retryable with backoff.
+        throw new ProviderError('rate_limited', 'Gemini rate limit exceeded', 429, true);
+      }
+      if (httpStatus >= 500) {
+        // 5xx overload / server error — retryable with backoff.
+        throw new ProviderError('provider_error', msg, httpStatus, true);
+      }
+      // 4xx (auth, bad request, quota exhausted, etc.) — fail fast.
+      throw new ProviderError('bad_request', msg, httpStatus, false);
     }
 
     const candidate = data.candidates?.[0];
     if (candidate?.finishReason === 'SAFETY') {
-      throw new ProviderError('provider_error', 'Response blocked by safety filters');
+      // Safety block is a content issue, not a capacity issue — not retryable.
+      throw new ProviderError('provider_error', 'Response blocked by safety filters', res.status, false);
     }
 
     const text = candidate?.content?.parts?.[0]?.text;
     if (text === undefined || text === null) {
-      throw new ProviderError('provider_error', 'Empty response from Gemini');
+      throw new ProviderError('provider_error', 'Empty response from Gemini', res.status, false);
     }
 
     return {
