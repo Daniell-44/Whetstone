@@ -17,8 +17,10 @@
     "scorecard:demo": "tsx scripts/run-scorecard.ts"
   },
   "dependencies": {
+    "@mozilla/readability": "^0.6.0",
     "astro": "^6.1.10",
     "jspdf": "^2.5.2",
+    "linkedom": "^0.18.12",
     "marked": "^18.0.2",
     "zod": "^4.3.6"
   },
