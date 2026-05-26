@@ -325,3 +325,89 @@ wrangler secret put COST_TEST_SECRET   --config dist/server/wrangler.json
 - `npx astro check` — 0 errors
 - `npm run typecheck` — 0 errors
 - All 6 routes confirmed present in `dist/server/chunks/`
+
+---
+
+## Prompt 6 — Curator authoring page
+
+**Committed:** (this prompt)
+
+### What was built
+
+A private authoring page at `/curator` — the curator's cockpit for composing, generating, and publishing Logic Scorecards without any source-code edits. After this prompt the full publish loop runs end-to-end in the browser: enter URLs → extract articles → generate scorecard → edit inline → save to KV → public page live.
+
+### Framework decision
+
+**`@astrojs/preact` v5.1.3** added as the UI framework for the editor island. The rest of the site remains vanilla Astro + Tailwind — no React, no Vue. Preact was chosen because:
+- It is the Astro-recommended lightweight option for client islands
+- The editor is the only heavily-interactive surface on the site
+- `@astrojs/preact` integrates cleanly with the existing Vite + Tailwind v4 pipeline
+
+`tsconfig.json` gains `"jsx": "react-jsx"` and `"jsxImportSource": "preact"` so that `.tsx` files are correctly type-checked with Preact's JSX types. `.astro` files are unaffected (Astro's compiler handles them separately).
+
+### Authentication model
+
+- The page is publicly reachable at `/curator` — no server-side gate.
+- All three API calls (`/api/extract-article`, `/api/analyse-debate`, `/api/save-scorecard`) require `X-Analyser-Secret`.
+- The secret is entered in a password field at the top of the page and **persisted in `sessionStorage`** under the key `whetstone-curator-secret`; it is auto-loaded on every page open.
+- Every fetch attaches the secret as the `X-Analyser-Secret` header.
+- A 401 response surfaces "Secret invalid — check the secret field above." inline, near the control that triggered it.
+
+### Page structure (three sections, top-to-bottom)
+
+| Section | Purpose |
+|---|---|
+| **Settings (a)** | Password-type secret field; "Load existing" dropdown (server-side `listScorecards` result, full `Scorecard[]` objects passed as an island prop); "New blank scorecard" button |
+| **Composer (b)** | Debate question; dynamic 2–5 positions each with 1–n articles (URL + Extract button + editable title/publication/text); "Generate scorecard" button — POSTs to `/api/analyse-debate`, ~30 s, shows spinner, populates Editor on success |
+| **Editor (c)** | Visible once a draft exists (from Generate, Load existing, or New blank). Every `Scorecard` field is editable: slug, question, dek, publishedDate, per-position label + best-case (claim/grounds/warrant) + fatal flaw (name/explanation) + sources (add/remove); meta-analysis bridging warrant + explanation; "Save & publish" button → POST `/api/save-scorecard` → success shows slug + link to live page |
+
+### Slug handling
+
+Auto-derives slug from the question on every keystroke in the Editor **until the slug field is touched directly**. Once the user edits the slug field, `slugTouched` flips to `true` and auto-derivation stops permanently for that draft session. Loading an existing scorecard also sets `slugTouched = true` to prevent overwriting the canonical slug.
+
+### Error handling
+
+| Scenario | Message |
+|---|---|
+| 401 | "Secret invalid — check the secret field above." |
+| 500 | "Server error: `<verbatim server message>`" |
+| Network throw | "Network error — check your connection." |
+| Extract `TOO_SHORT` | "Article too short — paste the text manually." |
+| Extract `NOT_HTML` | "URL does not point to HTML — paste the text manually." |
+| Extract `FETCH_FAILED` | "Could not fetch the URL — paste the text manually." |
+| Extract `EXTRACTION_FAILED` | "Could not extract article text — paste the text manually." |
+
+### Key files
+
+| File | Purpose |
+|---|---|
+| `src/pages/curator/index.astro` | Astro page shell; `prerender = false`; fetches `listScorecards` server-side; passes results to island |
+| `src/components/curator/CuratorEditor.tsx` | Preact island — full editor with all three sections |
+| `src/lib/curatorHelpers.ts` | `deriveSlug`, `isPositionCountValid`, `arePositionsReadyForGeneration` — pure helpers |
+| `tests/curator/helpers.test.ts` | 21 Vitest tests covering all three helpers |
+
+### Tests
+
+21 new tests in `tests/curator/helpers.test.ts` covering:
+- `deriveSlug`: lowercase, hyphenation, punctuation stripping, whitespace collapse, empty input, real slug roundtrip
+- `isPositionCountValid`: boundary values 0, 1, 2, 3, 5, 6
+- `arePositionsReadyForGeneration`: valid/invalid label, all-empty articles, out-of-range counts, whitespace-only label
+
+Full suite: **87 tests, all passing** (21 new + 66 existing).
+
+### Build status
+
+- `pnpm test` — 87/87 passing
+- `pnpm run build` — exit 0 (same pre-existing `privacy.astro` node:fs warning; no new warnings)
+- `npx astro check` — 0 errors, 0 warnings (4 pre-existing hints in existing files, unchanged)
+- `pnpm run typecheck` — 0 errors
+
+### Post-deploy steps (after `wrangler deploy`)
+
+1. **Build:** `pnpm run build`
+2. **Deploy:** `wrangler deploy --config dist/server/wrangler.json`
+3. **Open:** `https://devils-advocate-site.daniellivingstone2005.workers.dev/curator`
+4. **Paste the secret** (`wh-analyser-d4f7a2e9c1b83065` from `.dev.vars`, or whatever is set in production via `wrangler secret put ANALYSER_SECRET`)
+5. **Try the Generate flow:** enter a question, add 2 positions with article URLs, click Extract, click Generate — watch the Editor populate after ~30 s
+6. **Try the Manual flow:** click "New blank scorecard", fill all fields, click Save & publish
+7. **Try Load existing:** select a scorecard from the dropdown, edit a field, Save & publish to overwrite
