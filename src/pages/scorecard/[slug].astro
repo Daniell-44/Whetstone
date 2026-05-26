@@ -1,21 +1,19 @@
 ---
+export const prerender = false;
+
+import { env } from "cloudflare:workers";
 import Base from '../../layouts/Base.astro';
 import ScorecardView from '../../components/scorecard/Scorecard.astro';
-import { scorecards } from '../../data/scorecards';
-import type { Scorecard } from '../../lib/scorecard';
+import { getScorecard } from '../../../functions/_lib/scorecard/storage';
 
-export function getStaticPaths() {
-  return scorecards.map(sc => ({
-    params: { slug: sc.slug },
-    props: { scorecard: sc },
-  }));
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/404');
+
+const scorecard = await getScorecard(env.SCORECARDS, slug);
+
+if (!scorecard) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
 }
-
-interface Props {
-  scorecard: Scorecard;
-}
-
-const { scorecard } = Astro.props;
 ---
 
 <Base
@@ -26,7 +24,7 @@ const { scorecard } = Astro.props;
   <main class="max-w-5xl mx-auto px-6 pt-16 pb-16">
 
     <nav class="mb-10">
-      <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← The Whetstone</a>
+      <a href="/scorecards" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← All Scorecards</a>
     </nav>
 
     <ScorecardView scorecard={scorecard} />

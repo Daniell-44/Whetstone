@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
-    "astro": "^6.1.10",
+    "astro": "^6.3.7",
     "jspdf": "^2.5.2",
     "linkedom": "^0.18.12",
     "marked": "^18.0.2",
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@astrojs/cloudflare": "^13.5.4",
     "@astrojs/sitemap": "^3.7.2",
     "@cloudflare/workers-types": "^4.20260521.1",
     "@tailwindcss/typography": "^0.5.19",
@@ -35,6 +36,6 @@
     "tsx": "^4.19.2",
     "typescript": "^6.0.3",
     "vitest": "^3.2.2",
-    "wrangler": "^3.0.0"
+    "wrangler": "^4.94.0"
   }
 }

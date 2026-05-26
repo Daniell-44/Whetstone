@@ -4,7 +4,10 @@
 #   Settings → Functions → KV namespace bindings / Environment variables.
 
 name = "devils-advocate-site"
-pages_build_output_dir = "dist"
+# pages_build_output_dir removed: it caused wrangler v4 to enter Pages mode during
+# the adapter's prerender step, which forbids an "ASSETS" binding the adapter auto-adds.
+# Pass the output directory explicitly when deploying: `wrangler pages deploy dist`
+compatibility_date = "2025-01-01"
 
 # ---------------------------------------------------------------------------
 # KV namespace — rate limiting
@@ -16,6 +19,19 @@ pages_build_output_dir = "dist"
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
 id      = "f28cc72968cb476f809fe2047fe5b563"
+
+# ---------------------------------------------------------------------------
+# KV namespace — scorecard storage
+# Create the namespace: wrangler kv namespace create SCORECARDS
+# Then paste the returned ID below (production) and into the Pages dashboard.
+# For a preview namespace: wrangler kv namespace create SCORECARDS --preview
+# Paste that ID as preview_id below.
+# ---------------------------------------------------------------------------
+
+[[kv_namespaces]]
+binding    = "SCORECARDS"
+id         = "placeholder-replace-with-real-id"
+preview_id = "placeholder-replace-with-real-preview-id"
 
 # ---------------------------------------------------------------------------
 # Environment variables (non-secret defaults shown here for documentation).

@@ -1,0 +1,49 @@
+---
+export const prerender = false;
+
+import { env } from "cloudflare:workers";
+import Base from '../../layouts/Base.astro';
+import { listScorecards } from '../../../functions/_lib/scorecard/storage';
+
+const scorecards = await listScorecards(env.SCORECARDS);
+---
+
+<Base
+  title="Logic Scorecards | The Whetstone"
+  description="Structural logic audits of public debates — what each side gets right, where each argument breaks, and what all sides refuse to examine."
+  canonicalPath="/scorecards"
+>
+  <main class="max-w-3xl mx-auto px-6 pt-16 pb-24">
+
+    <header class="mb-12">
+      <h1 class="font-serif text-3xl text-gray-900 mb-3">Logic Scorecards</h1>
+      <p class="text-gray-500 text-base leading-relaxed max-w-xl">
+        Structural audits of public debates. Each scorecard maps the best case for every position,
+        names the fatal flaw, and identifies the shared assumption all sides refuse to examine.
+      </p>
+    </header>
+
+    {scorecards.length === 0 ? (
+      <p class="text-gray-400 text-sm">No scorecards published yet.</p>
+    ) : (
+      <ol class="divide-y divide-gray-100">
+        {scorecards.map(sc => (
+          <li class="py-7">
+            <a href={`/scorecard/${sc.slug}`} class="group block">
+              <p class="text-xs text-gray-400 mb-1.5 tabular-nums">
+                {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
+                  day: 'numeric', month: 'long', year: 'numeric',
+                })}
+              </p>
+              <h2 class="text-lg font-medium text-gray-900 group-hover:text-indigo-700 transition-colors mb-2 leading-snug">
+                {sc.question}
+              </h2>
+              <p class="text-sm text-gray-500 leading-relaxed line-clamp-2">{sc.dek}</p>
+            </a>
+          </li>
+        ))}
+      </ol>
+    )}
+
+  </main>
+</Base>

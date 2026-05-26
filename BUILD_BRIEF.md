@@ -176,3 +176,82 @@ Response (always 200 on successful request):
 ```
 
 Error responses: 401 (bad/missing secret), 405 (non-POST), 400 (invalid JSON or non-URL body).
+
+---
+
+## Prompt 4 — Storage & publishing layer
+
+**Committed:** (this prompt)
+
+### Rendering mode
+
+Astro 6 is used with `output: 'static'` (the default). Marketing and content pages stay fully prerendered. Scorecard routes opt out with `export const prerender = false`, making them on-demand server-rendered by the Cloudflare adapter.
+
+**Adapter:** `@astrojs/cloudflare` v13 (required Astro ≥ 6.3, so Astro was upgraded from 6.1.10 → 6.3.7 and wrangler from v3 → v4).
+
+Bindings in server-rendered pages are accessed via `import { env } from "cloudflare:workers"` — the `Astro.locals.runtime.env` pattern was removed in adapter v13 / Astro v6. The `Cloudflare.Env` namespace is extended in `src/env.d.ts` so TypeScript knows the binding types.
+
+One wrangler.toml note: `pages_build_output_dir` was removed because wrangler v4 uses it to enter "Pages mode", which forbids a binding named `ASSETS` — but the adapter auto-generates that binding name for the prerender step. Removing the field fixes the build without affecting functionality (the path is passed as a CLI arg to `wrangler pages dev` anyway).
+
+### KV namespace — SCORECARDS
+
+**Daniel must run these commands once to create the namespace:**
+
+```bash
+# Production namespace
+wrangler kv namespace create SCORECARDS
+# → paste the returned id into wrangler.toml under the SCORECARDS binding
+
+# Preview namespace (used by Cloudflare Pages preview deployments)
+wrangler kv namespace create SCORECARDS --preview
+# → paste the returned id as preview_id in wrangler.toml
+
+# Also add both IDs as a binding in the Pages dashboard:
+#   Settings → Functions → KV namespace bindings → name: SCORECARDS
+```
+
+### Storage module (`functions/_lib/scorecard/storage.ts`)
+
+Three functions backed by the `SCORECARDS` KV namespace:
+
+| Function | Behaviour |
+|---|---|
+| `saveScorecard(kv, scorecard)` | Validates against `ScorecardSchema` before writing; stores under `scorecard:<slug>` |
+| `getScorecard(kv, slug)` | Reads from KV; falls back to `src/data/scorecards.ts` if absent; validates before returning |
+| `listScorecards(kv)` | KV entries merged with fallback array (KV wins on slug collision); sorted by `publishedDate` descending |
+
+Enumeration uses `kv.list({ prefix: 'scorecard:' })` rather than a separate index key — avoids write-consistency issues at the cost of one extra round-trip per listed scorecard (fine at the expected scale of dozens).
+
+### Save endpoint (`functions/api/save-scorecard.ts`)
+
+`POST /api/save-scorecard`
+
+- Gated by `X-Analyser-Secret` header (same pattern as `analyse-debate.ts`)
+- Validates body against `ScorecardSchema`
+- Calls `saveScorecard`, returns `{ slug }`
+
+### Zod schema for Scorecard (`functions/_lib/scorecard/schemas.ts`)
+
+`ScorecardSchema` and sub-schemas (`ScorecardPositionSchema`, `ToulminChainSchema`, `ScorecardSourceSchema`) added. These mirror the TypeScript interfaces in `types.ts` and are used by `storage.ts` and `save-scorecard.ts`.
+
+### Public pages rewired
+
+| Page | Change |
+|---|---|
+| `src/pages/scorecard/[slug].astro` | Removed `getStaticPaths`; added `prerender = false`; reads from KV via `env.SCORECARDS`; returns 404 if not found |
+| `src/pages/scorecards/index.astro` | New index page (on-demand); calls `listScorecards`; lists all published scorecards with link to each |
+
+### Tests
+
+12 new tests in `tests/scorecard/storage.test.ts` using a `FakeKV` (Map-backed, no workers dependency):
+- `saveScorecard`: rejects invalid schema, missing positions, bad date format
+- `getScorecard`: returns KV copy when present; falls back to hardcoded data; returns null when absent
+- `listScorecards`: merges KV + fallback; KV wins on collision; dedupes; sorts descending by date
+
+Full suite: **66 tests, all passing** (12 new + 54 existing).
+
+### Build status
+
+- `npm run build` — exit 0 (one pre-existing non-fatal warning from `privacy.astro` using `node:fs` in the prerender environment)
+- `npx astro check` — 0 errors
+- `npm run typecheck` — 0 errors

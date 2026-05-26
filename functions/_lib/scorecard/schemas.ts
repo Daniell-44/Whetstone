@@ -1,6 +1,40 @@
 import { z } from 'zod';
 
 // ---------------------------------------------------------------------------
+// Scorecard output schema (used by storage layer to validate before writing)
+// ---------------------------------------------------------------------------
+
+export const ScorecardSourceSchema = z.object({
+  title:       z.string().min(1),
+  publication: z.string().min(1),
+  url:         z.string().min(1),
+});
+
+export const ToulminChainSchema = z.object({
+  claim:   z.string().min(1),
+  grounds: z.string().min(1),
+  warrant: z.string().min(1),
+});
+
+export const ScorecardPositionSchema = z.object({
+  label:     z.string().min(1),
+  bestCase:  ToulminChainSchema,
+  fatalFlaw: z.object({ name: z.string().min(1), explanation: z.string().min(1) }),
+  sources:   z.array(ScorecardSourceSchema).min(1),
+});
+
+export const ScorecardSchema = z.object({
+  slug:          z.string().min(1),
+  question:      z.string().min(1),
+  dek:           z.string().min(1),
+  positions:     z.array(ScorecardPositionSchema).min(2).max(5),
+  metaAnalysis:  z.object({ bridgingWarrant: z.string().min(1), explanation: z.string().min(1) }),
+  publishedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export type ScorecardZod = z.infer<typeof ScorecardSchema>;
+
+// ---------------------------------------------------------------------------
 // Input validation
 // ---------------------------------------------------------------------------
 
