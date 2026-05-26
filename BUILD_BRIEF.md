@@ -458,13 +458,77 @@ The publish loop is fully operational: curator enters URLs → extraction → ge
 
 ---
 
-### Next track — Lens A (public self-serve paste analyser)
+### Lens A — single-text audit engine — **complete (engine only)**
 
-The next engineering track is **Lens A**: a public-facing page where any visitor can paste a debate claim or short text and receive a structural logic audit — no account, no secret, subject to the existing free-tier rate limit.
+The audit engine (`auditText`) is built and tested. The public UI and API route are the next step.
 
-Key planned components:
-- Public paste input (reuse or extend the existing `AnalyseTextarea` component)
-- Calls `/api/analyze` (already built and deployed) or a new endpoint if the output schema changes
-- Taxonomy review pass woven in: the `Stage1Output` / `Stage2Output` Toulmin schema may be revisited before Lens A to ensure the output format suits both the curator's scorecard and the public audit surface
-- Result display component (separate from `Scorecard.astro` — lighter, single-claim focused)
-- Rate-limit UX (clear messaging when the free tier is exhausted)
+---
+
+## Lens A, Prompt 1 — single-text audit engine
+
+**Committed:** (this prompt)
+
+### What was built
+
+`auditText(text, deps)` — a single-call, single-pass audit engine that runs a piece of argumentative text through `gemini-2.5-flash` (4 096 thinking budget) and returns a fully typed `AuditResult`.
+
+The shared `callWithRetry` helper was extracted from `functions/_lib/scorecard/engine.ts` into `functions/_lib/llm/retry.ts`; both the scorecard engine and the audit engine import from that shared module.
+
+### Output schema — `AuditResult`
+
+```typescript
+interface AuditResult {
+  centralClaim:   string;
+  toulmin: {
+    claim:            string;
+    grounds:          string;
+    statedWarrant:    string | null;
+    unstatedWarrants: Array<{ warrant: string; necessity: string }>;
+    weakestLink:      string;
+  };
+  namedFallacies: Array<{ name: FallacyName; quote: string; explanation: string; severity: 'high'|'medium'|'low' }>;
+  loadedLanguage: Array<{ phrase: string; technique: LoadedLanguageTechnique; explanation: string }>;
+  notes:          string | null;
+}
+```
+
+Post-validation (`validateQuotesInText`) checks every `quote` and `phrase` is a verbatim substring of the input. If any are not, an error is thrown before the result is returned — this prevents the model from paraphrasing and presenting made-up quotes.
+
+### Taxonomy
+
+**12 fallacies:** Ad Hominem, Straw Man, False Dichotomy, Slippery Slope, Appeal to Authority, Appeal to Emotion, Circular Reasoning, Hasty Generalisation, Red Herring, Tu Quoque, Post Hoc, Equivocation
+
+**5 loaded-language techniques:** Emotionally charged terms, Weasel words, Name-calling / dysphemism, Glittering generalities, False-precision numbers
+
+### Resilience
+
+Same `callWithRetry` policy as the scorecard engine: 4 total attempts (3 backoffs at 2 s / 6 s / 15 s), immediate retry on bad JSON, fast-fail on 4xx.
+
+### Key files
+
+| File | Purpose |
+|---|---|
+| `functions/_lib/llm/retry.ts` | Shared `callWithRetry`, `extractJson`, `sleep`, `DEFAULT_BACKOFF_DELAYS_MS` |
+| `functions/_lib/audit/types.ts` | `AuditResult`, `AuditInput`, `AuditDeps`, sub-interfaces |
+| `functions/_lib/audit/taxonomy.ts` | `FALLACY_NAMES`, `LOADED_LANGUAGE_TECHNIQUES` as const arrays + descriptions |
+| `functions/_lib/audit/schemas.ts` | Zod schemas for `AuditResult` using `z.enum(FALLACY_NAMES)` |
+| `functions/_lib/audit/constants.ts` | `AUDIT_MODEL`, `AUDIT_THINKING_BUDGET`, temperature, max tokens |
+| `functions/_lib/audit/prompts.ts` | System prompt (with 2 worked unstated-warrant examples) + `buildAuditPrompt` |
+| `functions/_lib/audit/engine.ts` | `auditText(text, deps)` + `validateQuotesInText` post-validation |
+| `functions/_lib/audit/fixtures/fallacy-heavy.txt` | ~200 word op-ed with Ad Hominem, Straw Man, False Dichotomy, Slippery Slope, Appeal to Authority, Appeal to Emotion |
+| `functions/_lib/audit/fixtures/clean-argument.txt` | ~200 word well-reasoned helmet-law argument |
+| `scripts/run-audit.ts` | `pnpm run audit:demo` — runs both fixtures, writes `audit-output.json` |
+| `tests/audit/engine.test.ts` | 11 tests: successful parse, JSON retry, two-bad-JSON throw, overload backoff, 4xx fast-fail, all-attempts-exhausted, quote validation failure, empty-findings valid; plus `validateQuotesInText` unit tests |
+
+### Tests
+
+11 new tests in `tests/audit/engine.test.ts`.
+
+Full suite: **98 tests, all passing** (11 new + 87 existing).
+
+### Build status
+
+- `pnpm test` — 98/98 passing
+- `pnpm run build` — exit 0
+- `npx astro check` — 0 errors
+- `pnpm run typecheck` — 0 errors

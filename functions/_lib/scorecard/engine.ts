@@ -1,7 +1,6 @@
-import { z } from 'zod';
 import type { LlmProvider } from '../providers/types';
-import { ProviderError } from '../providers/types';
 import type { Scorecard } from './types';
+import { callWithRetry } from '../llm/retry';
 import {
   DebateInputSchema,
   Stage1OutputSchema,
@@ -38,106 +37,6 @@ export function slugify(text: string): string {
     .replace(/\s+/g, '-')
     .replace(/-{2,}/g, '-')
     .slice(0, 80);
-}
-
-function extractJson(text: string): string {
-  // Strip markdown code fences if the model added them despite JSON mode.
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-  return fenced ? fenced[1] : text.trim();
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// ---------------------------------------------------------------------------
-// Retry helper
-//
-// Three failure modes, treated differently:
-//   1. Retryable provider error (5xx overload, rate-limit, network) →
-//      retry up to 4 times with exponential backoff (~2s / 6s / 15s).
-//   2. Malformed / invalid JSON from the model →
-//      retry once immediately (same as before).
-//   3. Hard error (4xx, bad request, auth) → fail fast, no retry.
-//
-// backoffDelaysMs is the wait before each successive overload attempt.
-// Three entries → 4 total attempts (first + 3 retries). Override in tests
-// with near-zero values so the suite stays fast.
-// ---------------------------------------------------------------------------
-
-const DEFAULT_BACKOFF_DELAYS_MS = [2_000, 6_000, 15_000] as const;
-
-interface CallResult<T> {
-  output:       T;
-  inputTokens:  number;
-  outputTokens: number;
-}
-
-async function callWithRetry<T>(
-  makeRequest: () => Promise<{ content: string; inputTokens: number; outputTokens: number }>,
-  schema: z.ZodType<T>,
-  stageName: string,
-  backoffDelaysMs: readonly number[] = DEFAULT_BACKOFF_DELAYS_MS,
-): Promise<CallResult<T>> {
-  const maxAttempts = backoffDelaysMs.length + 1;
-  let lastRetryableError: unknown;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    // Wait before each retry (never before the first attempt).
-    if (attempt > 0) {
-      await sleep(backoffDelaysMs[attempt - 1]!);
-    }
-
-    let lastValidationError = 'unknown';
-
-    // Inner loop: try the request, then validate JSON.
-    // Retries once immediately on bad model output (no delay).
-    for (let jsonAttempt = 0; jsonAttempt < 2; jsonAttempt++) {
-      let res: { content: string; inputTokens: number; outputTokens: number };
-      try {
-        res = await makeRequest();
-      } catch (err) {
-        if (err instanceof ProviderError && err.retryable) {
-          // Retryable provider error — break inner loop and continue outer with backoff.
-          lastRetryableError = err;
-          break;
-        }
-        // Hard error (4xx, safety block, etc.) — propagate immediately.
-        throw err;
-      }
-
-      // Request succeeded; parse and validate the JSON output.
-      try {
-        const parsed = schema.safeParse(JSON.parse(extractJson(res.content)));
-        if (parsed.success) {
-          return { output: parsed.data, inputTokens: res.inputTokens, outputTokens: res.outputTokens };
-        }
-        lastValidationError = parsed.error.message;
-      } catch (e) {
-        lastValidationError = e instanceof Error ? e.message : 'JSON parse error';
-      }
-
-      // After the second JSON attempt, give up — two consecutive bad outputs
-      // indicate a persistent model problem, not a transient one.
-      if (jsonAttempt === 1) {
-        throw new Error(
-          `Stage "${stageName}" failed JSON validation after 2 attempts: ${lastValidationError}`,
-        );
-      }
-      // jsonAttempt === 0: immediately retry the request (no delay) for bad output.
-    }
-  }
-
-  // All backoff attempts exhausted.
-  if (lastRetryableError instanceof ProviderError) {
-    throw new ProviderError(
-      lastRetryableError.kind,
-      `Stage "${stageName}" failed after ${maxAttempts} attempts (last: ${lastRetryableError.message})`,
-      lastRetryableError.status,
-      false,
-    );
-  }
-  throw new Error(`Stage "${stageName}" exhausted all ${maxAttempts} retry attempts`);
 }
 
 // ---------------------------------------------------------------------------

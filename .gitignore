@@ -26,5 +26,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# scorecard runner output
+# runner output
 scorecard-output.json
+audit-output.json

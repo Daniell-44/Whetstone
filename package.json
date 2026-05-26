@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.functions.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "scorecard:demo": "tsx scripts/run-scorecard.ts"
+    "scorecard:demo": "tsx scripts/run-scorecard.ts",
+    "audit:demo": "tsx scripts/run-audit.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.3",
