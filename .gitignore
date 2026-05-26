@@ -2,6 +2,8 @@
 dist/
 # generated types
 .astro/
+# Cloudflare local dev state (may contain cached bindings and tokens)
+.wrangler/
 
 # dependencies
 node_modules/
