@@ -30,8 +30,8 @@ id      = "f28cc72968cb476f809fe2047fe5b563"
 
 [[kv_namespaces]]
 binding    = "SCORECARDS"
-id         = "placeholder-replace-with-real-id"
-preview_id = "placeholder-replace-with-real-preview-id"
+id         = "3ace85b97e8e48a89abec51a906070d8"
+preview_id = "eba00c98cb6d428d9651520d45468229"
 
 # ---------------------------------------------------------------------------
 # Environment variables (non-secret defaults shown here for documentation).
