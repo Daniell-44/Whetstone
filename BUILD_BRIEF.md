@@ -411,3 +411,60 @@ Full suite: **87 tests, all passing** (21 new + 66 existing).
 5. **Try the Generate flow:** enter a question, add 2 positions with article URLs, click Extract, click Generate — watch the Editor populate after ~30 s
 6. **Try the Manual flow:** click "New blank scorecard", fill all fields, click Save & publish
 7. **Try Load existing:** select a scorecard from the dropdown, edit a field, Save & publish to overwrite
+
+---
+
+## Polish pass — privacy, studio stub, accessibility, stale script
+
+**Committed:** (this prompt)
+
+Five small cleanups to make the Public Analyser launch-ready.
+
+| # | Change | File(s) |
+|---|---|---|
+| 1 | Replaced `node:fs` + `marked` privacy page with inline HTML content; eliminates build error | `src/pages/privacy.astro` |
+| 2 | Added `/studio` coming-soon stub with description and early-access email form | `src/pages/studio/index.astro` |
+| 3 | Promoted position label from `<p>` to `<h2>` in PositionCard; heading hierarchy is now h1 (question) → h2 (position labels) → h3 (Best Case / Fatal Flaw / Sources) | `src/components/scorecard/PositionCard.astro` |
+| 4 | Removed stale `pages:dev` script (referenced old `wrangler pages dev ./dist`; deployment model is now Worker, not Pages) | `package.json` |
+| 5 | BUILD_BRIEF updated — Public Analyser marked feature-complete, next track documented | `BUILD_BRIEF.md` |
+
+### Build status
+
+- `pnpm test` — 87/87 passing (no changes to test files)
+- `pnpm run build` — exit 0, **zero warnings** (privacy.astro node:fs warning gone)
+- `npx astro check` — 0 errors, 0 warnings
+- `pnpm run typecheck` — 0 errors
+
+---
+
+## Track status
+
+### Public Analyser — **feature-complete**
+
+All six engineering prompts delivered and deployed:
+
+| Prompt | Deliverable |
+|---|---|
+| 1 | Scorecard display page |
+| 2 | Two-stage LLM synthesis engine |
+| 3 | URL article extraction |
+| 3.5 | Engine resilience + verified run |
+| 4 | KV storage + public SSR pages |
+| 5 | Port Pages Functions → Astro API routes |
+| 6 | Curator authoring page |
+| Polish | Privacy fix, studio stub, a11y, stale script |
+
+The publish loop is fully operational: curator enters URLs → extraction → generation → inline edit → save → live at `/scorecard/<slug>`.
+
+---
+
+### Next track — Lens A (public self-serve paste analyser)
+
+The next engineering track is **Lens A**: a public-facing page where any visitor can paste a debate claim or short text and receive a structural logic audit — no account, no secret, subject to the existing free-tier rate limit.
+
+Key planned components:
+- Public paste input (reuse or extend the existing `AnalyseTextarea` component)
+- Calls `/api/analyze` (already built and deployed) or a new endpoint if the output schema changes
+- Taxonomy review pass woven in: the `Stage1Output` / `Stage2Output` Toulmin schema may be revisited before Lens A to ensure the output format suits both the curator's scorecard and the public audit surface
+- Result display component (separate from `Scorecard.astro` — lighter, single-claim focused)
+- Rate-limit UX (clear messaging when the free tier is exhausted)

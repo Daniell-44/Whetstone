@@ -1,37 +1,84 @@
 ---
-// Option B: single source of truth — read from extension/PRIVACY.md at build time.
-// If this path breaks (e.g. in a CI environment where the two repos are checked out
-// separately), resolve it by passing the canonical path via an env var or build arg.
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { marked } from 'marked';
 import Base from '../layouts/Base.astro';
-
-const privacyPath = resolve(process.cwd(), '../extension/PRIVACY.md');
-const rawMd = readFileSync(privacyPath, 'utf-8');
-const content = await marked.parse(rawMd);
 ---
 <Base
-  title="Privacy policy — Devil's Advocate"
-  description="How Devil's Advocate handles your data — what leaves your device, what is stored locally, and how to remove it."
+  title="Privacy — The Whetstone"
+  description="How The Whetstone handles your data."
   canonicalPath="/privacy"
 >
-  <main class="max-w-2xl mx-auto px-6 pt-20 pb-16">
+  <main class="max-w-2xl mx-auto px-6 pt-16 pb-24">
 
-    <nav class="mb-12">
+    <nav class="mb-10">
       <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← The Whetstone</a>
     </nav>
 
-    <article
-      class="prose prose-gray prose-sm sm:prose-base max-w-none
-             prose-headings:font-serif prose-headings:font-normal
-             prose-h1:text-3xl prose-h1:mb-2
-             prose-h2:text-base prose-h2:font-semibold prose-h2:tracking-widest prose-h2:uppercase prose-h2:text-indigo-500 prose-h2:mt-10
-             prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline
-             prose-strong:font-semibold prose-strong:text-gray-900
-             prose-li:my-0.5"
-      set:html={content}
-    />
+    <header class="mb-10">
+      <p class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">Privacy</p>
+      <h1 class="font-serif text-3xl text-gray-900 mb-4">How we handle your data</h1>
+      <p class="text-gray-400 text-sm">Last updated 26 May 2026</p>
+    </header>
+
+    <div class="space-y-10 text-sm text-gray-700 leading-relaxed">
+
+      <section>
+        <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">The short version</h2>
+        <p>
+          No analytics. No tracking cookies. No advertising. We do not sell, share, or profile your data.
+          The only information that leaves your device is the text you submit for analysis, and that is
+          sent straight to an AI provider under a zero-data-retention agreement — it is not stored or
+          used to train models.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">What we store</h2>
+        <p class="mb-3">
+          We store almost nothing. The only server-side state is an IP-keyed daily quota counter held in
+          Cloudflare KV. It records how many API requests a given IP address has made in the current
+          24-hour window so we can enforce the free-tier rate limit. The counter expires automatically
+          at midnight UTC and is never linked to any personal identifier beyond the IP address itself.
+        </p>
+        <p>
+          Published Logic Scorecards (question, positions, analysis) are stored in Cloudflare KV so the
+          public pages can render them. Scorecards contain no personal data — they are editorial content
+          created by the site curator.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">AI providers</h2>
+        <p class="mb-3">
+          When you submit text for analysis, it is forwarded to Google Gemini under Google's
+          <strong class="font-semibold text-gray-900">Zero Data Retention</strong> policy for the
+          Gemini API. This means Google does not store your input or output, and the content is not
+          used to improve Google's models. You can read Google's terms at
+          <a href="https://cloud.google.com/terms/data-processing-terms" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">cloud.google.com/terms/data-processing-terms</a>.
+        </p>
+        <p>
+          We do not use the Anthropic API for public requests at this time. If that changes, this page
+          will be updated.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">Cookies</h2>
+        <p>
+          We set no tracking or analytics cookies. The site does not use any third-party scripts
+          (no Google Analytics, no Meta Pixel, no ad networks). Your browser may cache static assets
+          as normal HTTP caching — that is not a cookie.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">Your rights</h2>
+        <p>
+          Because we collect no personal data beyond ephemeral IP-based counters, there is nothing to
+          request, correct, or delete. If you have a question or concern, email
+          <a href="mailto:daniel.livingstone44@gmail.com" class="text-indigo-600 hover:underline">daniel.livingstone44@gmail.com</a>.
+        </p>
+      </section>
+
+    </div>
 
   </main>
 </Base>

@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base
+  title="Creator Studio — The Whetstone"
+  description="Audit your own argument before you publish it. Coming soon."
+  canonicalPath="/studio"
+>
+  <main class="max-w-2xl mx-auto px-6 pt-20 pb-24 text-center">
+
+    <p class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-6">Creator Studio</p>
+
+    <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mb-6">
+      Coming soon
+    </h1>
+
+    <p class="text-base text-gray-500 leading-relaxed max-w-lg mx-auto mb-10">
+      Creator Studio will be a private workspace for writers, researchers, and analysts who want to
+      stress-test their own arguments before publishing. Paste your draft, identify the positions
+      you're arguing against, and receive the same Toulmin-structured audit that The Whetstone applies
+      to public debates — revealing your strongest case, your fatal flaw, and the shared assumption
+      you may not have noticed you're making.
+    </p>
+
+    <div class="bg-gray-50 border border-gray-200 rounded-xl px-8 py-8 max-w-sm mx-auto">
+      <p class="text-sm font-medium text-gray-900 mb-1">Get early access</p>
+      <p class="text-xs text-gray-400 mb-5">Leave your email and we'll let you know when it's ready.</p>
+      {/* TODO: wire this form to a real submission endpoint when Creator Studio is built */}
+      <form
+        action={`mailto:daniel.livingstone44@gmail.com?subject=Creator%20Studio%20early%20access`}
+        method="get"
+        enctype="text/plain"
+        class="flex flex-col gap-3"
+      >
+        <input
+          type="email"
+          name="email"
+          placeholder="your@email.com"
+          required
+          class="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900 placeholder-gray-400"
+        />
+        <button
+          type="submit"
+          class="w-full px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+        >
+          Notify me
+        </button>
+      </form>
+    </div>
+
+    <p class="text-xs text-gray-400 mt-10">
+      <a href="/scorecards" class="hover:text-gray-600 transition-colors">← Browse published scorecards</a>
+    </p>
+
+  </main>
+</Base>
