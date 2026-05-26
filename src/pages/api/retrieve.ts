@@ -1,7 +1,11 @@
-import { GeminiClient } from '../_lib/gemini';
-import { RetrieveRequestSchema, CitationResultSchema } from '../_lib/schema';
-import type { RetrievedSource } from '../_lib/schema';
-import { CITATION_SYSTEM_PROMPT, citationUserPrompt } from '../_lib/prompts';
+export const prerender = false;
+
+import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
+import { GeminiClient } from '../../../functions/_lib/gemini';
+import { RetrieveRequestSchema, CitationResultSchema } from '../../../functions/_lib/schema';
+import type { RetrievedSource } from '../../../functions/_lib/schema';
+import { CITATION_SYSTEM_PROMPT, citationUserPrompt } from '../../../functions/_lib/prompts';
 
 const TIER2_MODEL = 'gemini-2.5-flash-lite';
 const TAVILY_SEARCH_URL = 'https://api.tavily.com/search';
@@ -32,30 +36,12 @@ function checkRateLimit(ip: string): { allowed: boolean; retryAfterSeconds: numb
   return { allowed: true, retryAfterSeconds: 0 };
 }
 
-// ---------------------------------------------------------------------------
-// Cloudflare Pages Function context types
-// ---------------------------------------------------------------------------
-
-interface Env {
-  GEMINI_API_KEY: string;
-  TAVILY_API_KEY: string;
-}
-
-interface PagesContext {
-  request: Request;
-  env: Env;
-}
-
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
 }
-
-// ---------------------------------------------------------------------------
-// Validation helpers
-// ---------------------------------------------------------------------------
 
 function normalizeWs(s: string): string {
   return s.replace(/\s+/g, ' ').trim().toLowerCase();
@@ -79,10 +65,6 @@ async function headCheck(url: string): Promise<boolean> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Tavily wire types
-// ---------------------------------------------------------------------------
-
 interface TavilyResult {
   url:     string;
   title:   string;
@@ -90,13 +72,7 @@ interface TavilyResult {
   score:   number;
 }
 
-// ---------------------------------------------------------------------------
-// Handler
-// ---------------------------------------------------------------------------
-
-export const onRequestPost = async (context: PagesContext): Promise<Response> => {
-  const { request, env } = context;
-
+export const POST: APIRoute = async ({ request }) => {
   const ip =
     request.headers.get('CF-Connecting-IP') ??
     request.headers.get('X-Forwarded-For') ??

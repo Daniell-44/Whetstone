@@ -3,18 +3,12 @@
 // Validates a Scorecard body and persists it to the SCORECARDS KV namespace.
 // Gated by X-Analyser-Secret (same pattern as analyse-debate.ts).
 
-import { ScorecardSchema } from '../_lib/scorecard/schemas';
-import { saveScorecard } from '../_lib/scorecard/storage';
+export const prerender = false;
 
-interface Env {
-  SCORECARDS:       KVNamespace;
-  ANALYSER_SECRET?: string;
-}
-
-interface PagesContext {
-  request: Request;
-  env:     Env;
-}
+import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
+import { ScorecardSchema } from '../../../functions/_lib/scorecard/schemas';
+import { saveScorecard } from '../../../functions/_lib/scorecard/storage';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -23,13 +17,7 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-export const onRequest = async (context: PagesContext): Promise<Response> => {
-  const { request, env } = context;
-
-  if (request.method !== 'POST') {
-    return json({ error: 'method_not_allowed' }, 405);
-  }
-
+export const POST: APIRoute = async ({ request }) => {
   const secret = request.headers.get('X-Analyser-Secret');
   if (!env.ANALYSER_SECRET || secret !== env.ANALYSER_SECRET) {
     return json({ error: 'unauthorized', message: 'Valid X-Analyser-Secret header required' }, 401);

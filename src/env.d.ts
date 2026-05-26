@@ -9,7 +9,11 @@ declare namespace Cloudflare {
     RATE_LIMIT:           KVNamespace;
     ANALYSER_SECRET?:     string;
     GEMINI_API_KEY?:      string;
+    ANTHROPIC_API_KEY?:   string;
+    TAVILY_API_KEY?:      string;
     LLM_PROVIDER?:        string;
     FREE_TIER_DAILY_CAP?: string;
+    ALLOWED_ORIGINS?:     string;
+    COST_TEST_SECRET?:    string;
   }
 }

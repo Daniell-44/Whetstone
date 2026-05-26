@@ -4,27 +4,13 @@
 // so only the curator can invoke it. Does NOT go through /api/llm (that endpoint
 // applies per-device end-user quotas; this endpoint must not be subject to them).
 
-import { GeminiProvider } from '../_lib/providers/gemini';
-import { DebateInputSchema } from '../_lib/scorecard/schemas';
-import { generateScorecard } from '../_lib/scorecard/engine';
+export const prerender = false;
 
-// ---------------------------------------------------------------------------
-// Cloudflare Pages Function env
-// ---------------------------------------------------------------------------
-
-interface Env {
-  GEMINI_API_KEY?:   string;
-  ANALYSER_SECRET?:  string;
-}
-
-interface PagesContext {
-  request: Request;
-  env:     Env;
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
+import { GeminiProvider } from '../../../functions/_lib/providers/gemini';
+import { DebateInputSchema } from '../../../functions/_lib/scorecard/schemas';
+import { generateScorecard } from '../../../functions/_lib/scorecard/engine';
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -33,17 +19,7 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Handler
-// ---------------------------------------------------------------------------
-
-export const onRequest = async (context: PagesContext): Promise<Response> => {
-  const { request, env } = context;
-
-  if (request.method !== 'POST') {
-    return json({ error: 'method_not_allowed' }, 405);
-  }
-
+export const POST: APIRoute = async ({ request }) => {
   // Auth gate — must match ANALYSER_SECRET env var.
   const secret = request.headers.get('X-Analyser-Secret');
   if (!env.ANALYSER_SECRET || secret !== env.ANALYSER_SECRET) {

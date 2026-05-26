@@ -222,7 +222,7 @@ Three functions backed by the `SCORECARDS` KV namespace:
 
 Enumeration uses `kv.list({ prefix: 'scorecard:' })` rather than a separate index key — avoids write-consistency issues at the cost of one extra round-trip per listed scorecard (fine at the expected scale of dozens).
 
-### Save endpoint (`functions/api/save-scorecard.ts`)
+### Save endpoint (`src/pages/api/save-scorecard.ts`)
 
 `POST /api/save-scorecard`
 
@@ -255,3 +255,73 @@ Full suite: **66 tests, all passing** (12 new + 54 existing).
 - `npm run build` — exit 0 (one pre-existing non-fatal warning from `privacy.astro` using `node:fs` in the prerender environment)
 - `npx astro check` — 0 errors
 - `npm run typecheck` — 0 errors
+
+---
+
+## Prompt 5 — Port Pages Functions to Astro API routes
+
+**Committed:** (this prompt)
+
+### Deployment model
+
+The `@astrojs/cloudflare` v13 adapter uses `@cloudflare/vite-plugin` and compiles the project into a **Cloudflare Workers + Static Assets** deployment — not Cloudflare Pages Functions. The build produces:
+
+- `dist/client/` — prerendered HTML, CSS, JS served via the `ASSETS` binding
+- `dist/server/` — the compiled Cloudflare Worker (`entry.mjs`) with an auto-generated `wrangler.json` containing all bindings
+
+Cloudflare completely ignores the `functions/` directory when a Worker is deployed. Any code in `functions/api/` was therefore never reaching production.
+
+### What changed
+
+All six API endpoints were moved from `functions/api/` (Cloudflare Pages Functions) to `src/pages/api/` (Astro API routes compiled into the Worker):
+
+| Old path | New path |
+|---|---|
+| `functions/api/analyze.ts` | `src/pages/api/analyze.ts` |
+| `functions/api/retrieve.ts` | `src/pages/api/retrieve.ts` |
+| `functions/api/llm.ts` | `src/pages/api/llm.ts` |
+| `functions/api/analyse-debate.ts` | `src/pages/api/analyse-debate.ts` |
+| `functions/api/extract-article.ts` | `src/pages/api/extract-article.ts` |
+| `functions/api/save-scorecard.ts` | `src/pages/api/save-scorecard.ts` |
+
+Each file:
+- Adds `export const prerender = false;` at the top
+- Exports named HTTP method handlers (`POST`, `OPTIONS`) using the Astro `APIRoute` type instead of `onRequest` / `onRequestPost`
+- Accesses bindings and env vars via `import { env } from "cloudflare:workers"` — the same pattern already used by the Astro pages
+- Imports shared logic from `functions/_lib/` unchanged (same relative paths, just one level deeper)
+
+The `functions/_lib/` directory is untouched and stays in place. `src/env.d.ts` was extended to declare all bindings used by the new routes (`TAVILY_API_KEY`, `ANTHROPIC_API_KEY`, `COST_TEST_SECRET`, `ALLOWED_ORIGINS`).
+
+### Deploy sequence
+
+```bash
+# 1. Build
+pnpm build        # or: npm run build
+
+# 2. Deploy the Worker (run from the site/ root)
+wrangler deploy --config dist/server/wrangler.json
+```
+
+KV namespace IDs are baked into `dist/server/wrangler.json` by the build — no extra binding step needed.
+
+### Secrets — set once after first deploy
+
+Secrets are NOT in `wrangler.json`. Run these after the first `wrangler deploy`:
+
+```bash
+wrangler secret put ANALYSER_SECRET    --config dist/server/wrangler.json
+wrangler secret put GEMINI_API_KEY     --config dist/server/wrangler.json
+wrangler secret put ANTHROPIC_API_KEY  --config dist/server/wrangler.json
+wrangler secret put TAVILY_API_KEY     --config dist/server/wrangler.json
+wrangler secret put COST_TEST_SECRET   --config dist/server/wrangler.json
+```
+
+`ALLOWED_ORIGINS`, `LLM_PROVIDER`, and `FREE_TIER_DAILY_CAP` are plain vars (not secrets) and are set in `wrangler.toml` under `[vars]` — they are picked up automatically.
+
+### Build status
+
+- `npm test` — 66/66 passing (library functions unchanged)
+- `npm run build` — exit 0 (same pre-existing `privacy.astro` node:fs warning)
+- `npx astro check` — 0 errors
+- `npm run typecheck` — 0 errors
+- All 6 routes confirmed present in `dist/server/chunks/`

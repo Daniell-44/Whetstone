@@ -6,36 +6,16 @@
 // see BUILD_BRIEF.md §4 for the non-code step Daniel completes separately before
 // public launch.
 
+export const prerender = false;
+
+import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { z } from 'zod';
-import { GeminiProvider }   from '../_lib/providers/gemini';
-import { AnthropicProvider } from '../_lib/providers/anthropic';
-import { estimateCost }      from '../_lib/providers/pricing';
-import { ProviderError }     from '../_lib/providers/types';
-import type { LlmProvider }  from '../_lib/providers/types';
-
-// ---------------------------------------------------------------------------
-// Cloudflare types (inline — avoids @cloudflare/workers-types dev dep)
-// ---------------------------------------------------------------------------
-
-interface KVNamespace {
-  get(key: string): Promise<string | null>;
-  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
-}
-
-interface Env {
-  RATE_LIMIT?:          KVNamespace;
-  GEMINI_API_KEY?:      string;
-  ANTHROPIC_API_KEY?:   string;
-  LLM_PROVIDER?:        string;   // default: 'gemini'
-  COST_TEST_SECRET?:    string;
-  FREE_TIER_DAILY_CAP?: string;   // default: '25'
-  ALLOWED_ORIGINS?:     string;   // comma-separated origin list
-}
-
-interface PagesContext {
-  request: Request;
-  env:     Env;
-}
+import { GeminiProvider }   from '../../../functions/_lib/providers/gemini';
+import { AnthropicProvider } from '../../../functions/_lib/providers/anthropic';
+import { estimateCost }      from '../../../functions/_lib/providers/pricing';
+import { ProviderError }     from '../../../functions/_lib/providers/types';
+import type { LlmProvider }  from '../../../functions/_lib/providers/types';
 
 // ---------------------------------------------------------------------------
 // Request validation
@@ -111,7 +91,7 @@ async function checkAndIncrementQuota(
 // CORS helpers
 // ---------------------------------------------------------------------------
 
-function getAllowedOrigins(env: Env): Set<string> {
+function getAllowedOrigins(): Set<string> {
   return new Set(
     (env.ALLOWED_ORIGINS ?? '').split(',').map((o) => o.trim()).filter(Boolean),
   );
@@ -128,10 +108,6 @@ function corsHeaders(origin: string | null, allowed: Set<string>): Record<string
   };
 }
 
-// ---------------------------------------------------------------------------
-// Response helper
-// ---------------------------------------------------------------------------
-
 function json(body: unknown, status = 200, cors: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -140,28 +116,22 @@ function json(body: unknown, status = 200, cors: Record<string, string> = {}): R
 }
 
 // ---------------------------------------------------------------------------
-// Handler
+// Handlers
 // ---------------------------------------------------------------------------
 
-export const onRequest = async (context: PagesContext): Promise<Response> => {
-  const { request, env } = context;
+export const OPTIONS: APIRoute = async ({ request }) => {
+  const origin = request.headers.get('Origin');
+  const cors   = corsHeaders(origin, getAllowedOrigins());
+  return new Response(null, { status: 204, headers: cors });
+};
+
+export const POST: APIRoute = async ({ request }) => {
   const origin  = request.headers.get('Origin');
-  const allowed = getAllowedOrigins(env);
+  const allowed = getAllowedOrigins();
   const cors    = corsHeaders(origin, allowed);
-
-  // CORS preflight
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: cors });
-  }
-
-  if (request.method !== 'POST') {
-    return json({ error: 'method_not_allowed' }, 405, cors);
-  }
 
   // ---------------------------------------------------------------------------
   // Rate limiting — device UUID (soft) then IP backstop (harder).
-  // Device-ID quota is soft: the client can rotate the UUID.
-  // Real enforcement requires accounts (post-M5).
   // ---------------------------------------------------------------------------
 
   const cap      = parseInt(env.FREE_TIER_DAILY_CAP ?? '25', 10);

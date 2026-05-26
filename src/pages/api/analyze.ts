@@ -1,4 +1,8 @@
-import { GeminiClient } from '../_lib/gemini';
+export const prerender = false;
+
+import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
+import { GeminiClient } from '../../../functions/_lib/gemini';
 import {
   ApiRequestSchema,
   AnalysisResultSchema,
@@ -6,13 +10,13 @@ import {
   TriageResultSchema,
   type AnalysisResult,
   type CreatorAnalysisResult,
-} from '../_lib/schema';
+} from '../../../functions/_lib/schema';
 import {
   TRIAGE_SYSTEM_PROMPT,
   triageUserPrompt,
   buildAnalysisSystemPrompt,
   analysisUserPrompt,
-} from '../_lib/prompts';
+} from '../../../functions/_lib/prompts';
 
 const TIER1_MODEL = 'gemini-2.5-flash';
 const TIER2_MODEL = 'gemini-2.5-flash-lite';
@@ -44,19 +48,6 @@ function checkRateLimit(ip: string): { allowed: boolean; retryAfterSeconds: numb
   return { allowed: true, retryAfterSeconds: 0 };
 }
 
-// ---------------------------------------------------------------------------
-// Cloudflare Pages Function context types (defined inline to avoid @cloudflare/workers-types dep)
-// ---------------------------------------------------------------------------
-
-interface Env {
-  GEMINI_API_KEY: string;
-}
-
-interface PagesContext {
-  request: Request;
-  env: Env;
-}
-
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -64,13 +55,7 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Handler
-// ---------------------------------------------------------------------------
-
-export const onRequestPost = async (context: PagesContext): Promise<Response> => {
-  const { request, env } = context;
-
+export const POST: APIRoute = async ({ request }) => {
   const ip =
     request.headers.get('CF-Connecting-IP') ??
     request.headers.get('X-Forwarded-For') ??
