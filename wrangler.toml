@@ -39,9 +39,31 @@ preview_id = "eba00c98cb6d428d9651520d45468229"
 # .dev.vars — never in this file.
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# D1 database — user accounts, sessions, magic links
+# Create the databases:
+#   wrangler d1 create whetstone-users
+#   wrangler d1 create whetstone-users-preview
+# Then paste the returned IDs below.
+# Apply migration to production:
+#   wrangler d1 execute whetstone-users --file=migrations/0001_init.sql
+# Apply migration to preview:
+#   wrangler d1 execute whetstone-users-preview --file=migrations/0001_init.sql
+# After deploying, add the DB binding in the Cloudflare Pages dashboard:
+#   Settings → Functions → D1 database bindings → name: DB
+# ---------------------------------------------------------------------------
+
+[[d1_databases]]
+binding             = "DB"
+database_name       = "whetstone-users"
+database_id         = "REPLACE_WITH_ID_FROM_WRANGLER_D1_CREATE"
+preview_database_id = "REPLACE_WITH_PREVIEW_ID_FROM_WRANGLER_D1_CREATE"
+
 [vars]
 LLM_PROVIDER        = "gemini"
 FREE_TIER_DAILY_CAP = "20"
 AUDIT_DAILY_CAP     = "10"
+SITE_URL            = "https://whetstone.so"
 # ALLOWED_ORIGINS: comma-separated. Example:
 # ALLOWED_ORIGINS = "chrome-extension://YOUR_EXTENSION_ID,https://whetstone.so"
+# RESEND_API_KEY is a secret — set via: wrangler secret put RESEND_API_KEY --config dist/server/wrangler.json

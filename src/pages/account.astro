@@ -1,0 +1,46 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../layouts/Base.astro';
+import { makeAuthDb } from '../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
+
+const db      = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, db);
+
+if (!session) {
+  return Astro.redirect('/login');
+}
+
+const user = await db.findUserById(session.user_id);
+const loginDate = new Date(session.created_at).toLocaleDateString('en-GB', {
+  day: 'numeric', month: 'long', year: 'numeric',
+});
+---
+<Base title="Account — The Whetstone" canonicalPath="/account" isLoggedIn={true}>
+  <main class="max-w-md mx-auto px-6 py-16">
+    <h1 class="text-2xl font-semibold text-gray-900 mb-8">Your account</h1>
+
+    <div class="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
+      <div class="px-5 py-4">
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Email</p>
+        <p class="text-sm text-gray-900">{user?.email ?? '—'}</p>
+      </div>
+      <div class="px-5 py-4">
+        <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Session started</p>
+        <p class="text-sm text-gray-900">{loginDate}</p>
+      </div>
+    </div>
+
+    <form action="/api/auth/logout" method="post" class="mt-8">
+      <button
+        type="submit"
+        class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700
+               hover:bg-gray-50 transition-colors"
+      >
+        Sign out
+      </button>
+    </form>
+  </main>
+</Base>

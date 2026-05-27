@@ -626,3 +626,110 @@ Full suite: **113 tests, all passing** (15 new + 98 existing).
 - `pnpm run build` — exit 0
 - `npx astro check` — 0 errors
 - `pnpm run typecheck` — 0 errors
+
+---
+
+## Creator Studio, Prompt CS-1 — auth foundation
+
+**Committed:** (this prompt)
+
+### What was built
+
+Magic-link authentication plumbing — no Studio product code. A visitor can sign up or sign in using their email. They receive a magic link, click it, and are cookie-session authenticated. They can see their account info and sign out.
+
+### Database — D1 (SQLite)
+
+New D1 binding `DB` added to `wrangler.toml`. **Daniel must run these commands once to provision:**
+
+```bash
+# Create production database
+wrangler d1 create whetstone-users
+# → paste returned database_id into wrangler.toml [[d1_databases]] database_id
+
+# Create preview database
+wrangler d1 create whetstone-users-preview
+# → paste returned database_id into wrangler.toml [[d1_databases]] preview_database_id
+
+# Apply schema to production
+wrangler d1 execute whetstone-users --file=migrations/0001_init.sql
+
+# Apply schema to preview
+wrangler d1 execute whetstone-users-preview --file=migrations/0001_init.sql
+
+# After deploying, add the DB binding in the Cloudflare Pages dashboard:
+#   Settings → Functions → D1 database bindings → name: DB
+
+# Set Resend API key as a secret after deploy
+wrangler secret put RESEND_API_KEY --config dist/server/wrangler.json
+```
+
+**Resend domain:** configure `noreply@whetstone.so` as a sender in the Resend dashboard (DNS verification required). Until `whetstone.so` is active, use the Resend sandbox domain for testing.
+
+### Schema (`migrations/0001_init.sql`)
+
+Three tables:
+- `users` — one row per email; id + email + created_at
+- `sessions` — one row per active session; 30-day sliding expiry
+- `magic_links` — one row per issued link; SHA-256 hash of the raw token; 15-minute expiry; consumed_at marks use
+
+### Auth library (`functions/_lib/auth/`)
+
+| File | Purpose |
+|---|---|
+| `tokens.ts` | `generateOpaqueToken()` (32-byte random hex), `hashToken()` (SHA-256 hex), `generateId()` (16-byte random hex) |
+| `db.ts` | `AuthDb` interface + `makeAuthDb(D1Database)` — typed query helpers for all auth operations |
+| `sessions.ts` | Cookie name/TTL constants, `sessionCookieHeader`, `clearSessionCookieHeader`, `getSessionIdFromRequest`, `getSessionFromRequest` (sliding-window extension on each read) |
+| `email.ts` | `makeEmailSender(apiKey, fetch?)` — Resend REST API, sender `noreply@whetstone.so` |
+| `handlers.ts` | `handleRequestLink`, `handleVerify`, `handleLogout` — all endpoint logic with injectable deps |
+
+### Auth design
+
+- **Token**: raw 32-byte hex, stored only in the email link. DB stores SHA-256 hash. Token is single-use (consumed_at marks use) and expires in 15 minutes.
+- **Session**: 30-day sliding window — `expires_at` is extended on every authenticated page load. HttpOnly, Secure, SameSite=Lax cookie.
+- **Rate limiting**: auth link requests are limited to 5/hour per IP (reuses existing `checkAndIncrementQuota` with an hourly key: `auth:rl:<ip>:<UTC-hour>`).
+- **Anti-enumeration**: `handleRequestLink` always returns `{ ok: true }` regardless of whether the email is registered or the send succeeds.
+
+### API endpoints (`src/pages/api/auth/`)
+
+| Route | Handler |
+|---|---|
+| `POST /api/auth/request-link` | Validates email, rate-limits by IP, upserts user, creates magic link, sends email |
+| `GET /api/auth/verify?token=` | Hashes token, validates magic link (expiry + consumed), creates session, 302 → /account |
+| `GET|POST /api/auth/logout` | Deletes session, clears cookie, 302 → / |
+
+### Pages and UI
+
+| File | Purpose |
+|---|---|
+| `src/pages/login.astro` | `prerender=false`; redirects to /account if session; error banner for `?error=invalid`; Preact `LoginForm` island |
+| `src/pages/account.astro` | `prerender=false`; redirects to /login if no session; shows email + session start date; sign-out form |
+| `src/components/auth/LoginForm.tsx` | Preact island; POST to /api/auth/request-link; "Check your email" confirmation state |
+
+### Nav update (`src/layouts/Base.astro`)
+
+`isLoggedIn?: boolean` prop added. When true: "Account" link (→/account). When false (default): "Sign in" link (→/login). Dynamic auth pages pass the correct value; static pages default to Sign in.
+
+### Type declarations (`src/env.d.ts`)
+
+`DB: D1Database`, `RESEND_API_KEY?: string`, and `SITE_URL?: string` added to `Cloudflare.Env`.
+
+`SITE_URL = "https://whetstone.so"` added to `[vars]` in `wrangler.toml`.
+
+### Tests (`tests/auth/handlers.test.ts`)
+
+17 new tests using a `FakeAuthDb` (Map-backed, implementing `AuthDb` interface) and `FakeKV`:
+
+**handleRequestLink (8 tests):** returns 200 for new and existing users, swallows sendEmail errors (anti-enumeration), rate-limits at 5/hour, rejects invalid email with 400, rejects GET with 405, creates user + magic link records, normalises email to lowercase.
+
+**handleVerify (5 tests):** redirects to /account + sets cookie on valid token, creates session in db, rejects missing token, rejects expired token, rejects already-consumed token, rejects unknown token.
+
+**handleLogout (3 tests):** redirects to / + clears cookie, deletes session from db, handles missing cookie gracefully.
+
+Full suite: **130 tests, all passing** (17 new + 113 existing).
+
+### Build status
+
+- `pnpm test` — 130/130 passing
+- `pnpm run build` — exit 0
+- `npx astro check` — 0 errors, 0 warnings (5 pre-existing hints unchanged)
+- `pnpm run typecheck` — 0 errors

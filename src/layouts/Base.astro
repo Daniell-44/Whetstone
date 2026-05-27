@@ -2,15 +2,17 @@
 import '../styles/global.css';
 
 interface Props {
-  title:         string;
-  description?:  string;
+  title:          string;
+  description?:   string;
   canonicalPath?: string;
+  isLoggedIn?:    boolean;
 }
 
 const {
   title,
   description = "The Whetstone — a tool for thinking more carefully about arguments.",
   canonicalPath = '/',
+  isLoggedIn = false,
 } = Astro.props;
 
 const siteUrl = 'https://devils-advocate-site.pages.dev';
@@ -79,6 +81,21 @@ const currentPath = canonicalPath;
           >
             Privacy
           </a>
+          {isLoggedIn ? (
+            <a
+              href="/account"
+              class={`transition-colors ${currentPath === '/account' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
+            >
+              Account
+            </a>
+          ) : (
+            <a
+              href="/login"
+              class={`transition-colors ${currentPath === '/login' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
+            >
+              Sign in
+            </a>
+          )}
         </nav>
 
       </div>
