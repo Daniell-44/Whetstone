@@ -5,14 +5,31 @@ import { auditText } from '../functions/_lib/audit/engine';
 import { GeminiProvider } from '../functions/_lib/providers/gemini';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const FIXTURES   = join(__dirname, '../functions/_lib/audit/fixtures');
-const OUTPUT     = join(__dirname, '../audit-output.json');
+const ROOT       = join(__dirname, '..');
+const FIXTURES   = join(ROOT, 'functions/_lib/audit/fixtures');
+const OUTPUT     = join(ROOT, 'audit-output.json');
 
-const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  console.error('GEMINI_API_KEY environment variable is required.');
+function loadDevVars(filePath: string): Record<string, string> {
+  try {
+    return Object.fromEntries(
+      readFileSync(filePath, 'utf-8')
+        .split('\n')
+        .filter(l => l.trim() && !l.startsWith('#'))
+        .map(l => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim()] as [string, string]; })
+        .filter(([k]) => k.length > 0),
+    );
+  } catch { return {}; }
+}
+
+const devVars    = loadDevVars(join(ROOT, '.dev.vars'));
+const apiKeyRaw  = process.env.GEMINI_API_KEY ?? devVars.GEMINI_API_KEY;
+
+if (!apiKeyRaw) {
+  console.error('GEMINI_API_KEY is not set. Add it to .dev.vars or set it as an environment variable.');
   process.exit(1);
 }
+
+const apiKey: string = apiKeyRaw;
 
 const provider = new GeminiProvider();
 const deps     = { provider, apiKey };
