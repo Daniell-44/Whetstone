@@ -245,3 +245,70 @@ describe('POST /api/audit — rate limiting', () => {
     expect((await rj(res)).ok).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Session-aware rate limiting
+// ---------------------------------------------------------------------------
+
+describe('POST /api/audit — session-aware rate limiting', () => {
+  it('uses per-user limit and bypasses IP limit for authenticated users', async () => {
+    const kv   = new FakeKV();
+    const deps = makeDeps({
+      rateLimitKv:       kv,
+      auditDailyCap:     0,      // IP cap = 0 — any anonymous request would be blocked
+      auditUserDailyCap: 10,     // user cap = 10 — should pass through
+      getSession: async () => ({ userId: 'user-abc' }),
+    });
+
+    const req  = makeRequest({ text: 'a'.repeat(50) });
+    const res  = await handleAuditRequest(req, deps);
+    expect((await rj(res)).ok).toBe(true);
+  });
+
+  it('returns RATE_LIMITED when authenticated user hits their per-user cap', async () => {
+    const kv   = new FakeKV();
+    const deps = makeDeps({
+      rateLimitKv:       kv,
+      auditUserDailyCap: 1,
+      getSession: async () => ({ userId: 'user-xyz' }),
+    });
+
+    // Use up the one allowed request.
+    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+
+    const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    const data = await rj(res);
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(false);
+    expect(data.error.code).toBe('RATE_LIMITED');
+  });
+
+  it('falls back to IP rate limit when getSession returns null', async () => {
+    const kv   = new FakeKV();
+    const deps = makeDeps({
+      rateLimitKv:    kv,
+      auditDailyCap:  1,
+      getSession:     async () => null,
+    });
+
+    // First request succeeds.
+    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+
+    // Second is blocked by IP limit.
+    const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    const data = await rj(res);
+    expect(data.ok).toBe(false);
+    expect(data.error.code).toBe('RATE_LIMITED');
+  });
+
+  it('anonymous behaviour is unchanged when getSession is not provided', async () => {
+    const kv   = new FakeKV();
+    const deps = makeDeps({ rateLimitKv: kv, auditDailyCap: 1 }); // no getSession
+
+    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+
+    const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    const data = await rj(res);
+    expect(data.error.code).toBe('RATE_LIMITED');
+  });
+});

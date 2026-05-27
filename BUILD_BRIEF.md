@@ -629,6 +629,115 @@ Full suite: **113 tests, all passing** (15 new + 98 existing).
 
 ---
 
+## Creator Studio, Prompt CS-3 — counterargument engine + Studio page
+
+**Committed:** (this prompt)
+
+### What was built
+
+The analytical core of Creator Studio v1: a counterargument generation engine and the gated `/creator/studio` page that runs both the structural audit and counterargument generation in parallel on the same draft.
+
+### Counterargument engine (`functions/_lib/counterargument/`)
+
+| File | Purpose |
+|---|---|
+| `types.ts` | `Counterargument`, `CounterargumentResult`, `StrongestCase`, `CounterargDeps` interfaces |
+| `schemas.ts` | Zod schemas — `counterarguments` array enforced at min 2 / max 3 |
+| `constants.ts` | `COUNTERARG_MODEL = 'gemini-2.5-pro'`, `COUNTERARG_THINKING_BUDGET = 8192` |
+| `prompts.ts` | System prompt (steelman instructions + 2 worked examples) + `buildCounterargPrompt` |
+| `engine.ts` | `generateCounterarguments(text, deps)` — calls `callWithRetry` with the Gemini 2.5-pro model |
+| `handler.ts` | `handleCounterargRequest(request, deps)` — auth gate, per-user rate limiting, body validation, calls engine |
+| `fixtures/op-ed-draft.txt` | ~480-word op-ed arguing for legally mandated chronological social media feeds |
+
+**CounterargumentResult schema:**
+```typescript
+interface CounterargumentResult {
+  centralClaim:     string;
+  counterarguments: Array<{
+    position:      string;             // opposing claim, clearly stated
+    strongestCase: { claim: string; grounds: string; warrant: string };
+    missedByDraft: string;             // concrete: what the draft fails to engage with
+    why:           string;             // why a thoughtful opponent would actually deploy this
+  }>;
+  notes: string | null;
+}
+```
+
+**System prompt design:** Emphasises (a) steelmanning — strongest version a thoughtful opponent would actually deploy, not strawmen; (b) `missedByDraft` must reference specific passages in the draft, not generic "didn't consider the other side"; (c) `position` must have its own internal warrant, not merely negate the draft; (d) 2 worked examples anchor quality.
+
+### POST /api/counterargument
+
+- **Auth gate:** requires valid session — returns `401 UNAUTHORIZED` if none
+- **Rate limit:** per-user KV, prefix `counterarg:user:<userId>`, cap from `COUNTERARG_DAILY_CAP` (default 20)
+- **Body:** `{ text: string }` — 50–10,000 chars
+- **On success:** `{ ok: true, result: CounterargumentResult, usage: { inputTokens, outputTokens } }`
+- **On error:** `{ ok: false, error: { code, message } }` — codes `UNAUTHORIZED`, `RATE_LIMITED`, `INVALID_INPUT`, `AUDIT_FAILED`
+
+### Audit endpoint — session-aware rate limiting (`functions/_lib/audit/handler.ts`)
+
+`AuditHandlerDeps` gains two new optional fields: `getSession?` and `auditUserDailyCap?`.
+
+Logic at the top of `handleAuditRequest`:
+1. If `getSession` is provided and returns a session → skip IP limit, apply per-user limit (`audit:user:<userId>`, cap `AUDIT_USER_DAILY_CAP`, default 50)
+2. If no session (or `getSession` not provided) → existing IP-based limit unchanged
+
+Anonymous behaviour is fully backward-compatible.
+
+### /creator/studio page
+
+- `prerender = false`; server-side session check → redirects to `/login?returnTo=/creator/studio` if not authenticated
+- Renders `<StudioEditor client:load />` Preact island
+
+**StudioEditor.tsx** (`src/components/studio/StudioEditor.tsx`):
+- Textarea (50–10,000 chars), live character count, "Analyse my draft" button (disabled while running)
+- Fires `/api/audit` and `/api/counterargument` independently (not awaited together) — each section renders as its result arrives
+- **Structural Audit section** — uses the extracted shared `AuditResults` component
+- **Counterarguments section** — cards rendering position, Toulmin breakdown, "What your draft misses", and why
+- Per-section error states including `UNAUTHORIZED` with a login link (handles session expiry mid-use)
+
+### AuditResults extraction
+
+`AuditResults` and its helpers (`ToulminRow`, `FallacyCard`, `LoadedLanguageRow`) extracted from `AuditForm.tsx` into `src/components/audit/AuditResults.tsx`. Both `AuditForm.tsx` (public audit page) and `StudioEditor.tsx` (Studio) import the shared component.
+
+### New [vars] in wrangler.toml
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `AUDIT_USER_DAILY_CAP` | `"50"` | Per-user daily cap for authenticated audit requests |
+| `COUNTERARG_DAILY_CAP` | `"20"` | Per-user daily cap for counterargument generation |
+
+### Demo run (2026-05-27)
+
+`npm run counterargument:demo` succeeded first attempt. Model: `gemini-2.5-pro`. Tokens: 1,930 in / 1,216 out.
+
+Three counterarguments generated for the chronological-feeds op-ed:
+1. Chronological feeds advantage high-frequency institutional publishers — swapping engagement-optimisation for frequency-optimisation
+2. At scale, a chronological firehose is unusable — collapses signal-to-noise for users following hundreds of accounts
+3. The root cause is the advertising business model; feed regulation is a hydraulic fix that will be routed around
+
+See `counterargument-output.json` for the full verbatim output.
+
+### What's still coming in CS-2
+
+- Stripe integration + subscriptions
+- Tighten the Studio gate from "any authenticated session" to "active subscriber"
+- Usage tracking for billing
+
+### Tests
+
+22 new tests (7 engine + 11 endpoint + 4 audit session-aware).
+
+Full suite: **152 tests, all passing** (22 new + 130 existing).
+
+### Build status
+
+- `npm test` — 152/152 passing
+- `npm run build` — exit 0
+- `npx astro check` — 0 errors, 0 warnings
+- `npm run typecheck` — 0 errors
+
+---
+
 ## Creator Studio, Prompt CS-1 — auth foundation
 
 **Committed:** (this prompt)

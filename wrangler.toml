@@ -41,29 +41,32 @@ preview_id = "eba00c98cb6d428d9651520d45468229"
 
 # ---------------------------------------------------------------------------
 # D1 database — user accounts, sessions, magic links
-# Create the databases:
+# Single binding ("DB"), two underlying databases (prod + preview).
+# Code accesses it as env.DB; preview_database_id is auto-used by `wrangler dev`.
+#
+# Create the databases (one-time):
 #   wrangler d1 create whetstone-users
 #   wrangler d1 create whetstone-users-preview
-# Then paste the returned IDs below.
-# Apply migration to production:
-#   wrangler d1 execute whetstone-users --file=migrations/0001_init.sql
-# Apply migration to preview:
-#   wrangler d1 execute whetstone-users-preview --file=migrations/0001_init.sql
-# After deploying, add the DB binding in the Cloudflare Pages dashboard:
-#   Settings → Functions → D1 database bindings → name: DB
+# Paste the returned IDs into database_id / preview_database_id below.
+#
+# Apply migration to BOTH databases (must do both, each time the schema changes):
+#   wrangler d1 execute whetstone-users         --file=migrations/0001_init.sql --remote
+#   wrangler d1 execute whetstone-users-preview --file=migrations/0001_init.sql --remote
 # ---------------------------------------------------------------------------
 
 [[d1_databases]]
 binding             = "DB"
 database_name       = "whetstone-users"
-database_id         = "REPLACE_WITH_ID_FROM_WRANGLER_D1_CREATE"
-preview_database_id = "REPLACE_WITH_PREVIEW_ID_FROM_WRANGLER_D1_CREATE"
+database_id         = "1485b1e6-f72c-4561-9865-84418976136b"
+preview_database_id = "f49148ac-f43f-4e24-861f-347d00c07a59"
 
 [vars]
-LLM_PROVIDER        = "gemini"
-FREE_TIER_DAILY_CAP = "20"
-AUDIT_DAILY_CAP     = "10"
-SITE_URL            = "https://whetstone.so"
+LLM_PROVIDER          = "gemini"
+FREE_TIER_DAILY_CAP   = "20"
+AUDIT_DAILY_CAP       = "10"
+AUDIT_USER_DAILY_CAP  = "50"
+COUNTERARG_DAILY_CAP  = "20"
+SITE_URL              = "https://devils-advocate-site.daniellivingstone2005.workers.dev"
 # ALLOWED_ORIGINS: comma-separated. Example:
 # ALLOWED_ORIGINS = "chrome-extension://YOUR_EXTENSION_ID,https://whetstone.so"
 # RESEND_API_KEY is a secret — set via: wrangler secret put RESEND_API_KEY --config dist/server/wrangler.json

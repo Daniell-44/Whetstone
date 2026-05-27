@@ -29,11 +29,13 @@ const BodySchema = z.union([TextBodySchema, UrlBodySchema]);
 // ---------------------------------------------------------------------------
 
 export interface AuditHandlerDeps {
-  rateLimitKv:   RateLimitKV | undefined;
-  geminiApiKey:  string | undefined;
-  auditDailyCap: number;
-  provider:      LlmProvider;
-  extractor:     (url: string) => Promise<ExtractResult>;
+  rateLimitKv:       RateLimitKV | undefined;
+  geminiApiKey:      string | undefined;
+  auditDailyCap:     number;
+  auditUserDailyCap?: number;
+  provider:          LlmProvider;
+  extractor:         (url: string) => Promise<ExtractResult>;
+  getSession?:       (request: Request) => Promise<{ userId: string } | null>;
 }
 
 // ---------------------------------------------------------------------------
@@ -63,23 +65,39 @@ export async function handleAuditRequest(
   deps: AuditHandlerDeps,
 ): Promise<Response> {
 
-  // Rate limiting — keyed by client IP with audit: prefix (separate budget from LLM calls).
-  const ip =
-    request.headers.get('CF-Connecting-IP') ??
-    request.headers.get('X-Forwarded-For')  ??
-    'unknown';
+  // Session check — authenticated users get a per-user rate limit instead of IP-based.
+  const session = deps.getSession ? await deps.getSession(request) : null;
 
   if (deps.rateLimitKv) {
-    const quota = await checkAndIncrementQuota(
-      deps.rateLimitKv,
-      `audit:ip:${ip}`,
-      deps.auditDailyCap,
-    );
-    if (!quota.allowed) {
-      return json({
-        ok:    false,
-        error: { code: 'RATE_LIMITED', message: 'Daily audit limit reached — try again tomorrow.' },
-      });
+    if (session) {
+      const quota = await checkAndIncrementQuota(
+        deps.rateLimitKv,
+        `audit:user:${session.userId}`,
+        deps.auditUserDailyCap ?? 50,
+      );
+      if (!quota.allowed) {
+        return json({
+          ok:    false,
+          error: { code: 'RATE_LIMITED', message: 'Daily audit limit reached — try again tomorrow.' },
+        });
+      }
+    } else {
+      // Anonymous: IP-based rate limit.
+      const ip =
+        request.headers.get('CF-Connecting-IP') ??
+        request.headers.get('X-Forwarded-For')  ??
+        'unknown';
+      const quota = await checkAndIncrementQuota(
+        deps.rateLimitKv,
+        `audit:ip:${ip}`,
+        deps.auditDailyCap,
+      );
+      if (!quota.allowed) {
+        return json({
+          ok:    false,
+          error: { code: 'RATE_LIMITED', message: 'Daily audit limit reached — try again tomorrow.' },
+        });
+      }
     }
   }
 
