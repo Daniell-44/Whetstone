@@ -42,5 +42,6 @@ preview_id = "eba00c98cb6d428d9651520d45468229"
 [vars]
 LLM_PROVIDER        = "gemini"
 FREE_TIER_DAILY_CAP = "20"
+AUDIT_DAILY_CAP     = "10"
 # ALLOWED_ORIGINS: comma-separated. Example:
 # ALLOWED_ORIGINS = "chrome-extension://YOUR_EXTENSION_ID,https://whetstone.so"

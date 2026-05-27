@@ -13,6 +13,7 @@ declare namespace Cloudflare {
     TAVILY_API_KEY?:      string;
     LLM_PROVIDER?:        string;
     FREE_TIER_DAILY_CAP?: string;
+    AUDIT_DAILY_CAP?:     string;
     ALLOWED_ORIGINS?:     string;
     COST_TEST_SECRET?:    string;
   }

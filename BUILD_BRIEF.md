@@ -458,9 +458,9 @@ The publish loop is fully operational: curator enters URLs → extraction → ge
 
 ---
 
-### Lens A — single-text audit engine — **complete (engine only)**
+### Lens A — **complete**
 
-The audit engine (`auditText`) is built and tested. The public UI and API route are the next step.
+Engine + public page + rate-limited endpoint all built and passing.
 
 ---
 
@@ -529,6 +529,100 @@ Full suite: **98 tests, all passing** (11 new + 87 existing).
 ### Build status
 
 - `pnpm test` — 98/98 passing
+- `pnpm run build` — exit 0
+- `npx astro check` — 0 errors
+- `pnpm run typecheck` — 0 errors
+
+---
+
+## Lens A, Prompt 2 — public /audit page + rate-limited endpoint
+
+**Committed:** (this prompt)
+
+### What was built
+
+A public page at `/audit` with a Preact island form, and a public `POST /api/audit` endpoint with per-IP daily rate limiting. No login or secret required.
+
+### Endpoint — `POST /api/audit`
+
+**Request body** — exactly one of:
+```json
+{ "text": "string (50–10,000 chars)" }
+{ "url": "https://..." }
+```
+Bodies with both fields, neither field, text under 50 chars, or text over 10,000 chars are rejected with 400 + `INVALID_INPUT`.
+
+**Success response:**
+```json
+{ "ok": true, "audit": AuditResult, "usage": { "inputTokens": N, "outputTokens": N } }
+```
+
+**Failure response (always HTTP 200 except 400 for bad input / 503 for no API key):**
+```json
+{ "ok": false, "error": { "code": "RATE_LIMITED", "message": "..." } }
+```
+
+**Error codes:** `RATE_LIMITED`, `EXTRACTION_FAILED`, `TOO_SHORT`, `NOT_HTML`, `FETCH_FAILED`, `AUDIT_FAILED`, `INVALID_INPUT`
+
+**URL path:** calls `fetchAndExtract` directly (not via the secret-gated `/api/extract-article`).
+
+### Rate limiting
+
+- Uses the existing `RATE_LIMIT` KV binding (same namespace as the LLM proxy).
+- Key prefix: `audit:ip:<ip>` — separate bucket from the LLM `device:` / `ip:` counters.
+- Cap: `AUDIT_DAILY_CAP` env var (default `10`, set in `wrangler.toml [vars]`).
+- IP from `CF-Connecting-IP` header (Cloudflare injects this automatically).
+- When cap is hit: `{ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily audit limit reached — try again tomorrow.' } }` with HTTP 200.
+- To override the cap: set `AUDIT_DAILY_CAP = "N"` in `wrangler.toml` or as an env var in the Cloudflare dashboard.
+
+### Public page — `/audit`
+
+Preact island (`AuditForm`) with:
+- Tab switcher: **Paste text** / **Paste URL**
+- Textarea (text mode): live character count, disables submit under 50 chars or over 10,000 chars
+- URL input: hints about paywalled pages
+- Submit button disabled until input is valid
+- Loading state: "Reading and analysing — this takes 15–30 seconds."
+- Error states: one friendly sentence per error code
+- Results in order: Central Claim (indigo card) → Argument Structure (Toulmin, with "What is Toulmin analysis?" expander and "What's this?" on unstated warrants) → Named Fallacies (severity-coded cards) → Loaded Language (tagged list) → Notes
+- Empty state: if no fallacies and no loaded language, shows a green confirmation card instead of empty sections
+
+**Severity colours:**
+- `high` → red card + red badge
+- `medium` → amber card + amber badge
+- `low` → grey card + grey badge
+
+### Navigation
+
+"Audit" added to the top nav (visible on all screen sizes — primary engagement surface) and footer nav.
+
+### Architecture note
+
+The endpoint logic lives in `functions/_lib/audit/handler.ts` (`handleAuditRequest(request, deps)` — pure function, no Cloudflare imports). `src/pages/api/audit.ts` is a thin Astro route that wires up the real deps. Tests import from `handler.ts` directly — no `cloudflare:workers` resolution issues.
+
+A shared rate-limit utility was extracted to `functions/_lib/rate-limit.ts` (`RateLimitKV` interface + `checkAndIncrementQuota`). The `llm.ts` route keeps its own local copy (unchanged).
+
+### Key files
+
+| File | Purpose |
+|---|---|
+| `functions/_lib/rate-limit.ts` | Shared `RateLimitKV` interface + `checkAndIncrementQuota` utility |
+| `functions/_lib/audit/handler.ts` | `handleAuditRequest(request, deps)` — all endpoint logic, injectable deps |
+| `src/pages/api/audit.ts` | Thin Astro route; wires real Cloudflare deps into `handleAuditRequest` |
+| `src/lib/audit.ts` | Re-exports `AuditResult` and sub-types for client-side use |
+| `src/components/audit/AuditForm.tsx` | Preact island — full form + results display |
+| `src/pages/audit/index.astro` | Page shell (`prerender = false`); uses `AuditForm client:load` |
+| `tests/audit/endpoint.test.ts` | 15 tests: input validation (5), text path (3), URL path (3), rate limiting (3) |
+
+### Tests
+
+15 new tests in `tests/audit/endpoint.test.ts`.
+
+Full suite: **113 tests, all passing** (15 new + 98 existing).
+
+### Build status
+
+- `pnpm test` — 113/113 passing
 - `pnpm run build` — exit 0
 - `npx astro check` — 0 errors
 - `pnpm run typecheck` — 0 errors

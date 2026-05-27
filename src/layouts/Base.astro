@@ -56,8 +56,14 @@ const currentPath = canonicalPath;
         <!-- Nav links -->
         <nav class="flex items-center gap-5 text-sm">
           <a
+            href="/audit"
+            class={`transition-colors ${currentPath === '/audit' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            Audit
+          </a>
+          <a
             href="/reader"
-            class={`transition-colors ${currentPath === '/reader' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
+            class={`transition-colors hidden sm:block ${currentPath === '/reader' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
           >
             Reader
           </a>
@@ -90,6 +96,7 @@ const currentPath = canonicalPath;
       <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-400">
         <a href="/" class="hover:text-gray-600 transition-colors">The Whetstone <span class="text-gray-300">·</span> Devil's Advocate Chrome extension</a>
         <nav class="flex gap-5">
+          <a href="/audit"        class="hover:text-gray-600 transition-colors">Audit</a>
           <a href="/reader"       class="hover:text-gray-600 transition-colors">Reader</a>
           <a href="/creator"      class="hover:text-gray-600 transition-colors">Creator</a>
           <a href="/how-it-works" class="hover:text-gray-600 transition-colors">How it works</a>
