@@ -41,7 +41,7 @@ const COUNTERARG_ERROR_MESSAGES: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// Sub-components: Counterarguments
+// Sub-components
 // ---------------------------------------------------------------------------
 
 function CounterargResults({ result }: { result: CounterargumentResult }) {
@@ -154,87 +154,185 @@ function SectionLoading({ label }: { label: string }) {
 // ---------------------------------------------------------------------------
 
 interface Props {
-  hasActiveSubscription: boolean;
+  hasActiveSubscription:    boolean;
+  initialDocId?:            string | null;
+  initialTitle?:            string;
+  initialContent?:          string;
+  initialVersionId?:        string | null;
+  initialAuditResult?:      AuditResult | null;
+  initialCounterargResult?: CounterargumentResult | null;
 }
 
-export default function StudioEditor({ hasActiveSubscription }: Props) {
-  const [draft, setDraft]         = useState('');
+export default function StudioEditor({
+  hasActiveSubscription,
+  initialDocId            = null,
+  initialTitle            = 'Untitled draft',
+  initialContent          = '',
+  initialVersionId        = null,
+  initialAuditResult      = null,
+  initialCounterargResult = null,
+}: Props) {
+  const [draft, setDraft]         = useState(initialContent);
+  const [docId, setDocId]         = useState<string | null>(initialDocId);
+  const [versionId, setVersionId] = useState<string | null>(initialVersionId);
+  const [title, setTitle]         = useState(initialTitle);
+  const [savedTitle, setSavedTitle] = useState(initialTitle);
+  const [lastSavedContent, setLastSavedContent] = useState<string | null>(
+    initialVersionId ? initialContent : null,
+  );
   const [isRunning, setIsRunning] = useState(false);
-  const [auditState, setAuditState]         = useState<SectionState<AuditResult>>({ status: 'idle' });
-  const [counterargState, setCounterargState] = useState<SectionState<CounterargumentResult>>({ status: 'idle' });
+  const [auditState, setAuditState] = useState<SectionState<AuditResult>>(
+    initialAuditResult ? { status: 'done', data: initialAuditResult } : { status: 'idle' },
+  );
+  const [counterargState, setCounterargState] = useState<SectionState<CounterargumentResult>>(
+    initialCounterargResult ? { status: 'done', data: initialCounterargResult } : { status: 'idle' },
+  );
 
-  const charCount  = draft.length;
-  const canSubmit  = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
+  const charCount   = draft.length;
+  const canSubmit   = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
   const showResults = auditState.status !== 'idle' || (hasActiveSubscription && counterargState.status !== 'idle');
 
-  const handleAnalyse = useCallback(() => {
+  const handleTitleBlur = useCallback(async () => {
+    if (!docId || title === savedTitle) return;
+    try {
+      await fetch(`/api/documents/${docId}`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ title }),
+      });
+      setSavedTitle(title);
+    } catch { /* best-effort */ }
+  }, [docId, title, savedTitle]);
+
+  const handleNewDraft = useCallback(() => {
+    setDocId(null);
+    setVersionId(null);
+    setTitle('Untitled draft');
+    setSavedTitle('Untitled draft');
+    setDraft('');
+    setLastSavedContent(null);
+    setAuditState({ status: 'idle' });
+    setCounterargState({ status: 'idle' });
+    const url = new URL(window.location.href);
+    url.searchParams.delete('doc');
+    window.history.replaceState({}, '', url.toString());
+  }, []);
+
+  const handleAnalyse = useCallback(async () => {
     if (!canSubmit) return;
     const text = draft;
 
     setIsRunning(true);
+
+    // --- ensure document + version exist ---
+    let currentDocId     = docId;
+    let currentVersionId = versionId;
+
+    try {
+      if (!currentDocId) {
+        const res  = await fetch('/api/documents', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ title, content: text }),
+        });
+        const data = await res.json() as { ok: boolean; docId?: string; versionId?: string };
+        if (!data.ok || !data.docId) { setIsRunning(false); return; }
+        currentDocId     = data.docId;
+        currentVersionId = data.versionId ?? null;
+        setDocId(currentDocId);
+        setVersionId(currentVersionId);
+        setLastSavedContent(text);
+        setSavedTitle(title);
+        const url = new URL(window.location.href);
+        url.searchParams.set('doc', currentDocId);
+        window.history.replaceState({}, '', url.toString());
+      } else if (text !== lastSavedContent) {
+        const res  = await fetch(`/api/documents/${currentDocId}/versions`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ content: text }),
+        });
+        const data = await res.json() as { ok: boolean; versionId?: string };
+        if (!data.ok || !data.versionId) { setIsRunning(false); return; }
+        currentVersionId = data.versionId;
+        setVersionId(currentVersionId);
+        setLastSavedContent(text);
+      }
+    } catch {
+      setIsRunning(false);
+      return;
+    }
+
+    if (!currentDocId || !currentVersionId) { setIsRunning(false); return; }
+
+    // --- run analysis ---
     setAuditState({ status: 'loading' });
     if (hasActiveSubscription) setCounterargState({ status: 'loading' });
 
     let auditDone      = false;
-    let counterargDone = !hasActiveSubscription; // already "done" if we won't fire it
+    let counterargDone = !hasActiveSubscription;
 
     function checkDone() {
       if (auditDone && counterargDone) setIsRunning(false);
     }
 
-    // Audit — always fires.
-    fetch('/api/audit', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ text }),
-    })
+    const versionPath = `/api/documents/${currentDocId}/versions/${currentVersionId}`;
+
+    fetch(`${versionPath}/audit`, { method: 'POST' })
       .then(r => r.json() as Promise<AuditApiResponse>)
       .then(data => {
         if (data.ok) {
           setAuditState({ status: 'done', data: data.audit });
         } else {
           const code = data.error.code;
-          setAuditState({
-            status:  'error',
-            code,
-            message: AUDIT_ERROR_MESSAGES[code] ?? data.error.message,
-          });
+          setAuditState({ status: 'error', code, message: AUDIT_ERROR_MESSAGES[code] ?? data.error.message });
         }
       })
-      .catch(() => {
-        setAuditState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' });
-      })
+      .catch(() => setAuditState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
       .finally(() => { auditDone = true; checkDone(); });
 
-    // Counterargument — only fires for subscribers.
     if (hasActiveSubscription) {
-      fetch('/api/counterargument', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ text }),
-      })
+      fetch(`${versionPath}/counterargument`, { method: 'POST' })
         .then(r => r.json() as Promise<CounterargApiResponse>)
         .then(data => {
           if (data.ok) {
             setCounterargState({ status: 'done', data: data.result });
           } else {
             const code = data.error.code;
-            setCounterargState({
-              status:  'error',
-              code,
-              message: COUNTERARG_ERROR_MESSAGES[code] ?? data.error.message,
-            });
+            setCounterargState({ status: 'error', code, message: COUNTERARG_ERROR_MESSAGES[code] ?? data.error.message });
           }
         })
-        .catch(() => {
-          setCounterargState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' });
-        })
+        .catch(() => setCounterargState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
         .finally(() => { counterargDone = true; checkDone(); });
     }
-  }, [draft, canSubmit, hasActiveSubscription]);
+  }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
 
   return (
     <div class="space-y-6">
+
+      {/* Document title + new draft */}
+      <div class="flex items-center gap-3">
+        <input
+          type="text"
+          value={title}
+          onInput={e => setTitle((e.target as HTMLInputElement).value)}
+          onBlur={handleTitleBlur}
+          maxLength={200}
+          placeholder="Untitled draft"
+          disabled={isRunning}
+          class="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
+        />
+        {hasActiveSubscription && (
+          <button
+            type="button"
+            onClick={handleNewDraft}
+            disabled={isRunning}
+            class="shrink-0 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-40"
+          >
+            New draft
+          </button>
+        )}
+      </div>
 
       {/* Input */}
       <div class="rounded-xl border border-amber-200 bg-white p-6 space-y-4">

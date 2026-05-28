@@ -972,3 +972,102 @@ See the comment block at the top of `[vars]` in `wrangler.toml` for the ordered 
    npx wrangler d1 execute whetstone-users-preview --file=migrations/0002_subscriptions.sql --remote
    ```
 8. Test end-to-end with Stripe test card `4242 4242 4242 4242`, any future expiry, any CVC
+
+---
+
+## Creator Studio, Prompt CS-4 — Document persistence
+
+**Committed:** pending
+
+A logged-in writer's Studio drafts are now saved automatically. Every audit run creates or updates a versioned snapshot; returning users see their latest work loaded on page open.
+
+### Database schema — `migrations/0003_documents.sql`
+
+Two new tables:
+
+| Table | Purpose |
+|---|---|
+| `documents` | One row per user draft; `status IN ('active','archived')` |
+| `document_versions` | Versioned content snapshots with stored results |
+
+Key fields on `document_versions`: `content TEXT`, `audit_result TEXT` (JSON, nullable), `counterarg_result TEXT` (JSON, nullable), `version_number INTEGER`, `UNIQUE(document_id, version_number)`.
+
+### Documents library — `functions/_lib/documents/`
+
+| File | Exports |
+|---|---|
+| `types.ts` | `Document`, `DocumentVersion`, `DocumentDb` interface |
+| `db.ts` | `makeDocumentDb(d1): DocumentDb` — D1-backed implementation |
+| `limits.ts` | `ensureFreeUserCanCreateDocument(db, userId, hasActiveSubscription)` — auto-archives oldest document before creating a second, for free users |
+| `handlers.ts` | `handleCreateDocument`, `handleCreateVersion`, `handleVersionAudit`, `handleVersionCounterarg` — each takes injectable deps for unit testing |
+
+### REST endpoints — `src/pages/api/documents/`
+
+| Route | Method | Description |
+|---|---|---|
+| `/api/documents` | GET | List active documents (auth required) |
+| `/api/documents` | POST | Create document + first version; enforces free-user one-doc limit |
+| `/api/documents/[id]` | GET | Get document + latest version |
+| `/api/documents/[id]` | PATCH | Update title |
+| `/api/documents/[id]` | DELETE | Archive document |
+| `/api/documents/[id]/versions` | GET | List versions (descending) |
+| `/api/documents/[id]/versions` | POST | Create new version |
+| `/api/documents/[id]/versions/[versionId]` | GET | Get specific version |
+| `/api/documents/[id]/versions/[versionId]/audit` | POST | Run structural audit, store result |
+| `/api/documents/[id]/versions/[versionId]/counterargument` | POST | Run counterargument (subscription-gated), store result |
+
+All routes perform ownership checks — users can only access their own documents.
+
+### Studio editor — `src/components/studio/StudioEditor.tsx`
+
+New props: `initialDocId`, `initialTitle`, `initialContent`, `initialVersionId`, `initialAuditResult`, `initialCounterargResult`.
+
+New state and behaviors:
+- **Title input** at the top of the editor; auto-saved (PATCH) on blur if a document exists
+- **"New draft" button** shown to subscribers only; clears all state and removes `?doc=` from the URL
+- **Version management** on "Analyse my draft":
+  1. No docId → `POST /api/documents` → creates doc + version, updates URL to `?doc={id}`
+  2. DocId + changed content → `POST /api/documents/{id}/versions` → new version
+  3. DocId + same content → re-runs on existing version
+- Analysis calls now go to `POST .../versions/{id}/audit` and `POST .../versions/{id}/counterargument` (storing results in DB) instead of the generic audit/counterarg endpoints
+- On load with `?doc=`: stored audit and counterarg results are shown immediately from server-side props (no loading flash)
+
+### Studio page — `src/pages/creator/studio.astro`
+
+- Reads `?doc=` query param; loads document + latest version from D1 if found and owned by session user
+- Parses and passes stored `audit_result` and `counterarg_result` JSON to the StudioEditor island
+- Nav now includes "My documents →" link
+
+### Documents list page — `src/pages/creator/documents.astro`
+
+- Auth-gated; lists all active documents for the session user, sorted by `updated_at DESC`
+- Each row links to `/creator/studio?doc={id}`
+- "New draft" button links to `/creator/studio` (no `?doc=` → creates fresh document on first run)
+
+### Free vs. paid behaviour
+
+| Tier | Active documents | Revision history |
+|---|---|---|
+| Free (no subscription) | 1 (oldest auto-archived on new create) | Last run only |
+| Subscribed | Unlimited | Full history accessible via API |
+
+### Tests (28 new)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/documents/db.test.ts` | 9 | Map-backed fake DocumentDb: create, list, count, update title, create versions, latest version, stored results, list order |
+| `tests/documents/handlers.test.ts` | 19 | `handleCreateDocument` (auth, input validation, free limit, paid), `handleCreateVersion` (auth, ownership), `handleVersionAudit` (auth, ownership, version check, 503 on no key), `handleVersionCounterarg` (auth, 402 on no subscription, ownership, result storage), limits integration |
+
+Full suite: **215 tests, all passing** (28 new + 187 existing).
+
+### Build status
+
+- `npm test` — 215/215 passing
+- `npx astro check` — 0 errors
+
+### Migration command (Daniel must run before going live)
+
+```
+npx wrangler d1 execute whetstone-users         --file=migrations/0003_documents.sql --remote
+npx wrangler d1 execute whetstone-users-preview --file=migrations/0003_documents.sql --remote
+```

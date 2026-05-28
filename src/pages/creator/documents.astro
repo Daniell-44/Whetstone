@@ -1,0 +1,81 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { makeDocumentDb } from '../../../functions/_lib/documents/db';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+import type { Document } from '../../../functions/_lib/documents/types';
+
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+
+if (!session) {
+  return Astro.redirect('/login?returnTo=/creator/documents');
+}
+
+const documents: Document[] = await makeDocumentDb(env.DB).listActiveDocumentsForUser(session.user_id);
+
+function formatDate(epochMs: number): string {
+  return new Date(epochMs).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+---
+<Base
+  title="My Documents — The Whetstone"
+  description="Your saved Studio drafts."
+  canonicalPath="/creator/documents"
+  isLoggedIn={true}
+>
+  <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
+
+    <nav class="mb-10">
+      <a href="/creator" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Creator</a>
+    </nav>
+
+    <header class="mb-10 flex items-start justify-between">
+      <div>
+        <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Creator Studio</p>
+        <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight">My Documents</h1>
+      </div>
+      <a
+        href="/creator/studio"
+        class="mt-4 shrink-0 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+      >
+        New draft
+      </a>
+    </header>
+
+    {documents.length === 0 ? (
+      <div class="rounded-xl border border-gray-100 bg-gray-50 p-12 text-center">
+        <p class="text-gray-400 mb-4">No saved drafts yet.</p>
+        <a href="/creator/studio" class="text-sm text-amber-600 hover:text-amber-700 underline">
+          Start your first draft →
+        </a>
+      </div>
+    ) : (
+      <ul class="divide-y divide-gray-100">
+        {documents.map(doc => (
+          <li class="py-4 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <a
+                href={`/creator/studio?doc=${doc.id}`}
+                class="block text-sm font-medium text-gray-900 hover:text-amber-700 truncate transition-colors"
+              >
+                {doc.title}
+              </a>
+              <p class="text-xs text-gray-400 mt-0.5">Updated {formatDate(doc.updated_at)}</p>
+            </div>
+            <a
+              href={`/creator/studio?doc=${doc.id}`}
+              class="shrink-0 text-xs text-gray-400 hover:text-amber-600 transition-colors"
+            >
+              Open →
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+
+  </main>
+</Base>

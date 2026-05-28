@@ -11,7 +11,10 @@ export function makeEmailSender(resendApiKey: string, fetchFn: FetchFn = fetch):
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from:    'noreply@whetstone.so',
+        // Using Resend's sandbox sender — works without domain verification.
+        // Caveat: this only delivers to the email address on your Resend account.
+        // Replace with 'noreply@<your-verified-domain>' once you own and verify a domain in Resend.
+        from:    'onboarding@resend.dev',
         to,
         subject: 'Sign in to The Whetstone',
         html: [
