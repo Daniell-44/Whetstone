@@ -21,5 +21,10 @@ declare namespace Cloudflare {
     ALLOWED_ORIGINS?:      string;
     COST_TEST_SECRET?:    string;
     SITE_URL?:            string;
+    // Stripe — secrets set via wrangler secret put, not in wrangler.toml
+    STRIPE_SECRET_KEY?:   string;
+    STRIPE_WEBHOOK_SECRET?: string;
+    // Stripe price ID — set in wrangler.toml [vars] after creating the product
+    STRIPE_PRICE_ID?:     string;
   }
 }

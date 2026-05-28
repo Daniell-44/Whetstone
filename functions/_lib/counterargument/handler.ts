@@ -20,11 +20,12 @@ const BodySchema = z.object({
 // ---------------------------------------------------------------------------
 
 export interface CounterargHandlerDeps {
-  rateLimitKv:        RateLimitKV | undefined;
-  geminiApiKey:       string | undefined;
-  counterargDailyCap: number;
-  provider:           LlmProvider;
-  getSession:         (request: Request) => Promise<{ userId: string } | null>;
+  rateLimitKv:         RateLimitKV | undefined;
+  geminiApiKey:        string | undefined;
+  counterargDailyCap:  number;
+  provider:            LlmProvider;
+  getSession:          (request: Request) => Promise<{ userId: string } | null>;
+  checkSubscription:   (userId: string) => Promise<boolean>;
 }
 
 // ---------------------------------------------------------------------------
@@ -40,7 +41,7 @@ function json(body: unknown, status = 200): Response {
 
 export async function handleCounterargRequest(
   request: Request,
-  deps: CounterargHandlerDeps,
+  deps:    CounterargHandlerDeps,
 ): Promise<Response> {
 
   // Auth gate — session required.
@@ -50,6 +51,15 @@ export async function handleCounterargRequest(
       ok:    false,
       error: { code: 'UNAUTHORIZED', message: 'Sign in to use Studio' },
     }, 401);
+  }
+
+  // Subscription gate — active Studio subscription required.
+  const hasSubscription = await deps.checkSubscription(session.userId);
+  if (!hasSubscription) {
+    return json({
+      ok:    false,
+      error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active Studio subscription required.' },
+    }, 402);
   }
 
   // Per-user rate limit keyed by user ID.

@@ -1,0 +1,134 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../layouts/Base.astro';
+import CheckoutButton from '../components/billing/CheckoutButton';
+import { makeAuthDb } from '../../functions/_lib/auth/db';
+import { makeBillingDb } from '../../functions/_lib/billing/subscription';
+import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
+import { userHasActiveSubscription } from '../../functions/_lib/billing/subscription';
+
+const authDb    = makeAuthDb(env.DB);
+const billingDb = makeBillingDb(env.DB);
+const session   = await getSessionFromRequest(Astro.request, authDb);
+const isLoggedIn = !!session;
+const hasSubscription = session
+  ? await userHasActiveSubscription(billingDb, session.user_id)
+  : false;
+
+const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
+
+// NOTE: The price displayed below ($15/mo) is hardcoded copy.
+// If you set a different amount in Stripe, update this page too.
+---
+<Base
+  title="Pricing — The Whetstone"
+  description="Creator Studio gives you full argument analysis plus counterargument generation. $15/month."
+  canonicalPath="/pricing"
+  isLoggedIn={isLoggedIn}
+>
+  <main class="max-w-xl mx-auto px-6 pt-20 pb-24">
+
+    <header class="mb-12 text-center">
+      <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Plans</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-4">
+        Simple pricing
+      </h1>
+      <p class="text-lg text-gray-500">One plan. Everything included.</p>
+    </header>
+
+    {checkoutCanceled && (
+      <div class="mb-8 rounded-xl bg-amber-50 border border-amber-200 px-5 py-4">
+        <p class="text-sm text-amber-800">Checkout was cancelled — no charge was made. Subscribe below when you're ready.</p>
+      </div>
+    )}
+
+    <!-- Plan card -->
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+
+      <!-- Header -->
+      <div class="bg-amber-50 border-b border-amber-100 px-8 py-7">
+        <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-2">Creator Studio</p>
+        <div class="flex items-baseline gap-1">
+          <span class="font-serif text-5xl text-gray-900">$15</span>
+          <span class="text-gray-400 text-sm">/month</span>
+        </div>
+        <p class="mt-2 text-sm text-gray-500">Cancel anytime from your account page.</p>
+      </div>
+
+      <!-- Features -->
+      <div class="px-8 py-6 space-y-3">
+        {[
+          'Full structural audit (Toulmin analysis, named fallacies, loaded language)',
+          'Counterargument generation — up to 3 steelmanned opposing positions per draft',
+          'Up to 50 audits per day',
+          'Up to 20 counterargument runs per day',
+          'Priority access to new Creator tools as they ship',
+        ].map(feature => (
+          <div class="flex gap-3 items-start">
+            <span class="text-amber-500 mt-0.5 shrink-0">✓</span>
+            <span class="text-sm text-gray-700">{feature}</span>
+          </div>
+        ))}
+        <div class="pt-2 border-t border-gray-100 mt-4">
+          <div class="flex gap-3 items-start">
+            <span class="text-gray-300 mt-0.5 shrink-0">○</span>
+            <span class="text-sm text-gray-400">Public Audit page (/audit) stays free for everyone</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="px-8 pb-8">
+        {!isLoggedIn ? (
+          <a
+            href="/login?returnTo=/pricing"
+            class="block w-full py-3 px-6 rounded-xl text-sm font-semibold text-center bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+          >
+            Sign in to subscribe
+          </a>
+        ) : hasSubscription ? (
+          <div class="space-y-3">
+            <div class="rounded-xl bg-green-50 border border-green-200 px-5 py-3 text-center">
+              <p class="text-sm font-medium text-green-800">You're subscribed to Creator Studio</p>
+            </div>
+            <button
+              id="pricing-portal-btn"
+              type="button"
+              class="w-full py-2.5 px-6 rounded-xl text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              Manage subscription →
+            </button>
+          </div>
+        ) : (
+          <CheckoutButton client:load />
+        )}
+      </div>
+
+    </div>
+
+    <!-- Free tier note -->
+    <p class="mt-8 text-center text-xs text-gray-400">
+      The Reader hub and public Audit page are always free.
+      Creator Studio Pro unlocks the counterargument engine.
+    </p>
+
+  </main>
+</Base>
+
+{isLoggedIn && hasSubscription && (
+  <script>
+    document.getElementById('pricing-portal-btn')?.addEventListener('click', async () => {
+      const btn = document.getElementById('pricing-portal-btn') as HTMLButtonElement | null;
+      if (btn) btn.textContent = 'Opening…';
+      try {
+        const res  = await fetch('/api/billing/portal', { method: 'POST' });
+        const data = await res.json() as { ok: boolean; url?: string };
+        if (data.ok && data.url) window.location.assign(data.url);
+      } catch {
+        if (btn) btn.textContent = 'Manage subscription →';
+      }
+    });
+  </script>
+)}

@@ -5,17 +5,22 @@ import { env } from 'cloudflare:workers';
 import { GeminiProvider } from '../../../functions/_lib/providers/gemini';
 import { handleCounterargRequest } from '../../../functions/_lib/counterargument/handler';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+import { userHasActiveSubscription } from '../../../functions/_lib/billing/subscription';
 
 const provider = new GeminiProvider();
 
 export const POST: APIRoute = async ({ request }) => {
-  const db = makeAuthDb(env.DB);
+  const authDb    = makeAuthDb(env.DB);
+  const billingDb = makeBillingDb(env.DB);
+
   return handleCounterargRequest(request, {
     rateLimitKv:        env.RATE_LIMIT,
     geminiApiKey:       env.GEMINI_API_KEY,
     counterargDailyCap: parseInt(env.COUNTERARG_DAILY_CAP ?? '20', 10),
     provider,
-    getSession: (req) => getSessionFromRequest(req, db).then(s => s ? { userId: s.user_id } : null),
+    getSession:         (req) => getSessionFromRequest(req, authDb).then(s => s ? { userId: s.user_id } : null),
+    checkSubscription:  (userId) => userHasActiveSubscription(billingDb, userId),
   });
 };

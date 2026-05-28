@@ -105,6 +105,24 @@ function CounterargResults({ result }: { result: CounterargumentResult }) {
   );
 }
 
+function CounterargUpsell() {
+  return (
+    <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
+      <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
+      <p class="text-sm text-gray-700 leading-relaxed max-w-sm mx-auto">
+        Counterargument generation surfaces the strongest opposing positions your draft fails
+        to engage with. Subscribe for $15/mo to unlock it.
+      </p>
+      <a
+        href="/pricing"
+        class="inline-block rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+      >
+        See plans →
+      </a>
+    </div>
+  );
+}
+
 function SectionError({ code, message }: { code: string; message: string }) {
   if (code === 'UNAUTHORIZED') {
     return (
@@ -135,15 +153,19 @@ function SectionLoading({ label }: { label: string }) {
 // Main editor component
 // ---------------------------------------------------------------------------
 
-export default function StudioEditor() {
-  const [draft, setDraft]                                     = useState('');
-  const [isRunning, setIsRunning]                             = useState(false);
-  const [auditState, setAuditState]                           = useState<SectionState<AuditResult>>({ status: 'idle' });
-  const [counterargState, setCounterargState]                 = useState<SectionState<CounterargumentResult>>({ status: 'idle' });
+interface Props {
+  hasActiveSubscription: boolean;
+}
 
-  const charCount = draft.length;
-  const canSubmit = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
-  const showResults = auditState.status !== 'idle' || counterargState.status !== 'idle';
+export default function StudioEditor({ hasActiveSubscription }: Props) {
+  const [draft, setDraft]         = useState('');
+  const [isRunning, setIsRunning] = useState(false);
+  const [auditState, setAuditState]         = useState<SectionState<AuditResult>>({ status: 'idle' });
+  const [counterargState, setCounterargState] = useState<SectionState<CounterargumentResult>>({ status: 'idle' });
+
+  const charCount  = draft.length;
+  const canSubmit  = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
+  const showResults = auditState.status !== 'idle' || (hasActiveSubscription && counterargState.status !== 'idle');
 
   const handleAnalyse = useCallback(() => {
     if (!canSubmit) return;
@@ -151,16 +173,16 @@ export default function StudioEditor() {
 
     setIsRunning(true);
     setAuditState({ status: 'loading' });
-    setCounterargState({ status: 'loading' });
+    if (hasActiveSubscription) setCounterargState({ status: 'loading' });
 
     let auditDone      = false;
-    let counterargDone = false;
+    let counterargDone = !hasActiveSubscription; // already "done" if we won't fire it
 
     function checkDone() {
       if (auditDone && counterargDone) setIsRunning(false);
     }
 
-    // Fire audit independently.
+    // Audit — always fires.
     fetch('/api/audit', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -184,30 +206,32 @@ export default function StudioEditor() {
       })
       .finally(() => { auditDone = true; checkDone(); });
 
-    // Fire counterargument independently.
-    fetch('/api/counterargument', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ text }),
-    })
-      .then(r => r.json() as Promise<CounterargApiResponse>)
-      .then(data => {
-        if (data.ok) {
-          setCounterargState({ status: 'done', data: data.result });
-        } else {
-          const code = data.error.code;
-          setCounterargState({
-            status:  'error',
-            code,
-            message: COUNTERARG_ERROR_MESSAGES[code] ?? data.error.message,
-          });
-        }
+    // Counterargument — only fires for subscribers.
+    if (hasActiveSubscription) {
+      fetch('/api/counterargument', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ text }),
       })
-      .catch(() => {
-        setCounterargState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' });
-      })
-      .finally(() => { counterargDone = true; checkDone(); });
-  }, [draft, canSubmit]);
+        .then(r => r.json() as Promise<CounterargApiResponse>)
+        .then(data => {
+          if (data.ok) {
+            setCounterargState({ status: 'done', data: data.result });
+          } else {
+            const code = data.error.code;
+            setCounterargState({
+              status:  'error',
+              code,
+              message: COUNTERARG_ERROR_MESSAGES[code] ?? data.error.message,
+            });
+          }
+        })
+        .catch(() => {
+          setCounterargState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' });
+        })
+        .finally(() => { counterargDone = true; checkDone(); });
+    }
+  }, [draft, canSubmit, hasActiveSubscription]);
 
   return (
     <div class="space-y-6">
@@ -255,7 +279,7 @@ export default function StudioEditor() {
           >
             {isRunning ? 'Analysing…' : 'Analyse my draft'}
           </button>
-          {isRunning && (
+          {isRunning && hasActiveSubscription && (
             <p class="text-xs text-center text-gray-400">
               ~30–60s — the counterargument engine takes longer than a simple audit.
             </p>
@@ -289,17 +313,33 @@ export default function StudioEditor() {
             <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
               Counterarguments
             </h2>
-            {counterargState.status === 'loading' && (
-              <SectionLoading label="Generating strongest opposing positions…" />
-            )}
-            {counterargState.status === 'error' && (
-              <SectionError code={counterargState.code} message={counterargState.message} />
-            )}
-            {counterargState.status === 'done' && (
-              <CounterargResults result={counterargState.data} />
+            {!hasActiveSubscription ? (
+              <CounterargUpsell />
+            ) : (
+              <>
+                {counterargState.status === 'loading' && (
+                  <SectionLoading label="Generating strongest opposing positions…" />
+                )}
+                {counterargState.status === 'error' && (
+                  <SectionError code={counterargState.code} message={counterargState.message} />
+                )}
+                {counterargState.status === 'done' && (
+                  <CounterargResults result={counterargState.data} />
+                )}
+              </>
             )}
           </div>
 
+        </div>
+      )}
+
+      {/* Upsell shown before first run when not subscribed */}
+      {!showResults && !hasActiveSubscription && (
+        <div class="rounded-xl border border-violet-200 bg-white p-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+            Counterarguments
+          </h2>
+          <CounterargUpsell />
         </div>
       )}
 

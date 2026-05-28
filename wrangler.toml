@@ -60,6 +60,24 @@ database_name       = "whetstone-users"
 database_id         = "1485b1e6-f72c-4561-9865-84418976136b"
 preview_database_id = "f49148ac-f43f-4e24-861f-347d00c07a59"
 
+# ---------------------------------------------------------------------------
+# Stripe setup checklist (do these before deploying CS-2):
+#
+# 1. stripe.com → switch to Test Mode (toggle top-right)
+# 2. Products → Add Product: "The Whetstone Creator Studio"
+#    Under that product, add a recurring monthly Price (e.g. $15/mo)
+#    Copy the Price ID (starts price_...) and paste below as STRIPE_PRICE_ID
+# 3. Developers → API Keys → copy the Test Mode secret key (starts sk_test_...)
+# 4. After deploying once, Developers → Webhooks → Add endpoint:
+#      URL: https://devils-advocate-site.daniellivingstone2005.workers.dev/api/billing/webhook
+#      Events: customer.subscription.created, customer.subscription.updated,
+#              customer.subscription.deleted, invoice.payment_succeeded, invoice.payment_failed
+#    Copy the Webhook signing secret (starts whsec_...)
+# 5. Set secrets:
+#      npx wrangler secret put STRIPE_SECRET_KEY --config dist/server/wrangler.json
+#      npx wrangler secret put STRIPE_WEBHOOK_SECRET --config dist/server/wrangler.json
+# ---------------------------------------------------------------------------
+
 [vars]
 LLM_PROVIDER          = "gemini"
 FREE_TIER_DAILY_CAP   = "20"
@@ -67,6 +85,8 @@ AUDIT_DAILY_CAP       = "10"
 AUDIT_USER_DAILY_CAP  = "50"
 COUNTERARG_DAILY_CAP  = "20"
 SITE_URL              = "https://devils-advocate-site.daniellivingstone2005.workers.dev"
+# Replace after creating the Stripe product and price (see checklist above)
+STRIPE_PRICE_ID       = "price_REPLACE_AFTER_STRIPE_PRODUCT_CREATED"
 # ALLOWED_ORIGINS: comma-separated. Example:
 # ALLOWED_ORIGINS = "chrome-extension://YOUR_EXTENSION_ID,https://whetstone.so"
 # RESEND_API_KEY is a secret — set via: wrangler secret put RESEND_API_KEY --config dist/server/wrangler.json

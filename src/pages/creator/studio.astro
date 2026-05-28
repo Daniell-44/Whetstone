@@ -5,14 +5,19 @@ import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import StudioEditor from '../../components/studio/StudioEditor';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+import { userHasActiveSubscription } from '../../../functions/_lib/billing/subscription';
 
-const db      = makeAuthDb(env.DB);
-const session = await getSessionFromRequest(Astro.request, db);
+const authDb    = makeAuthDb(env.DB);
+const billingDb = makeBillingDb(env.DB);
+const session   = await getSessionFromRequest(Astro.request, authDb);
 
 if (!session) {
   return Astro.redirect('/login?returnTo=/creator/studio');
 }
+
+const hasActiveSubscription = await userHasActiveSubscription(billingDb, session.user_id);
 ---
 <Base
   title="Creator Studio — The Whetstone"
@@ -32,12 +37,14 @@ if (!session) {
         Studio — audit your draft
       </h1>
       <p class="text-lg text-gray-500 leading-relaxed max-w-xl">
-        Paste your draft. We'll run the structural audit and surface the strongest opposing
-        positions you haven't engaged with.
+        Paste your draft. We'll run the structural audit{hasActiveSubscription ? ' and surface the strongest opposing positions you haven\'t engaged with.' : '.'}
+        {!hasActiveSubscription && (
+          <span> <a href="/pricing" class="text-amber-600 hover:text-amber-700 underline">Subscribe</a> to also generate counterarguments.</span>
+        )}
       </p>
     </header>
 
-    <StudioEditor client:load />
+    <StudioEditor client:load hasActiveSubscription={hasActiveSubscription} />
 
   </main>
 </Base>

@@ -4,24 +4,46 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
 import { makeAuthDb } from '../../functions/_lib/auth/db';
+import { makeBillingDb } from '../../functions/_lib/billing/subscription';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
+import { getUserSubscription } from '../../functions/_lib/billing/subscription';
 
-const db      = makeAuthDb(env.DB);
-const session = await getSessionFromRequest(Astro.request, db);
+const authDb    = makeAuthDb(env.DB);
+const billingDb = makeBillingDb(env.DB);
+const session   = await getSessionFromRequest(Astro.request, authDb);
 
 if (!session) {
   return Astro.redirect('/login');
 }
 
-const user = await db.findUserById(session.user_id);
+const user = await authDb.findUserById(session.user_id);
+const sub  = await getUserSubscription(billingDb, session.user_id);
+
 const loginDate = new Date(session.created_at).toLocaleDateString('en-GB', {
   day: 'numeric', month: 'long', year: 'numeric',
 });
+
+const checkoutSuccess = Astro.url.searchParams.get('checkout') === 'success';
+
+function formatPeriodEnd(ms: number | null | undefined): string {
+  if (!ms) return '—';
+  return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+const ACTIVE_STATUSES = new Set(['active', 'trialing']);
+const isActive = sub && ACTIVE_STATUSES.has(sub.status);
 ---
 <Base title="Account — The Whetstone" canonicalPath="/account" isLoggedIn={true}>
   <main class="max-w-md mx-auto px-6 py-16">
     <h1 class="text-2xl font-semibold text-gray-900 mb-8">Your account</h1>
 
+    {checkoutSuccess && (
+      <div class="mb-6 rounded-xl bg-green-50 border border-green-200 px-5 py-4">
+        <p class="text-sm font-medium text-green-800">Subscription activated — welcome to Creator Studio Pro.</p>
+      </div>
+    )}
+
+    <!-- Account details -->
     <div class="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
       <div class="px-5 py-4">
         <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Email</p>
@@ -33,14 +55,89 @@ const loginDate = new Date(session.created_at).toLocaleDateString('en-GB', {
       </div>
     </div>
 
+    <!-- Subscription -->
+    <div class="mt-8">
+      <h2 class="text-sm font-semibold text-gray-700 mb-3">Creator Studio subscription</h2>
+
+      <div class="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
+        {!sub ? (
+          <!-- No subscription record at all -->
+          <div class="px-5 py-4">
+            <p class="text-sm text-gray-500 mb-3">No active subscription.</p>
+            <a
+              href="/pricing"
+              class="inline-block rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+            >
+              Subscribe to Studio — $15/mo
+            </a>
+          </div>
+        ) : isActive ? (
+          <!-- Active or trialing -->
+          <div class="px-5 py-4 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 capitalize">
+                {sub.status}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600">
+              {sub.status === 'trialing' ? 'Trial ends' : 'Renews'} on {formatPeriodEnd(sub.currentPeriodEnd)}
+            </p>
+            <button
+              id="account-portal-btn"
+              type="button"
+              class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Manage subscription →
+            </button>
+          </div>
+        ) : (
+          <!-- Past due / canceled / incomplete -->
+          <div class="px-5 py-4 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 capitalize">
+                {sub.status}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600">
+              {sub.status === 'past_due'
+                ? 'Your payment failed. Update your payment method to restore access.'
+                : 'Your subscription is no longer active.'}
+            </p>
+            <button
+              id="account-portal-btn"
+              type="button"
+              class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              {sub.status === 'past_due' ? 'Update payment method →' : 'Reactivate or view billing →'}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+
     <form action="/api/auth/logout" method="post" class="mt-8">
       <button
         type="submit"
-        class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700
-               hover:bg-gray-50 transition-colors"
+        class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
       >
         Sign out
       </button>
     </form>
   </main>
 </Base>
+
+{sub && (
+  <script>
+    document.getElementById('account-portal-btn')?.addEventListener('click', async () => {
+      const btn = document.getElementById('account-portal-btn') as HTMLButtonElement | null;
+      if (btn) { btn.disabled = true; btn.textContent = 'Opening…'; }
+      try {
+        const res  = await fetch('/api/billing/portal', { method: 'POST' });
+        const data = await res.json() as { ok: boolean; url?: string };
+        if (data.ok && data.url) window.location.assign(data.url);
+      } catch {
+        if (btn) { btn.disabled = false; btn.textContent = 'Manage subscription →'; }
+      }
+    });
+  </script>
+)}

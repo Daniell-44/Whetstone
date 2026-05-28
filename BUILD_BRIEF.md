@@ -842,3 +842,133 @@ Full suite: **130 tests, all passing** (17 new + 113 existing).
 - `pnpm run build` — exit 0
 - `npx astro check` — 0 errors, 0 warnings (5 pre-existing hints unchanged)
 - `pnpm run typecheck` — 0 errors
+
+---
+
+## Creator Studio, Prompt CS-2 — Stripe + subscriptions
+
+**Committed:** (this prompt)
+
+### What was built
+
+The payment layer for Creator Studio v1. Users with a magic-link account can subscribe via Stripe Checkout for $15/month. After subscribing, the counterargument engine unlocks in the Studio page. Non-subscribers see an inline upsell card in the Studio and cannot reach the `/api/counterargument` endpoint. Webhooks keep subscription state in D1.
+
+### Database — migration `0002_subscriptions.sql`
+
+Five nullable columns added to the existing `users` table (via `ALTER TABLE`):
+
+| Column | Type | Notes |
+|---|---|---|
+| `stripe_customer_id` | TEXT | Populated on first Checkout; indexed |
+| `stripe_subscription_id` | TEXT | Stripe sub ID |
+| `subscription_status` | TEXT | Stripe status: active, trialing, past_due, canceled, etc. |
+| `subscription_current_period_end` | INTEGER | Epoch ms (Stripe gives seconds; multiplied by 1000) |
+| `subscription_updated_at` | INTEGER | Epoch ms of last Stripe sync |
+
+One subscription per user for v1; all columns null = never subscribed.
+
+### Billing library (`functions/_lib/billing/`)
+
+| File | Purpose |
+|---|---|
+| `types.ts` | `DbUserWithSubscription`, `StripeSubscription`, `BillingDb` interface |
+| `stripe-client.ts` | Fetch-based Stripe REST client: `createCustomer`, `createCheckoutSession`, `createBillingPortalSession`, `retrieveSubscription`. Uses `application/x-www-form-urlencoded` with recursive bracket notation for nested objects. Accepts optional `_fetch` parameter for test injection. |
+| `webhook-verify.ts` | `verifyStripeSignature(rawBody, header, secret)` — parses `Stripe-Signature` header, verifies HMAC-SHA256 via `crypto.subtle.verify` (constant-time), rejects events >5 minutes old. Returns parsed JSON on success, throws on failure. |
+| `subscription.ts` | `makeBillingDb(d1)` factory + `userHasActiveSubscription`, `getUserSubscription`, `upsertSubscriptionFromStripe` helpers |
+| `checkout-handler.ts` | `handleCheckoutRequest(request, deps)` — 401 if no session; creates Stripe Customer if new; creates Checkout Session; returns `{ ok: true, url }` |
+| `portal-handler.ts` | `handlePortalRequest(request, deps)` — 401 if no session; 400 if no Stripe customer; creates Billing Portal session; returns `{ ok: true, url }` |
+| `webhook-handler.ts` | `handleWebhookRequest(request, deps)` — verifies signature; routes `customer.subscription.*` and `invoice.payment_*` events to `upsertSubscriptionFromStripe`; always returns 200 (logs failures, no Stripe retries); injectable `verifySignature` for tests |
+
+### Endpoints
+
+| Endpoint | Auth | Purpose |
+|---|---|---|
+| `POST /api/billing/checkout` | Session required | Create/reuse Stripe Customer → Checkout Session → return redirect URL |
+| `POST /api/billing/portal` | Session required | Create Billing Portal session → return redirect URL |
+| `POST /api/billing/webhook` | Signature verified | Handle Stripe events; update subscription state in D1 |
+
+### Counterargument gate tightened
+
+`/api/counterargument` (and its handler `handleCounterargRequest`) now has a two-step gate:
+1. Session check → 401 `UNAUTHORIZED` if no session
+2. Subscription check → 402 `SUBSCRIPTION_REQUIRED` if no active subscription
+
+`checkSubscription: (userId: string) => Promise<boolean>` is now a required dep in `CounterargHandlerDeps`. The Astro route wires it to `userHasActiveSubscription(billingDb, userId)`. All existing tests updated to include `checkSubscription: async () => true`.
+
+### Studio page — subscribe-to-unlock
+
+`src/pages/creator/studio.astro` now computes `hasActiveSubscription` server-side (via `userHasActiveSubscription`) and passes it to the `StudioEditor` island as a prop.
+
+`StudioEditor.tsx` behaviour by subscription state:
+
+| State | Audit | Counterarguments section |
+|---|---|---|
+| `hasActiveSubscription = true` | Fires, renders results | Fires in parallel, renders results |
+| `hasActiveSubscription = false` | Fires, renders results | Shows upsell card; request never fired |
+
+The upsell card explains the feature, quotes $15/mo, and links to `/pricing`.
+
+### Pricing page — `src/pages/pricing.astro`
+
+SSR, public. Session-aware button CTA:
+
+| Session state | CTA |
+|---|---|
+| Not logged in | "Sign in to subscribe" → `/login?returnTo=/pricing` |
+| Logged in, no subscription | `CheckoutButton` Preact island → POST `/api/billing/checkout` → redirect to Stripe |
+| Logged in, active subscription | "You're subscribed" + "Manage subscription →" (portal redirect via script tag) |
+
+Hardcoded display price: **$15/mo** — see comment in the file if Daniel sets a different amount in Stripe.
+
+### Account page additions
+
+Subscription section below existing user info shows:
+- No subscription: "No active subscription" + link to `/pricing`
+- `active`/`trialing`: status badge, "Renews/Trial ends on {date}", "Manage subscription →" button
+- `past_due`/`canceled`: status badge, contextual message, portal button for reactivation
+
+Portal redirect uses a `<script>` tag (no Preact island needed — single click handler).
+
+### New env vars
+
+| Key | Type | Set where |
+|---|---|---|
+| `STRIPE_PRICE_ID` | var | `wrangler.toml [vars]` — replace placeholder after creating the Stripe product |
+| `STRIPE_SECRET_KEY` | secret | `wrangler secret put` after deploy |
+| `STRIPE_WEBHOOK_SECRET` | secret | `wrangler secret put` after deploy |
+
+### Tests (35 new)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/billing/stripe-client.test.ts` | 6 | Form encoding, bracket notation, auth headers, 4xx throws |
+| `tests/billing/webhook-verify.test.ts` | 7 | Valid signature, tampered body, wrong secret, stale timestamp, missing fields, boundary (300s) |
+| `tests/billing/subscription.test.ts` | 9 | `userHasActiveSubscription`: active+future, trialing+future, active+expired, canceled, past_due, null status, null user; `getUserSubscription` null + present |
+| `tests/billing/webhook-handler.test.ts` | 10 | Bad sig → 400, no secret → 500, subscription events (×3) upsert correctly, no user found → 200 no upsert, invoice events (×2) refresh subscription, unknown events → 200 no upsert, processing throw → 200 |
+| `tests/counterargument/endpoint.test.ts` | +3 new | 402 SUBSCRIPTION_REQUIRED when no subscription, passes with subscription, auth checked before subscription |
+
+Full suite: **187 tests, all passing** (35 new + 152 existing).
+
+### Build status
+
+- `npm test` — 187/187 passing
+- `npm run build` — exit 0
+- `npx astro check` — 0 errors
+- `npm run typecheck` — 0 errors
+
+### Stripe setup (Daniel must do before going live)
+
+See the comment block at the top of `[vars]` in `wrangler.toml` for the ordered steps:
+
+1. Stripe dashboard → Test Mode → Create Product "The Whetstone Creator Studio" → Add recurring monthly Price → copy `price_...` ID → paste into `wrangler.toml STRIPE_PRICE_ID`
+2. Copy the Test Mode secret key (`sk_test_...`)
+3. Deploy once, then add Webhook endpoint at `/api/billing/webhook` with the 5 event types listed
+4. Copy webhook signing secret (`whsec_...`)
+5. `npx wrangler secret put STRIPE_SECRET_KEY --config dist/server/wrangler.json`
+6. `npx wrangler secret put STRIPE_WEBHOOK_SECRET --config dist/server/wrangler.json`
+7. Apply migration to both databases:
+   ```
+   npx wrangler d1 execute whetstone-users         --file=migrations/0002_subscriptions.sql --remote
+   npx wrangler d1 execute whetstone-users-preview --file=migrations/0002_subscriptions.sql --remote
+   ```
+8. Test end-to-end with Stripe test card `4242 4242 4242 4242`, any future expiry, any CVC

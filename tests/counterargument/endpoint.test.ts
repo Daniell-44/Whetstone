@@ -55,6 +55,7 @@ function makeDeps(overrides?: Partial<CounterargHandlerDeps>): CounterargHandler
     counterargDailyCap: 20,
     provider:           makeProvider(),
     getSession:         async () => ({ userId: 'user-test-123' }),
+    checkSubscription:  async () => true,
     ...overrides,
   };
 }
@@ -84,13 +85,53 @@ describe('POST /api/counterargument — auth gate', () => {
     expect(data.error.message).toMatch(/sign in/i);
   });
 
-  it('allows an authenticated user through', async () => {
+  it('allows an authenticated subscribed user through', async () => {
     const req  = makeRequest({ text: 'a'.repeat(50) });
     const res  = await handleCounterargRequest(req, makeDeps());
     const data = await rj(res);
 
     expect(res.status).toBe(200);
     expect(data.ok).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Subscription gate
+// ---------------------------------------------------------------------------
+
+describe('POST /api/counterargument — subscription gate', () => {
+  it('returns 402 SUBSCRIPTION_REQUIRED when session exists but no active subscription', async () => {
+    const deps = makeDeps({ checkSubscription: async () => false });
+    const req  = makeRequest({ text: 'a'.repeat(50) });
+    const res  = await handleCounterargRequest(req, deps);
+    const data = await rj(res);
+
+    expect(res.status).toBe(402);
+    expect(data.ok).toBe(false);
+    expect(data.error.code).toBe('SUBSCRIPTION_REQUIRED');
+    expect(data.error.message).toMatch(/subscription required/i);
+  });
+
+  it('passes subscription check when checkSubscription returns true', async () => {
+    const deps = makeDeps({ checkSubscription: async () => true });
+    const req  = makeRequest({ text: 'a'.repeat(50) });
+    const res  = await handleCounterargRequest(req, deps);
+
+    expect(res.status).toBe(200);
+    expect((await rj(res)).ok).toBe(true);
+  });
+
+  it('checks subscription after auth (no subscription check if no session)', async () => {
+    let subscriptionChecked = false;
+    const deps = makeDeps({
+      getSession:        async () => null,
+      checkSubscription: async () => { subscriptionChecked = true; return false; },
+    });
+    const req = makeRequest({ text: 'a'.repeat(50) });
+    const res = await handleCounterargRequest(req, deps);
+
+    expect(res.status).toBe(401);
+    expect(subscriptionChecked).toBe(false);
   });
 });
 
