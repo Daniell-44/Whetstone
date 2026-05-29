@@ -211,3 +211,41 @@ export async function handleVersionCounterarg(
     return json({ ok: false, error: { code: 'AUDIT_FAILED', message } }, 500);
   }
 }
+
+// ---------------------------------------------------------------------------
+// POST /api/documents/[id]/versions/[versionId]/restore
+// Creates a new version whose content is copied from the specified version.
+// ---------------------------------------------------------------------------
+
+export interface RestoreVersionDeps {
+  db:         DocumentDb;
+  getSession: (req: Request) => Promise<{ userId: string } | null>;
+  newId:      () => string;
+}
+
+export async function handleRestoreVersion(
+  req:       Request,
+  docId:     string,
+  versionId: string,
+  deps:      RestoreVersionDeps,
+): Promise<Response> {
+  const session = await deps.getSession(req);
+  if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
+
+  const doc = await deps.db.getDocumentById(docId);
+  if (!doc || doc.user_id !== session.userId) {
+    return json({ ok: false, error: { code: 'NOT_FOUND', message: 'Document not found' } }, 404);
+  }
+
+  const version = await deps.db.getVersion(versionId);
+  if (!version || version.document_id !== docId) {
+    return json({ ok: false, error: { code: 'NOT_FOUND', message: 'Version not found' } }, 404);
+  }
+
+  const latest     = await deps.db.getLatestVersion(docId);
+  const nextNumber = (latest?.version_number ?? 0) + 1;
+  const newVerId   = deps.newId();
+  await deps.db.createVersion(newVerId, docId, version.content, nextNumber);
+
+  return json({ ok: true, versionId: newVerId, versionNumber: nextNumber });
+}

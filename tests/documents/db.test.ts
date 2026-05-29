@@ -72,6 +72,9 @@ function makeFakeDocumentDb(): DocumentDb {
       const v = versions.get(versionId);
       if (v) versions.set(versionId, { ...v, counterarg_result: counterargResult });
     },
+
+    countVersionsForDocument: async (documentId) =>
+      [...versions.values()].filter(v => v.document_id === documentId).length,
   };
 }
 
@@ -161,5 +164,13 @@ describe('DocumentDb (fake)', () => {
 
     const list = await db.listVersions('doc-1');
     expect(list.map(v => v.version_number)).toEqual([3, 2, 1]);
+  });
+
+  it('counts versions for a document', async () => {
+    await db.createDocument('doc-1', 'user-a', 'D');
+    await db.createVersion('v1', 'doc-1', 'c1', 1);
+    await db.createVersion('v2', 'doc-1', 'c2', 2);
+    expect(await db.countVersionsForDocument('doc-1')).toBe(2);
+    expect(await db.countVersionsForDocument('no-such')).toBe(0);
   });
 });

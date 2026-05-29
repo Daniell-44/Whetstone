@@ -15,7 +15,11 @@ if (!session) {
   return Astro.redirect('/login?returnTo=/creator/documents');
 }
 
-const documents: Document[] = await makeDocumentDb(env.DB).listActiveDocumentsForUser(session.user_id);
+const docDb     = makeDocumentDb(env.DB);
+const documents: Document[] = await docDb.listActiveDocumentsForUser(session.user_id);
+const versionCounts: Record<string, number> = Object.fromEntries(
+  await Promise.all(documents.map(async d => [d.id, await docDb.countVersionsForDocument(d.id)] as const))
+);
 
 function formatDate(epochMs: number): string {
   return new Date(epochMs).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -64,7 +68,15 @@ function formatDate(epochMs: number): string {
               >
                 {doc.title}
               </a>
-              <p class="text-xs text-gray-400 mt-0.5">Updated {formatDate(doc.updated_at)}</p>
+              <div class="flex items-center gap-3 mt-0.5">
+                <p class="text-xs text-gray-400">Updated {formatDate(doc.updated_at)}</p>
+                <a
+                  href={`/creator/documents/${doc.id}/versions`}
+                  class="text-xs text-gray-400 hover:text-amber-600 transition-colors"
+                >
+                  {versionCounts[doc.id] ?? 0} version{(versionCounts[doc.id] ?? 0) === 1 ? '' : 's'}
+                </a>
+              </div>
             </div>
             <a
               href={`/creator/studio?doc=${doc.id}`}

@@ -29,6 +29,7 @@ export interface DocumentDb {
   getLatestVersion(documentId: string): Promise<DocumentVersion | null>;
   getVersion(versionId: string): Promise<DocumentVersion | null>;
   listVersions(documentId: string): Promise<DocumentVersion[]>;
+  countVersionsForDocument(documentId: string): Promise<number>;
   storeAuditResultOnVersion(versionId: string, auditResult: string): Promise<void>;
   storeCounterargResultOnVersion(versionId: string, counterargResult: string): Promise<void>;
 }

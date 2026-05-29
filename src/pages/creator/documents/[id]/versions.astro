@@ -1,0 +1,67 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../../../layouts/Base.astro';
+import VersionsList from '../../../../components/studio/VersionsList';
+import { makeAuthDb } from '../../../../../functions/_lib/auth/db';
+import { makeDocumentDb } from '../../../../../functions/_lib/documents/db';
+import { getSessionFromRequest } from '../../../../../functions/_lib/auth/sessions';
+import type { VersionRow } from '../../../../components/studio/VersionsList';
+
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+
+if (!session) {
+  return Astro.redirect(`/login?returnTo=${Astro.url.pathname}`);
+}
+
+const { id: docId } = Astro.params;
+if (!docId) return Astro.redirect('/creator/documents');
+
+const docDb = makeDocumentDb(env.DB);
+const doc   = await docDb.getDocumentById(docId);
+
+if (!doc || doc.user_id !== session.user_id) {
+  return Astro.redirect('/creator/documents');
+}
+
+const rawVersions = await docDb.listVersions(docId);
+
+const versions: VersionRow[] = rawVersions.map(v => ({
+  id:             v.id,
+  version_number: v.version_number,
+  created_at:     v.created_at,
+  hasAudit:       v.audit_result !== null,
+  hasCounterarg:  v.counterarg_result !== null,
+}));
+---
+<Base
+  title={`Version History — ${doc.title} — The Whetstone`}
+  description="Browse and compare saved versions of your draft."
+  canonicalPath={`/creator/documents/${docId}/versions`}
+  isLoggedIn={true}
+>
+  <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
+
+    <nav class="mb-10 flex items-center gap-4">
+      <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← My Documents</a>
+      <span class="text-xs text-gray-300">/</span>
+      <a href={`/creator/studio?doc=${docId}`} class="text-xs text-gray-400 hover:text-gray-600 transition-colors truncate max-w-xs">
+        {doc.title}
+      </a>
+    </nav>
+
+    <header class="mb-10">
+      <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Version History</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-3">{doc.title}</h1>
+      <p class="text-sm text-gray-400">
+        {versions.length} version{versions.length === 1 ? '' : 's'} saved.
+        Select two to compare.
+      </p>
+    </header>
+
+    <VersionsList client:load docId={docId} versions={versions} />
+
+  </main>
+</Base>

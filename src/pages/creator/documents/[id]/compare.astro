@@ -1,0 +1,82 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../../../layouts/Base.astro';
+import ComparisonView from '../../../../components/studio/ComparisonView';
+import { makeAuthDb } from '../../../../../functions/_lib/auth/db';
+import { makeDocumentDb } from '../../../../../functions/_lib/documents/db';
+import { getSessionFromRequest } from '../../../../../functions/_lib/auth/sessions';
+import { diffAuditResults, diffCounterargResults } from '../../../../../functions/_lib/documents/diff';
+
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+
+if (!session) {
+  return Astro.redirect(`/login?returnTo=${Astro.url.pathname}${Astro.url.search}`);
+}
+
+const { id: docId } = Astro.params;
+if (!docId) return Astro.redirect('/creator/documents');
+
+const fromId = Astro.url.searchParams.get('from');
+const toId   = Astro.url.searchParams.get('to');
+if (!fromId || !toId) return Astro.redirect(`/creator/documents/${docId}/versions`);
+
+const docDb = makeDocumentDb(env.DB);
+const doc   = await docDb.getDocumentById(docId);
+
+if (!doc || doc.user_id !== session.user_id) {
+  return Astro.redirect('/creator/documents');
+}
+
+const [fromVersion, toVersion] = await Promise.all([
+  docDb.getVersion(fromId),
+  docDb.getVersion(toId),
+]);
+
+if (!fromVersion || fromVersion.document_id !== docId ||
+    !toVersion   || toVersion.document_id   !== docId) {
+  return Astro.redirect(`/creator/documents/${docId}/versions`);
+}
+
+const auditDiff      = diffAuditResults(fromVersion.audit_result,      toVersion.audit_result);
+const counterargDiff = diffCounterargResults(fromVersion.counterarg_result, toVersion.counterarg_result);
+
+const fromInfo = { version_number: fromVersion.version_number, content: fromVersion.content, created_at: fromVersion.created_at };
+const toInfo   = { version_number: toVersion.version_number,   content: toVersion.content,   created_at: toVersion.created_at };
+---
+<Base
+  title={`Compare v${fromVersion.version_number} → v${toVersion.version_number} — ${doc.title} — The Whetstone`}
+  description="Compare two versions of your draft side by side."
+  canonicalPath={`/creator/documents/${docId}/compare`}
+  isLoggedIn={true}
+>
+  <main class="max-w-4xl mx-auto px-6 pt-20 pb-16">
+
+    <nav class="mb-10 flex items-center gap-4">
+      <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← My Documents</a>
+      <span class="text-xs text-gray-300">/</span>
+      <a href={`/creator/documents/${docId}/versions`} class="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+        History
+      </a>
+    </nav>
+
+    <header class="mb-10">
+      <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Comparison</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-3">{doc.title}</h1>
+      <p class="text-sm text-gray-400">
+        Version {fromVersion.version_number} → Version {toVersion.version_number}
+      </p>
+    </header>
+
+    <ComparisonView
+      client:load
+      from={fromInfo}
+      to={toInfo}
+      auditDiff={auditDiff}
+      counterargDiff={counterargDiff}
+    />
+
+  </main>
+</Base>

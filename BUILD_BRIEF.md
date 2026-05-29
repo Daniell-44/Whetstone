@@ -1071,3 +1071,72 @@ Full suite: **215 tests, all passing** (28 new + 187 existing).
 npx wrangler d1 execute whetstone-users         --file=migrations/0003_documents.sql --remote
 npx wrangler d1 execute whetstone-users-preview --file=migrations/0003_documents.sql --remote
 ```
+
+---
+
+## Creator Studio, Prompt CS-5 — Revision history + comparison view
+
+**Committed:** (this prompt)
+
+Writers can now browse every saved version of a draft, read a past version in full, restore it as the current version, and compare two versions side by side to see exactly what changed in their argument's structure.
+
+### Diff library — `functions/_lib/documents/diff.ts`
+
+Pure, side-effect-free module. Two public functions:
+
+| Function | Returns |
+|---|---|
+| `diffAuditResults(fromJson, toJson)` | `AuditDiff` — matching by `name::normalised-quote-head` for fallacies, `normalised-phrase::technique` for loaded language |
+| `diffCounterargResults(fromJson, toJson)` | `CounterargumentDiff` — side-by-side counterargument arrays |
+
+`AuditDiff` carries: `fromAudited`, `toAudited`, `fallacies: { removed, added, persisted }`, `loadedLanguage: { removed, added, persisted }`, `unstatedWarrants`, `toulmin`, `centralClaim: { from, to, changed }`, and a `summary` object with pre-computed counts. Null-safe throughout — both inputs can be null (neither version audited).
+
+### New endpoint — `POST /api/documents/[id]/versions/[versionId]/restore`
+
+Creates a new version whose content is copied from the specified version. Ownership and version-document binding are both checked. Returns `{ ok: true, versionId, versionNumber }`.
+
+Handler: `handleRestoreVersion` in `functions/_lib/documents/handlers.ts`. Route at `src/pages/api/documents/[id]/versions/[versionId]/restore.ts` (7 `../` import depth).
+
+### New Preact islands
+
+| Component | Purpose |
+|---|---|
+| `src/components/studio/VersionsList.tsx` | Checkbox list with sticky "Compare selected versions" footer; navigates to `/compare?from=&to=` |
+| `src/components/studio/ComparisonView.tsx` | Full diff display: summary card (stat pills), collapsible content side-by-side, Toulmin comparison, fallacy diff (removed/added/persisted), loaded-language diff, counterarg side-by-side |
+| `src/components/studio/RestoreButton.tsx` | Single-action island; calls restore endpoint, redirects to Studio on success |
+| `src/components/studio/CounterargumentResultDisplay.tsx` | Extracted from StudioEditor; shared by single-version view and comparison view |
+
+### New pages
+
+| Page | Route | What it shows |
+|---|---|---|
+| `src/pages/creator/documents/[id]/versions.astro` | `/creator/documents/{id}/versions` | All versions for a document; VersionsList island; checkbox+compare |
+| `src/pages/creator/documents/[id]/versions/[versionId].astro` | `.../versions/{versionId}` | Read-only: draft content, stored audit + counterarg results, Restore button |
+| `src/pages/creator/documents/[id]/compare.astro` | `.../compare?from={id}&to={id}` | Server-computes diff; renders ComparisonView island |
+
+Import-depth note: `[id]/versions.astro` and `compare.astro` use 5 `../` to reach project root; `[id]/versions/[versionId].astro` uses 6 `../`.
+
+### StudioEditor.tsx updates
+
+- Removed inline `CounterargResults` function; replaced with `CounterargumentResultDisplay` import
+- Added "History" link (visible when `docId` is non-null, hidden when draft is unsaved)
+
+### documents.astro update
+
+Each document row now shows a "{n} versions" link to `/creator/documents/{id}/versions`. Version counts loaded with `Promise.all` over `countVersionsForDocument` calls.
+
+### Tests (15 new)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/documents/diff.test.ts` | 10 | Both null, from-null+to-audited, same fallacy persists, same name+diff quote = removed+added, fallacy removed, loaded-language match, central claim changed, counterarg both-null, from-generated, both-generated |
+| `tests/documents/db.test.ts` | +1 | `countVersionsForDocument` — count, zero for missing doc |
+| `tests/documents/handlers.test.ts` | +4 | `handleRestoreVersion`: happy path (content copied, versionNumber incremented), 401 unauthenticated, 404 wrong user, 404 version on wrong doc |
+
+Full suite: **230 tests, all passing** (15 new + 215 existing).
+
+### Build status
+
+- `npm test` — 230/230 passing
+- `npx astro check` — 0 errors
+- `npm run build` — exit 0

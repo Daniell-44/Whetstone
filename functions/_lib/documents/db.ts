@@ -83,6 +83,14 @@ export function makeDocumentDb(d1: D1Database): DocumentDb {
       return result.results;
     },
 
+    countVersionsForDocument: async (documentId) => {
+      const row = await d1
+        .prepare('SELECT COUNT(*) AS count FROM document_versions WHERE document_id = ?')
+        .bind(documentId)
+        .first<{ count: number }>();
+      return row?.count ?? 0;
+    },
+
     storeAuditResultOnVersion: async (versionId, auditResult) => {
       await d1
         .prepare('UPDATE document_versions SET audit_result = ? WHERE id = ?')

@@ -5,10 +5,12 @@ import {
   handleCreateVersion,
   handleVersionAudit,
   handleVersionCounterarg,
+  handleRestoreVersion,
   type CreateDocumentDeps,
   type CreateVersionDeps,
   type VersionAuditDeps,
   type VersionCounterargDeps,
+  type RestoreVersionDeps,
 } from '../../functions/_lib/documents/handlers';
 import type { LlmProvider } from '../../functions/_lib/providers/types';
 
@@ -46,6 +48,8 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     storeCounterargResultOnVersion: async (versionId, counterargResult) => {
       const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, counterarg_result: counterargResult });
     },
+    countVersionsForDocument: async (documentId) =>
+      [...versions.values()].filter(v => v.document_id === documentId).length,
   };
 
   return Object.assign(db, { docs, versions });
@@ -332,6 +336,65 @@ describe('handleVersionCounterarg', () => {
     const deps = makeDeps(db, { checkSubscription: async () => false });
     await handleVersionCounterarg(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
     expect(ownershipChecked).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// handleRestoreVersion
+// ---------------------------------------------------------------------------
+
+describe('handleRestoreVersion', () => {
+  function makeDeps(db: ReturnType<typeof makeFakeDb>, overrides?: Partial<RestoreVersionDeps>): RestoreVersionDeps {
+    let counter = 0;
+    return {
+      db,
+      getSession: async () => ({ userId: 'user-1' }),
+      newId:      () => `restored-${++counter}`,
+      ...overrides,
+    };
+  }
+
+  it('creates a new version with the source content and returns 200', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'Draft');
+    await db.createVersion('v1', 'doc-1', 'original content here', 1);
+    await db.createVersion('v2', 'doc-1', 'revised content here', 2);
+    const deps = makeDeps(db);
+    const res  = await handleRestoreVersion(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    const data = await rj(res);
+
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
+    expect(data.versionNumber).toBe(3);
+
+    const restored = await db.getVersion(data.versionId);
+    expect(restored?.content).toBe('original content here');
+  });
+
+  it('returns 401 when not authenticated', async () => {
+    const db   = makeFakeDb();
+    const deps = makeDeps(db, { getSession: async () => null });
+    const res  = await handleRestoreVersion(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 404 when document belongs to a different user', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-other', 'Draft');
+    await db.createVersion('v1', 'doc-1', 'content here', 1);
+    const deps = makeDeps(db);
+    const res  = await handleRestoreVersion(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 when version belongs to a different document', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'D1');
+    await db.createDocument('doc-2', 'user-1', 'D2');
+    await db.createVersion('v1', 'doc-2', 'content here', 1);
+    const deps = makeDeps(db);
+    const res  = await handleRestoreVersion(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    expect(res.status).toBe(404);
   });
 });
 
