@@ -1,4 +1,6 @@
+import type { ComponentChildren } from 'preact';
 import type { AuditResult } from '../../lib/audit';
+import LabelWithTooltip from '../ui/LabelWithTooltip';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -20,7 +22,7 @@ const SEVERITY_BADGE: Record<string, string> = {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function ToulminRow({ label, text }: { label: string; text: string }) {
+function ToulminRow({ label, text }: { label: ComponentChildren; text: string }) {
   return (
     <div class="pl-4 border-l-2 border-indigo-200">
       <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{label}</dt>
@@ -76,48 +78,28 @@ export default function AuditResults({ result }: { result: AuditResult }) {
       {/* Central claim */}
       <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-5">
         <p class="text-xs font-semibold text-indigo-500 uppercase tracking-widest mb-2">
-          Central Claim
+          <LabelWithTooltip label="centralClaim" />
         </p>
         <p class="text-gray-900 text-base leading-relaxed">{result.centralClaim}</p>
       </div>
 
       {/* Toulmin breakdown */}
       <section>
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">
-          Argument Structure
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5">
+          <LabelWithTooltip label="toulmin" />
         </h2>
-        <details class="mb-5">
-          <summary class="text-xs text-indigo-400 cursor-pointer list-none hover:text-indigo-600 w-fit">
-            ↳ What is Toulmin analysis?
-          </summary>
-          <p class="mt-2 text-xs text-gray-500 leading-relaxed bg-gray-50 rounded-lg p-3">
-            Toulmin's framework maps an argument into its <strong>claim</strong> (the conclusion being argued for),
-            <strong> grounds</strong> (the evidence offered in support), <strong>warrant</strong> (the principle connecting
-            evidence to conclusion), and <strong>unstated assumptions</strong> — premises the argument relies on but never
-            makes explicit. The <strong>weakest link</strong> is the element most open to challenge.
-          </p>
-        </details>
 
         <dl class="space-y-4">
-          <ToulminRow label="Claim"   text={result.toulmin.claim} />
-          <ToulminRow label="Grounds" text={result.toulmin.grounds} />
+          <ToulminRow label={<LabelWithTooltip label="toulminClaim" />}   text={result.toulmin.claim} />
+          <ToulminRow label={<LabelWithTooltip label="toulminGrounds" />} text={result.toulmin.grounds} />
           {result.toulmin.statedWarrant && (
-            <ToulminRow label="Stated warrant" text={result.toulmin.statedWarrant} />
+            <ToulminRow label={<LabelWithTooltip label="toulminWarrant" />} text={result.toulmin.statedWarrant} />
           )}
 
           {result.toulmin.unstatedWarrants.length > 0 && (
             <div>
-              <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2 flex-wrap">
-                Unstated warrants
-                <details class="font-normal normal-case tracking-normal inline">
-                  <summary class="text-indigo-400 cursor-pointer list-none hover:text-indigo-600 text-xs">
-                    What's this?
-                  </summary>
-                  <p class="mt-1 text-gray-400 text-xs leading-relaxed bg-gray-50 rounded p-2 max-w-sm font-normal tracking-normal normal-case">
-                    Assumptions the argument needs in order to hold, but never states explicitly.
-                    Every argument has at least one.
-                  </p>
-                </details>
+              <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                <LabelWithTooltip label="unstatedWarrants" />
               </dt>
               <dd class="space-y-3">
                 {result.toulmin.unstatedWarrants.map((w, i) => (
@@ -132,7 +114,7 @@ export default function AuditResults({ result }: { result: AuditResult }) {
 
           <div class="rounded-lg bg-amber-50 border border-amber-200 p-4">
             <dt class="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">
-              Weakest link
+              <LabelWithTooltip label="weakestLink" />
             </dt>
             <dd class="text-sm text-amber-900 leading-relaxed">{result.toulmin.weakestLink}</dd>
           </div>
@@ -143,7 +125,7 @@ export default function AuditResults({ result }: { result: AuditResult }) {
       {!hasFindings ? (
         <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-5">
           <p class="text-sm text-emerald-700">
-            No named fallacies or loaded language detected — the argument's structural integrity
+            No reasoning patterns or loaded language detected — the argument's structural integrity
             is the focus of the analysis above.
           </p>
         </div>
@@ -152,7 +134,7 @@ export default function AuditResults({ result }: { result: AuditResult }) {
           {result.namedFallacies.length > 0 && (
             <section>
               <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-                Named Fallacies
+                <LabelWithTooltip label="namedFallacies" />
               </h2>
               <div class="space-y-3">
                 {result.namedFallacies.map((f, i) => (
@@ -165,7 +147,7 @@ export default function AuditResults({ result }: { result: AuditResult }) {
           {result.loadedLanguage.length > 0 && (
             <section>
               <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-                Loaded Language
+                <LabelWithTooltip label="loadedLanguage" />
               </h2>
               <div class="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white overflow-hidden">
                 {result.loadedLanguage.map((item, i) => (

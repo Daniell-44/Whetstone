@@ -65,7 +65,7 @@ preview_database_id = "f49148ac-f43f-4e24-861f-347d00c07a59"
 #
 # 1. stripe.com → switch to Test Mode (toggle top-right)
 # 2. Products → Add Product: "The Whetstone Creator Studio"
-#    Under that product, add a recurring monthly Price (e.g. $15/mo)
+#    Under that product, add a recurring monthly Price ($22/mo — price bumped from $15 in CS-6)
 #    Copy the Price ID (starts price_...) and paste below as STRIPE_PRICE_ID
 # 3. Developers → API Keys → copy the Test Mode secret key (starts sk_test_...)
 # 4. After deploying once, Developers → Webhooks → Add endpoint:

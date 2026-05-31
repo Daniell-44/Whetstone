@@ -1140,3 +1140,66 @@ Full suite: **230 tests, all passing** (15 new + 215 existing).
 - `npm test` — 230/230 passing
 - `npx astro check` — 0 errors
 - `npm run build` — exit 0
+
+---
+
+## Creator Studio, Prompt CS-6 — Language and pricing
+
+**Committed:** (this prompt)
+
+Two small but user-facing changes: friendlier display labels on all analytical output surfaces, and a price bump from $15 to $22/mo.
+
+### Label system — `src/lib/labels.ts`
+
+New `LABELS` and `TOOLTIPS` constants centralise every user-visible string for the analytical vocabulary. Internal TypeScript types, Zod schemas, prompt templates, DB columns, and function names are **unchanged** — only the strings humans read on screen changed.
+
+17 label keys:
+
+| Key | Display string |
+|---|---|
+| `toulmin` | Argument Structure |
+| `namedFallacies` | Reasoning Patterns |
+| `loadedLanguage` | Word Choice |
+| `unstatedWarrants` | Hidden Assumptions |
+| `centralClaim` | Main Claim |
+| `weakestLink` | Weakest Point |
+| `counterarguments` | Strongest Opposing Cases |
+| `counterargPosition` | Position |
+| `counterargCase` | Their Strongest Case |
+| `missedByDraft` | What your draft doesn't engage with |
+| `counterargWhy` | Why this opposition is hard to dismiss |
+| `toulminClaim` | The claim |
+| `toulminGrounds` | The evidence |
+| `toulminWarrant` | The connecting assumption |
+| `diffRemoved` | Fixed in the revision |
+| `diffAdded` | Newly appeared |
+| `diffPersisted` | Still present |
+
+Each key also has a `TOOLTIPS` entry with two sentences (`plain` and `pedigree`, each under 25 words) shown via a native `<details>` disclosure element.
+
+### LabelWithTooltip component — `src/components/ui/LabelWithTooltip.tsx`
+
+Preact component. Props: `{ label: keyof typeof LABELS }`. Renders the friendly label text followed by a `(?)` summary that expands an inline `<details>` tooltip with the plain + pedigree text. No JavaScript state — pure HTML. Reset styles (`font-normal normal-case tracking-normal`) prevent heading styles bleeding into the tooltip.
+
+Works in both Preact islands (client-side) and Astro server-side rendering (no `client:` directive needed).
+
+### Surfaces updated
+
+| File | What changed |
+|---|---|
+| `src/components/audit/AuditResults.tsx` | All section headings use LabelWithTooltip; `ToulminRow` label type widened to `ComponentChildren`; "No named fallacies or loaded language" → "No reasoning patterns or loaded language" |
+| `src/components/studio/CounterargumentResultDisplay.tsx` | All labels use LabelWithTooltip |
+| `src/components/studio/StudioEditor.tsx` | Both "Counterarguments" h2 headings use LabelWithTooltip; loading hint copy de-jargonised |
+| `src/components/studio/ComparisonView.tsx` | All diff category labels and section headings use LabelWithTooltip and LABELS constants |
+| `src/components/scorecard/PositionCard.astro` | "Claim", "Grounds", "Warrant — the load-bearing assumption" replaced with LabelWithTooltip |
+| `src/pages/creator.astro` | Meta description and hero paragraph: "Toulmin breakdown, reasoning-pattern flags" → "argument structure, reasoning patterns"; feature list: "Toulmin decomposition" → "Argument Structure", "Reasoning-pattern flags" → "Reasoning Patterns" |
+| `src/pages/pricing.astro` | $15 → $22 in display price, meta description, and inline comment; feature list: "Toulmin analysis, named fallacies, loaded language" → "Argument Structure, Reasoning Patterns, Word Choice" |
+| `src/pages/account.astro` | "Subscribe to Studio — $15/mo" → "$22/mo" |
+| `wrangler.toml` | Stripe checklist comment: "$15/mo" → "$22/mo (bumped from $15 in CS-6)"; `STRIPE_PRICE_ID` comment updated. **Daniel must create a new Stripe Price at $22 and update `STRIPE_PRICE_ID`.** |
+
+### Tests, check, build
+
+- `npm test` — 230/230 passing (no engine changes; no new tests needed)
+- `npx astro check` — 0 errors
+- `npm run build` — exit 0
+- `npm run typecheck` — 0 errors

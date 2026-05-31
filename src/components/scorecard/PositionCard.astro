@@ -1,5 +1,6 @@
 ---
 import type { ScorecardPosition } from '../../lib/scorecard';
+import LabelWithTooltip from '../ui/LabelWithTooltip';
 
 interface Props {
   position: ScorecardPosition;
@@ -25,19 +26,18 @@ const { position } = Astro.props;
       <dl class="space-y-4">
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Claim</dt>
+          <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"><LabelWithTooltip label="toulminClaim" /></dt>
           <dd class="text-sm text-gray-700 leading-relaxed">{position.bestCase.claim}</dd>
         </div>
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Grounds</dt>
+          <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"><LabelWithTooltip label="toulminGrounds" /></dt>
           <dd class="text-sm text-gray-600 leading-relaxed">{position.bestCase.grounds}</dd>
         </div>
 
         <div class="pl-4 border-l-4 border-indigo-500">
           <dt class="text-xs font-semibold text-indigo-600 uppercase tracking-wide mb-1">
-            Warrant
-            <span class="normal-case font-normal text-indigo-400 ml-1">— the load-bearing assumption</span>
+            <LabelWithTooltip label="toulminWarrant" />
           </dt>
           <dd class="text-sm text-indigo-800 leading-relaxed">{position.bestCase.warrant}</dd>
         </div>

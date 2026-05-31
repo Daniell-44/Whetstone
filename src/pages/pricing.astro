@@ -19,12 +19,12 @@ const hasSubscription = session
 
 const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 
-// NOTE: The price displayed below ($15/mo) is hardcoded copy.
+// NOTE: The price displayed below ($22/mo) is hardcoded copy.
 // If you set a different amount in Stripe, update this page too.
 ---
 <Base
   title="Pricing — The Whetstone"
-  description="Creator Studio gives you full argument analysis plus counterargument generation. $15/month."
+  description="Creator Studio gives you full argument analysis plus counterargument generation. $22/month."
   canonicalPath="/pricing"
   isLoggedIn={isLoggedIn}
 >
@@ -51,7 +51,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
       <div class="bg-amber-50 border-b border-amber-100 px-8 py-7">
         <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-2">Creator Studio</p>
         <div class="flex items-baseline gap-1">
-          <span class="font-serif text-5xl text-gray-900">$15</span>
+          <span class="font-serif text-5xl text-gray-900">$22</span>
           <span class="text-gray-400 text-sm">/month</span>
         </div>
         <p class="mt-2 text-sm text-gray-500">Cancel anytime from your account page.</p>
@@ -60,7 +60,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
       <!-- Features -->
       <div class="px-8 py-6 space-y-3">
         {[
-          'Full structural audit (Toulmin analysis, named fallacies, loaded language)',
+          'Full structural audit (Argument Structure, Reasoning Patterns, Word Choice)',
           'Counterargument generation — up to 3 steelmanned opposing positions per draft',
           'Up to 50 audits per day',
           'Up to 20 counterargument runs per day',

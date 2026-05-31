@@ -3,6 +3,7 @@ import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import AuditResults from '../audit/AuditResults';
 import CounterargumentResultDisplay from './CounterargumentResultDisplay';
+import LabelWithTooltip from '../ui/LabelWithTooltip';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -50,8 +51,8 @@ function CounterargUpsell() {
     <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
       <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
       <p class="text-sm text-gray-700 leading-relaxed max-w-sm mx-auto">
-        Counterargument generation surfaces the strongest opposing positions your draft fails
-        to engage with. Subscribe for $15/mo to unlock it.
+        The opposing-cases engine surfaces the strongest objections your draft fails
+        to engage with. Subscribe for $22/mo to unlock it.
       </p>
       <a
         href="/pricing"
@@ -327,7 +328,7 @@ export default function StudioEditor({
           </button>
           {isRunning && hasActiveSubscription && (
             <p class="text-xs text-center text-gray-400">
-              ~30–60s — the counterargument engine takes longer than a simple audit.
+              ~30–60s — finding opposing cases takes longer than a simple audit.
             </p>
           )}
         </div>
@@ -357,7 +358,7 @@ export default function StudioEditor({
           {/* Counterarguments */}
           <div class="rounded-xl border border-violet-200 bg-white p-6">
             <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-              Counterarguments
+              <LabelWithTooltip label="counterarguments" />
             </h2>
             {!hasActiveSubscription ? (
               <CounterargUpsell />
@@ -383,7 +384,7 @@ export default function StudioEditor({
       {!showResults && !hasActiveSubscription && (
         <div class="rounded-xl border border-violet-200 bg-white p-6">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-            Counterarguments
+            <LabelWithTooltip label="counterarguments" />
           </h2>
           <CounterargUpsell />
         </div>

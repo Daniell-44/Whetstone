@@ -1,4 +1,5 @@
 import type { CounterargumentResult } from '../../lib/counterargument';
+import LabelWithTooltip from '../ui/LabelWithTooltip';
 
 export default function CounterargumentResultDisplay({ result }: { result: CounterargumentResult }) {
   return (
@@ -6,14 +7,14 @@ export default function CounterargumentResultDisplay({ result }: { result: Count
 
       <div class="bg-violet-50 border border-violet-200 rounded-xl p-5">
         <p class="text-xs font-semibold text-violet-500 uppercase tracking-widest mb-2">
-          Draft's Central Claim
+          <LabelWithTooltip label="centralClaim" />
         </p>
         <p class="text-gray-900 text-base leading-relaxed">{result.centralClaim}</p>
       </div>
 
       <section>
         <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-          Strongest Opposing Positions
+          <LabelWithTooltip label="counterarguments" />
         </h3>
         <div class="space-y-4">
           {result.counterarguments.map((c, i) => (
@@ -23,22 +24,28 @@ export default function CounterargumentResultDisplay({ result }: { result: Count
 
               <div class="space-y-2 pl-4 border-l-2 border-violet-300">
                 <div>
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Claim</p>
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
+                    <LabelWithTooltip label="toulminClaim" />
+                  </p>
                   <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.claim}</p>
                 </div>
                 <div>
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Grounds</p>
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
+                    <LabelWithTooltip label="toulminGrounds" />
+                  </p>
                   <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.grounds}</p>
                 </div>
                 <div>
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">Warrant</p>
+                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
+                    <LabelWithTooltip label="toulminWarrant" />
+                  </p>
                   <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.warrant}</p>
                 </div>
               </div>
 
               <div class="rounded-lg bg-white border border-violet-200 p-3">
                 <p class="text-xs font-semibold text-violet-600 uppercase tracking-wide mb-1">
-                  What your draft misses
+                  <LabelWithTooltip label="missedByDraft" />
                 </p>
                 <p class="text-sm text-gray-700 leading-relaxed">{c.missedByDraft}</p>
               </div>
