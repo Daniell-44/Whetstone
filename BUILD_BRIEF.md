@@ -1203,3 +1203,111 @@ Works in both Preact islands (client-side) and Astro server-side rendering (no `
 - `npx astro check` — 0 errors
 - `npm run build` — exit 0
 - `npm run typecheck` — 0 errors
+
+---
+
+## Creator Studio, Prompt CS-7 — Audit engine refinement: expanded taxonomy + conviction meter
+
+**Committed:** (this prompt)
+
+Two coordinated improvements to the audit engine: a wider fallacy vocabulary (12 → 23 patterns) and a uniform confidence + severity signal on every finding type.
+
+### Expanded fallacy taxonomy — `functions/_lib/audit/taxonomy.ts`
+
+| # | Name | Category |
+|---|---|---|
+| 1 | Ad Hominem | Original |
+| 2 | Straw Man | Original |
+| 3 | False Dichotomy | Original |
+| 4 | Slippery Slope | Original |
+| 5 | Appeal to Authority | Original |
+| 6 | Appeal to Emotion | Original |
+| 7 | Circular Reasoning | Original |
+| 8 | Hasty Generalisation | Original |
+| 9 | Red Herring | Original |
+| 10 | Tu Quoque | Original |
+| 11 | Post Hoc | Original |
+| 12 | Equivocation | Original |
+| 13 | Abductive Closure | Peirce inferential |
+| 14 | Selection Bias | Peirce inferential |
+| 15 | Base-Rate Neglect | Peirce inferential |
+| 16 | No True Scotsman | Classical/modern |
+| 17 | Cherry-Picking | Classical/modern |
+| 18 | Texas Sharpshooter | Classical/modern |
+| 19 | Composition | Classical/modern |
+| 20 | Division | Classical/modern |
+| 21 | Argument from Ignorance | Classical/modern |
+| 22 | Gish Gallop | Classical/modern |
+| 23 | Moving the Goalposts | Classical/modern |
+
+**⚠ Daniel must confirm this list before deploy.** The commit contains the full taxonomy; confirmation is the gate for going live.
+
+`FALLACY_DESCRIPTIONS` updated with a one-line description for each new entry. `FALLACY_NAMES` is the source of truth for the Zod enum in `schemas.ts` and the list in the system prompt — both update automatically.
+
+### Confidence + uniform severity — `functions/_lib/audit/types.ts`, `schemas.ts`
+
+All three finding types (`NamedFallacy`, `LoadedLanguage`, `UnstatedWarrant`) now carry:
+
+| Field | Type | Notes |
+|---|---|---|
+| `severity` | `'high' \| 'medium' \| 'low'` | How serious the finding would be if real |
+| `confidence` | `number` (integer 0–100) | How certain the engine is the finding is accurate |
+
+`NamedFallacy` already had `severity`; it gains `confidence`. `LoadedLanguage` and `UnstatedWarrant` gain both. Zod validators: `z.number().int().min(0).max(100)` for confidence, `z.enum(['high', 'medium', 'low'])` for severity.
+
+### System prompt — `functions/_lib/audit/prompts.ts`
+
+Three additions:
+
+1. **Output format** — JSON schema updated; all three finding types now include `"severity"` and `"confidence"` fields.
+2. **"Assigning confidence and severity" section** — Calibration guidance:
+   - 90–100: clear-cut; a careful reader would agree immediately
+   - 70–89: strong reading; charitable reader could disagree
+   - 50–69: defensible but uncertain
+   - Below 50: do not include the finding
+   - Severity: high = argument fails if finding holds; medium = weakens but survives; low = rhetorical noise, not load-bearing
+3. **Confusable pattern guidance** — Selection Bias vs Cherry-Picking (sample population vs citation selection); Texas Sharpshooter vs Hasty Generalisation (post-hoc pattern vs small sample).
+
+### Priority-score utility — `functions/_lib/audit/priority.ts`
+
+```typescript
+priorityScore(finding): number   // severityWeight × (confidence / 100)
+sortByPriority(findings): T[]    // immutable sort, descending priority
+```
+
+Weights: high = 3, medium = 2, low = 1.
+
+Re-exported from `src/lib/audit.ts` for use in display components.
+
+### Display — `src/components/audit/AuditResults.tsx`
+
+All three finding sections now:
+- Sort by `priorityScore` descending before rendering
+- Show a **severity badge** (red / amber / grey, already existing on fallacies; extended to loaded language and unstated warrants)
+- Show a **confidence indicator** as a numeric percentage (`{confidence}%` in muted gray text) — chose numeric over four-dot visual because all real-world scores fall in the 50–100 range, making dots resolve to 3–4 filled dots with poor discrimination; a number is unambiguous
+
+### Tests (38 new; 268 total)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/audit/priority.test.ts` | 12 | `priorityScore` (6 cases incl. edge values), `sortByPriority` (4 cases incl. immutability + empty) |
+| `tests/audit/schemas.test.ts` | 26 | Confidence range/type enforcement (reject <0, >100, non-integer, missing); severity enum enforcement (reject unknown string, missing); new taxonomy names accepted; valid findings pass |
+
+Existing test fixtures updated: `engine.test.ts` (added `confidence` + `severity` to warrant and fallacy fixtures), `diff.test.ts` (added `confidence` + `severity` to typed `NamedFallacy`/`LoadedLanguage` fixtures).
+
+### Demo run (2026-05-31)
+
+`npm run audit:demo` — both fixtures pass with the new schema.
+
+**Fallacy-heavy fixture:** 7 fallacies (same patterns as before; no false positives from new taxonomy), 11 loaded-language findings. Confidence range: 88–98 on fallacies (well-calibrated — clear-cut cases score high, ambiguous Post Hoc scores 90). Severity spread: high (False Dichotomy ×2, Ad Hominem, Straw Man), medium (Appeal to Authority, Post Hoc, Slippery Slope), low (loaded-language items that are rhetorical noise).
+
+**Clean-argument fixture:** 0 fallacies, 1 loaded-language finding ("straightforward" at confidence 75, severity low — a genuinely borderline call the model correctly scores with reduced confidence). Engine correctly holds the higher confidence bar.
+
+None of the 11 new patterns surfaced on the fallacy-heavy fixture — this is correct because the fixture does not exhibit Cherry-Picking, Texas Sharpshooter, etc. No false positives.
+
+### Build status
+
+- `npm test` — 268/268 passing (38 new + 230 existing)
+- `npx astro check` — 0 errors
+- `npm run build` — exit 0
+- `npm run typecheck` — 0 errors

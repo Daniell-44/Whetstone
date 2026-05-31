@@ -1,9 +1,14 @@
 import { z } from 'zod';
 import { FALLACY_NAMES, LOADED_LANGUAGE_TECHNIQUES } from './taxonomy';
 
+const confidenceField = z.number().int().min(0).max(100);
+const severityField   = z.enum(['high', 'medium', 'low']);
+
 export const UnstatedWarrantSchema = z.object({
-  warrant:   z.string().min(1),
-  necessity: z.string().min(1),
+  warrant:    z.string().min(1),
+  necessity:  z.string().min(1),
+  severity:   severityField,
+  confidence: confidenceField,
 });
 
 export const ToulminAnalysisSchema = z.object({
@@ -18,13 +23,16 @@ export const NamedFallacySchema = z.object({
   name:        z.enum(FALLACY_NAMES),
   quote:       z.string().min(1),
   explanation: z.string().min(1),
-  severity:    z.enum(['high', 'medium', 'low']),
+  severity:    severityField,
+  confidence:  confidenceField,
 });
 
 export const LoadedLanguageSchema = z.object({
   phrase:      z.string().min(1),
   technique:   z.enum(LOADED_LANGUAGE_TECHNIQUES),
   explanation: z.string().min(1),
+  severity:    severityField,
+  confidence:  confidenceField,
 });
 
 export const AuditResultSchema = z.object({

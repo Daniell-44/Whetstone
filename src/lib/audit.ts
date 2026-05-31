@@ -5,3 +5,5 @@ export type {
   LoadedLanguage,
   UnstatedWarrant,
 } from '../../functions/_lib/audit/types';
+
+export { priorityScore, sortByPriority } from '../../functions/_lib/audit/priority';

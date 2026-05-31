@@ -15,7 +15,7 @@ const MINIMAL_AUDIT_JSON = JSON.stringify({
     grounds:          'Helmets reduce head injury risk by 60%.',
     statedWarrant:    null,
     unstatedWarrants: [
-      { warrant: 'Reducing injury risk is a good reason for policy.', necessity: 'Connects evidence to conclusion.' },
+      { warrant: 'Reducing injury risk is a good reason for policy.', necessity: 'Connects evidence to conclusion.', severity: 'medium', confidence: 80 },
     ],
     weakestLink: 'The grounds come from a single meta-analysis.',
   },
@@ -137,6 +137,7 @@ describe('auditText', () => {
           quote:       'This phrase does not appear in the input text at all',
           explanation: 'Example fallacy.',
           severity:    'medium',
+          confidence:  75,
         },
       ],
       loadedLanguage: [],
@@ -186,7 +187,7 @@ describe('validateQuotesInText', () => {
     const audit = {
       ...baseAudit,
       namedFallacies: [
-        { name: 'Ad Hominem' as const, quote: 'hello world', explanation: 'x', severity: 'low' as const },
+        { name: 'Ad Hominem' as const, quote: 'hello world', explanation: 'x', severity: 'low' as const, confidence: 80 },
       ],
     };
     expect(() => validateQuotesInText(audit, 'say hello world today')).not.toThrow();
@@ -196,7 +197,7 @@ describe('validateQuotesInText', () => {
     const audit = {
       ...baseAudit,
       namedFallacies: [
-        { name: 'Ad Hominem' as const, quote: 'not present', explanation: 'x', severity: 'low' as const },
+        { name: 'Ad Hominem' as const, quote: 'not present', explanation: 'x', severity: 'low' as const, confidence: 80 },
       ],
     };
     expect(() => validateQuotesInText(audit, 'completely different text')).toThrow(/quote validation failed/);
@@ -206,7 +207,7 @@ describe('validateQuotesInText', () => {
     const audit = {
       ...baseAudit,
       loadedLanguage: [
-        { phrase: 'missing phrase', technique: 'Weasel words' as const, explanation: 'x' },
+        { phrase: 'missing phrase', technique: 'Weasel words' as const, explanation: 'x', severity: 'low' as const, confidence: 70 },
       ],
     };
     expect(() => validateQuotesInText(audit, 'some other text')).toThrow(/quote validation failed/);

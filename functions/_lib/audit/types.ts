@@ -1,6 +1,8 @@
 export interface UnstatedWarrant {
-  warrant:   string;
-  necessity: string;
+  warrant:    string;
+  necessity:  string;
+  severity:   'high' | 'medium' | 'low';
+  confidence: number;
 }
 
 export interface ToulminAnalysis {
@@ -16,20 +18,23 @@ export interface NamedFallacy {
   quote:       string;
   explanation: string;
   severity:    'high' | 'medium' | 'low';
+  confidence:  number;
 }
 
 export interface LoadedLanguage {
   phrase:      string;
   technique:   string;
   explanation: string;
+  severity:    'high' | 'medium' | 'low';
+  confidence:  number;
 }
 
 export interface AuditResult {
-  centralClaim:  string;
-  toulmin:       ToulminAnalysis;
+  centralClaim:   string;
+  toulmin:        ToulminAnalysis;
   namedFallacies: NamedFallacy[];
   loadedLanguage: LoadedLanguage[];
-  notes:         string | null;
+  notes:          string | null;
 }
 
 export interface AuditInput {
@@ -37,8 +42,8 @@ export interface AuditInput {
 }
 
 export interface AuditDeps {
-  provider:        import('../providers/types').LlmProvider;
-  apiKey:          string;
-  model?:          string;
+  provider:         import('../providers/types').LlmProvider;
+  apiKey:           string;
+  model?:           string;
   backoffDelaysMs?: readonly number[];
 }

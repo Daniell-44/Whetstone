@@ -8,23 +8,23 @@ import type { NamedFallacy, LoadedLanguage } from '../../functions/_lib/audit/ty
 
 const F_AD_HOMINEM: NamedFallacy = {
   name: 'Ad Hominem', quote: 'You cannot trust him because he is biased',
-  explanation: 'Attacks the person, not the argument', severity: 'high',
+  explanation: 'Attacks the person, not the argument', severity: 'high', confidence: 90,
 };
 const F_AD_HOMINEM_DIFF_QUOTE: NamedFallacy = {
   ...F_AD_HOMINEM, quote: 'Different opening text — entirely distinct quote',
 };
 const F_STRAW_MAN: NamedFallacy = {
   name: 'Straw Man', quote: 'They claim we should ban all cars from the roads',
-  explanation: 'Distorts opponent position', severity: 'medium',
+  explanation: 'Distorts opponent position', severity: 'medium', confidence: 75,
 };
 
 const LL_FREEDOM: LoadedLanguage = {
   phrase: 'freedom-loving', technique: 'Loaded framing',
-  explanation: 'Implies opposition is anti-freedom',
+  explanation: 'Implies opposition is anti-freedom', severity: 'low', confidence: 70,
 };
 const LL_JOB: LoadedLanguage = {
   phrase: 'job-killing', technique: 'Fear appeal',
-  explanation: 'Implies job losses without evidence',
+  explanation: 'Implies job losses without evidence', severity: 'medium', confidence: 80,
 };
 
 function auditJson(opts: {
