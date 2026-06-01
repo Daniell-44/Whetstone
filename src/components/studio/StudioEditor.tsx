@@ -4,6 +4,7 @@ import type { CounterargumentResult } from '../../lib/counterargument';
 import AuditResults from '../audit/AuditResults';
 import CounterargumentResultDisplay from './CounterargumentResultDisplay';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
+import SummaryToolbar from '../audit/SummaryToolbar';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -102,6 +103,7 @@ interface Props {
   initialVersionId?:        string | null;
   initialAuditResult?:      AuditResult | null;
   initialCounterargResult?: CounterargumentResult | null;
+  initialActions?:          Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
 }
 
 export default function StudioEditor({
@@ -112,6 +114,7 @@ export default function StudioEditor({
   initialVersionId        = null,
   initialAuditResult      = null,
   initialCounterargResult = null,
+  initialActions          = {},
 }: Props) {
   const [draft, setDraft]         = useState(initialContent);
   const [docId, setDocId]         = useState<string | null>(initialDocId);
@@ -248,9 +251,12 @@ export default function StudioEditor({
     }
   }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
 
-  return (
-    <div class="space-y-6">
+  // ---------------------------------------------------------------------------
+  // Input section (always visible)
+  // ---------------------------------------------------------------------------
 
+  const inputSection = (
+    <>
       {/* Document title + actions */}
       <div class="flex items-center gap-3">
         <input
@@ -283,9 +289,8 @@ export default function StudioEditor({
         )}
       </div>
 
-      {/* Input */}
+      {/* Textarea + button */}
       <div class="rounded-xl border border-amber-200 bg-white p-6 space-y-4">
-
         <div>
           <textarea
             value={draft}
@@ -332,64 +337,101 @@ export default function StudioEditor({
             </p>
           )}
         </div>
+      </div>
+    </>
+  );
 
+  // ---------------------------------------------------------------------------
+  // Results section
+  // ---------------------------------------------------------------------------
+
+  const resultsSection = showResults ? (
+    <div class="space-y-6">
+      {/* Structural audit */}
+      <div class="rounded-xl border border-gray-200 bg-white p-6">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+          Structural Audit
+        </h2>
+        {auditState.status === 'loading' && (
+          <SectionLoading label="Running structural audit…" />
+        )}
+        {auditState.status === 'error' && (
+          <SectionError code={auditState.code} message={auditState.message} />
+        )}
+        {auditState.status === 'done' && (
+          <AuditResults
+            result={auditState.data}
+            documentId={docId}
+            initialActions={initialActions}
+          />
+        )}
       </div>
 
-      {/* Results */}
-      {showResults && (
-        <div class="space-y-8">
+      {/* Counterarguments */}
+      <div class="rounded-xl border border-violet-200 bg-white p-6">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+          <LabelWithTooltip label="counterarguments" />
+        </h2>
+        {!hasActiveSubscription ? (
+          <CounterargUpsell />
+        ) : (
+          <>
+            {counterargState.status === 'loading' && (
+              <SectionLoading label="Generating strongest opposing positions…" />
+            )}
+            {counterargState.status === 'error' && (
+              <SectionError code={counterargState.code} message={counterargState.message} />
+            )}
+            {counterargState.status === 'done' && (
+              <CounterargumentResultDisplay result={counterargState.data} />
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  ) : null;
 
-          {/* Structural audit */}
-          <div class="rounded-xl border border-gray-200 bg-white p-6">
-            <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-              Structural Audit
-            </h2>
-            {auditState.status === 'loading' && (
-              <SectionLoading label="Running structural audit…" />
-            )}
-            {auditState.status === 'error' && (
-              <SectionError code={auditState.code} message={auditState.message} />
-            )}
-            {auditState.status === 'done' && (
-              <AuditResults result={auditState.data} />
-            )}
-          </div>
+  // ---------------------------------------------------------------------------
+  // Layout
+  // ---------------------------------------------------------------------------
 
-          {/* Counterarguments */}
+  if (!showResults) {
+    // Single-column layout — no results yet
+    return (
+      <div class="space-y-6">
+        {inputSection}
+        {/* Upsell shown before first run when not subscribed */}
+        {!hasActiveSubscription && (
           <div class="rounded-xl border border-violet-200 bg-white p-6">
             <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
               <LabelWithTooltip label="counterarguments" />
             </h2>
-            {!hasActiveSubscription ? (
-              <CounterargUpsell />
-            ) : (
-              <>
-                {counterargState.status === 'loading' && (
-                  <SectionLoading label="Generating strongest opposing positions…" />
-                )}
-                {counterargState.status === 'error' && (
-                  <SectionError code={counterargState.code} message={counterargState.message} />
-                )}
-                {counterargState.status === 'done' && (
-                  <CounterargumentResultDisplay result={counterargState.data} />
-                )}
-              </>
-            )}
+            <CounterargUpsell />
           </div>
+        )}
+      </div>
+    );
+  }
 
-        </div>
+  // Two-column layout — results visible
+  return (
+    <div class="space-y-6">
+      {/* SummaryToolbar — full width above columns */}
+      {auditState.status === 'done' && (
+        <SummaryToolbar result={auditState.data} draftText={draft} />
       )}
 
-      {/* Upsell shown before first run when not subscribed */}
-      {!showResults && !hasActiveSubscription && (
-        <div class="rounded-xl border border-violet-200 bg-white p-6">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-            <LabelWithTooltip label="counterarguments" />
-          </h2>
-          <CounterargUpsell />
+      <div class="flex flex-col lg:flex-row gap-8 items-start">
+        {/* Left column — input */}
+        <div class="w-full lg:w-[58%] space-y-6">
+          {inputSection}
         </div>
-      )}
 
+        {/* Right column — results (sticky) */}
+        <div class="w-full lg:w-[42%] space-y-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
+          {resultsSection}
+        </div>
+      </div>
     </div>
   );
 }

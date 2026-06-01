@@ -7,6 +7,7 @@ import StudioEditor from '../../components/studio/StudioEditor';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeBillingDb, userHasActiveSubscription } from '../../../functions/_lib/billing/subscription';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
+import { makeFindingActionDb } from '../../../functions/_lib/documents/finding-actions';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
@@ -30,10 +31,12 @@ let initialContent:          string        = '';
 let initialVersionId:        string | null = null;
 let initialAuditResult:      AuditResult | null = null;
 let initialCounterargResult: CounterargumentResult | null = null;
+let initialActions:          Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }> = {};
 
 if (docIdParam) {
-  const docDb = makeDocumentDb(env.DB);
-  const doc   = await docDb.getDocumentById(docIdParam);
+  const docDb      = makeDocumentDb(env.DB);
+  const actionDb   = makeFindingActionDb(env.DB);
+  const doc        = await docDb.getDocumentById(docIdParam);
   if (doc && doc.user_id === session.user_id && doc.status === 'active') {
     const latest: DocumentVersion | null = await docDb.getLatestVersion(docIdParam);
     initialDocId    = doc.id;
@@ -42,6 +45,16 @@ if (docIdParam) {
     initialVersionId = latest?.id ?? null;
     initialAuditResult      = latest?.audit_result      ? JSON.parse(latest.audit_result)      : null;
     initialCounterargResult = latest?.counterarg_result ? JSON.parse(latest.counterarg_result) : null;
+
+    const rows = await actionDb.listActionsForDocument(doc.id, session.user_id);
+    for (const r of rows) {
+      initialActions[`${r.lens}:${r.match_key}`] = {
+        id:        r.id,
+        action:    r.action,
+        reason:    r.reason,
+        updatedAt: r.updated_at,
+      };
+    }
   }
 }
 ---
@@ -51,7 +64,7 @@ if (docIdParam) {
   canonicalPath="/creator/studio"
   isLoggedIn={true}
 >
-  <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
+  <main class="max-w-5xl mx-auto px-6 pt-20 pb-16">
 
     <nav class="mb-10 flex items-center justify-between">
       <a href="/creator" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Creator</a>
@@ -80,6 +93,7 @@ if (docIdParam) {
       initialVersionId={initialVersionId}
       initialAuditResult={initialAuditResult}
       initialCounterargResult={initialCounterargResult}
+      initialActions={initialActions}
     />
 
   </main>
