@@ -362,6 +362,7 @@ export default function StudioEditor({
           <AuditResults
             result={auditState.data}
             documentId={docId}
+            versionId={versionId}
             initialActions={initialActions}
           />
         )}

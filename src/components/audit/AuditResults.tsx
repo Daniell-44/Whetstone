@@ -14,6 +14,7 @@ type ActionsMap   = Map<string, ActionRecord>;
 interface Props {
   result:          AuditResult;
   documentId?:     string | null;
+  versionId?:      string | null;
   initialActions?: Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
 }
 
@@ -57,6 +58,141 @@ function AddressedBadge() {
     <span class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0 bg-emerald-100 text-emerald-700">
       ✓ addressed
     </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// FeedbackBtns — thumbs-up / thumbs-down per finding
+// ---------------------------------------------------------------------------
+
+type VoteState = 'up' | 'down' | null;
+
+interface FeedbackBtnsProps {
+  documentId?:     string | null;
+  versionId?:      string | null;
+  targetLens:      string;
+  matchKey:        string;
+  findingSnapshot: unknown;
+}
+
+function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnapshot }: FeedbackBtnsProps) {
+  // Hidden when no document context (anonymous public audit pages)
+  if (!documentId) return null;
+
+  const [vote,        setVote]        = useState<VoteState>(null);
+  const [expanded,    setExpanded]    = useState(false);
+  const [reason,      setReason]      = useState('');
+  const [submitting,  setSubmitting]  = useState(false);
+
+  async function postVote(feedbackType: 'finding_thumbs_up' | 'finding_thumbs_down', qualitative?: string) {
+    setSubmitting(true);
+    try {
+      await fetch('/api/feedback', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          feedbackType,
+          documentId,
+          versionId: versionId ?? null,
+          targetLens,
+          matchKey,
+          findingSnapshot,
+          qualitative: qualitative ?? null,
+        }),
+      });
+    } catch { /* fire-and-forget — vote still registers in UI */ }
+    setSubmitting(false);
+  }
+
+  function handleUp() {
+    if (vote === 'up') { setVote(null); return; }        // toggle off (client-only)
+    setVote('up');
+    setExpanded(false);
+    postVote('finding_thumbs_up');
+  }
+
+  function handleDown() {
+    if (vote === 'down') { setVote(null); setExpanded(false); return; } // toggle off
+    setVote('down');
+    setExpanded(true);
+  }
+
+  async function submitDown(qualitative: string) {
+    setExpanded(false);
+    await postVote('finding_thumbs_down', qualitative || undefined);
+  }
+
+  return (
+    <div class="mt-2">
+      <div class="flex items-center gap-1.5">
+        {/* Thumbs up */}
+        <button
+          type="button"
+          title={vote === 'up' ? 'Remove vote' : 'This finding is helpful'}
+          onClick={handleUp}
+          disabled={submitting}
+          class={`p-1 rounded transition-colors disabled:opacity-40 ${
+            vote === 'up'
+              ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'
+              : 'text-gray-300 hover:text-gray-500 hover:bg-gray-50'
+          }`}
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.09 17 14.9 17H8c-.366 0-.721-.12-1-.34V8l4-5z" />
+          </svg>
+        </button>
+
+        {/* Thumbs down */}
+        <button
+          type="button"
+          title={vote === 'down' ? 'Remove vote' : 'This finding seems off'}
+          onClick={handleDown}
+          disabled={submitting}
+          class={`p-1 rounded transition-colors disabled:opacity-40 ${
+            vote === 'down'
+              ? 'text-rose-500 bg-rose-50 hover:bg-rose-100'
+              : 'text-gray-300 hover:text-gray-500 hover:bg-gray-50'
+          }`}
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M18.905 12.75a1.25 1.25 0 11-2.5 0v-7.5a1.25 1.25 0 112.5 0v7.5zM8.905 17v1.3c0 .268-.14.526-.395.607A2 2 0 015.905 17c0-.995.182-1.948.514-2.826.204-.54-.166-1.174-.744-1.174h-2.52c-1.243 0-2.261-1.01-2.146-2.247a23.864 23.864 0 011.341-5.974C2.752 3.677 3.815 3 5.005 3h6.9c.366 0 .721.12 1 .34V12l-4 5z" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Thumbs-down expander */}
+      {expanded && (
+        <div class="mt-2 space-y-2">
+          <p class="text-xs text-gray-500">What did the engine get wrong? <span class="text-gray-400">(optional)</span></p>
+          <textarea
+            value={reason}
+            onInput={(e) => setReason((e.target as HTMLTextAreaElement).value)}
+            maxLength={500}
+            rows={2}
+            placeholder="e.g. The quote is taken out of context…"
+            class="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 text-gray-700 resize-none focus:outline-none focus:ring-1 focus:ring-rose-300"
+          />
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() => submitDown(reason)}
+              class="text-xs px-2.5 py-1 rounded bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 transition-colors disabled:opacity-40"
+            >
+              Submit feedback
+            </button>
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() => submitDown('')}
+              class="text-xs px-2.5 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-40"
+            >
+              Just downvote
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -262,13 +398,14 @@ interface FallacyCardProps {
   fallacy:      NamedFallacy;
   lens:         string;
   documentId:   string | null | undefined;
+  versionId:    string | null | undefined;
   actionRecord: ActionRecord | undefined;
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
 }
 
-function FallacyCard({ fallacy, lens, documentId, actionRecord, busy, setAction, removeAction }: FallacyCardProps) {
+function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: FallacyCardProps) {
   const cardCls   = SEVERITY_CARD[fallacy.severity] ?? 'bg-gray-50 border-gray-200';
   const matchKey  = fallacyMatchKey(fallacy);
   const addressed = actionRecord?.action === 'addressed';
@@ -287,15 +424,24 @@ function FallacyCard({ fallacy, lens, documentId, actionRecord, busy, setAction,
         "{fallacy.quote}"
       </blockquote>
       <p class="text-xs text-gray-600 leading-relaxed">{fallacy.explanation}</p>
-      <FindingActionBtns
-        lens={lens}
-        matchKey={matchKey}
-        documentId={documentId}
-        actionRecord={actionRecord}
-        busy={busy}
-        setAction={setAction}
-        removeAction={removeAction}
-      />
+      <div class="flex items-start gap-3 flex-wrap">
+        <FindingActionBtns
+          lens={lens}
+          matchKey={matchKey}
+          documentId={documentId}
+          actionRecord={actionRecord}
+          busy={busy}
+          setAction={setAction}
+          removeAction={removeAction}
+        />
+        <FeedbackBtns
+          documentId={documentId}
+          versionId={versionId}
+          targetLens="namedFallacies"
+          matchKey={matchKey}
+          findingSnapshot={fallacy}
+        />
+      </div>
     </div>
   );
 }
@@ -304,13 +450,14 @@ interface LoadedLanguageRowProps {
   item:         LoadedLanguage;
   lens:         string;
   documentId:   string | null | undefined;
+  versionId:    string | null | undefined;
   actionRecord: ActionRecord | undefined;
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
 }
 
-function LoadedLanguageRow({ item, lens, documentId, actionRecord, busy, setAction, removeAction }: LoadedLanguageRowProps) {
+function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: LoadedLanguageRowProps) {
   const matchKey  = loadedLanguageMatchKey(item);
   const addressed = actionRecord?.action === 'addressed';
 
@@ -328,15 +475,24 @@ function LoadedLanguageRow({ item, lens, documentId, actionRecord, busy, setActi
         </div>
       </div>
       <p class="text-xs text-gray-500 leading-relaxed">{item.explanation}</p>
-      <FindingActionBtns
-        lens={lens}
-        matchKey={matchKey}
-        documentId={documentId}
-        actionRecord={actionRecord}
-        busy={busy}
-        setAction={setAction}
-        removeAction={removeAction}
-      />
+      <div class="flex items-start gap-3 flex-wrap">
+        <FindingActionBtns
+          lens={lens}
+          matchKey={matchKey}
+          documentId={documentId}
+          actionRecord={actionRecord}
+          busy={busy}
+          setAction={setAction}
+          removeAction={removeAction}
+        />
+        <FeedbackBtns
+          documentId={documentId}
+          versionId={versionId}
+          targetLens="loadedLanguage"
+          matchKey={matchKey}
+          findingSnapshot={item}
+        />
+      </div>
     </div>
   );
 }
@@ -345,13 +501,14 @@ interface WarrantRowProps {
   w:            UnstatedWarrant;
   lens:         string;
   documentId:   string | null | undefined;
+  versionId:    string | null | undefined;
   actionRecord: ActionRecord | undefined;
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
 }
 
-function WarrantRow({ w, lens, documentId, actionRecord, busy, setAction, removeAction }: WarrantRowProps) {
+function WarrantRow({ w, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: WarrantRowProps) {
   const matchKey  = unstatedWarrantMatchKey(w);
   const addressed = actionRecord?.action === 'addressed';
 
@@ -366,15 +523,24 @@ function WarrantRow({ w, lens, documentId, actionRecord, busy, setAction, remove
         </div>
       </div>
       <p class="text-xs text-gray-400 leading-snug italic">{w.necessity}</p>
-      <FindingActionBtns
-        lens={lens}
-        matchKey={matchKey}
-        documentId={documentId}
-        actionRecord={actionRecord}
-        busy={busy}
-        setAction={setAction}
-        removeAction={removeAction}
-      />
+      <div class="flex items-start gap-3 flex-wrap">
+        <FindingActionBtns
+          lens={lens}
+          matchKey={matchKey}
+          documentId={documentId}
+          actionRecord={actionRecord}
+          busy={busy}
+          setAction={setAction}
+          removeAction={removeAction}
+        />
+        <FeedbackBtns
+          documentId={documentId}
+          versionId={versionId}
+          targetLens="unstatedWarrants"
+          matchKey={matchKey}
+          findingSnapshot={w}
+        />
+      </div>
     </div>
   );
 }
@@ -399,7 +565,7 @@ function DismissedToggle({ count, expanded, onToggle }: { count: number; expande
 // Main export
 // ---------------------------------------------------------------------------
 
-export default function AuditResults({ result, documentId, initialActions }: Props) {
+export default function AuditResults({ result, documentId, versionId, initialActions }: Props) {
   const { actions, setAction, removeAction, busyKeys } = useActionState(documentId, initialActions);
 
   const [showDismissedFallacies, setShowDismissedFallacies]     = useState(false);
@@ -484,6 +650,7 @@ export default function AuditResults({ result, documentId, initialActions }: Pro
                     w={w}
                     lens={LENS}
                     documentId={documentId}
+                    versionId={versionId}
                     actionRecord={getAction(unstatedWarrantMatchKey(w))}
                     busy={isBusy(unstatedWarrantMatchKey(w))}
                     setAction={setAction}
@@ -505,6 +672,7 @@ export default function AuditResults({ result, documentId, initialActions }: Pro
                             w={w}
                             lens={LENS}
                             documentId={documentId}
+                            versionId={versionId}
                             actionRecord={getAction(unstatedWarrantMatchKey(w))}
                             busy={isBusy(unstatedWarrantMatchKey(w))}
                             setAction={setAction}
@@ -550,6 +718,7 @@ export default function AuditResults({ result, documentId, initialActions }: Pro
                     fallacy={f}
                     lens={LENS}
                     documentId={documentId}
+                    versionId={versionId}
                     actionRecord={getAction(fallacyMatchKey(f))}
                     busy={isBusy(fallacyMatchKey(f))}
                     setAction={setAction}
@@ -571,6 +740,7 @@ export default function AuditResults({ result, documentId, initialActions }: Pro
                             fallacy={f}
                             lens={LENS}
                             documentId={documentId}
+                            versionId={versionId}
                             actionRecord={getAction(fallacyMatchKey(f))}
                             busy={isBusy(fallacyMatchKey(f))}
                             setAction={setAction}
@@ -598,6 +768,7 @@ export default function AuditResults({ result, documentId, initialActions }: Pro
                       item={item}
                       lens={LENS}
                       documentId={documentId}
+                      versionId={versionId}
                       actionRecord={getAction(loadedLanguageMatchKey(item))}
                       busy={isBusy(loadedLanguageMatchKey(item))}
                       setAction={setAction}
@@ -620,6 +791,7 @@ export default function AuditResults({ result, documentId, initialActions }: Pro
                             item={item}
                             lens={LENS}
                             documentId={documentId}
+                            versionId={versionId}
                             actionRecord={getAction(loadedLanguageMatchKey(item))}
                             busy={isBusy(loadedLanguageMatchKey(item))}
                             setAction={setAction}

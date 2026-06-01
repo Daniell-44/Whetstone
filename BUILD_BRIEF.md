@@ -1311,3 +1311,143 @@ None of the 11 new patterns surfaced on the fallacy-heavy fixture — this is co
 - `npx astro check` — 0 errors
 - `npm run build` — exit 0
 - `npm run typecheck` — 0 errors
+
+---
+
+## CS-9: Feedback mechanism (2026-06-01)
+
+Per-finding thumbs-up / thumbs-down with optional qualitative reason, persisted to D1. An admin endpoint lets Daniel pull aggregated feedback monthly and feed the patterns back into prompt tuning manually (Pathway A from research v3 — no fine-tuning, no few-shot injection, just human review and iteration).
+
+### Schema — `migrations/0006_feedback.sql`
+
+```sql
+CREATE TABLE feedback (
+  id               TEXT PRIMARY KEY,
+  user_id          TEXT NOT NULL,
+  document_id      TEXT,
+  version_id       TEXT,
+  feedback_type    TEXT NOT NULL,   -- 'finding_thumbs_up' | 'finding_thumbs_down' | 'audit_rating' | 'bug_report'
+  target_lens      TEXT,            -- 'namedFallacies' | 'loadedLanguage' | 'unstatedWarrants' | 'counterarguments'
+  match_key        TEXT,            -- stable finding identifier (reuses match-keys library)
+  finding_snapshot TEXT,            -- JSON of the full finding at feedback time
+  rating           INTEGER,
+  qualitative      TEXT,            -- optional user text, max 500 chars
+  created_at       INTEGER NOT NULL
+);
+```
+
+Apply to both databases:
+```bash
+npx wrangler d1 execute whetstone-users         --file=migrations/0006_feedback.sql --remote
+npx wrangler d1 execute whetstone-users-preview --file=migrations/0006_feedback.sql --remote
+```
+
+### Backend library — `functions/_lib/feedback/`
+
+| File | Contents |
+|---|---|
+| `types.ts` | `FeedbackType`, `TargetLens`, `FeedbackRow`, `FeedbackSubmission`, `FeedbackSummary` |
+| `db.ts` | `makeFeedbackDb(d1)` → `recordFeedback`, `listFeedbackSince`, `summariseFeedback` |
+| `handler.ts` | `handleSubmitFeedback` (POST, session-gated, rate-limited 60/day), `handleAdminFeedback` (GET, secret-gated) |
+
+`summariseFeedback` runs two SQL queries (count-grouped and qualitative list) — no application-layer aggregation against full row scans.
+
+### Submit endpoint — `POST /api/feedback`
+
+Session-gated. Validates that finding-level types include `targetLens`, `matchKey`, and `findingSnapshot`. Ownership-checks document when `documentId` is provided. Rate limit: 60 per user per day using the existing `RATE_LIMIT` KV, prefix `feedback:user:`.
+
+### Admin review endpoint — `GET /api/admin/feedback`
+
+Gated by `X-Analyser-Secret` header (existing `ANALYSER_SECRET` env var).
+
+**Query parameters:**
+
+| Param | Values | Notes |
+|---|---|---|
+| `since` | ISO date or `"7d"` / `"30d"` | Required |
+| `lens` | `namedFallacies` \| `loadedLanguage` \| ... | Optional filter |
+| `type` | `finding_thumbs_down` \| ... | Optional filter |
+| `format` | `summary` (default) \| `json` | `json` returns raw rows |
+
+**Monthly review workflow:**
+```bash
+# Full summary — last 30 days
+curl -H "X-Analyser-Secret: $ANALYSER_SECRET" \
+  "https://<worker>.workers.dev/api/admin/feedback?since=30d"
+
+# Downvotes only, namedFallacies lens — show what users disagreed with
+curl -H "X-Analyser-Secret: $ANALYSER_SECRET" \
+  "https://<worker>.workers.dev/api/admin/feedback?since=30d&type=finding_thumbs_down&lens=namedFallacies"
+
+# Raw rows for deeper inspection
+curl -H "X-Analyser-Secret: $ANALYSER_SECRET" \
+  "https://<worker>.workers.dev/api/admin/feedback?since=30d&format=json"
+```
+
+**Example summary response** (with 3 hypothetical feedback entries — 2 thumbs-down, 1 thumbs-up on namedFallacies):
+
+```json
+{
+  "ok": true,
+  "period": { "since": "2026-05-01T00:00:00.000Z", "until": "2026-06-01T12:00:00.000Z" },
+  "totals": { "thumbsUp": 1, "thumbsDown": 2, "auditRatings": 0, "bugReports": 0 },
+  "byLens": {
+    "namedFallacies":   { "up": 1, "down": 2, "downRate": 0.67 },
+    "loadedLanguage":   { "up": 0, "down": 0, "downRate": 0 },
+    "unstatedWarrants": { "up": 0, "down": 0, "downRate": 0 },
+    "counterarguments": { "up": 0, "down": 0, "downRate": 0 }
+  },
+  "qualitativeReasons": [
+    {
+      "lens": "namedFallacies",
+      "type": "finding_thumbs_down",
+      "text": "The quote is taken out of context — the author immediately acknowledged this point.",
+      "createdAt": "2026-05-28T14:23:11.000Z",
+      "findingSnapshot": {
+        "name": "Appeal to Authority",
+        "quote": "Professor Hartley, a leading criminologist, has repeatedly stated that gun-free zones reduce violence — and if an expert says it, that settles the debate.",
+        "severity": "medium",
+        "confidence": 98
+      }
+    },
+    {
+      "lens": "namedFallacies",
+      "type": "finding_thumbs_down",
+      "text": "This is stylistic emphasis, not a straw man — they're summarising for speed.",
+      "createdAt": "2026-05-15T09:41:03.000Z",
+      "findingSnapshot": { "name": "Straw Man", "severity": "high", "confidence": 95, "quote": "..." }
+    }
+  ]
+}
+```
+
+A `downRate` above 0.3 on any lens is a signal worth investigating. Use `findingSnapshot` to reconstruct what the user saw at feedback time — the engine's prompts may have changed since.
+
+### UI — `src/components/audit/AuditResults.tsx`
+
+Each finding card now includes a small thumbs-up / thumbs-down icon pair, rendered only when `documentId` is provided (anonymous public `/audit` and `/reader` users do not see the affordance — the simpler hidden-not-disabled approach was chosen; no tooltip needed since the rest of the card is also not interactive for anonymous users).
+
+**Interaction flow:**
+- **Thumbs-up**: immediate POST to `/api/feedback`, icon fills green. Clicking again toggles off (client-side only — no DELETE; neutral state is not persisted to the server. A fresh page load shows no votes. This is acceptable because feedback is append-only signal, not a two-way editable record.)
+- **Thumbs-down**: opens an inline expander with a textarea (500-char max, optional). Two buttons: "Submit feedback" (with qualitative) and "Just downvote" (empty qualitative). Either path closes the expander and fires a POST. Clicking the active thumbs-down again toggles off client-side.
+
+`FeedbackBtns` is a self-contained Preact component with local state — no shared hook needed since votes are independent per finding.
+
+**Surfaces covered:** Studio editor (with `documentId` + `versionId` from state), version history read-only page (`client:load` added, `docId` + `versionId` threaded from URL params). Public `/audit` (no `documentId` → hidden). `/reader` (no `documentId` → hidden).
+
+### Account page
+
+Small acknowledgement note added below the subscription section: "Your feedback shapes The Whetstone — thumbs-up and thumbs-down on findings help tune the engine over time. Thank you."
+
+### Tests (32 new; 320 total)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/feedback/submit.test.ts` | 18 | Auth (401, 405), validation (all required fields for finding types, 500-char limit, ownership check), success (records correctly, stores snapshot as JSON, all four lenses), rate limiting (cap enforced, kv optional) |
+| `tests/feedback/admin.test.ts` | 14 | Auth (no header, wrong secret, unconfigured secret), `since` parsing (missing, invalid, ISO, 7d/30d relative, date filter), summary format, json format, lens/type filters |
+
+### Build status
+
+- `npx vitest run` — 320/320 passing (32 new + 288 existing)
+- `npx astro check` — 0 errors
+- `npm run build` — exit 0

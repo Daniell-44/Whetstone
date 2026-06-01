@@ -82,7 +82,12 @@ function formatDate(epochMs: number): string {
     {auditResult && (
       <section class="rounded-xl border border-gray-200 bg-white p-6 mb-8">
         <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">Structural Audit</h2>
-        <AuditResults result={auditResult} />
+        <AuditResults
+          client:load
+          result={auditResult}
+          documentId={docId}
+          versionId={versionId}
+        />
       </section>
     )}
 

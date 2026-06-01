@@ -115,6 +115,13 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
       </div>
     </div>
 
+    <!-- Feedback acknowledgement -->
+    <div class="mt-8 rounded-lg border border-gray-100 bg-gray-50 px-5 py-4">
+      <p class="text-xs text-gray-500 leading-relaxed">
+        Your feedback shapes The Whetstone — thumbs-up and thumbs-down on findings help tune the engine over time. Thank you.
+      </p>
+    </div>
+
     <form action="/api/auth/logout" method="post" class="mt-8">
       <button
         type="submit"
