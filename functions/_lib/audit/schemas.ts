@@ -35,12 +35,69 @@ export const LoadedLanguageSchema = z.object({
   confidence:  confidenceField,
 });
 
+// ---------------------------------------------------------------------------
+// Phase-2 schemas
+// ---------------------------------------------------------------------------
+
+const KEY_TERM_ISSUES = [
+  'stipulative-smuggling',
+  'cross-language-game-equivocation',
+  'family-resemblance-overreach',
+] as const;
+
+const REFERENT_ISSUES = [
+  'empty-referent',
+  'vague-proper-name',
+  'failed-presupposition',
+] as const;
+
+const FALSIFIABILITY_ISSUES = [
+  'no-truth-conditions',
+  'circular-truth-conditions',
+  'unfalsifiable-dressed-as-substantive',
+] as const;
+
+export const KeyTermScrutinyFindingSchema = z.object({
+  term:        z.string().min(1),
+  usage_a:     z.string().min(1),
+  usage_b:     z.string().min(1),
+  issue:       z.enum(KEY_TERM_ISSUES),
+  explanation: z.string().min(1),
+  severity:    severityField,
+  confidence:  confidenceField,
+});
+
+export const ReferentCheckFindingSchema = z.object({
+  phrase:      z.string().min(1),
+  issue:       z.enum(REFERENT_ISSUES),
+  explanation: z.string().min(1),
+  evidence:    z.string().min(1),
+  severity:    severityField,
+  confidence:  confidenceField,
+});
+
+export const FalsifiabilityFindingSchema = z.object({
+  claim:       z.string().min(1),
+  issue:       z.enum(FALSIFIABILITY_ISSUES),
+  explanation: z.string().min(1),
+  evidence:    z.string().min(1),
+  severity:    severityField,
+  confidence:  confidenceField,
+});
+
+// ---------------------------------------------------------------------------
+// Root schema — Phase-2 arrays default to [] so anonymous audits pass
+// ---------------------------------------------------------------------------
+
 export const AuditResultSchema = z.object({
-  centralClaim:   z.string().min(1),
-  toulmin:        ToulminAnalysisSchema,
-  namedFallacies: z.array(NamedFallacySchema),
-  loadedLanguage: z.array(LoadedLanguageSchema),
-  notes:          z.string().nullable(),
+  centralClaim:         z.string().min(1),
+  toulmin:              ToulminAnalysisSchema,
+  namedFallacies:       z.array(NamedFallacySchema),
+  loadedLanguage:       z.array(LoadedLanguageSchema),
+  notes:                z.string().nullable(),
+  keyTermScrutiny:      z.array(KeyTermScrutinyFindingSchema).default([]),
+  referentChecks:       z.array(ReferentCheckFindingSchema).default([]),
+  falsifiabilityChecks: z.array(FalsifiabilityFindingSchema).default([]),
 });
 
 export const AuditInputSchema = z.object({

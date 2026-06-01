@@ -139,8 +139,9 @@ export async function handleAuditRequest(
   // Run the audit.
   try {
     const result = await auditText(inputText, {
-      provider: deps.provider,
-      apiKey:   deps.geminiApiKey,
+      provider:       deps.provider,
+      apiKey:         deps.geminiApiKey,
+      includePhase2:  session !== null,
     });
     return json({
       ok:    true,

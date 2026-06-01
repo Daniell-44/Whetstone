@@ -3,6 +3,10 @@ import {
   NamedFallacySchema,
   LoadedLanguageSchema,
   UnstatedWarrantSchema,
+  KeyTermScrutinyFindingSchema,
+  ReferentCheckFindingSchema,
+  FalsifiabilityFindingSchema,
+  AuditResultSchema,
 } from '../../functions/_lib/audit/schemas';
 
 // ---------------------------------------------------------------------------
@@ -138,5 +142,199 @@ describe('UnstatedWarrantSchema — confidence + severity required', () => {
 
   it('accepts valid finding', () => {
     expect(UnstatedWarrantSchema.safeParse({ ...base, severity: 'high', confidence: 88 }).success).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// KeyTermScrutinyFindingSchema
+// ---------------------------------------------------------------------------
+
+describe('KeyTermScrutinyFindingSchema', () => {
+  const base = {
+    term:        'freedom',
+    usage_a:     'freedom from government interference',
+    usage_b:     'freedom to pursue your potential',
+    issue:       'cross-language-game-equivocation',
+    explanation: 'The term shifts meaning between the two uses.',
+    severity:    'high',
+    confidence:  82,
+  };
+
+  it('accepts a valid finding', () => {
+    expect(KeyTermScrutinyFindingSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('accepts all valid issue values', () => {
+    const issues = ['stipulative-smuggling', 'cross-language-game-equivocation', 'family-resemblance-overreach'];
+    for (const issue of issues) {
+      expect(KeyTermScrutinyFindingSchema.safeParse({ ...base, issue }).success).toBe(true);
+    }
+  });
+
+  it('rejects an unknown issue value', () => {
+    expect(KeyTermScrutinyFindingSchema.safeParse({ ...base, issue: 'weasel-wording' }).success).toBe(false);
+  });
+
+  it('rejects missing usage_a', () => {
+    const { usage_a, ...rest } = base;
+    expect(KeyTermScrutinyFindingSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('rejects missing usage_b', () => {
+    const { usage_b, ...rest } = base;
+    expect(KeyTermScrutinyFindingSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('rejects out-of-range confidence', () => {
+    expect(KeyTermScrutinyFindingSchema.safeParse({ ...base, confidence: 101 }).success).toBe(false);
+  });
+
+  it('rejects invalid severity', () => {
+    expect(KeyTermScrutinyFindingSchema.safeParse({ ...base, severity: 'critical' }).success).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ReferentCheckFindingSchema
+// ---------------------------------------------------------------------------
+
+describe('ReferentCheckFindingSchema', () => {
+  const base = {
+    phrase:      'real Americans',
+    issue:       'empty-referent',
+    explanation: 'No determinate set of people is picked out.',
+    evidence:    'Real Americans believe in hard work.',
+    severity:    'medium',
+    confidence:  75,
+  };
+
+  it('accepts a valid finding', () => {
+    expect(ReferentCheckFindingSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('accepts all valid issue values', () => {
+    const issues = ['empty-referent', 'vague-proper-name', 'failed-presupposition'];
+    for (const issue of issues) {
+      expect(ReferentCheckFindingSchema.safeParse({ ...base, issue }).success).toBe(true);
+    }
+  });
+
+  it('rejects unknown issue value', () => {
+    expect(ReferentCheckFindingSchema.safeParse({ ...base, issue: 'bad-reference' }).success).toBe(false);
+  });
+
+  it('rejects missing evidence', () => {
+    const { evidence, ...rest } = base;
+    expect(ReferentCheckFindingSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('rejects empty evidence string', () => {
+    expect(ReferentCheckFindingSchema.safeParse({ ...base, evidence: '' }).success).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FalsifiabilityFindingSchema
+// ---------------------------------------------------------------------------
+
+describe('FalsifiabilityFindingSchema', () => {
+  const base = {
+    claim:       'True leadership always makes the right call.',
+    issue:       'circular-truth-conditions',
+    explanation: '"True leadership" is defined as making right calls — the claim is tautological.',
+    evidence:    'True leadership means making the right decisions.',
+    severity:    'high',
+    confidence:  88,
+  };
+
+  it('accepts a valid finding', () => {
+    expect(FalsifiabilityFindingSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('accepts all valid issue values', () => {
+    const issues = ['no-truth-conditions', 'circular-truth-conditions', 'unfalsifiable-dressed-as-substantive'];
+    for (const issue of issues) {
+      expect(FalsifiabilityFindingSchema.safeParse({ ...base, issue }).success).toBe(true);
+    }
+  });
+
+  it('rejects unknown issue value', () => {
+    expect(FalsifiabilityFindingSchema.safeParse({ ...base, issue: 'empirically-weak' }).success).toBe(false);
+  });
+
+  it('rejects missing claim', () => {
+    const { claim, ...rest } = base;
+    expect(FalsifiabilityFindingSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it('rejects missing evidence', () => {
+    const { evidence, ...rest } = base;
+    expect(FalsifiabilityFindingSchema.safeParse(rest).success).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// AuditResultSchema — Phase-2 arrays default to []
+// ---------------------------------------------------------------------------
+
+describe('AuditResultSchema — Phase-2 fields default to empty arrays', () => {
+  const baseResult = {
+    centralClaim:   'Test.',
+    toulmin: {
+      claim:            'Test.',
+      grounds:          'Test.',
+      statedWarrant:    null,
+      unstatedWarrants: [],
+      weakestLink:      'Test.',
+    },
+    namedFallacies: [],
+    loadedLanguage: [],
+    notes:          null,
+  };
+
+  it('parses when Phase-2 fields are absent (anonymous audit)', () => {
+    const result = AuditResultSchema.safeParse(baseResult);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.keyTermScrutiny).toEqual([]);
+      expect(result.data.referentChecks).toEqual([]);
+      expect(result.data.falsifiabilityChecks).toEqual([]);
+    }
+  });
+
+  it('parses when Phase-2 fields are explicitly empty', () => {
+    const result = AuditResultSchema.safeParse({
+      ...baseResult,
+      keyTermScrutiny:      [],
+      referentChecks:       [],
+      falsifiabilityChecks: [],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('parses when Phase-2 fields contain valid findings', () => {
+    const result = AuditResultSchema.safeParse({
+      ...baseResult,
+      keyTermScrutiny: [{
+        term:        'freedom',
+        usage_a:     'freedom from interference',
+        usage_b:     'freedom to flourish',
+        issue:       'cross-language-game-equivocation',
+        explanation: 'The term shifts.',
+        severity:    'high',
+        confidence:  80,
+      }],
+      referentChecks: [],
+      falsifiabilityChecks: [],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects invalid Phase-2 finding shape', () => {
+    const result = AuditResultSchema.safeParse({
+      ...baseResult,
+      keyTermScrutiny: [{ term: 'freedom', issue: 'bad-issue' }],
+    });
+    expect(result.success).toBe(false);
   });
 });

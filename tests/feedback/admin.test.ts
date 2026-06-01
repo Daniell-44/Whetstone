@@ -40,9 +40,12 @@ function makeFakeDb(overrides: Partial<FeedbackDb> = {}): FeedbackDb & { rows: F
         totals: { thumbsUp, thumbsDown, auditRatings: 0, bugReports: 0 },
         byLens: {
           namedFallacies:   { up: thumbsUp, down: thumbsDown, downRate: thumbsUp + thumbsDown > 0 ? thumbsDown / (thumbsUp + thumbsDown) : 0 },
-          loadedLanguage:   { up: 0, down: 0, downRate: 0 },
-          unstatedWarrants: { up: 0, down: 0, downRate: 0 },
-          counterarguments: { up: 0, down: 0, downRate: 0 },
+          loadedLanguage:       { up: 0, down: 0, downRate: 0 },
+          unstatedWarrants:     { up: 0, down: 0, downRate: 0 },
+          counterarguments:     { up: 0, down: 0, downRate: 0 },
+          keyTermScrutiny:      { up: 0, down: 0, downRate: 0 },
+          referentChecks:       { up: 0, down: 0, downRate: 0 },
+          falsifiabilityChecks: { up: 0, down: 0, downRate: 0 },
         },
         qualitativeReasons: visible
           .filter(r => r.qualitative)

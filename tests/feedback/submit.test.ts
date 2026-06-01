@@ -41,10 +41,13 @@ function makeFakeDb(): FeedbackDb & { rows: FeedbackRow[] } {
         period: { since: new Date().toISOString(), until: new Date().toISOString() },
         totals: { thumbsUp: 0, thumbsDown: 0, auditRatings: 0, bugReports: 0 },
         byLens: {
-          namedFallacies:   { up: 0, down: 0, downRate: 0 },
-          loadedLanguage:   { up: 0, down: 0, downRate: 0 },
-          unstatedWarrants: { up: 0, down: 0, downRate: 0 },
-          counterarguments: { up: 0, down: 0, downRate: 0 },
+          namedFallacies:       { up: 0, down: 0, downRate: 0 },
+          loadedLanguage:       { up: 0, down: 0, downRate: 0 },
+          unstatedWarrants:     { up: 0, down: 0, downRate: 0 },
+          counterarguments:     { up: 0, down: 0, downRate: 0 },
+          keyTermScrutiny:      { up: 0, down: 0, downRate: 0 },
+          referentChecks:       { up: 0, down: 0, downRate: 0 },
+          falsifiabilityChecks: { up: 0, down: 0, downRate: 0 },
         },
         qualitativeReasons: [],
       };

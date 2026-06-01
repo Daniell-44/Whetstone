@@ -82,12 +82,15 @@ export function makeFeedbackDb(db: D1Database): FeedbackDb {
         finding_snapshot: string | null;
       }>();
 
-      const LENSES: TargetLens[] = ['namedFallacies', 'loadedLanguage', 'unstatedWarrants', 'counterarguments'];
+      const LENSES: TargetLens[] = ['namedFallacies', 'loadedLanguage', 'unstatedWarrants', 'counterarguments', 'keyTermScrutiny', 'referentChecks', 'falsifiabilityChecks'];
       const byLens: FeedbackSummary['byLens'] = {
-        namedFallacies:   { up: 0, down: 0, downRate: 0 },
-        loadedLanguage:   { up: 0, down: 0, downRate: 0 },
-        unstatedWarrants: { up: 0, down: 0, downRate: 0 },
-        counterarguments: { up: 0, down: 0, downRate: 0 },
+        namedFallacies:       { up: 0, down: 0, downRate: 0 },
+        loadedLanguage:       { up: 0, down: 0, downRate: 0 },
+        unstatedWarrants:     { up: 0, down: 0, downRate: 0 },
+        counterarguments:     { up: 0, down: 0, downRate: 0 },
+        keyTermScrutiny:      { up: 0, down: 0, downRate: 0 },
+        referentChecks:       { up: 0, down: 0, downRate: 0 },
+        falsifiabilityChecks: { up: 0, down: 0, downRate: 0 },
       };
 
       let thumbsUp = 0, thumbsDown = 0, auditRatings = 0, bugReports = 0;

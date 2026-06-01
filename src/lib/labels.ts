@@ -11,6 +11,11 @@ export const LABELS = {
   centralClaim:     'Main Claim',
   weakestLink:      'Weakest Point',
 
+  // Phase-2 lenses
+  keyTermScrutiny:      'Word Use',
+  referentChecks:       'Vague References',
+  falsifiabilityChecks: 'Testability',
+
   // Counterargument
   counterarguments:   'Strongest Opposing Cases',
   counterargPosition: 'Position',
@@ -53,6 +58,18 @@ export const TOOLTIPS: Record<keyof typeof LABELS, { plain: string; pedigree: st
   weakestLink: {
     plain:    'The point in the argument most open to challenge — where the reasoning is thinnest or the evidence softest.',
     pedigree: 'Part of Toulmin\'s framework: every argument has a load-bearing element that, if contested, collapses the whole chain.',
+  },
+  keyTermScrutiny: {
+    plain:    'Key terms used inconsistently — sliding between different meanings in a way that makes the argument appear to hold when it doesn\'t.',
+    pedigree: 'Grounded in Wittgenstein\'s insight that meaning is use: when a term shifts its language-game mid-argument, the inference silently breaks down.',
+  },
+  referentChecks: {
+    plain:    'Phrases whose referents are empty, contested, or presuppose facts not established in the text.',
+    pedigree: 'Grounded in Russell\'s theory of descriptions: definite descriptions fail when their referents don\'t exist or aren\'t determinate.',
+  },
+  falsifiabilityChecks: {
+    plain:    'Claims that appear substantive but have no conditions under which they could be false.',
+    pedigree: 'Grounded in Davidson\'s truth-conditional semantics: a sentence only means something if we know what would make it true or false.',
   },
   counterarguments: {
     plain:    'The strongest objections a thoughtful opponent would make — ones your draft currently doesn\'t address.',

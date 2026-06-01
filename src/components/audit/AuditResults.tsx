@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import type { AuditResult, UnstatedWarrant, NamedFallacy, LoadedLanguage } from '../../lib/audit';
-import { sortByPriority, fallacyMatchKey, loadedLanguageMatchKey, unstatedWarrantMatchKey } from '../../lib/audit';
+import type { AuditResult, UnstatedWarrant, NamedFallacy, LoadedLanguage, KeyTermScrutinyFinding, ReferentCheckFinding, FalsifiabilityFinding } from '../../lib/audit';
+import { sortByPriority, fallacyMatchKey, loadedLanguageMatchKey, unstatedWarrantMatchKey, keyTermMatchKey, referentMatchKey, falsifiabilityMatchKey } from '../../lib/audit';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 
 // ---------------------------------------------------------------------------
@@ -546,6 +546,186 @@ function WarrantRow({ w, lens, documentId, versionId, actionRecord, busy, setAct
 }
 
 // ---------------------------------------------------------------------------
+// Phase-2 card components
+// ---------------------------------------------------------------------------
+
+interface KeyTermCardProps {
+  finding:      KeyTermScrutinyFinding;
+  lens:         string;
+  documentId:   string | null | undefined;
+  versionId:    string | null | undefined;
+  actionRecord: ActionRecord | undefined;
+  busy:         boolean;
+  setAction:    (lens: string, matchKey: string, action: string) => void;
+  removeAction: (lens: string, matchKey: string) => void;
+}
+
+function KeyTermCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: KeyTermCardProps) {
+  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
+  const matchKey  = keyTermMatchKey(finding);
+  const addressed = actionRecord?.action === 'addressed';
+
+  return (
+    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+      <div class="flex items-start justify-between gap-2 mb-3">
+        <p class="text-sm font-semibold text-gray-900">
+          <span class="font-mono text-gray-700">"{finding.term}"</span>
+          <span class="ml-2 text-xs font-normal text-gray-500 normal-case tracking-normal">
+            {finding.issue.replace(/-/g, ' ')}
+          </span>
+        </p>
+        <div class="flex items-center gap-1.5 shrink-0">
+          {addressed && <AddressedBadge />}
+          <ConfidenceBadge confidence={finding.confidence} />
+          <SeverityBadge severity={finding.severity} />
+        </div>
+      </div>
+      <div class="space-y-1.5 mb-2">
+        <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 leading-relaxed">
+          A: "{finding.usage_a}"
+        </blockquote>
+        <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 leading-relaxed">
+          B: "{finding.usage_b}"
+        </blockquote>
+      </div>
+      <p class="text-xs text-gray-600 leading-relaxed">{finding.explanation}</p>
+      <div class="flex items-start gap-3 flex-wrap">
+        <FindingActionBtns
+          lens={lens}
+          matchKey={matchKey}
+          documentId={documentId}
+          actionRecord={actionRecord}
+          busy={busy}
+          setAction={setAction}
+          removeAction={removeAction}
+        />
+        <FeedbackBtns
+          documentId={documentId}
+          versionId={versionId}
+          targetLens="keyTermScrutiny"
+          matchKey={matchKey}
+          findingSnapshot={finding}
+        />
+      </div>
+    </div>
+  );
+}
+
+interface ReferentCardProps {
+  finding:      ReferentCheckFinding;
+  lens:         string;
+  documentId:   string | null | undefined;
+  versionId:    string | null | undefined;
+  actionRecord: ActionRecord | undefined;
+  busy:         boolean;
+  setAction:    (lens: string, matchKey: string, action: string) => void;
+  removeAction: (lens: string, matchKey: string) => void;
+}
+
+function ReferentCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: ReferentCardProps) {
+  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
+  const matchKey  = referentMatchKey(finding);
+  const addressed = actionRecord?.action === 'addressed';
+
+  return (
+    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+      <div class="flex items-start justify-between gap-2 mb-3">
+        <p class="text-sm font-semibold text-gray-900">
+          <span class="font-mono text-gray-700">"{finding.phrase}"</span>
+          <span class="ml-2 text-xs font-normal text-gray-500 normal-case tracking-normal">
+            {finding.issue.replace(/-/g, ' ')}
+          </span>
+        </p>
+        <div class="flex items-center gap-1.5 shrink-0">
+          {addressed && <AddressedBadge />}
+          <ConfidenceBadge confidence={finding.confidence} />
+          <SeverityBadge severity={finding.severity} />
+        </div>
+      </div>
+      <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
+        "{finding.evidence}"
+      </blockquote>
+      <p class="text-xs text-gray-600 leading-relaxed">{finding.explanation}</p>
+      <div class="flex items-start gap-3 flex-wrap">
+        <FindingActionBtns
+          lens={lens}
+          matchKey={matchKey}
+          documentId={documentId}
+          actionRecord={actionRecord}
+          busy={busy}
+          setAction={setAction}
+          removeAction={removeAction}
+        />
+        <FeedbackBtns
+          documentId={documentId}
+          versionId={versionId}
+          targetLens="referentChecks"
+          matchKey={matchKey}
+          findingSnapshot={finding}
+        />
+      </div>
+    </div>
+  );
+}
+
+interface FalsifiabilityCardProps {
+  finding:      FalsifiabilityFinding;
+  lens:         string;
+  documentId:   string | null | undefined;
+  versionId:    string | null | undefined;
+  actionRecord: ActionRecord | undefined;
+  busy:         boolean;
+  setAction:    (lens: string, matchKey: string, action: string) => void;
+  removeAction: (lens: string, matchKey: string) => void;
+}
+
+function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: FalsifiabilityCardProps) {
+  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
+  const matchKey  = falsifiabilityMatchKey(finding);
+  const addressed = actionRecord?.action === 'addressed';
+
+  return (
+    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+      <div class="flex items-start justify-between gap-2 mb-3">
+        <p class="text-sm font-semibold text-gray-900">
+          {finding.claim}
+          <span class="ml-2 text-xs font-normal text-gray-500 normal-case tracking-normal">
+            {finding.issue.replace(/-/g, ' ')}
+          </span>
+        </p>
+        <div class="flex items-center gap-1.5 shrink-0">
+          {addressed && <AddressedBadge />}
+          <ConfidenceBadge confidence={finding.confidence} />
+          <SeverityBadge severity={finding.severity} />
+        </div>
+      </div>
+      <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
+        "{finding.evidence}"
+      </blockquote>
+      <p class="text-xs text-gray-600 leading-relaxed">{finding.explanation}</p>
+      <div class="flex items-start gap-3 flex-wrap">
+        <FindingActionBtns
+          lens={lens}
+          matchKey={matchKey}
+          documentId={documentId}
+          actionRecord={actionRecord}
+          busy={busy}
+          setAction={setAction}
+          removeAction={removeAction}
+        />
+        <FeedbackBtns
+          documentId={documentId}
+          versionId={versionId}
+          targetLens="falsifiabilityChecks"
+          matchKey={matchKey}
+          findingSnapshot={finding}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // DismissedToggle
 // ---------------------------------------------------------------------------
 
@@ -568,9 +748,12 @@ function DismissedToggle({ count, expanded, onToggle }: { count: number; expande
 export default function AuditResults({ result, documentId, versionId, initialActions }: Props) {
   const { actions, setAction, removeAction, busyKeys } = useActionState(documentId, initialActions);
 
-  const [showDismissedFallacies, setShowDismissedFallacies]     = useState(false);
-  const [showDismissedLoadedLang, setShowDismissedLoadedLang]   = useState(false);
-  const [showDismissedWarrants,   setShowDismissedWarrants]     = useState(false);
+  const [showDismissedFallacies,    setShowDismissedFallacies]    = useState(false);
+  const [showDismissedLoadedLang,   setShowDismissedLoadedLang]   = useState(false);
+  const [showDismissedWarrants,     setShowDismissedWarrants]     = useState(false);
+  const [showDismissedKeyTerms,     setShowDismissedKeyTerms]     = useState(false);
+  const [showDismissedReferents,    setShowDismissedReferents]    = useState(false);
+  const [showDismissedFalsifiabil,  setShowDismissedFalsifiabil]  = useState(false);
 
   const LENS = 'audit';
 
@@ -611,8 +794,38 @@ export default function AuditResults({ result, documentId, versionId, initialAct
     return rec?.action === 'dismissed';
   });
 
+  // Partition Phase-2 findings
+  const activeKeyTerms    = sortByPriority((result.keyTermScrutiny ?? []).filter(f => {
+    const rec = getAction(keyTermMatchKey(f));
+    return !rec || rec.action !== 'dismissed';
+  }));
+  const dismissedKeyTerms = (result.keyTermScrutiny ?? []).filter(f => {
+    const rec = getAction(keyTermMatchKey(f));
+    return rec?.action === 'dismissed';
+  });
+
+  const activeReferents    = sortByPriority((result.referentChecks ?? []).filter(f => {
+    const rec = getAction(referentMatchKey(f));
+    return !rec || rec.action !== 'dismissed';
+  }));
+  const dismissedReferents = (result.referentChecks ?? []).filter(f => {
+    const rec = getAction(referentMatchKey(f));
+    return rec?.action === 'dismissed';
+  });
+
+  const activeFalsifiabil    = sortByPriority((result.falsifiabilityChecks ?? []).filter(f => {
+    const rec = getAction(falsifiabilityMatchKey(f));
+    return !rec || rec.action !== 'dismissed';
+  }));
+  const dismissedFalsifiabil = (result.falsifiabilityChecks ?? []).filter(f => {
+    const rec = getAction(falsifiabilityMatchKey(f));
+    return rec?.action === 'dismissed';
+  });
+
   const hasFindings = activeFallacies.length > 0 || activeLoadedLang.length > 0 ||
-    dismissedFallacies.length > 0 || dismissedLoadedLang.length > 0;
+    dismissedFallacies.length > 0 || dismissedLoadedLang.length > 0 ||
+    activeKeyTerms.length > 0 || activeReferents.length > 0 || activeFalsifiabil.length > 0 ||
+    dismissedKeyTerms.length > 0 || dismissedReferents.length > 0 || dismissedFalsifiabil.length > 0;
 
   return (
     <div class="space-y-8 border-t border-gray-100 pt-8">
@@ -801,6 +1014,156 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                       </div>
                     )}
                   </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* Phase-2: Key-Term Scrutiny */}
+          {(activeKeyTerms.length > 0 || dismissedKeyTerms.length > 0) && (
+            <section>
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+                <LabelWithTooltip label="keyTermScrutiny" />
+              </h2>
+              <div class="space-y-3">
+                {activeKeyTerms.map((f, i) => (
+                  <KeyTermCard
+                    key={i}
+                    finding={f}
+                    lens={LENS}
+                    documentId={documentId}
+                    versionId={versionId}
+                    actionRecord={getAction(keyTermMatchKey(f))}
+                    busy={isBusy(keyTermMatchKey(f))}
+                    setAction={setAction}
+                    removeAction={removeAction}
+                  />
+                ))}
+                {dismissedKeyTerms.length > 0 && (
+                  <>
+                    <DismissedToggle
+                      count={dismissedKeyTerms.length}
+                      expanded={showDismissedKeyTerms}
+                      onToggle={() => setShowDismissedKeyTerms(v => !v)}
+                    />
+                    {showDismissedKeyTerms && (
+                      <div class="space-y-3 mt-2 opacity-50">
+                        {dismissedKeyTerms.map((f, i) => (
+                          <KeyTermCard
+                            key={i}
+                            finding={f}
+                            lens={LENS}
+                            documentId={documentId}
+                            versionId={versionId}
+                            actionRecord={getAction(keyTermMatchKey(f))}
+                            busy={isBusy(keyTermMatchKey(f))}
+                            setAction={setAction}
+                            removeAction={removeAction}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* Phase-2: Referent Checks */}
+          {(activeReferents.length > 0 || dismissedReferents.length > 0) && (
+            <section>
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+                <LabelWithTooltip label="referentChecks" />
+              </h2>
+              <div class="space-y-3">
+                {activeReferents.map((f, i) => (
+                  <ReferentCard
+                    key={i}
+                    finding={f}
+                    lens={LENS}
+                    documentId={documentId}
+                    versionId={versionId}
+                    actionRecord={getAction(referentMatchKey(f))}
+                    busy={isBusy(referentMatchKey(f))}
+                    setAction={setAction}
+                    removeAction={removeAction}
+                  />
+                ))}
+                {dismissedReferents.length > 0 && (
+                  <>
+                    <DismissedToggle
+                      count={dismissedReferents.length}
+                      expanded={showDismissedReferents}
+                      onToggle={() => setShowDismissedReferents(v => !v)}
+                    />
+                    {showDismissedReferents && (
+                      <div class="space-y-3 mt-2 opacity-50">
+                        {dismissedReferents.map((f, i) => (
+                          <ReferentCard
+                            key={i}
+                            finding={f}
+                            lens={LENS}
+                            documentId={documentId}
+                            versionId={versionId}
+                            actionRecord={getAction(referentMatchKey(f))}
+                            busy={isBusy(referentMatchKey(f))}
+                            setAction={setAction}
+                            removeAction={removeAction}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* Phase-2: Falsifiability Checks */}
+          {(activeFalsifiabil.length > 0 || dismissedFalsifiabil.length > 0) && (
+            <section>
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+                <LabelWithTooltip label="falsifiabilityChecks" />
+              </h2>
+              <div class="space-y-3">
+                {activeFalsifiabil.map((f, i) => (
+                  <FalsifiabilityCard
+                    key={i}
+                    finding={f}
+                    lens={LENS}
+                    documentId={documentId}
+                    versionId={versionId}
+                    actionRecord={getAction(falsifiabilityMatchKey(f))}
+                    busy={isBusy(falsifiabilityMatchKey(f))}
+                    setAction={setAction}
+                    removeAction={removeAction}
+                  />
+                ))}
+                {dismissedFalsifiabil.length > 0 && (
+                  <>
+                    <DismissedToggle
+                      count={dismissedFalsifiabil.length}
+                      expanded={showDismissedFalsifiabil}
+                      onToggle={() => setShowDismissedFalsifiabil(v => !v)}
+                    />
+                    {showDismissedFalsifiabil && (
+                      <div class="space-y-3 mt-2 opacity-50">
+                        {dismissedFalsifiabil.map((f, i) => (
+                          <FalsifiabilityCard
+                            key={i}
+                            finding={f}
+                            lens={LENS}
+                            documentId={documentId}
+                            versionId={versionId}
+                            actionRecord={getAction(falsifiabilityMatchKey(f))}
+                            busy={isBusy(falsifiabilityMatchKey(f))}
+                            setAction={setAction}
+                            removeAction={removeAction}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </section>

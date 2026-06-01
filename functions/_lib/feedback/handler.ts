@@ -19,7 +19,7 @@ function json(body: unknown, status = 200): Response {
 // Submit — POST /api/feedback
 // ---------------------------------------------------------------------------
 
-const TARGET_LENS_VALUES = ['namedFallacies', 'loadedLanguage', 'unstatedWarrants', 'counterarguments'] as const;
+const TARGET_LENS_VALUES = ['namedFallacies', 'loadedLanguage', 'unstatedWarrants', 'counterarguments', 'keyTermScrutiny', 'referentChecks', 'falsifiabilityChecks'] as const;
 
 const SubmitBodySchema = z.object({
   feedbackType:    z.enum(['finding_thumbs_up', 'finding_thumbs_down', 'audit_rating', 'bug_report']),

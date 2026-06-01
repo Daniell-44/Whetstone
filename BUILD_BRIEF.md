@@ -1451,3 +1451,101 @@ Small acknowledgement note added below the subscription section: "Your feedback 
 - `npx vitest run` — 320/320 passing (32 new + 288 existing)
 - `npx astro check` — 0 errors
 - `npm run build` — exit 0
+
+---
+
+## CS-10: Phase-2 lenses — Wittgensteinian key-term scrutiny, Russellian referent checks, Davidsonian falsifiability (2026-06-01)
+
+Three new analytical lenses grounded in philosophy of language, gated by `includePhase2: boolean` — logged-in users get all seven lenses; anonymous users get the base four (cheaper and faster).
+
+### New types — `functions/_lib/audit/types.ts`
+
+Three new issue-type unions and three new finding interfaces:
+
+| Interface | Fields |
+|---|---|
+| `KeyTermScrutinyFinding` | `term`, `usage_a` (verbatim), `usage_b` (verbatim), `issue: KeyTermIssue`, `explanation`, `severity`, `confidence` |
+| `ReferentCheckFinding` | `phrase` (verbatim), `issue: ReferentIssue`, `explanation`, `evidence` (verbatim), `severity`, `confidence` |
+| `FalsifiabilityFinding` | `claim`, `issue: FalsifiabilityIssue`, `explanation`, `evidence` (verbatim), `severity`, `confidence` |
+
+`KeyTermIssue`: `stipulative-smuggling | cross-language-game-equivocation | family-resemblance-overreach`
+`ReferentIssue`: `empty-referent | vague-proper-name | failed-presupposition`
+`FalsifiabilityIssue`: `no-truth-conditions | circular-truth-conditions | unfalsifiable-dressed-as-substantive`
+
+`AuditResult` gains three new array fields: `keyTermScrutiny`, `referentChecks`, `falsifiabilityChecks`.
+`AuditDeps` gains `includePhase2?: boolean`.
+
+### Schemas — `functions/_lib/audit/schemas.ts`
+
+Three new Zod schemas (`KeyTermScrutinyFindingSchema`, `ReferentCheckFindingSchema`, `FalsifiabilityFindingSchema`). All three new arrays in `AuditResultSchema` use `.default([])` so anonymous audits (which return no Phase-2 output) pass validation without a separate schema variant.
+
+### Prompts — `functions/_lib/audit/prompts.ts`
+
+`AUDIT_SYSTEM_PROMPT` (constant string) replaced by `buildSystemPrompt(includePhase2: boolean)` function. When `includePhase2: true`, three new instruction sections are appended:
+
+- **Key-Term Scrutiny (Wittgenstein):** meaning-as-use; flag terms that silently shift language-game between uses. Three sub-types: stipulative smuggling, cross-language-game equivocation, family-resemblance overreach. Includes two worked examples each. What NOT to do: don't flag ordinary polysemy, don't confuse with loaded language.
+- **Referent Check (Russell):** empty, vague, or presupposition-failing referents. Three sub-types: empty referent (e.g., "real Americans"), vague proper name (e.g., "the establishment"), failed presupposition (e.g., "the proven link between X and Y"). What NOT to do: don't flag collective nouns where the referent is clear enough.
+- **Falsifiability Check (Davidson):** claims with no truth conditions, circular truth conditions, or structured immunity to falsification. Three sub-types with worked examples each. What NOT to do: don't flag normative claims merely because they're not empirically testable.
+
+The Phase-2 output format (JSON schema in the prompt) is also conditionally injected — only logged-in users see the three new output fields in the schema instructions.
+
+### Engine — `functions/_lib/audit/engine.ts` + `constants.ts`
+
+- `auditText` now calls `buildSystemPrompt(deps.includePhase2 ?? false)` instead of the former constant.
+- `validateQuotesInText` extended to check `usage_a` and `usage_b` on `keyTermScrutiny` findings, and `evidence` on `referentChecks` and `falsifiabilityChecks` findings.
+- Thinking budget bumped from **4096 → 6144** in `constants.ts` to give the model headroom for the expanded instruction set.
+
+### Handler — `functions/_lib/audit/handler.ts`
+
+`auditText` call gains `includePhase2: session !== null` — logged-in users automatically get Phase-2 depth; anonymous requests use the base four-lens prompt.
+
+### Match-keys — `functions/_lib/audit/match-keys.ts`
+
+Three new functions:
+
+| Function | Key format |
+|---|---|
+| `keyTermMatchKey({ term, issue })` | `keyterm:<normalised-term>:<issue>` |
+| `referentMatchKey({ phrase, issue })` | `referent:<normalised-phrase-30>:<issue>` |
+| `falsifiabilityMatchKey({ claim, issue })` | `falsifiability:<normalised-claim-40>:<issue>` |
+
+### Labels — `src/lib/labels.ts`
+
+Three new LABELS + TOOLTIPS entries:
+
+| Key | Display | Pedigree |
+|---|---|---|
+| `keyTermScrutiny` | Word Use | Wittgenstein's meaning-as-use |
+| `referentChecks` | Vague References | Russell's theory of descriptions |
+| `falsifiabilityChecks` | Testability | Davidson's truth-conditional semantics |
+
+### Feedback — `functions/_lib/feedback/types.ts` + `handler.ts` + `db.ts`
+
+`TargetLens` extended with three new values: `keyTermScrutiny`, `referentChecks`, `falsifiabilityChecks`. The `byLens` summary object in `db.ts` extended with the new keys.
+
+### Display — `src/components/audit/AuditResults.tsx`
+
+Three new card sub-components (`KeyTermCard`, `ReferentCard`, `FalsifiabilityCard`) with severity badge, confidence indicator, verbatim evidence quote, explanation, `FindingActionBtns`, and `FeedbackBtns`. Each section only renders when findings are present. Dismissed-toggle pattern applied to all three. Three new dismiss-state variables added.
+
+### Demo run (2026-06-01)
+
+`npm run audit:demo` with `includePhase2: true`:
+
+**Fallacy-heavy fixture:** 8 fallacies, 11–15 loaded-language, **2 referent checks** (vague referents in the gun-control text — e.g., contested group labels), 0 key-term issues, 0 falsifiability issues. Tokens: ~4559 in / ~2800 out.
+
+**Clean-argument fixture:** 0 fallacies, 1 loaded-language, **0 Phase-2 findings** (clean-argument correctly generates no Phase-2 findings). Tokens: ~4593 in / ~750 out.
+
+The referent findings on the fallacy-heavy text are plausible — group labels in political argument texts are a natural target for the empty-referent pattern.
+
+### Tests (41 new; 361 total)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/audit/schemas.test.ts` | +28 | `KeyTermScrutinyFindingSchema` (valid, all 3 issues, bad issue, missing fields, confidence/severity), `ReferentCheckFindingSchema` (valid, all 3 issues, bad issue, missing evidence, empty evidence), `FalsifiabilityFindingSchema` (valid, all 3 issues, bad issue, missing fields); `AuditResultSchema` Phase-2 defaults to `[]`, accepts valid findings, rejects invalid |
+| `tests/audit/phase2.test.ts` | 20 | `keyTermMatchKey` (stable key, normalises case+punctuation, differs on issue/term, prefix); `referentMatchKey` (stable key, normalises whitespace, differs on issue, prefix); `falsifiabilityMatchKey` (stable key, normalises case+punctuation, differs on issue, prefix); `buildSystemPrompt(false)` — omits Phase-2 sections; `buildSystemPrompt(true)` — includes all 3 sections + all 9 issue-type strings; base content always present; handler gating: session → Phase-2 prompt, anonymous → base prompt, no getSession → base prompt |
+
+### Build status
+
+- `npx vitest run` — 361/361 passing (41 new + 320 existing)
+- `npx astro check` — 0 errors
+- `npm run build` — exit 0

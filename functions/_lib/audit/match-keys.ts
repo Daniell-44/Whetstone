@@ -22,3 +22,15 @@ export function unstatedWarrantMatchKey(w: { warrant: string }): string {
 export function counterargumentMatchKey(c: { position: string }): string {
   return `counterarg:${normalise(c.position, 50)}`;
 }
+
+export function keyTermMatchKey(f: { term: string; issue: string }): string {
+  return `keyterm:${normalise(f.term)}:${f.issue}`;
+}
+
+export function referentMatchKey(f: { phrase: string; issue: string }): string {
+  return `referent:${normalise(f.phrase, 30)}:${f.issue}`;
+}
+
+export function falsifiabilityMatchKey(f: { claim: string; issue: string }): string {
+  return `falsifiability:${normalise(f.claim, 40)}:${f.issue}`;
+}

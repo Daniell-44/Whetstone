@@ -1,5 +1,5 @@
 export type FeedbackType = 'finding_thumbs_up' | 'finding_thumbs_down' | 'audit_rating' | 'bug_report';
-export type TargetLens   = 'namedFallacies' | 'loadedLanguage' | 'unstatedWarrants' | 'counterarguments';
+export type TargetLens   = 'namedFallacies' | 'loadedLanguage' | 'unstatedWarrants' | 'counterarguments' | 'keyTermScrutiny' | 'referentChecks' | 'falsifiabilityChecks';
 
 export interface FeedbackRow {
   id:               string;

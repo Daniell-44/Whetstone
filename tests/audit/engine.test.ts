@@ -178,9 +178,12 @@ describe('validateQuotesInText', () => {
       unstatedWarrants: [],
       weakestLink:      'Test.',
     },
-    namedFallacies: [],
-    loadedLanguage: [],
-    notes:          null,
+    namedFallacies:       [],
+    loadedLanguage:       [],
+    notes:                null,
+    keyTermScrutiny:      [],
+    referentChecks:       [],
+    falsifiabilityChecks: [],
   };
 
   it('passes when all quotes are verbatim substrings', () => {

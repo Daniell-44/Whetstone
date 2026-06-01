@@ -32,7 +32,7 @@ if (!apiKeyRaw) {
 const apiKey: string = apiKeyRaw;
 
 const provider = new GeminiProvider();
-const deps     = { provider, apiKey };
+const deps     = { provider, apiKey, includePhase2: true };
 
 async function run() {
   const fixtures = [
@@ -48,10 +48,13 @@ async function run() {
     try {
       const result = await auditText(text, deps);
       results[name] = result;
-      console.log(`  centralClaim: ${result.audit.centralClaim}`);
-      console.log(`  fallacies:    ${result.audit.namedFallacies.length}`);
-      console.log(`  loadedLang:   ${result.audit.loadedLanguage.length}`);
-      console.log(`  tokens:       ${result.inputTokens} in / ${result.outputTokens} out`);
+      console.log(`  centralClaim:    ${result.audit.centralClaim}`);
+      console.log(`  fallacies:       ${result.audit.namedFallacies.length}`);
+      console.log(`  loadedLang:      ${result.audit.loadedLanguage.length}`);
+      console.log(`  keyTerms:        ${result.audit.keyTermScrutiny.length}`);
+      console.log(`  referents:       ${result.audit.referentChecks.length}`);
+      console.log(`  falsifiability:  ${result.audit.falsifiabilityChecks.length}`);
+      console.log(`  tokens:          ${result.inputTokens} in / ${result.outputTokens} out`);
     } catch (err) {
       results[name] = { error: err instanceof Error ? err.message : String(err) };
       console.error(`  ERROR: ${err instanceof Error ? err.message : err}`);
