@@ -14,6 +14,7 @@ export interface DocumentVersion {
   version_number:    number;
   audit_result:      string | null;
   counterarg_result: string | null;
+  extraction_json:   string | null;
   created_at:        number;
 }
 
@@ -32,4 +33,5 @@ export interface DocumentDb {
   countVersionsForDocument(documentId: string): Promise<number>;
   storeAuditResultOnVersion(versionId: string, auditResult: string): Promise<void>;
   storeCounterargResultOnVersion(versionId: string, counterargResult: string): Promise<void>;
+  storeExtractionOnVersion(versionId: string, extractionJson: string): Promise<void>;
 }

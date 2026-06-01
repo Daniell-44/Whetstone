@@ -1,6 +1,8 @@
 import { useState } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
+import type { ArgumentExtractionResult } from '../../lib/extraction';
 import AuditResults from './AuditResults';
+import ArgumentExtraction from '../extraction/ArgumentExtraction';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -8,8 +10,12 @@ import AuditResults from './AuditResults';
 
 type Tab = 'text' | 'url';
 
-type ApiResponse =
+type AuditApiResponse =
   | { ok: true;  audit: AuditResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
+type ExtractionApiResponse =
+  | { ok: true;  extraction: ArgumentExtractionResult; usage: { inputTokens: number; outputTokens: number } }
   | { ok: false; error: { code: string; message: string } };
 
 // ---------------------------------------------------------------------------
@@ -34,17 +40,18 @@ const ERROR_MESSAGES: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export default function AuditForm() {
-  const [tab, setTab]           = useState<Tab>('text');
+  const [tab, setTab]             = useState<Tab>('text');
   const [textInput, setTextInput] = useState('');
   const [urlInput, setUrlInput]   = useState('');
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [result, setResult]       = useState<AuditResult | null>(null);
+  const [extraction, setExtraction] = useState<ArgumentExtractionResult | null>(null);
 
-  const charCount  = textInput.length;
-  const textValid  = charCount >= MIN_CHARS && charCount <= MAX_CHARS;
-  const urlValid   = urlInput.trim().startsWith('http');
-  const canSubmit  = !loading && (tab === 'text' ? textValid : urlValid);
+  const charCount = textInput.length;
+  const textValid = charCount >= MIN_CHARS && charCount <= MAX_CHARS;
+  const urlValid  = urlInput.trim().startsWith('http');
+  const canSubmit = !loading && (tab === 'text' ? textValid : urlValid);
 
   function switchTab(t: Tab) {
     setTab(t);
@@ -56,26 +63,50 @@ export default function AuditForm() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setExtraction(null);
 
-    const body = tab === 'text'
-      ? { text: textInput }
-      : { url: urlInput.trim() };
+    const isText = tab === 'text';
+    const body   = isText ? { text: textInput } : { url: urlInput.trim() };
 
     try {
-      const res  = await fetch('/api/audit', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(body),
-      });
-      const data = (await res.json()) as ApiResponse;
-      if (data.ok) {
-        setResult(data.audit);
-      } else {
-        const code = data.error.code;
-        setError(ERROR_MESSAGES[code] ?? data.error.message ?? 'Something went wrong.');
+      const requests: Promise<unknown>[] = [
+        fetch('/api/audit', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(body),
+        }).then(r => r.json() as Promise<AuditApiResponse>),
+      ];
+
+      if (isText) {
+        requests.push(
+          fetch('/api/extract-argument', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ text: textInput }),
+          }).then(r => r.json() as Promise<ExtractionApiResponse>),
+        );
       }
-    } catch {
-      setError('Network error — check your connection and try again.');
+
+      const [auditData, extractionData] = await Promise.allSettled(requests);
+
+      // Handle audit result
+      if (auditData.status === 'fulfilled') {
+        const data = auditData.value as AuditApiResponse;
+        if (data.ok) {
+          setResult(data.audit);
+        } else {
+          const code = data.error.code;
+          setError(ERROR_MESSAGES[code] ?? data.error.message ?? 'Something went wrong.');
+        }
+      } else {
+        setError('Network error — check your connection and try again.');
+      }
+
+      // Handle extraction result (best-effort — don't block audit display on failure)
+      if (extractionData && extractionData.status === 'fulfilled') {
+        const data = extractionData.value as ExtractionApiResponse;
+        if (data.ok) setExtraction(data.extraction);
+      }
     } finally {
       setLoading(false);
     }
@@ -167,6 +198,15 @@ export default function AuditForm() {
       {error && !loading && (
         <div class="rounded-xl bg-red-50 border border-red-200 p-4">
           <p class="text-sm text-red-700">{error}</p>
+        </div>
+      )}
+
+      {extraction && !loading && (
+        <div class="rounded-xl border border-emerald-200 bg-white p-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+            Argument Skeleton
+          </h2>
+          <ArgumentExtraction result={extraction} />
         </div>
       )}
 

@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
+import type { ArgumentExtractionResult } from '../../lib/extraction';
 import AuditResults from '../audit/AuditResults';
 import CounterargumentResultDisplay from './CounterargumentResultDisplay';
+import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 import SummaryToolbar from '../audit/SummaryToolbar';
 
@@ -24,6 +26,10 @@ type CounterargApiResponse =
   | { ok: true;  result: CounterargumentResult; usage: { inputTokens: number; outputTokens: number } }
   | { ok: false; error: { code: string; message: string } };
 
+type ExtractionApiResponse =
+  | { ok: true;  extraction: ArgumentExtractionResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -41,6 +47,12 @@ const COUNTERARG_ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMITED:  "You've reached the daily Studio limit. Come back tomorrow.",
   AUDIT_FAILED:  'The counterargument engine failed. Please try again in a moment.',
   INVALID_INPUT: 'Please check your input and try again.',
+};
+
+const EXTRACTION_ERROR_MESSAGES: Record<string, string> = {
+  RATE_LIMITED:      "You've reached the daily limit. Come back tomorrow.",
+  EXTRACTION_FAILED: 'The argument extraction failed. Please try again in a moment.',
+  INVALID_INPUT:     'Please check your input and try again.',
 };
 
 // ---------------------------------------------------------------------------
@@ -96,25 +108,27 @@ function SectionLoading({ label }: { label: string }) {
 // ---------------------------------------------------------------------------
 
 interface Props {
-  hasActiveSubscription:    boolean;
-  initialDocId?:            string | null;
-  initialTitle?:            string;
-  initialContent?:          string;
-  initialVersionId?:        string | null;
-  initialAuditResult?:      AuditResult | null;
-  initialCounterargResult?: CounterargumentResult | null;
-  initialActions?:          Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
+  hasActiveSubscription:      boolean;
+  initialDocId?:              string | null;
+  initialTitle?:              string;
+  initialContent?:            string;
+  initialVersionId?:          string | null;
+  initialAuditResult?:        AuditResult | null;
+  initialCounterargResult?:   CounterargumentResult | null;
+  initialExtractionResult?:   ArgumentExtractionResult | null;
+  initialActions?:            Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
 }
 
 export default function StudioEditor({
   hasActiveSubscription,
-  initialDocId            = null,
-  initialTitle            = 'Untitled draft',
-  initialContent          = '',
-  initialVersionId        = null,
-  initialAuditResult      = null,
-  initialCounterargResult = null,
-  initialActions          = {},
+  initialDocId              = null,
+  initialTitle              = 'Untitled draft',
+  initialContent            = '',
+  initialVersionId          = null,
+  initialAuditResult        = null,
+  initialCounterargResult   = null,
+  initialExtractionResult   = null,
+  initialActions            = {},
 }: Props) {
   const [draft, setDraft]         = useState(initialContent);
   const [docId, setDocId]         = useState<string | null>(initialDocId);
@@ -131,10 +145,13 @@ export default function StudioEditor({
   const [counterargState, setCounterargState] = useState<SectionState<CounterargumentResult>>(
     initialCounterargResult ? { status: 'done', data: initialCounterargResult } : { status: 'idle' },
   );
+  const [extractionState, setExtractionState] = useState<SectionState<ArgumentExtractionResult>>(
+    initialExtractionResult ? { status: 'done', data: initialExtractionResult } : { status: 'idle' },
+  );
 
   const charCount   = draft.length;
   const canSubmit   = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
-  const showResults = auditState.status !== 'idle' || (hasActiveSubscription && counterargState.status !== 'idle');
+  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (hasActiveSubscription && counterargState.status !== 'idle');
 
   const handleTitleBlur = useCallback(async () => {
     if (!docId || title === savedTitle) return;
@@ -157,6 +174,7 @@ export default function StudioEditor({
     setLastSavedContent(null);
     setAuditState({ status: 'idle' });
     setCounterargState({ status: 'idle' });
+    setExtractionState({ status: 'idle' });
     const url = new URL(window.location.href);
     url.searchParams.delete('doc');
     window.history.replaceState({}, '', url.toString());
@@ -210,17 +228,32 @@ export default function StudioEditor({
     if (!currentDocId || !currentVersionId) { setIsRunning(false); return; }
 
     // --- run analysis ---
+    setExtractionState({ status: 'loading' });
     setAuditState({ status: 'loading' });
     if (hasActiveSubscription) setCounterargState({ status: 'loading' });
 
+    let extractionDone = false;
     let auditDone      = false;
     let counterargDone = !hasActiveSubscription;
 
     function checkDone() {
-      if (auditDone && counterargDone) setIsRunning(false);
+      if (extractionDone && auditDone && counterargDone) setIsRunning(false);
     }
 
     const versionPath = `/api/documents/${currentDocId}/versions/${currentVersionId}`;
+
+    fetch(`${versionPath}/extraction`, { method: 'POST' })
+      .then(r => r.json() as Promise<ExtractionApiResponse>)
+      .then(data => {
+        if (data.ok) {
+          setExtractionState({ status: 'done', data: data.extraction });
+        } else {
+          const code = data.error.code;
+          setExtractionState({ status: 'error', code, message: EXTRACTION_ERROR_MESSAGES[code] ?? data.error.message });
+        }
+      })
+      .catch(() => setExtractionState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
+      .finally(() => { extractionDone = true; checkDone(); });
 
     fetch(`${versionPath}/audit`, { method: 'POST' })
       .then(r => r.json() as Promise<AuditApiResponse>)
@@ -347,6 +380,24 @@ export default function StudioEditor({
 
   const resultsSection = showResults ? (
     <div class="space-y-6">
+      {/* Argument extraction — shown above critique */}
+      {extractionState.status !== 'idle' && (
+        <div class="rounded-xl border border-emerald-200 bg-white p-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+            Argument Skeleton
+          </h2>
+          {extractionState.status === 'loading' && (
+            <SectionLoading label="Mapping argument structure…" />
+          )}
+          {extractionState.status === 'error' && (
+            <SectionError code={extractionState.code} message={extractionState.message} />
+          )}
+          {extractionState.status === 'done' && (
+            <ArgumentExtraction result={extractionState.data} />
+          )}
+        </div>
+      )}
+
       {/* Structural audit */}
       <div class="rounded-xl border border-gray-200 bg-white p-6">
         <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">

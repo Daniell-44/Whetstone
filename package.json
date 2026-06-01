@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "scorecard:demo": "tsx scripts/run-scorecard.ts",
     "audit:demo": "tsx scripts/run-audit.ts",
-    "counterargument:demo": "tsx scripts/run-counterargument.ts"
+    "counterargument:demo": "tsx scripts/run-counterargument.ts",
+    "extraction:demo": "tsx scripts/run-extraction.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.3",

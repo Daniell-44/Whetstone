@@ -4,6 +4,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { auditText } from '../audit/engine';
 import { generateCounterarguments } from '../counterargument/engine';
+import { extractArgument } from '../argument-extraction/engine';
 import { ensureFreeUserCanCreateDocument } from './limits';
 
 // ---------------------------------------------------------------------------
@@ -209,6 +210,56 @@ export async function handleVersionCounterarg(
     }
     const message = err instanceof Error ? err.message : 'Counterargument generation failed';
     return json({ ok: false, error: { code: 'AUDIT_FAILED', message } }, 500);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// POST /api/documents/[id]/versions/[versionId]/extraction
+// ---------------------------------------------------------------------------
+
+export interface VersionExtractionDeps {
+  db:           DocumentDb;
+  provider:     LlmProvider;
+  geminiApiKey: string | undefined;
+  getSession:   (req: Request) => Promise<{ userId: string } | null>;
+}
+
+export async function handleVersionExtraction(
+  req:       Request,
+  docId:     string,
+  versionId: string,
+  deps:      VersionExtractionDeps,
+): Promise<Response> {
+  const session = await deps.getSession(req);
+  if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
+
+  const doc = await deps.db.getDocumentById(docId);
+  if (!doc || doc.user_id !== session.userId) {
+    return json({ ok: false, error: { code: 'NOT_FOUND', message: 'Document not found' } }, 404);
+  }
+
+  const version = await deps.db.getVersion(versionId);
+  if (!version || version.document_id !== docId) {
+    return json({ ok: false, error: { code: 'NOT_FOUND', message: 'Version not found' } }, 404);
+  }
+
+  if (!deps.geminiApiKey) {
+    return json({ ok: false, error: { code: 'EXTRACTION_FAILED', message: 'Service unavailable' } }, 503);
+  }
+
+  try {
+    const { result, inputTokens, outputTokens } = await extractArgument(version.content, {
+      provider: deps.provider,
+      apiKey:   deps.geminiApiKey,
+    });
+    await deps.db.storeExtractionOnVersion(versionId, JSON.stringify(result));
+    return json({ ok: true, extraction: result, usage: { inputTokens, outputTokens } });
+  } catch (err) {
+    if (err instanceof ProviderError && !err.retryable) {
+      return json({ ok: false, error: { code: 'EXTRACTION_FAILED', message: 'Service temporarily unavailable' } }, 503);
+    }
+    const message = err instanceof Error ? err.message : 'Argument extraction failed';
+    return json({ ok: false, error: { code: 'EXTRACTION_FAILED', message } }, 500);
   }
 }
 

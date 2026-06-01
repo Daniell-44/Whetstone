@@ -16,6 +16,12 @@ export const LABELS = {
   referentChecks:       'Vague References',
   falsifiabilityChecks: 'Testability',
 
+  // Argument extraction
+  extraction:              'Argument Structure',
+  extractionPremise:       'Premise',
+  extractionConclusion:    'Conclusion',
+  extractionInferenceRule: 'Inference',
+
   // Counterargument
   counterarguments:   'Strongest Opposing Cases',
   counterargPosition: 'Position',
@@ -70,6 +76,22 @@ export const TOOLTIPS: Record<keyof typeof LABELS, { plain: string; pedigree: st
   falsifiabilityChecks: {
     plain:    'Claims that appear substantive but have no conditions under which they could be false.',
     pedigree: 'Grounded in Davidson\'s truth-conditional semantics: a sentence only means something if we know what would make it true or false.',
+  },
+  extraction: {
+    plain:    'Your argument rendered as numbered premises and conclusions — clarifying the logical skeleton before critique.',
+    pedigree: 'Follows the tradition of argument formalisation from Aristotle\'s syllogistic through modern informal logic.',
+  },
+  extractionPremise: {
+    plain:    'A load-bearing claim the argument asserts or assumes as a starting point.',
+    pedigree: 'In classical logic, premises are the propositions from which conclusions are derived.',
+  },
+  extractionConclusion: {
+    plain:    'A claim derived from one or more premises via an inference rule.',
+    pedigree: 'A conclusion is valid only if the inference from its premises is truth-preserving under the stated rule.',
+  },
+  extractionInferenceRule: {
+    plain:    'The pattern of reasoning used to derive this conclusion from its premises.',
+    pedigree: 'Inference rules formalise the permissible moves in an argument; naming them makes the argument\'s logic explicit and checkable.',
   },
   counterarguments: {
     plain:    'The strongest objections a thoughtful opponent would make — ones your draft currently doesn\'t address.',

@@ -35,7 +35,7 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     countActiveDocumentsForUser: async (userId) => [...docs.values()].filter(d => d.user_id === userId && d.status === 'active').length,
     createVersion: async (id, documentId, content, versionNumber) => {
       const now = Date.now();
-      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, created_at: now });
+      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, created_at: now });
     },
     getLatestVersion: async (documentId) => {
       return [...versions.values()].filter(v => v.document_id === documentId).sort((a, b) => b.version_number - a.version_number)[0] ?? null;
@@ -47,6 +47,9 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     },
     storeCounterargResultOnVersion: async (versionId, counterargResult) => {
       const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, counterarg_result: counterargResult });
+    },
+    storeExtractionOnVersion: async (versionId, extractionJson) => {
+      const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, extraction_json: extractionJson });
     },
     countVersionsForDocument: async (documentId) =>
       [...versions.values()].filter(v => v.document_id === documentId).length,

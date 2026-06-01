@@ -1549,3 +1549,86 @@ The referent findings on the fallacy-heavy text are plausible — group labels i
 - `npx vitest run` — 361/361 passing (41 new + 320 existing)
 - `npx astro check` — 0 errors
 - `npm run build` — exit 0
+
+
+---
+
+## CS-11: Argument extraction — The Whetstone (2026-06-01)
+
+A new analytical lens that renders a writer's argument in formal logical terms: numbered premises (P1, P2…) and conclusions (C1, C2…) with annotated inference rules. This is **clarification**, not critique — the extraction shows the argument's skeleton before the audit shows its flaws.
+
+### New module — `functions/_lib/argument-extraction/`
+
+| File | Contents |
+|---|---|
+| `types.ts` | `InferenceRule` union (9 values), `ExtractionStatement`, `ArgumentExtractionResult`, `ExtractionDeps` |
+| `schemas.ts` | `INFERENCE_RULES` const, `ExtractionStatementSchema`, `ArgumentExtractionResultSchema`; `derivedFrom`/`inferenceRule`/`inferenceRuleExplanation` are `.nullish()` |
+| `constants.ts` | `EXTRACTION_MODEL = 'gemini-2.5-flash'`, `EXTRACTION_THINKING_BUDGET = 3072` |
+| `prompts.ts` | `EXTRACTION_SYSTEM_PROMPT` — 6 normalisation rules, What NOT to do, empty-case JSON, output format, 3 worked examples |
+| `engine.ts` | `extractArgument(text, deps)` — calls `callWithRetry` with `responseFormat: 'json'`, `thinkingBudget: 3072` |
+| `handler.ts` | `handleExtractionRequest(request, deps)` — same auth/rate-limit pattern as audit handler; key prefix `extract:ip:` / `extract:user:` |
+| `fixtures/social-media-draft.txt` | ~280-word op-ed arguing for social media regulation |
+
+**`InferenceRule` values:** `modus_ponens`, `modus_tollens`, `hypothetical_syllogism`, `disjunctive_syllogism`, `categorical_syllogism`, `inductive_generalisation`, `abduction`, `analogy`, `other`
+
+### Public endpoint — `POST /api/extract-argument`
+
+Text-only (no URL), 50–20,000 chars. Rate limiting reuses `AUDIT_DAILY_CAP` / `AUDIT_USER_DAILY_CAP` env vars with `extract:` prefix.
+
+### Per-version endpoint — `POST /api/documents/[id]/versions/[versionId]/extraction`
+
+Auth-gated, stores result in D1 via `storeExtractionOnVersion`. `handleVersionExtraction` added to `functions/_lib/documents/handlers.ts`.
+
+### Database — `migrations/0007_extraction_storage.sql`
+
+```sql
+ALTER TABLE document_versions ADD COLUMN extraction_json TEXT;
+```
+
+Apply:
+```bash
+npx wrangler d1 execute whetstone-users         --file=migrations/0007_extraction_storage.sql --remote
+npx wrangler d1 execute whetstone-users-preview --file=migrations/0007_extraction_storage.sql --remote
+```
+
+### Display component — `src/components/extraction/ArgumentExtraction.tsx`
+
+Preact component. Gray cards for premises, blue cards for conclusions. `∴ from P1, P2…` derivation line. Inference rule badge + explanation per conclusion. `★` in id or text triggers italic-gray implicit-premise styling.
+
+### Studio — `src/components/studio/StudioEditor.tsx`
+
+`extraction` fires in parallel with `audit` and `counterargument`. **Argument Skeleton** card (emerald border) placed **above** the Structural Audit card — skeleton before critique.
+
+### Public /audit form — `src/components/audit/AuditForm.tsx`
+
+Text-tab submissions run `/api/extract-argument` in parallel via `Promise.allSettled`. Extraction failure is best-effort. Extraction result displayed above audit in an emerald card.
+
+### Labels — `src/lib/labels.ts`
+
+Four new entries: `extraction` (Argument Structure), `extractionPremise` (Premise), `extractionConclusion` (Conclusion), `extractionInferenceRule` (Inference).
+
+### Demo run (2026-06-01)
+
+`npm run extraction:demo` — `social-media-draft.txt`:
+- `centralClaim`: "Some form of regulatory intervention for social media platforms is justified to address the degradation of public discourse."
+- 12 statements (8 premises, 4 conclusions) including ★P5, ★P7, ★P8 (implicit bridging premises correctly identified)
+- `confidence`: 95%, tokens: 2,107 in / 1,169 out
+- Inference chain: `other` (C1) → `categorical_syllogism` (C2) → `modus_ponens` (C3, C4)
+
+**Quality:** High — model correctly identified implicit premises, used ★ marker in ids, and traced a clean 4-step argument chain from empirical observation to policy conclusion.
+
+See `extraction-output.json` for verbatim output.
+
+### Tests (26 new; 387 total)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/extraction/schemas.test.ts` | 15 | Statement and result schemas; all 9 inference rules accepted; confidence range/type; null notes |
+| `tests/extraction/engine.test.ts` | 6 | Successful parse, empty case, JSON retry, two-bad-JSON throw, retryable backoff, non-retryable fast-fail |
+| `tests/extraction/handler.test.ts` | 5 | 400 bad JSON, 400 short text, 503 no key, 200 valid, per-user rate limit |
+
+### Build status
+
+- `npm test` — 387/387 passing (26 new + 361 existing)
+- `npx astro check` — 0 errors
+- `npm run build` — exit 0

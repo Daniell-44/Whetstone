@@ -104,5 +104,12 @@ export function makeDocumentDb(d1: D1Database): DocumentDb {
         .bind(counterargResult, versionId)
         .run();
     },
+
+    storeExtractionOnVersion: async (versionId, extractionJson) => {
+      await d1
+        .prepare('UPDATE document_versions SET extraction_json = ? WHERE id = ?')
+        .bind(extractionJson, versionId)
+        .run();
+    },
   };
 }
