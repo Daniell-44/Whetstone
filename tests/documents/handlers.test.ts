@@ -37,7 +37,7 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     countActiveDocumentsForUser: async (userId) => [...docs.values()].filter(d => d.user_id === userId && d.status === 'active').length,
     createVersion: async (id, documentId, content, versionNumber) => {
       const now = Date.now();
-      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, commitments_json: null, created_at: now });
+      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, commitments_json: null, citation_audit_json: null, created_at: now });
     },
     getLatestVersion: async (documentId) => {
       return [...versions.values()].filter(v => v.document_id === documentId).sort((a, b) => b.version_number - a.version_number)[0] ?? null;
@@ -55,6 +55,9 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     },
     storeCommitmentsOnVersion: async (versionId, commitmentsJson) => {
       const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, commitments_json: commitmentsJson });
+    },
+    storeCitationAuditOnVersion: async (versionId, citationAuditJson) => {
+      const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, citation_audit_json: citationAuditJson });
     },
     countVersionsForDocument: async (documentId) =>
       [...versions.values()].filter(v => v.document_id === documentId).length,

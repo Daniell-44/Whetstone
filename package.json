@@ -17,7 +17,8 @@
     "audit:demo": "tsx scripts/run-audit.ts",
     "counterargument:demo": "tsx scripts/run-counterargument.ts",
     "extraction:demo": "tsx scripts/run-extraction.ts",
-    "commitments:demo": "tsx scripts/run-commitments.ts"
+    "commitments:demo": "tsx scripts/run-commitments.ts",
+    "citation:demo": "tsx scripts/run-citation-audit.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.3",

@@ -52,6 +52,14 @@ export const LABELS_PLAIN = {
   diffRemoved:   'Fixed in the revision',
   diffAdded:     'Newly appeared',
   diffPersisted: 'Still present',
+
+  // Citation audit
+  citationAudit:              'Source Match',
+  citationVerdictWell:        'Source clearly supports',
+  citationVerdictWeak:        'Source partly supports',
+  citationVerdictMismatch:    "Source doesn't say that",
+  citationVerdictUncited:     'No source given',
+  citationVerdictUnfetchable: 'Source unreachable',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -95,6 +103,13 @@ export const LABELS_FORMAL = {
   diffRemoved:   'Findings resolved between revisions',
   diffAdded:     'Findings introduced in the new revision',
   diffPersisted: 'Findings persisting across revisions',
+
+  citationAudit:              'Citation Audit',
+  citationVerdictWell:        'Citation alignment: strong',
+  citationVerdictWeak:        'Citation alignment: weak',
+  citationVerdictMismatch:    'Citation–claim mismatch',
+  citationVerdictUncited:     'Uncited assertion',
+  citationVerdictUnfetchable: 'Citation retrieval failed',
 } as const satisfies { [K in keyof typeof LABELS_PLAIN]: string };
 
 // ---------------------------------------------------------------------------
@@ -222,6 +237,30 @@ export const TOOLTIPS_PLAIN: Record<keyof typeof LABELS_PLAIN, { plain: string; 
     plain:    'Issues that were present in the earlier version and remain unchanged in the revision.',
     pedigree: 'Persisting issues indicate areas where the argument\'s structural problems have not yet been addressed.',
   },
+  citationAudit: {
+    plain:    'For each factual claim in your draft that\'s backed by a cited source, we fetch the source and check whether it actually supports the claim. Mismatches and uncited claims are flagged so you can address them before publishing.',
+    pedigree: 'Operationalises a core editorial discipline — verifying that citations actually establish what they\'re cited for — at the speed of LLM inference.',
+  },
+  citationVerdictWell: {
+    plain:    'The cited source clearly and directly supports this claim.',
+    pedigree: 'The claim\'s propositional content is present in the source text with sufficient specificity to constitute genuine evidential support.',
+  },
+  citationVerdictWeak: {
+    plain:    'The cited source is related to the topic but doesn\'t fully back the specific claim made.',
+    pedigree: 'Partial support: the source is relevant but does not establish the claim\'s specific quantitative, temporal, or causal assertion.',
+  },
+  citationVerdictMismatch: {
+    plain:    'The source contradicts or says something different from what the draft claims it does.',
+    pedigree: 'Citation–claim mismatch: the source\'s propositional content is inconsistent with or materially different from the claim attributed to it.',
+  },
+  citationVerdictUncited: {
+    plain:    'This factual claim has no cited source.',
+    pedigree: 'Uncited factual assertion: a claim about the state of the world that the draft presents as fact without providing a verifiable source.',
+  },
+  citationVerdictUnfetchable: {
+    plain:    'The cited source couldn\'t be retrieved — it may be paywalled, removed, or unavailable.',
+    pedigree: 'Citation retrieval failed: the source exists but could not be accessed for automated verification (HTTP 4xx, paywall, or network error).',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -348,6 +387,30 @@ export const TOOLTIPS_FORMAL = {
   diffPersisted: {
     plain:    'Defects common to both versions — argumentative problems the revision has not yet addressed, persisting across the full revision cycle.',
     pedigree: 'Persisting findings identify the structural problems most resistant to revision; they represent the argument\'s load-bearing weaknesses rather than surface-level issues.',
+  },
+  citationAudit: {
+    plain:    'Automated verification of citations against their source documents: each factual claim with a URL is checked against the fetched source to determine whether the source actually supports the claim as stated.',
+    pedigree: 'Operationalises the editorial standard of source verification — a core discipline in academic and journalistic practice — by fetching cited URLs and applying LLM-based claim–source comparison at inference speed.',
+  },
+  citationVerdictWell: {
+    plain:    'The cited source clearly and directly supports this claim: the relevant fact, statistic, or statement is present in the source with sufficient specificity to constitute genuine evidential support.',
+    pedigree: 'Strong citation alignment: the claim\'s propositional content is instantiated in the source text, satisfying the evidential requirement that a citation establish what it is cited for.',
+  },
+  citationVerdictWeak: {
+    plain:    'The cited source is relevant to the topic but does not fully back the specific claim — it may be thematically related, partially supportive, or the claim goes beyond what the source establishes.',
+    pedigree: 'Weak citation alignment: the source provides context but insufficient specificity to establish the claim\'s quantitative, causal, or temporal assertion; the claim over-extends the source\'s evidential warrant.',
+  },
+  citationVerdictMismatch: {
+    plain:    'The source contradicts the claim or says something materially different from what the draft attributes to it — this is the highest-priority finding and requires revision before publication.',
+    pedigree: 'Citation–claim mismatch: a propositional inconsistency between the claim as stated and the source content, constituting a factual error in attribution regardless of whether the source itself is reliable.',
+  },
+  citationVerdictUncited: {
+    plain:    'This factual claim about the state of the world is presented without a cited source, leaving it unverifiable by readers.',
+    pedigree: 'Uncited factual assertion: in academic and journalistic practice, empirical claims require attribution to a verifiable source; absence of citation shifts the burden of proof to the author.',
+  },
+  citationVerdictUnfetchable: {
+    plain:    'The citation URL exists but the source could not be retrieved for automated verification — it may be paywalled, removed (404), or experiencing a network error.',
+    pedigree: 'Citation retrieval failure: automated verification was not possible due to access restrictions or availability issues; the citation may still be valid but cannot be checked programmatically.',
   },
 } satisfies { [K in keyof typeof TOOLTIPS_PLAIN]: { plain: string; pedigree: string } };
 

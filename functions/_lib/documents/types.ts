@@ -8,15 +8,16 @@ export interface Document {
 }
 
 export interface DocumentVersion {
-  id:                string;
-  document_id:       string;
-  content:           string;
-  version_number:    number;
-  audit_result:      string | null;
-  counterarg_result: string | null;
-  extraction_json:   string | null;
-  commitments_json:  string | null;
-  created_at:        number;
+  id:                   string;
+  document_id:          string;
+  content:              string;
+  version_number:       number;
+  audit_result:         string | null;
+  counterarg_result:    string | null;
+  extraction_json:      string | null;
+  commitments_json:     string | null;
+  citation_audit_json:  string | null;
+  created_at:           number;
 }
 
 export interface DocumentDb {
@@ -36,4 +37,5 @@ export interface DocumentDb {
   storeCounterargResultOnVersion(versionId: string, counterargResult: string): Promise<void>;
   storeExtractionOnVersion(versionId: string, extractionJson: string): Promise<void>;
   storeCommitmentsOnVersion(versionId: string, commitmentsJson: string): Promise<void>;
+  storeCitationAuditOnVersion(versionId: string, citationAuditJson: string): Promise<void>;
 }

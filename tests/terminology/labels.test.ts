@@ -15,8 +15,8 @@ import {
 // ---------------------------------------------------------------------------
 
 describe('LABELS_PLAIN', () => {
-  it('has 30 keys', () => {
-    expect(Object.keys(LABELS_PLAIN)).toHaveLength(30);
+  it('has 36 keys', () => {
+    expect(Object.keys(LABELS_PLAIN)).toHaveLength(36);
   });
 
   it('every value is a non-empty string', () => {
@@ -28,7 +28,7 @@ describe('LABELS_PLAIN', () => {
 });
 
 describe('LABELS_FORMAL', () => {
-  it('has the same 29 keys as LABELS_PLAIN', () => {
+  it('has the same 36 keys as LABELS_PLAIN', () => {
     const plainKeys  = Object.keys(LABELS_PLAIN).sort();
     const formalKeys = Object.keys(LABELS_FORMAL).sort();
     expect(formalKeys).toEqual(plainKeys);

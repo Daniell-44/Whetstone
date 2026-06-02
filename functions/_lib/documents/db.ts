@@ -118,5 +118,12 @@ export function makeDocumentDb(d1: D1Database): DocumentDb {
         .bind(commitmentsJson, versionId)
         .run();
     },
+
+    storeCitationAuditOnVersion: async (versionId, citationAuditJson) => {
+      await d1
+        .prepare('UPDATE document_versions SET citation_audit_json = ? WHERE id = ?')
+        .bind(citationAuditJson, versionId)
+        .run();
+    },
   };
 }

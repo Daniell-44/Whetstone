@@ -85,6 +85,7 @@ AUDIT_DAILY_CAP       = "10"
 AUDIT_USER_DAILY_CAP  = "50"
 COUNTERARG_DAILY_CAP  = "20"
 COMMITMENTS_DAILY_CAP = "15"
+CITATION_DAILY_CAP    = "10"
 SITE_URL              = "https://devils-advocate-site.daniellivingstone2005.workers.dev"
 # Replace after creating the Stripe product and price (see checklist above)
 STRIPE_PRICE_ID       = "price_REPLACE_AFTER_STRIPE_PRODUCT_CREATED"

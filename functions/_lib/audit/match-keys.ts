@@ -34,3 +34,7 @@ export function referentMatchKey(f: { phrase: string; issue: string }): string {
 export function falsifiabilityMatchKey(f: { claim: string; issue: string }): string {
   return `falsifiability:${normalise(f.claim, 40)}:${f.issue}`;
 }
+
+export function citationMatchKey(c: { verdict: string; claim: string }): string {
+  return `citation:${c.verdict}:${normalise(c.claim, 50)}`;
+}

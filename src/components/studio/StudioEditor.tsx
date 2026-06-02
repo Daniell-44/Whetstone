@@ -3,10 +3,12 @@ import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
 import type { PhilosophicalCommitmentsResult } from '../../../functions/_lib/philosophical-commitments/types';
+import type { CitationAuditResult } from '../../../functions/_lib/citation-audit/types';
 import AuditResults from '../audit/AuditResults';
 import CounterargumentResultDisplay from './CounterargumentResultDisplay';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import PhilosophicalCommitmentsDisplay from '../commitments/PhilosophicalCommitmentsDisplay';
+import CitationAuditDisplay from '../citation-audit/CitationAuditDisplay';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 import type { TerminologyPreference } from '../../lib/labels';
 import SummaryToolbar from '../audit/SummaryToolbar';
@@ -35,6 +37,10 @@ type ExtractionApiResponse =
 
 type CommitmentsApiResponse =
   | { ok: true;  result: PhilosophicalCommitmentsResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
+type CitationAuditApiResponse =
+  | { ok: true;  result: CitationAuditResult; usage: { inputTokens: number; outputTokens: number; citationsFetched: number; citationsFailed: number } }
   | { ok: false; error: { code: string; message: string } };
 
 // ---------------------------------------------------------------------------
@@ -68,9 +74,33 @@ const COMMITMENTS_ERROR_MESSAGES: Record<string, string> = {
   INVALID_INPUT:       'Please check your input and try again.',
 };
 
+const CITATION_ERROR_MESSAGES: Record<string, string> = {
+  RATE_LIMITED:            "You've reached the daily Source Match limit. Come back tomorrow.",
+  CITATION_AUDIT_FAILED:   'The citation audit failed. Please try again in a moment.',
+  INVALID_INPUT:           'Please check your input and try again.',
+};
+
 // ---------------------------------------------------------------------------
 // Sub-components
 // ---------------------------------------------------------------------------
+
+function CitationUpsell() {
+  return (
+    <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
+      <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
+      <p class="text-sm text-gray-700 leading-relaxed max-w-sm mx-auto">
+        Source Match fetches every cited URL in your draft and checks whether the source
+        actually supports the claim. Subscribe to unlock it.
+      </p>
+      <a
+        href="/pricing"
+        class="inline-block rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+      >
+        See plans →
+      </a>
+    </div>
+  );
+}
 
 function CounterargUpsell() {
   return (
@@ -121,30 +151,32 @@ function SectionLoading({ label }: { label: string }) {
 // ---------------------------------------------------------------------------
 
 interface Props {
-  hasActiveSubscription:      boolean;
-  initialDocId?:              string | null;
-  initialTitle?:              string;
-  initialContent?:            string;
-  initialVersionId?:          string | null;
-  initialAuditResult?:        AuditResult | null;
-  initialCounterargResult?:   CounterargumentResult | null;
-  initialExtractionResult?:   ArgumentExtractionResult | null;
-  initialCommitmentsResult?:  PhilosophicalCommitmentsResult | null;
-  initialActions?:            Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
-  terminologyPreference?:     TerminologyPreference;
+  hasActiveSubscription:        boolean;
+  initialDocId?:                string | null;
+  initialTitle?:                string;
+  initialContent?:              string;
+  initialVersionId?:            string | null;
+  initialAuditResult?:          AuditResult | null;
+  initialCounterargResult?:     CounterargumentResult | null;
+  initialExtractionResult?:     ArgumentExtractionResult | null;
+  initialCommitmentsResult?:    PhilosophicalCommitmentsResult | null;
+  initialCitationAuditResult?:  CitationAuditResult | null;
+  initialActions?:              Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
+  terminologyPreference?:       TerminologyPreference;
 }
 
 export default function StudioEditor({
   hasActiveSubscription,
-  initialDocId              = null,
-  initialTitle              = 'Untitled draft',
-  initialContent            = '',
-  initialVersionId          = null,
-  initialAuditResult        = null,
-  initialCounterargResult   = null,
-  initialExtractionResult   = null,
-  initialCommitmentsResult  = null,
-  initialActions            = {},
+  initialDocId                = null,
+  initialTitle                = 'Untitled draft',
+  initialContent              = '',
+  initialVersionId            = null,
+  initialAuditResult          = null,
+  initialCounterargResult     = null,
+  initialExtractionResult     = null,
+  initialCommitmentsResult    = null,
+  initialCitationAuditResult  = null,
+  initialActions              = {},
   terminologyPreference,
 }: Props) {
   const [draft, setDraft]         = useState(initialContent);
@@ -168,10 +200,13 @@ export default function StudioEditor({
   const [commitmentsState, setCommitmentsState] = useState<SectionState<PhilosophicalCommitmentsResult>>(
     initialCommitmentsResult ? { status: 'done', data: initialCommitmentsResult } : { status: 'idle' },
   );
+  const [citationState, setCitationState] = useState<SectionState<CitationAuditResult>>(
+    initialCitationAuditResult ? { status: 'done', data: initialCitationAuditResult } : { status: 'idle' },
+  );
 
   const charCount   = draft.length;
   const canSubmit   = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
-  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (hasActiveSubscription && (counterargState.status !== 'idle' || commitmentsState.status !== 'idle'));
+  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (hasActiveSubscription && (counterargState.status !== 'idle' || commitmentsState.status !== 'idle' || citationState.status !== 'idle'));
 
   const handleTitleBlur = useCallback(async () => {
     if (!docId || title === savedTitle) return;
@@ -196,6 +231,7 @@ export default function StudioEditor({
     setCounterargState({ status: 'idle' });
     setExtractionState({ status: 'idle' });
     setCommitmentsState({ status: 'idle' });
+    setCitationState({ status: 'idle' });
     const url = new URL(window.location.href);
     url.searchParams.delete('doc');
     window.history.replaceState({}, '', url.toString());
@@ -254,15 +290,17 @@ export default function StudioEditor({
     if (hasActiveSubscription) {
       setCounterargState({ status: 'loading' });
       setCommitmentsState({ status: 'loading' });
+      setCitationState({ status: 'loading' });
     }
 
     let extractionDone  = false;
     let auditDone       = false;
     let counterargDone  = !hasActiveSubscription;
     let commitmentsDone = !hasActiveSubscription;
+    let citationDone    = !hasActiveSubscription;
 
     function checkDone() {
-      if (extractionDone && auditDone && counterargDone && commitmentsDone) setIsRunning(false);
+      if (extractionDone && auditDone && counterargDone && commitmentsDone && citationDone) setIsRunning(false);
     }
 
     const versionPath = `/api/documents/${currentDocId}/versions/${currentVersionId}`;
@@ -319,6 +357,24 @@ export default function StudioEditor({
         })
         .catch(() => setCommitmentsState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
         .finally(() => { commitmentsDone = true; checkDone(); });
+
+      // Citation audit — fires with the raw draft text (standalone endpoint)
+      fetch('/api/citation-audit', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ text }),
+      })
+        .then(r => r.json() as Promise<CitationAuditApiResponse>)
+        .then(data => {
+          if (data.ok) {
+            setCitationState({ status: 'done', data: data.result });
+          } else {
+            const code = data.error.code;
+            setCitationState({ status: 'error', code, message: CITATION_ERROR_MESSAGES[code] ?? data.error.message });
+          }
+        })
+        .catch(() => setCitationState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
+        .finally(() => { citationDone = true; checkDone(); });
     }
   }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
 
@@ -404,7 +460,7 @@ export default function StudioEditor({
           </button>
           {isRunning && hasActiveSubscription && (
             <p class="text-xs text-center text-gray-400">
-              ~30–60s — finding opposing cases takes longer than a simple audit.
+              ~60–90s — fetching cited sources and finding opposing cases takes longer than a simple audit.
             </p>
           )}
         </div>
@@ -497,6 +553,35 @@ export default function StudioEditor({
           )}
         </div>
       )}
+
+      {/* Citation Audit */}
+      <div class="rounded-xl border border-sky-200 bg-white p-6">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+          <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
+        </h2>
+        {!hasActiveSubscription ? (
+          <CitationUpsell />
+        ) : (
+          <>
+            {citationState.status === 'idle' && null}
+            {citationState.status === 'loading' && (
+              <SectionLoading label="Fetching cited sources and analysing each claim — this can take 60–90 seconds for drafts with several citations." />
+            )}
+            {citationState.status === 'error' && (
+              <SectionError code={citationState.code} message={citationState.message} />
+            )}
+            {citationState.status === 'done' && (
+              <CitationAuditDisplay
+                result={citationState.data}
+                documentId={docId}
+                versionId={versionId}
+                initialActions={initialActions}
+                terminologyPreference={terminologyPreference}
+              />
+            )}
+          </>
+        )}
+      </div>
     </div>
   ) : null;
 
@@ -511,12 +596,20 @@ export default function StudioEditor({
         {inputSection}
         {/* Upsell shown before first run when not subscribed */}
         {!hasActiveSubscription && (
-          <div class="rounded-xl border border-violet-200 bg-white p-6">
-            <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-              <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
-            </h2>
-            <CounterargUpsell />
-          </div>
+          <>
+            <div class="rounded-xl border border-violet-200 bg-white p-6">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+                <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
+              </h2>
+              <CounterargUpsell />
+            </div>
+            <div class="rounded-xl border border-sky-200 bg-white p-6">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+                <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
+              </h2>
+              <CitationUpsell />
+            </div>
+          </>
         )}
       </div>
     );

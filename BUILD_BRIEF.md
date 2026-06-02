@@ -1792,3 +1792,94 @@ npx wrangler d1 execute whetstone-users-preview --file=migrations/0009_terminolo
 
 - `npm test` — 451/451 passing (29 new + 422 existing)
 - `npx astro check` — 0 errors (0 warnings, 10 hints pre-existing)
+
+---
+
+## CS-14 — Citation Audit
+
+**Goal**: For each factual claim in a Studio draft that's backed by a cited source, fetch the source and check whether it actually supports the claim. Produces per-claim verdicts (well_cited / weakly_cited / mismatched / uncited / unfetchable) with source excerpts — the most differentiated Studio feature for journalists and researchers.
+
+### What was built
+
+**Module: `functions/_lib/citation-audit/`**
+- `types.ts` — `CitationVerdict` union, `CitedClaim`, `CitationAuditResult` interfaces
+- `schemas.ts` — Zod schemas for Stage 1 (extraction), Stage 2 (verdict), and full result with cross-field consistency refinements
+- `constants.ts` — `CITATION_CLAIM_EXTRACTION_MODEL`, `CITATION_VERDICT_MODEL` (both `gemini-2.5-flash`), `MAX_CITED_CLAIMS_PER_AUDIT = 15`, `CITATION_FETCH_TIMEOUT_MS = 10000`, `CITATION_FETCH_PARALLELISM = 4`
+- `prompts.ts` — Stage 1 system prompt (factual claim extraction with worked example covering inline, footnote, and uncited cases) + Stage 2 system prompt (verdict with confidence calibration guidance)
+- `engine.ts` — `auditCitations()` two-stage pipeline: Stage 1 extracts claims → fetch URLs in batches of 4 → Stage 2 verdict per claim (skipped for uncited/unfetchable) → sort by severity → compute summary. Returns `{ result, inputTokens, outputTokens, citationsFetched, citationsFailed }`
+- `handler.ts` — Auth gate → subscription gate → per-user rate limit (`citation:user:${userId}`) → Zod body validation → engine call → usage response
+- `fixtures/sample-draft.ts` — 400-word op-ed with 6 factual claims: 4 with example.org URLs (unfetchable in demo), 2 uncited
+
+**Endpoint: `src/pages/api/citation-audit.ts`**
+- POST `/api/citation-audit`, body `{ text: string }` 50–10,000 chars
+- Auth + subscription gated; rate limit from `CITATION_DAILY_CAP` env var (default 10/day)
+- Returns `{ ok, result, usage: { inputTokens, outputTokens, citationsFetched, citationsFailed } }`
+
+**Storage: `migrations/0010_citation_audit_storage.sql`**
+- `ALTER TABLE document_versions ADD COLUMN citation_audit_json TEXT`
+- `DocumentVersion` interface and `DocumentDb` extended with `storeCitationAuditOnVersion`
+
+**Labels (`src/lib/labels.ts`)** — 6 new keys in both LABELS_PLAIN and LABELS_FORMAL:
+- `citationAudit`, `citationVerdictWell`, `citationVerdictWeak`, `citationVerdictMismatch`, `citationVerdictUncited`, `citationVerdictUnfetchable`
+- Full tooltips in both TOOLTIPS_PLAIN and TOOLTIPS_FORMAL
+- Total key count: 30 → 36
+
+**Match key (`functions/_lib/audit/match-keys.ts`)**
+- `citationMatchKey(c)` → `citation:${verdict}:${normalise(claim, 50)}`
+
+**Display component (`src/components/citation-audit/CitationAuditDisplay.tsx`)**
+- Summary card: pill counts for mismatched/uncited/unfetchable/weak/well
+- Per-claim cards sorted by verdict severity (mismatched → uncited → unfetchable → weakly_cited → well_cited), confidence descending within group
+- Verdict badges with severity colours, collapsible source excerpt, citation URL link
+- Per-finding actions (addressed/dismiss + thumbs) wired to finding-actions API
+
+**Studio integration (`src/components/studio/StudioEditor.tsx`)**
+- New `citationAuditState` + `CitationAuditApiResponse` type
+- `citationDone` completion flag added to `checkDone()`
+- Citation audit fires in parallel with other engines (subscribed users only): `POST /api/citation-audit` with `{ text: draft }`
+- Loading copy updated to "60–90 seconds" to reflect URL fetching
+- `CitationUpsell` component for non-subscribed users
+- `CitationAuditDisplay` rendered in results panel below philosophical commitments
+- `initialCitationAuditResult` prop for hydrating from stored data
+
+**wrangler.toml** — `CITATION_DAILY_CAP = "10"` added to `[vars]`
+
+**`src/env.d.ts`** — `CITATION_DAILY_CAP?: string` added to Cloudflare Env interface
+
+**`scripts/run-citation-audit.ts`** — Demo script (`npm run citation:demo`), writes `citation-audit-output.json`
+
+### Two-stage pipeline
+
+**Stage 1 — Claim extraction** (`triage` operation, gemini-2.5-flash)
+- Identifies factual claims only (not normative claims, not author's arguments)
+- For each: normalised claim text, verbatim evidence quote, citation URL (inline/footnote/parenthetical or null), footnote context
+- One LLM call per audit
+
+**Stage 2 — Per-claim verdict** (`analyze` operation, gemini-2.5-flash)
+- Called only for claims with a successfully fetched source
+- Produces: verdict, explanation grounded in source content, source excerpt (≤200 chars), confidence (90–100 clear-cut; 60–89 defensible)
+- Uncited claims: marked directly without LLM call
+- Unfetchable claims: marked directly without LLM call
+
+**Concurrency**: URL fetches are batched by `CITATION_FETCH_PARALLELISM = 4`; URLs are deduplicated before fetching (one fetch per unique URL even if cited by multiple claims); Stage 2 calls run in parallel via `Promise.allSettled`
+
+### Migration command
+
+```bash
+npx wrangler d1 execute whetstone-users         --file=migrations/0010_citation_audit_storage.sql --remote
+npx wrangler d1 execute whetstone-users-preview --file=migrations/0010_citation_audit_storage.sql --remote
+```
+
+### Tests (33 new; 484 total)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/citation-audit/schemas.test.ts` | 16 | `ExtractedClaimsSchema`: valid mixed URLs, invalid URL, empty claim, empty array; `VerdictResultSchema`: all verdicts, null excerpt, bad verdict, confidence out-of-range, excerpt over 250 chars; `CitationAuditResultSchema`: valid, total mismatch, count mismatch, notes, zero claims, non_factual excluded from counts |
+| `tests/citation-audit/engine.test.ts` | 7 | End-to-end mixed cited+uncited, unfetchable path (no Stage 2 call), uncited path (no fetch, no Stage 2), URL deduplication, CITATION_FETCH_PARALLELISM limit, sort order, token accumulation |
+| `tests/citation-audit/endpoint.test.ts` | 10 | 401 no session, 402 no subscription, 429 rate limit, 400 short text, 400 long text, 400 invalid JSON, 503 no API key, 200 valid + usage fields, 405 GET, per-user rate limit isolation |
+
+### Build status
+
+- `npm test` — 484/484 passing (33 new + 451 existing)
+- `npx astro check` — 0 errors (0 warnings, 13 hints pre-existing)
+- `npm run build` — clean
