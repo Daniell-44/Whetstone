@@ -1,0 +1,37 @@
+{
+  "helmet-law-argument": {
+    "ethical": {
+      "framework": "consequentialist",
+      "evidence": "The argument is built on weighing outcomes: the benefit of reducing head injuries by 60% and decreasing the financial burden on taxpayers is presented as outweighing the cost of infringing on individual choice or potentially reducing cycling rates.",
+      "explanation": "The argument's normative force is derived entirely from its analysis of consequences. It justifies compulsion by appealing to better outcomes (fewer severe injuries, lower public costs), not by appealing to rights, duties, or virtues.",
+      "confidence": 95
+    },
+    "epistemic": {
+      "framework": "empiricist",
+      "evidence": "The argument's first and third points rely exclusively on empirical data: 'A 2019 meta-analysis of 40 randomised and observational studies' and 'Studies in Australia and New Zealand... show initial dips in cycling rates'.",
+      "explanation": "The argument establishes its core claims as credible by citing large-scale, published, empirical research. It treats this form of evidence as the primary warrant for its conclusions, privileging data over theoretical or experiential claims.",
+      "confidence": 98
+    },
+    "political": {
+      "framework": "communitarian",
+      "evidence": "The second point justifies the law by its effect on the collective: 'Publicly funded health systems bear a disproportionate share of these costs. A policy that reduces serious head injuries therefore reduces the financial burden on all taxpayers, not only on cyclists.'",
+      "explanation": "While acknowledging the liberal objection regarding autonomy, the argument's own justification rests on the idea that individual actions have consequences for the community (in this case, taxpayers) that can legitimately be regulated. The community's financial well-being is presented as a valid reason to override individual choice.",
+      "confidence": 88
+    },
+    "methodological": {
+      "framework": "universalist",
+      "evidence": "The evidence cited is presented as generally applicable. The meta-analysis covers effects 'across age groups and cycling conditions', and findings from Australia and New Zealand are used to rebut a general objection about cycling uptake.",
+      "explanation": "The argument assumes that the findings from specific studies can be generalized across different contexts without significant qualification. It treats the relationship between helmet laws and their effects as a stable, universal principle rather than a context-dependent one.",
+      "confidence": 80
+    },
+    "alternativePerspectives": [
+      {
+        "framework": "deontological",
+        "frameworkType": "ethical",
+        "objection": "A deontologist would argue that the entire consequentialist calculation is a category error. The draft's own acknowledgement of the 'genuinely weighty objection' concerning 'individual autonomy' points to a rights-based framework where certain choices are protected regardless of their aggregate costs. From this perspective, the state has no right to compel an adult to protect themselves from a self-regarding risk, and framing this as a 'financial burden on taxpayers' is an illegitimate attempt to turn a question of basic liberty into an economic calculation.",
+        "specificity": "The objection specifically targets the second premise, the 'economic argument'. A deontologist would contend that using taxpayer burden to justify overriding bodily autonomy is fundamentally wrong, as it makes a fundamental right contingent on its financial convenience to the collective."
+      }
+    ],
+    "notes": "The draft is notable for explicitly stating the strongest counter-argument to its own position ('compulsion substitutes state judgment for individual autonomy'), which makes the identification of its own framework—and the relevant alternative—unusually clear."
+  }
+}

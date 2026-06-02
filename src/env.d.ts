@@ -17,7 +17,8 @@ declare namespace Cloudflare {
     FREE_TIER_DAILY_CAP?: string;
     AUDIT_DAILY_CAP?:      string;
     AUDIT_USER_DAILY_CAP?: string;
-    COUNTERARG_DAILY_CAP?: string;
+    COUNTERARG_DAILY_CAP?:  string;
+    COMMITMENTS_DAILY_CAP?: string;
     ALLOWED_ORIGINS?:      string;
     COST_TEST_SECRET?:    string;
     SITE_URL?:            string;

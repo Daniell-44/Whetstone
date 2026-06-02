@@ -111,5 +111,12 @@ export function makeDocumentDb(d1: D1Database): DocumentDb {
         .bind(extractionJson, versionId)
         .run();
     },
+
+    storeCommitmentsOnVersion: async (versionId, commitmentsJson) => {
+      await d1
+        .prepare('UPDATE document_versions SET commitments_json = ? WHERE id = ?')
+        .bind(commitmentsJson, versionId)
+        .run();
+    },
   };
 }

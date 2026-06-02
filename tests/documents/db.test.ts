@@ -44,7 +44,7 @@ function makeFakeDocumentDb(): DocumentDb {
 
     createVersion: async (id, documentId, content, versionNumber) => {
       const now = Date.now();
-      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, created_at: now });
+      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, commitments_json: null, created_at: now });
       const doc = docs.get(documentId);
       if (doc) docs.set(documentId, { ...doc, updated_at: now });
     },
@@ -76,6 +76,11 @@ function makeFakeDocumentDb(): DocumentDb {
     storeExtractionOnVersion: async (versionId, extractionJson) => {
       const v = versions.get(versionId);
       if (v) versions.set(versionId, { ...v, extraction_json: extractionJson });
+    },
+
+    storeCommitmentsOnVersion: async (versionId, commitmentsJson) => {
+      const v = versions.get(versionId);
+      if (v) versions.set(versionId, { ...v, commitments_json: commitmentsJson });
     },
 
     countVersionsForDocument: async (documentId) =>

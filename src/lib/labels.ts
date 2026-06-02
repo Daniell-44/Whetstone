@@ -22,6 +22,14 @@ export const LABELS = {
   extractionConclusion:    'Conclusion',
   extractionInferenceRule: 'Inference',
 
+  // Philosophical commitments
+  commitments:                 'Framework Check',
+  commitmentsEthical:          'Ethical Framework',
+  commitmentsEpistemic:        'Epistemic Stance',
+  commitmentsPolitical:        'Political Framework',
+  commitmentsMethodological:   'Methodological Approach',
+  commitmentsAlternatives:     'Alternative Perspectives',
+
   // Counterargument
   counterarguments:   'Strongest Opposing Cases',
   counterargPosition: 'Position',
@@ -92,6 +100,30 @@ export const TOOLTIPS: Record<keyof typeof LABELS, { plain: string; pedigree: st
   extractionInferenceRule: {
     plain:    'The pattern of reasoning used to derive this conclusion from its premises.',
     pedigree: 'Inference rules formalise the permissible moves in an argument; naming them makes the argument\'s logic explicit and checkable.',
+  },
+  commitments: {
+    plain:    'The implicit philosophical frameworks your argument assumes — ethical, epistemic, political, and methodological.',
+    pedigree: 'Every argument embeds framework-level assumptions that determine what counts as a good reason; surfacing these is the first step toward anticipating objections from readers who hold different frameworks.',
+  },
+  commitmentsEthical: {
+    plain:    'The ethical framework your argument leans on when deciding what matters morally.',
+    pedigree: 'Ethical frameworks — consequentialism, deontology, virtue ethics, contractualism — provide the underlying criteria for moral reasoning; arguments can be valid within one framework and invalid within another.',
+  },
+  commitmentsEpistemic: {
+    plain:    'How your argument decides what counts as good evidence or reliable knowledge.',
+    pedigree: 'Epistemic commitments — empiricism, rationalism, appeal to authority, experiential knowledge — determine what the argument treats as a legitimate reason to believe something.',
+  },
+  commitmentsPolitical: {
+    plain:    'The political framework shaping the argument\'s assumptions about society, rights, and collective action.',
+    pedigree: 'Political frameworks — liberal, communitarian, libertarian, progressive — embed different priors about the relationship between individuals and institutions.',
+  },
+  commitmentsMethodological: {
+    plain:    'Whether the argument explains things by breaking them into parts, situating them in larger systems, or some mix.',
+    pedigree: 'Methodological commitments — reductionism vs holism, individualism vs structuralism, universalism vs contextualism — determine the level at which explanations are pitched.',
+  },
+  commitmentsAlternatives: {
+    plain:    'Objections from readers who hold different frameworks — not generic counterarguments, but critiques rooted in framework-level disagreement.',
+    pedigree: 'Framework-level objections reveal blind spots that evidence alone cannot resolve; they identify the background assumptions an argument must defend, not just the claims it asserts.',
   },
   counterarguments: {
     plain:    'The strongest objections a thoughtful opponent would make — ones your draft currently doesn\'t address.',

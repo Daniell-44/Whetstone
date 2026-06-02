@@ -2,9 +2,11 @@ import { useState, useCallback } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
+import type { PhilosophicalCommitmentsResult } from '../../../functions/_lib/philosophical-commitments/types';
 import AuditResults from '../audit/AuditResults';
 import CounterargumentResultDisplay from './CounterargumentResultDisplay';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
+import PhilosophicalCommitmentsDisplay from '../commitments/PhilosophicalCommitmentsDisplay';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 import SummaryToolbar from '../audit/SummaryToolbar';
 
@@ -30,6 +32,10 @@ type ExtractionApiResponse =
   | { ok: true;  extraction: ArgumentExtractionResult; usage: { inputTokens: number; outputTokens: number } }
   | { ok: false; error: { code: string; message: string } };
 
+type CommitmentsApiResponse =
+  | { ok: true;  result: PhilosophicalCommitmentsResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -53,6 +59,12 @@ const EXTRACTION_ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMITED:      "You've reached the daily limit. Come back tomorrow.",
   EXTRACTION_FAILED: 'The argument extraction failed. Please try again in a moment.',
   INVALID_INPUT:     'Please check your input and try again.',
+};
+
+const COMMITMENTS_ERROR_MESSAGES: Record<string, string> = {
+  RATE_LIMITED:        "You've reached the daily Framework Check limit. Come back tomorrow.",
+  COMMITMENTS_FAILED:  'The framework analysis failed. Please try again in a moment.',
+  INVALID_INPUT:       'Please check your input and try again.',
 };
 
 // ---------------------------------------------------------------------------
@@ -116,6 +128,7 @@ interface Props {
   initialAuditResult?:        AuditResult | null;
   initialCounterargResult?:   CounterargumentResult | null;
   initialExtractionResult?:   ArgumentExtractionResult | null;
+  initialCommitmentsResult?:  PhilosophicalCommitmentsResult | null;
   initialActions?:            Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
 }
 
@@ -128,6 +141,7 @@ export default function StudioEditor({
   initialAuditResult        = null,
   initialCounterargResult   = null,
   initialExtractionResult   = null,
+  initialCommitmentsResult  = null,
   initialActions            = {},
 }: Props) {
   const [draft, setDraft]         = useState(initialContent);
@@ -148,10 +162,13 @@ export default function StudioEditor({
   const [extractionState, setExtractionState] = useState<SectionState<ArgumentExtractionResult>>(
     initialExtractionResult ? { status: 'done', data: initialExtractionResult } : { status: 'idle' },
   );
+  const [commitmentsState, setCommitmentsState] = useState<SectionState<PhilosophicalCommitmentsResult>>(
+    initialCommitmentsResult ? { status: 'done', data: initialCommitmentsResult } : { status: 'idle' },
+  );
 
   const charCount   = draft.length;
   const canSubmit   = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
-  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (hasActiveSubscription && counterargState.status !== 'idle');
+  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (hasActiveSubscription && (counterargState.status !== 'idle' || commitmentsState.status !== 'idle'));
 
   const handleTitleBlur = useCallback(async () => {
     if (!docId || title === savedTitle) return;
@@ -175,6 +192,7 @@ export default function StudioEditor({
     setAuditState({ status: 'idle' });
     setCounterargState({ status: 'idle' });
     setExtractionState({ status: 'idle' });
+    setCommitmentsState({ status: 'idle' });
     const url = new URL(window.location.href);
     url.searchParams.delete('doc');
     window.history.replaceState({}, '', url.toString());
@@ -230,14 +248,18 @@ export default function StudioEditor({
     // --- run analysis ---
     setExtractionState({ status: 'loading' });
     setAuditState({ status: 'loading' });
-    if (hasActiveSubscription) setCounterargState({ status: 'loading' });
+    if (hasActiveSubscription) {
+      setCounterargState({ status: 'loading' });
+      setCommitmentsState({ status: 'loading' });
+    }
 
-    let extractionDone = false;
-    let auditDone      = false;
-    let counterargDone = !hasActiveSubscription;
+    let extractionDone  = false;
+    let auditDone       = false;
+    let counterargDone  = !hasActiveSubscription;
+    let commitmentsDone = !hasActiveSubscription;
 
     function checkDone() {
-      if (extractionDone && auditDone && counterargDone) setIsRunning(false);
+      if (extractionDone && auditDone && counterargDone && commitmentsDone) setIsRunning(false);
     }
 
     const versionPath = `/api/documents/${currentDocId}/versions/${currentVersionId}`;
@@ -281,6 +303,19 @@ export default function StudioEditor({
         })
         .catch(() => setCounterargState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
         .finally(() => { counterargDone = true; checkDone(); });
+
+      fetch(`${versionPath}/commitments`, { method: 'POST' })
+        .then(r => r.json() as Promise<CommitmentsApiResponse>)
+        .then(data => {
+          if (data.ok) {
+            setCommitmentsState({ status: 'done', data: data.result });
+          } else {
+            const code = data.error.code;
+            setCommitmentsState({ status: 'error', code, message: COMMITMENTS_ERROR_MESSAGES[code] ?? data.error.message });
+          }
+        })
+        .catch(() => setCommitmentsState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
+        .finally(() => { commitmentsDone = true; checkDone(); });
     }
   }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
 
@@ -440,6 +475,24 @@ export default function StudioEditor({
           </>
         )}
       </div>
+
+      {/* Framework Check — subscribed users only */}
+      {hasActiveSubscription && commitmentsState.status !== 'idle' && (
+        <div class="rounded-xl border border-purple-200 bg-white p-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+            <LabelWithTooltip label="commitments" />
+          </h2>
+          {commitmentsState.status === 'loading' && (
+            <SectionLoading label="Detecting philosophical frameworks…" />
+          )}
+          {commitmentsState.status === 'error' && (
+            <SectionError code={commitmentsState.code} message={commitmentsState.message} />
+          )}
+          {commitmentsState.status === 'done' && (
+            <PhilosophicalCommitmentsDisplay result={commitmentsState.data} />
+          )}
+        </div>
+      )}
     </div>
   ) : null;
 

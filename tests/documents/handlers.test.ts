@@ -5,11 +5,13 @@ import {
   handleCreateVersion,
   handleVersionAudit,
   handleVersionCounterarg,
+  handleVersionCommitments,
   handleRestoreVersion,
   type CreateDocumentDeps,
   type CreateVersionDeps,
   type VersionAuditDeps,
   type VersionCounterargDeps,
+  type VersionCommitmentsDeps,
   type RestoreVersionDeps,
 } from '../../functions/_lib/documents/handlers';
 import type { LlmProvider } from '../../functions/_lib/providers/types';
@@ -35,7 +37,7 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     countActiveDocumentsForUser: async (userId) => [...docs.values()].filter(d => d.user_id === userId && d.status === 'active').length,
     createVersion: async (id, documentId, content, versionNumber) => {
       const now = Date.now();
-      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, created_at: now });
+      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, commitments_json: null, created_at: now });
     },
     getLatestVersion: async (documentId) => {
       return [...versions.values()].filter(v => v.document_id === documentId).sort((a, b) => b.version_number - a.version_number)[0] ?? null;
@@ -50,6 +52,9 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     },
     storeExtractionOnVersion: async (versionId, extractionJson) => {
       const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, extraction_json: extractionJson });
+    },
+    storeCommitmentsOnVersion: async (versionId, commitmentsJson) => {
+      const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, commitments_json: commitmentsJson });
     },
     countVersionsForDocument: async (documentId) =>
       [...versions.values()].filter(v => v.document_id === documentId).length,
@@ -86,12 +91,27 @@ const MINIMAL_COUNTERARG_JSON = JSON.stringify({
   notes: null,
 });
 
+const MINIMAL_COMMITMENTS_JSON = JSON.stringify({
+  ethical:         { framework: 'consequentialist', evidence: 'e1', explanation: 'ex1', confidence: 75 },
+  epistemic:       { framework: 'empiricist',        evidence: 'e2', explanation: 'ex2', confidence: 80 },
+  political:       null,
+  methodological:  null,
+  alternativePerspectives: [
+    { framework: 'Deontological', frameworkType: 'ethical', objection: 'obj1', specificity: 'sp1' },
+  ],
+  notes: null,
+});
+
 function makeAuditProvider(): LlmProvider {
   return { name: 'fake-audit', complete: async () => ({ content: MINIMAL_AUDIT_JSON, inputTokens: 5, outputTokens: 3 }) };
 }
 
 function makeCounterargProvider(): LlmProvider {
   return { name: 'fake-counterarg', complete: async () => ({ content: MINIMAL_COUNTERARG_JSON, inputTokens: 5, outputTokens: 3 }) };
+}
+
+function makeCommitmentsProvider(): LlmProvider {
+  return { name: 'fake-commitments', complete: async () => ({ content: MINIMAL_COMMITMENTS_JSON, inputTokens: 5, outputTokens: 3 }) };
 }
 
 // ---------------------------------------------------------------------------
@@ -339,6 +359,71 @@ describe('handleVersionCounterarg', () => {
     const deps = makeDeps(db, { checkSubscription: async () => false });
     await handleVersionCounterarg(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
     expect(ownershipChecked).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// handleVersionCommitments
+// ---------------------------------------------------------------------------
+
+describe('handleVersionCommitments', () => {
+  function makeDeps(db: ReturnType<typeof makeFakeDb>, overrides?: Partial<VersionCommitmentsDeps>): VersionCommitmentsDeps {
+    return {
+      db,
+      provider:          makeCommitmentsProvider(),
+      geminiApiKey:      'test-key',
+      getSession:        async () => ({ userId: 'user-1' }),
+      checkSubscription: async () => true,
+      ...overrides,
+    };
+  }
+
+  it('runs commitments, stores result, and returns data', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'Draft');
+    await db.createVersion('v1', 'doc-1', 'x'.repeat(50), 1);
+    const deps = makeDeps(db);
+    const res  = await handleVersionCommitments(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    const data = await rj(res);
+
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
+    expect(data.result).toBeDefined();
+    expect(db.versions.get('v1')?.commitments_json).toBeDefined();
+  });
+
+  it('returns 401 when not authenticated', async () => {
+    const db   = makeFakeDb();
+    const deps = makeDeps(db, { getSession: async () => null });
+    const res  = await handleVersionCommitments(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 402 when subscription is not active', async () => {
+    const db   = makeFakeDb();
+    const deps = makeDeps(db, { checkSubscription: async () => false });
+    const res  = await handleVersionCommitments(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    expect(res.status).toBe(402);
+    expect((await rj(res)).error.code).toBe('SUBSCRIPTION_REQUIRED');
+  });
+
+  it('returns 503 when geminiApiKey is not configured', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'D');
+    await db.createVersion('v1', 'doc-1', 'x'.repeat(50), 1);
+    const deps = makeDeps(db, { geminiApiKey: undefined });
+    const res  = await handleVersionCommitments(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    expect(res.status).toBe(503);
+  });
+
+  it('returns 404 when version belongs to a different document', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'D1');
+    await db.createDocument('doc-2', 'user-1', 'D2');
+    await db.createVersion('v1', 'doc-2', 'x'.repeat(50), 1);
+    const deps = makeDeps(db);
+    const res  = await handleVersionCommitments(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    expect(res.status).toBe(404);
   });
 });
 

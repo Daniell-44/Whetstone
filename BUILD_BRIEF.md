@@ -1632,3 +1632,102 @@ See `extraction-output.json` for verbatim output.
 - `npm test` — 387/387 passing (26 new + 361 existing)
 - `npx astro check` — 0 errors
 - `npm run build` — exit 0
+
+---
+
+## CS-12: Philosophical commitments detection — The Whetstone (2026-06-02)
+
+A new Solo-tier lens that identifies the implicit philosophical frameworks embedded in a writer's argument — ethical, epistemic, political, and methodological — plus 1–3 alternative perspectives showing how readers from different frameworks would object. This is **framework awareness**, not advocacy: the goal is to help writers see the invisible assumptions their argument depends on.
+
+### New module — `functions/_lib/philosophical-commitments/`
+
+| File | Contents |
+|---|---|
+| `types.ts` | `EthicalFramework`, `EpistemicCommitment`, `PoliticalFramework`, `MethodologicalCommitment` union types; `FrameworkDetection<T>`, `AlternativePerspective`, `PhilosophicalCommitmentsResult`, `CommitmentsDeps` |
+| `schemas.ts` | `ETHICAL_FRAMEWORKS`, `EPISTEMIC_COMMITMENTS`, `POLITICAL_FRAMEWORKS`, `METHODOLOGICAL_COMMITMENTS`, `FRAMEWORK_TYPES` const arrays; `FrameworkDetectionSchema` (generic helper, `ZodTypeAny`); `AlternativePerspectiveSchema`; `PhilosophicalCommitmentsResultSchema` — all 4 dimensions nullable, `alternativePerspectives: min(1).max(3)` |
+| `constants.ts` | `COMMITMENTS_MODEL = 'gemini-2.5-pro'`, `COMMITMENTS_THINKING_BUDGET = 8192` |
+| `prompts.ts` | `COMMITMENTS_SYSTEM_PROMPT` — purpose, 4 dimensions with enums, evidence requirements, null-if-<60-confidence calibration, alternative perspectives guidance (draft-specific, 1–3), What NOT to do, 2 worked examples |
+| `engine.ts` | `detectCommitments(text, deps)` — calls `callWithRetry<PhilosophicalCommitmentsResult>` with explicit type assertion to bridge the `ZodTypeAny` generic |
+| `handler.ts` | `handleCommitmentsRequest(request, deps)` — session 401, subscription 402, per-user rate limit `commitments:user:`, `COMMITMENTS_DAILY_CAP` env var (default 15) |
+| `fixtures/helmet-law-argument.txt` | ~280-word helmet law policy argument (same clean-argument fixture as CS-11) |
+
+**Ethical frameworks:** `consequentialist`, `deontological`, `virtue_ethics`, `contractualist`, `utilitarian`, `pluralist`, `unclear`
+**Epistemic commitments:** `empiricist`, `rationalist`, `experiential`, `authoritative`, `mixed`, `unclear`
+**Political frameworks:** `liberal`, `libertarian`, `communitarian`, `conservative`, `progressive`, `socialist`, `pluralist`, `unclear`
+**Methodological commitments:** `reductionist`, `holist`, `individualist`, `structuralist`, `universalist`, `contextualist`, `mixed`, `unclear`
+
+### Public endpoint — `POST /api/philosophical-commitments`
+
+Session + active subscription required (401/402 gates). Rate limit `commitments:user:`, cap from `COMMITMENTS_DAILY_CAP` (default 15/day). Body: `{ text: string }`, 50–10,000 chars.
+
+### Per-version endpoint — `POST /api/documents/[id]/versions/[versionId]/commitments`
+
+Auth + subscription gated. Stores result via `storeCommitmentsOnVersion`. `handleVersionCommitments` + `VersionCommitmentsDeps` added to `functions/_lib/documents/handlers.ts`.
+
+### Database — `migrations/0008_commitments_storage.sql`
+
+```sql
+ALTER TABLE document_versions ADD COLUMN commitments_json TEXT;
+```
+
+Apply:
+```bash
+npx wrangler d1 execute whetstone-users         --file=migrations/0008_commitments_storage.sql --remote
+npx wrangler d1 execute whetstone-users-preview --file=migrations/0008_commitments_storage.sql --remote
+```
+
+### Display component — `src/components/commitments/PhilosophicalCommitmentsDisplay.tsx`
+
+Preact component. 2×2 grid of dimension cards (purple, `bg-purple-50 border-purple-100`). Null dimension → "No clear framework signal" in muted gray. Framework name badge + confidence percentage + explanation + italicised evidence quote. Alternative perspectives in amber cards (`bg-amber-50 border-amber-100`) with framework type badge, objection, and specificity. Notes footer. No accept/dismiss/thumbs on individual detections.
+
+### Studio — `src/components/studio/StudioEditor.tsx`
+
+`commitmentsState` fires in parallel with `counterargument` for subscribed users. **Framework Check** card (purple border) placed **below** the counterargument section. Non-subscribed users do not see the section at all.
+
+### Labels — `src/lib/labels.ts`
+
+Six new LABELS + TOOLTIPS entries:
+
+| Key | Display | Pedigree anchor |
+|---|---|---|
+| `commitments` | Framework Check | Every argument embeds framework-level assumptions |
+| `commitmentsEthical` | Ethical Framework | Consequentialism, deontology, virtue ethics, contractualism |
+| `commitmentsEpistemic` | Epistemic Stance | Empiricism, rationalism, appeal to authority |
+| `commitmentsPolitical` | Political Framework | Liberal, communitarian, libertarian, progressive |
+| `commitmentsMethodological` | Methodological Approach | Reductionism vs holism, individualism vs structuralism |
+| `commitmentsAlternatives` | Alternative Perspectives | Framework-level objections reveal blind spots |
+
+### Env var — `wrangler.toml [vars]`
+
+```toml
+COMMITMENTS_DAILY_CAP = "15"
+```
+
+### Demo run (2026-06-02)
+
+`npm run commitments:demo` — `helmet-law-argument.txt`:
+- `ethical`: consequentialist 95% — *"built on weighing outcomes: injury reduction and taxpayer cost"*
+- `epistemic`: empiricist 98% — *"relies exclusively on empirical data: 2019 BMJ meta-analysis, Australian/NZ studies"*
+- `political`: communitarian 88% — *"individual actions have consequences for the community (taxpayers) that can legitimately be regulated"*
+- `methodological`: universalist 80% — *"findings presented as generally applicable across age groups and cycling conditions"*
+- 1 alternative perspective: deontological, targets the economic-argument premise specifically — *"making a fundamental right contingent on its financial convenience to the collective"*
+- tokens: 2,639 in / 782 out
+
+**Quality:** High. All four frameworks are grounded in specific draft sentences, not generic descriptions. Confidence scores are well-calibrated (98% empiricist is clear-cut; 80% universalist is genuinely debatable). The single deontological alternative is draft-specific and not a generic "autonomy matters" complaint.
+
+See `commitments-output.json` for verbatim output.
+
+### Tests (35 new; 422 total)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/commitments/schemas.test.ts` | 18 | `AlternativePerspectiveSchema`: valid, invalid frameworkType, all frameworkTypes, empty strings; `PhilosophicalCommitmentsResultSchema`: valid, all-null dimensions, all 4 enum sets (all values), unknown framework rejected, 0 alternatives rejected, >3 alternatives rejected, null/string notes, confidence out-of-range |
+| `tests/commitments/engine.test.ts` | 5 | Successful parse, JSON retry, two-bad-JSON throw, retryable backoff, non-retryable fast-fail |
+| `tests/commitments/endpoint.test.ts` | 7 | 401 no session, 402 no subscription, 400 bad JSON, 400 short text, 503 no key, 200 valid subscribed, per-user rate limit |
+| `tests/documents/handlers.test.ts` | +5 | `handleVersionCommitments`: happy path, 401, 402 no subscription, 503 no key, 404 version on wrong doc |
+| `tests/documents/db.test.ts` | +1 | `storeCommitmentsOnVersion` |
+
+### Build status
+
+- `npm test` — 422/422 passing (35 new + 387 existing)
+- `npx astro check` — 0 errors (0 warnings)
