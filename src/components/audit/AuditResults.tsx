@@ -3,6 +3,7 @@ import type { ComponentChildren } from 'preact';
 import type { AuditResult, UnstatedWarrant, NamedFallacy, LoadedLanguage, KeyTermScrutinyFinding, ReferentCheckFinding, FalsifiabilityFinding } from '../../lib/audit';
 import { sortByPriority, fallacyMatchKey, loadedLanguageMatchKey, unstatedWarrantMatchKey, keyTermMatchKey, referentMatchKey, falsifiabilityMatchKey } from '../../lib/audit';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
+import type { TerminologyPreference } from '../../lib/labels';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -12,10 +13,11 @@ type ActionRecord = { id: string; action: string; reason?: string | null; update
 type ActionsMap   = Map<string, ActionRecord>;
 
 interface Props {
-  result:          AuditResult;
-  documentId?:     string | null;
-  versionId?:      string | null;
-  initialActions?: Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
+  result:                 AuditResult;
+  documentId?:            string | null;
+  versionId?:             string | null;
+  initialActions?:        Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
+  terminologyPreference?: TerminologyPreference;
 }
 
 // ---------------------------------------------------------------------------
@@ -745,7 +747,7 @@ function DismissedToggle({ count, expanded, onToggle }: { count: number; expande
 // Main export
 // ---------------------------------------------------------------------------
 
-export default function AuditResults({ result, documentId, versionId, initialActions }: Props) {
+export default function AuditResults({ result, documentId, versionId, initialActions, terminologyPreference }: Props) {
   const { actions, setAction, removeAction, busyKeys } = useActionState(documentId, initialActions);
 
   const [showDismissedFallacies,    setShowDismissedFallacies]    = useState(false);
@@ -833,7 +835,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
       {/* Central claim */}
       <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-5">
         <p class="text-xs font-semibold text-indigo-500 uppercase tracking-widest mb-2">
-          <LabelWithTooltip label="centralClaim" />
+          <LabelWithTooltip label="centralClaim" preference={terminologyPreference} />
         </p>
         <p class="text-gray-900 text-base leading-relaxed">{result.centralClaim}</p>
       </div>
@@ -841,20 +843,20 @@ export default function AuditResults({ result, documentId, versionId, initialAct
       {/* Toulmin breakdown */}
       <section>
         <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5">
-          <LabelWithTooltip label="toulmin" />
+          <LabelWithTooltip label="toulmin" preference={terminologyPreference} />
         </h2>
 
         <dl class="space-y-4">
-          <ToulminRow label={<LabelWithTooltip label="toulminClaim" />}   text={result.toulmin.claim} />
-          <ToulminRow label={<LabelWithTooltip label="toulminGrounds" />} text={result.toulmin.grounds} />
+          <ToulminRow label={<LabelWithTooltip label="toulminClaim" preference={terminologyPreference} />}   text={result.toulmin.claim} />
+          <ToulminRow label={<LabelWithTooltip label="toulminGrounds" preference={terminologyPreference} />} text={result.toulmin.grounds} />
           {result.toulmin.statedWarrant && (
-            <ToulminRow label={<LabelWithTooltip label="toulminWarrant" />} text={result.toulmin.statedWarrant} />
+            <ToulminRow label={<LabelWithTooltip label="toulminWarrant" preference={terminologyPreference} />} text={result.toulmin.statedWarrant} />
           )}
 
           {(activeWarrants.length > 0 || dismissedWarrants.length > 0) && (
             <div>
               <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                <LabelWithTooltip label="unstatedWarrants" />
+                <LabelWithTooltip label="unstatedWarrants" preference={terminologyPreference} />
               </dt>
               <dd class="space-y-3">
                 {activeWarrants.map((w, i) => (
@@ -902,7 +904,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
           <div class="rounded-lg bg-amber-50 border border-amber-200 p-4">
             <dt class="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">
-              <LabelWithTooltip label="weakestLink" />
+              <LabelWithTooltip label="weakestLink" preference={terminologyPreference} />
             </dt>
             <dd class="text-sm text-amber-900 leading-relaxed">{result.toulmin.weakestLink}</dd>
           </div>
@@ -922,7 +924,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {(activeFallacies.length > 0 || dismissedFallacies.length > 0) && (
             <section>
               <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-                <LabelWithTooltip label="namedFallacies" />
+                <LabelWithTooltip label="namedFallacies" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
                 {activeFallacies.map((f, i) => (
@@ -971,7 +973,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {(activeLoadedLang.length > 0 || dismissedLoadedLang.length > 0) && (
             <section>
               <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-                <LabelWithTooltip label="loadedLanguage" />
+                <LabelWithTooltip label="loadedLanguage" preference={terminologyPreference} />
               </h2>
               <div class="rounded-xl border border-gray-200 bg-white overflow-hidden">
                 <div class="divide-y divide-gray-100">
@@ -1023,7 +1025,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {(activeKeyTerms.length > 0 || dismissedKeyTerms.length > 0) && (
             <section>
               <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-                <LabelWithTooltip label="keyTermScrutiny" />
+                <LabelWithTooltip label="keyTermScrutiny" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
                 {activeKeyTerms.map((f, i) => (
@@ -1073,7 +1075,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {(activeReferents.length > 0 || dismissedReferents.length > 0) && (
             <section>
               <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-                <LabelWithTooltip label="referentChecks" />
+                <LabelWithTooltip label="referentChecks" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
                 {activeReferents.map((f, i) => (
@@ -1123,7 +1125,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {(activeFalsifiabil.length > 0 || dismissedFalsifiabil.length > 0) && (
             <section>
               <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-                <LabelWithTooltip label="falsifiabilityChecks" />
+                <LabelWithTooltip label="falsifiabilityChecks" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
                 {activeFalsifiabil.map((f, i) => (

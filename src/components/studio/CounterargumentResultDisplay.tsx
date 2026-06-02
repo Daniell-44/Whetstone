@@ -1,20 +1,26 @@
 import type { CounterargumentResult } from '../../lib/counterargument';
+import type { TerminologyPreference } from '../../lib/labels';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 
-export default function CounterargumentResultDisplay({ result }: { result: CounterargumentResult }) {
+interface Props {
+  result:               CounterargumentResult;
+  terminologyPreference?: TerminologyPreference;
+}
+
+export default function CounterargumentResultDisplay({ result, terminologyPreference }: Props) {
   return (
     <div class="space-y-6 border-t border-gray-100 pt-8">
 
       <div class="bg-violet-50 border border-violet-200 rounded-xl p-5">
         <p class="text-xs font-semibold text-violet-500 uppercase tracking-widest mb-2">
-          <LabelWithTooltip label="centralClaim" />
+          <LabelWithTooltip label="centralClaim" preference={terminologyPreference} />
         </p>
         <p class="text-gray-900 text-base leading-relaxed">{result.centralClaim}</p>
       </div>
 
       <section>
         <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-          <LabelWithTooltip label="counterarguments" />
+          <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
         </h3>
         <div class="space-y-4">
           {result.counterarguments.map((c, i) => (
@@ -25,19 +31,19 @@ export default function CounterargumentResultDisplay({ result }: { result: Count
               <div class="space-y-2 pl-4 border-l-2 border-violet-300">
                 <div>
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
-                    <LabelWithTooltip label="toulminClaim" />
+                    <LabelWithTooltip label="toulminClaim" preference={terminologyPreference} />
                   </p>
                   <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.claim}</p>
                 </div>
                 <div>
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
-                    <LabelWithTooltip label="toulminGrounds" />
+                    <LabelWithTooltip label="toulminGrounds" preference={terminologyPreference} />
                   </p>
                   <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.grounds}</p>
                 </div>
                 <div>
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
-                    <LabelWithTooltip label="toulminWarrant" />
+                    <LabelWithTooltip label="toulminWarrant" preference={terminologyPreference} />
                   </p>
                   <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.warrant}</p>
                 </div>
@@ -45,7 +51,7 @@ export default function CounterargumentResultDisplay({ result }: { result: Count
 
               <div class="rounded-lg bg-white border border-violet-200 p-3">
                 <p class="text-xs font-semibold text-violet-600 uppercase tracking-wide mb-1">
-                  <LabelWithTooltip label="missedByDraft" />
+                  <LabelWithTooltip label="missedByDraft" preference={terminologyPreference} />
                 </p>
                 <p class="text-sm text-gray-700 leading-relaxed">{c.missedByDraft}</p>
               </div>

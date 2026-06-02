@@ -1,7 +1,10 @@
+export type TerminologyPreference = 'plain' | 'formal';
+
 export interface DbUser {
-  id:         string;
-  email:      string;
-  created_at: string;
+  id:                     string;
+  email:                  string;
+  created_at:             string;
+  terminology_preference: string;
 }
 
 export interface DbSession {
@@ -33,6 +36,8 @@ export interface AuthDb {
   findSessionById(id: string): Promise<DbSession | null>;
   deleteSession(id: string): Promise<void>;
   extendSession(id: string, expiresAt: string): Promise<void>;
+  getTerminologyPreference(userId: string): Promise<TerminologyPreference>;
+  setTerminologyPreference(userId: string, preference: TerminologyPreference): Promise<void>;
 }
 
 export function makeAuthDb(d1: D1Database): AuthDb {
@@ -82,6 +87,22 @@ export function makeAuthDb(d1: D1Database): AuthDb {
       await d1
         .prepare('UPDATE sessions SET expires_at = ? WHERE id = ?')
         .bind(expiresAt, id)
+        .run();
+    },
+
+    getTerminologyPreference: async (userId) => {
+      const row = await d1
+        .prepare('SELECT terminology_preference FROM users WHERE id = ?')
+        .bind(userId)
+        .first<{ terminology_preference: string }>();
+      const pref = row?.terminology_preference;
+      return pref === 'formal' ? 'formal' : 'plain';
+    },
+
+    setTerminologyPreference: async (userId, preference) => {
+      await d1
+        .prepare('UPDATE users SET terminology_preference = ? WHERE id = ?')
+        .bind(preference, userId)
         .run();
     },
   };

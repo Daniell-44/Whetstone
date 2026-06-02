@@ -73,7 +73,7 @@ export async function handleRequestLink(
     if (!user) {
       const userId = generateId();
       await deps.db.createUser(userId, rawEmail);
-      user = { id: userId, email: rawEmail, created_at: new Date().toISOString() };
+      user = { id: userId, email: rawEmail, created_at: new Date().toISOString(), terminology_preference: 'plain' };
     }
 
     const token      = generateOpaqueToken();

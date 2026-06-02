@@ -3,6 +3,7 @@ import type {
   FrameworkDetection,
   AlternativePerspective,
 } from '../../../functions/_lib/philosophical-commitments/types';
+import type { TerminologyPreference } from '../../lib/labels';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 
 // ---------------------------------------------------------------------------
@@ -60,14 +61,16 @@ type DimensionLabel =
 function DimensionCard({
   label,
   detection,
+  preference,
 }: {
-  label: DimensionLabel;
-  detection: FrameworkDetection<string> | null;
+  label:      DimensionLabel;
+  detection:  FrameworkDetection<string> | null;
+  preference?: TerminologyPreference;
 }) {
   return (
     <div class="rounded-lg border border-purple-100 bg-purple-50 p-4">
       <p class="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2">
-        <LabelWithTooltip label={label} />
+        <LabelWithTooltip label={label} preference={preference} />
       </p>
 
       {detection === null ? (
@@ -116,25 +119,26 @@ function AlternativeCard({ alt }: { alt: AlternativePerspective }) {
 // ---------------------------------------------------------------------------
 
 interface Props {
-  result: PhilosophicalCommitmentsResult;
+  result:                 PhilosophicalCommitmentsResult;
+  terminologyPreference?: TerminologyPreference;
 }
 
-export default function PhilosophicalCommitmentsDisplay({ result }: Props) {
+export default function PhilosophicalCommitmentsDisplay({ result, terminologyPreference }: Props) {
   return (
     <div class="space-y-6">
       {/* Four dimension cards */}
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <DimensionCard label="commitmentsEthical"        detection={result.ethical} />
-        <DimensionCard label="commitmentsEpistemic"      detection={result.epistemic} />
-        <DimensionCard label="commitmentsPolitical"      detection={result.political} />
-        <DimensionCard label="commitmentsMethodological" detection={result.methodological} />
+        <DimensionCard label="commitmentsEthical"        detection={result.ethical} preference={terminologyPreference} />
+        <DimensionCard label="commitmentsEpistemic"      detection={result.epistemic} preference={terminologyPreference} />
+        <DimensionCard label="commitmentsPolitical"      detection={result.political} preference={terminologyPreference} />
+        <DimensionCard label="commitmentsMethodological" detection={result.methodological} preference={terminologyPreference} />
       </div>
 
       {/* Alternative perspectives */}
       {result.alternativePerspectives.length > 0 && (
         <div>
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-            <LabelWithTooltip label="commitmentsAlternatives" />
+            <LabelWithTooltip label="commitmentsAlternatives" preference={terminologyPreference} />
           </p>
           <div class="space-y-2">
             {result.alternativePerspectives.map((alt, i) => (

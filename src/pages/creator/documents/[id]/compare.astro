@@ -42,6 +42,7 @@ if (!fromVersion || fromVersion.document_id !== docId ||
 
 const auditDiff      = diffAuditResults(fromVersion.audit_result,      toVersion.audit_result);
 const counterargDiff = diffCounterargResults(fromVersion.counterarg_result, toVersion.counterarg_result);
+const terminology    = await authDb.getTerminologyPreference(session.user_id);
 
 const fromInfo = { version_number: fromVersion.version_number, content: fromVersion.content, created_at: fromVersion.created_at };
 const toInfo   = { version_number: toVersion.version_number,   content: toVersion.content,   created_at: toVersion.created_at };
@@ -76,6 +77,7 @@ const toInfo   = { version_number: toVersion.version_number,   content: toVersio
       to={toInfo}
       auditDiff={auditDiff}
       counterargDiff={counterargDiff}
+      terminologyPreference={terminology}
     />
 
   </main>

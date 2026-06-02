@@ -8,6 +8,7 @@ import CounterargumentResultDisplay from './CounterargumentResultDisplay';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import PhilosophicalCommitmentsDisplay from '../commitments/PhilosophicalCommitmentsDisplay';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
+import type { TerminologyPreference } from '../../lib/labels';
 import SummaryToolbar from '../audit/SummaryToolbar';
 
 // ---------------------------------------------------------------------------
@@ -130,6 +131,7 @@ interface Props {
   initialExtractionResult?:   ArgumentExtractionResult | null;
   initialCommitmentsResult?:  PhilosophicalCommitmentsResult | null;
   initialActions?:            Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
+  terminologyPreference?:     TerminologyPreference;
 }
 
 export default function StudioEditor({
@@ -143,6 +145,7 @@ export default function StudioEditor({
   initialExtractionResult   = null,
   initialCommitmentsResult  = null,
   initialActions            = {},
+  terminologyPreference,
 }: Props) {
   const [draft, setDraft]         = useState(initialContent);
   const [docId, setDocId]         = useState<string | null>(initialDocId);
@@ -428,7 +431,7 @@ export default function StudioEditor({
             <SectionError code={extractionState.code} message={extractionState.message} />
           )}
           {extractionState.status === 'done' && (
-            <ArgumentExtraction result={extractionState.data} />
+            <ArgumentExtraction result={extractionState.data} terminologyPreference={terminologyPreference} />
           )}
         </div>
       )}
@@ -450,6 +453,7 @@ export default function StudioEditor({
             documentId={docId}
             versionId={versionId}
             initialActions={initialActions}
+            terminologyPreference={terminologyPreference}
           />
         )}
       </div>
@@ -457,7 +461,7 @@ export default function StudioEditor({
       {/* Counterarguments */}
       <div class="rounded-xl border border-violet-200 bg-white p-6">
         <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-          <LabelWithTooltip label="counterarguments" />
+          <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
         </h2>
         {!hasActiveSubscription ? (
           <CounterargUpsell />
@@ -470,7 +474,7 @@ export default function StudioEditor({
               <SectionError code={counterargState.code} message={counterargState.message} />
             )}
             {counterargState.status === 'done' && (
-              <CounterargumentResultDisplay result={counterargState.data} />
+              <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
             )}
           </>
         )}
@@ -480,7 +484,7 @@ export default function StudioEditor({
       {hasActiveSubscription && commitmentsState.status !== 'idle' && (
         <div class="rounded-xl border border-purple-200 bg-white p-6">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-            <LabelWithTooltip label="commitments" />
+            <LabelWithTooltip label="commitments" preference={terminologyPreference} />
           </h2>
           {commitmentsState.status === 'loading' && (
             <SectionLoading label="Detecting philosophical frameworks…" />
@@ -489,7 +493,7 @@ export default function StudioEditor({
             <SectionError code={commitmentsState.code} message={commitmentsState.message} />
           )}
           {commitmentsState.status === 'done' && (
-            <PhilosophicalCommitmentsDisplay result={commitmentsState.data} />
+            <PhilosophicalCommitmentsDisplay result={commitmentsState.data} terminologyPreference={terminologyPreference} />
           )}
         </div>
       )}
@@ -509,7 +513,7 @@ export default function StudioEditor({
         {!hasActiveSubscription && (
           <div class="rounded-xl border border-violet-200 bg-white p-6">
             <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-              <LabelWithTooltip label="counterarguments" />
+              <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
             </h2>
             <CounterargUpsell />
           </div>

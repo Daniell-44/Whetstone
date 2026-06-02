@@ -2,7 +2,8 @@ import type { AuditDiff, CounterargumentDiff } from '../../../functions/_lib/doc
 import type { NamedFallacy, LoadedLanguage } from '../../lib/audit';
 import type { Counterargument } from '../../lib/counterargument';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
-import { LABELS } from '../../lib/labels';
+import { getLabels } from '../../lib/labels';
+import type { TerminologyPreference } from '../../lib/labels';
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -52,33 +53,33 @@ function LoadedLanguagePill({ item, variant }: { item: LoadedLanguage; variant: 
   );
 }
 
-function CounterargCard({ c }: { c: Counterargument }) {
+function CounterargCard({ c, preference }: { c: Counterargument; preference?: TerminologyPreference }) {
   return (
     <div class="rounded-xl border border-violet-200 bg-violet-50 p-4 space-y-3">
       <p class="text-sm font-semibold text-violet-900 leading-snug">{c.position}</p>
       <div class="space-y-1.5 pl-4 border-l-2 border-violet-300">
         <div>
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
-            <LabelWithTooltip label="toulminClaim" />
+            <LabelWithTooltip label="toulminClaim" preference={preference} />
           </p>
           <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.claim}</p>
         </div>
         <div>
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
-            <LabelWithTooltip label="toulminGrounds" />
+            <LabelWithTooltip label="toulminGrounds" preference={preference} />
           </p>
           <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.grounds}</p>
         </div>
         <div>
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
-            <LabelWithTooltip label="toulminWarrant" />
+            <LabelWithTooltip label="toulminWarrant" preference={preference} />
           </p>
           <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.warrant}</p>
         </div>
       </div>
       <div class="rounded-lg bg-white border border-violet-200 p-3">
         <p class="text-xs font-semibold text-violet-600 uppercase tracking-wide mb-1">
-          <LabelWithTooltip label="missedByDraft" />
+          <LabelWithTooltip label="missedByDraft" preference={preference} />
         </p>
         <p class="text-sm text-gray-700 leading-relaxed">{c.missedByDraft}</p>
       </div>
@@ -132,10 +133,11 @@ interface VersionInfo {
 }
 
 interface Props {
-  from:           VersionInfo;
-  to:             VersionInfo;
-  auditDiff:      AuditDiff;
-  counterargDiff: CounterargumentDiff;
+  from:                   VersionInfo;
+  to:                     VersionInfo;
+  auditDiff:              AuditDiff;
+  counterargDiff:         CounterargumentDiff;
+  terminologyPreference?: TerminologyPreference;
 }
 
 function formatDate(epochMs: number): string {
@@ -145,8 +147,9 @@ function formatDate(epochMs: number): string {
   });
 }
 
-export default function ComparisonView({ from, to, auditDiff, counterargDiff }: Props) {
-  const s = auditDiff.summary;
+export default function ComparisonView({ from, to, auditDiff, counterargDiff, terminologyPreference }: Props) {
+  const s      = auditDiff.summary;
+  const LABELS = getLabels(terminologyPreference);
 
   return (
     <div class="space-y-10">
@@ -222,13 +225,13 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
       {(auditDiff.fromAudited || auditDiff.toAudited) && (
         <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
-            <LabelWithTooltip label="toulmin" />
+            <LabelWithTooltip label="toulmin" preference={terminologyPreference} />
           </h2>
 
           {auditDiff.centralClaim.changed && (
             <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-2">
               <p class="text-xs font-semibold text-amber-700 uppercase tracking-wide">
-                <LabelWithTooltip label="centralClaim" /> changed
+                <LabelWithTooltip label="centralClaim" preference={terminologyPreference} /> changed
               </p>
               <SideBySide labelA={`v${from.version_number}`} labelB={`v${to.version_number}`}>
                 {[
@@ -250,7 +253,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
                 return (
                   <div key={field}>
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      <LabelWithTooltip label={labelKey} />
+                      <LabelWithTooltip label={labelKey} preference={terminologyPreference} />
                     </p>
                     <SideBySide labelA={`v${from.version_number}`} labelB={`v${to.version_number}`}>
                       {[
@@ -270,7 +273,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
       {(auditDiff.fromAudited || auditDiff.toAudited) && (
         <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
-            <LabelWithTooltip label="namedFallacies" />
+            <LabelWithTooltip label="namedFallacies" preference={terminologyPreference} />
           </h2>
 
           {auditDiff.fallacies.removed.length === 0 &&
@@ -282,7 +285,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
               {auditDiff.fallacies.removed.length > 0 && (
                 <div>
                   <p class="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-3">
-                    <LabelWithTooltip label="diffRemoved" /> ({auditDiff.fallacies.removed.length})
+                    <LabelWithTooltip label="diffRemoved" preference={terminologyPreference} /> ({auditDiff.fallacies.removed.length})
                   </p>
                   <div class="space-y-3">
                     {auditDiff.fallacies.removed.map((f, i) => (
@@ -295,7 +298,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
               {auditDiff.fallacies.added.length > 0 && (
                 <div>
                   <p class="text-xs font-semibold text-red-600 uppercase tracking-widest mb-3">
-                    <LabelWithTooltip label="diffAdded" /> ({auditDiff.fallacies.added.length})
+                    <LabelWithTooltip label="diffAdded" preference={terminologyPreference} /> ({auditDiff.fallacies.added.length})
                   </p>
                   <div class="space-y-3">
                     {auditDiff.fallacies.added.map((f, i) => (
@@ -308,7 +311,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
               {auditDiff.fallacies.persisted.length > 0 && (
                 <div>
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
-                    <LabelWithTooltip label="diffPersisted" /> ({auditDiff.fallacies.persisted.length})
+                    <LabelWithTooltip label="diffPersisted" preference={terminologyPreference} /> ({auditDiff.fallacies.persisted.length})
                   </p>
                   <div class="space-y-3">
                     {auditDiff.fallacies.persisted.map((f, i) => (
@@ -326,7 +329,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
       {(auditDiff.fromAudited || auditDiff.toAudited) && (
         <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
-            <LabelWithTooltip label="loadedLanguage" />
+            <LabelWithTooltip label="loadedLanguage" preference={terminologyPreference} />
           </h2>
 
           {auditDiff.loadedLanguage.removed.length === 0 &&
@@ -338,7 +341,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
               {auditDiff.loadedLanguage.removed.length > 0 && (
                 <div>
                   <p class="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-3">
-                    <LabelWithTooltip label="diffRemoved" /> ({auditDiff.loadedLanguage.removed.length})
+                    <LabelWithTooltip label="diffRemoved" preference={terminologyPreference} /> ({auditDiff.loadedLanguage.removed.length})
                   </p>
                   <div class="space-y-2">
                     {auditDiff.loadedLanguage.removed.map((item, i) => (
@@ -351,7 +354,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
               {auditDiff.loadedLanguage.added.length > 0 && (
                 <div>
                   <p class="text-xs font-semibold text-red-600 uppercase tracking-widest mb-3">
-                    <LabelWithTooltip label="diffAdded" /> ({auditDiff.loadedLanguage.added.length})
+                    <LabelWithTooltip label="diffAdded" preference={terminologyPreference} /> ({auditDiff.loadedLanguage.added.length})
                   </p>
                   <div class="space-y-2">
                     {auditDiff.loadedLanguage.added.map((item, i) => (
@@ -364,7 +367,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
               {auditDiff.loadedLanguage.persisted.length > 0 && (
                 <div>
                   <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
-                    <LabelWithTooltip label="diffPersisted" /> ({auditDiff.loadedLanguage.persisted.length})
+                    <LabelWithTooltip label="diffPersisted" preference={terminologyPreference} /> ({auditDiff.loadedLanguage.persisted.length})
                   </p>
                   <div class="space-y-2">
                     {auditDiff.loadedLanguage.persisted.map((item, i) => (
@@ -382,7 +385,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
       {(counterargDiff.fromGenerated || counterargDiff.toGenerated) && (
         <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
-            <LabelWithTooltip label="counterarguments" />
+            <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
           </h2>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -395,7 +398,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
               ) : (
                 <div class="space-y-3">
                   {counterargDiff.counterarguments.from.map((c, i) => (
-                    <CounterargCard key={i} c={c} />
+                    <CounterargCard key={i} c={c} preference={terminologyPreference} />
                   ))}
                 </div>
               )}
@@ -410,7 +413,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff }: 
               ) : (
                 <div class="space-y-3">
                   {counterargDiff.counterarguments.to.map((c, i) => (
-                    <CounterargCard key={i} c={c} />
+                    <CounterargCard key={i} c={c} preference={terminologyPreference} />
                   ))}
                 </div>
               )}

@@ -1731,3 +1731,64 @@ See `commitments-output.json` for verbatim output.
 
 - `npm test` — 422/422 passing (35 new + 387 existing)
 - `npx astro check` — 0 errors (0 warnings)
+
+---
+
+## CS-13 — Formal-language toggle
+
+**Goal**: Logged-in users can switch labels site-wide between accessible plain English ("Hidden Assumptions") and precise philosophical terminology ("Unstated Warrants") via a preference saved to their account.
+
+### What was built
+
+**Label system (`src/lib/labels.ts`)**
+- Restructured into `LABELS_PLAIN` and `LABELS_FORMAL` (30 keys each, all audit lenses, extraction fields, counterarg sections, diff dimensions, commitments)
+- `LABELS_FORMAL` uses `as const satisfies { [K in keyof typeof LABELS_PLAIN]: string }` — validates key parity without constraining values to the same string literals
+- `TOOLTIPS_PLAIN` and `TOOLTIPS_FORMAL` — each entry has `{ plain, pedigree }` strings; formal pedigrees are denser (reference Wittgenstein, Russell, Toulmin, Popper, Davidson)
+- `TerminologyPreference = 'plain' | 'formal'` type exported
+- `getLabels(preference?)` and `getTooltips(preference?)` helpers returning the correct dictionary
+- Backward-compat `LABELS = LABELS_PLAIN` and `TOOLTIPS = TOOLTIPS_PLAIN` re-exports — zero changes needed in files that don't use the formal variant
+
+**DB layer**
+- `migrations/0009_terminology_preference.sql` — `ALTER TABLE users ADD COLUMN terminology_preference TEXT NOT NULL DEFAULT 'plain'`
+- `functions/_lib/auth/db.ts`: `TerminologyPreference` type, `terminology_preference: string` on `DbUser`, `getTerminologyPreference`/`setTerminologyPreference` on `AuthDb` interface, D1 implementation in `makeAuthDb`
+
+**API endpoint (`src/pages/api/account/terminology.ts`)**
+- `PATCH /api/account/terminology` — auth-gated, Zod-validated `{ preference: 'plain' | 'formal' }` body, saves to D1, returns `{ ok: true, preference }`
+
+**UI (`src/components/account/TerminologyPicker.tsx`)**
+- Preact island: radio group (Accessible / Formal), auto-saves on change via `PATCH /api/account/terminology`, inline Saving/Saved/Error status
+
+**Account page (`src/pages/account.astro`)**
+- Reads `terminology_preference` from D1 per request, renders `<TerminologyPicker initialPreference={terminology} client:load />`
+
+**Label threading**
+- `src/components/ui/LabelWithTooltip.tsx` — added `preference?: TerminologyPreference` prop
+- `src/components/audit/AuditResults.tsx` — 12 `<LabelWithTooltip>` calls updated
+- `src/components/studio/CounterargumentResultDisplay.tsx` — 6 calls updated
+- `src/components/studio/ComparisonView.tsx` — converted `LABELS` import to `getLabels(terminologyPreference)`
+- `src/components/commitments/PhilosophicalCommitmentsDisplay.tsx` — 2 calls updated
+- `src/components/extraction/ArgumentExtraction.tsx` — 3 calls updated
+- `src/components/studio/StudioEditor.tsx` — passes `terminologyPreference` to all child islands
+- `src/pages/creator/studio.astro` — reads preference from D1, passes to `<StudioEditor>`
+- `src/pages/creator/documents/[id]/versions/[versionId].astro` — reads and passes to `<AuditResults>` and `<CounterargumentResultDisplay>`
+- `src/pages/creator/documents/[id]/compare.astro` — reads and passes to `<ComparisonView>`
+
+### Migration commands
+
+```bash
+npx wrangler d1 execute whetstone-users         --file=migrations/0009_terminology_preference.sql --remote
+npx wrangler d1 execute whetstone-users-preview --file=migrations/0009_terminology_preference.sql --remote
+```
+
+### Tests (29 new; 451 total)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/terminology/labels.test.ts` | 16 | `LABELS_PLAIN` 30 keys, non-empty values; `LABELS_FORMAL` same 30 keys, technical term spot-checks, differs from plain on >15 keys; `TOOLTIPS_PLAIN`/`TOOLTIPS_FORMAL` completeness, non-empty strings, formal pedigrees longer; backward-compat `LABELS`/`TOOLTIPS` same references; `getLabels()`/`getTooltips()` return correct variant |
+| `tests/terminology/endpoint.test.ts` | 8 | 401 unauthenticated, 400 invalid JSON, 400 invalid preference value, 200 plain saved, 200 formal saved, override existing; `FakeAuthDb` defaults to plain, persists value |
+| `tests/auth/handlers.test.ts` | +5 | `FakeAuthDb` extended with `getTerminologyPreference`/`setTerminologyPreference`; `DbUser` literals updated with `terminology_preference: 'plain'` |
+
+### Build status
+
+- `npm test` — 451/451 passing (29 new + 422 existing)
+- `npx astro check` — 0 errors (0 warnings, 10 hints pre-existing)

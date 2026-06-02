@@ -1,7 +1,9 @@
-import { LABELS, TOOLTIPS } from '../../lib/labels';
+import { getLabels, getTooltips } from '../../lib/labels';
+import type { TerminologyPreference } from '../../lib/labels';
 
 interface Props {
-  label: keyof typeof LABELS;
+  label:       keyof ReturnType<typeof getLabels>;
+  preference?: TerminologyPreference;
 }
 
 // Renders the friendly label text followed by a native <details> tooltip.
@@ -9,9 +11,11 @@ interface Props {
 // one plain-English explanation, one with the philosophical/historical pedigree.
 // No JavaScript state — pure HTML disclosure element. Reset styles are applied
 // so the tooltip doesn't inherit uppercase/tracking from parent headings.
-export default function LabelWithTooltip({ label }: Props) {
-  const text    = LABELS[label];
-  const tooltip = TOOLTIPS[label];
+export default function LabelWithTooltip({ label, preference }: Props) {
+  const labels   = getLabels(preference);
+  const tooltips = getTooltips(preference);
+  const text     = labels[label];
+  const tooltip  = tooltips[label];
 
   if (!tooltip) return <>{text}</>;
 

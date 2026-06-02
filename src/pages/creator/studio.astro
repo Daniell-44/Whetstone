@@ -22,6 +22,7 @@ if (!session) {
 }
 
 const hasActiveSubscription = await userHasActiveSubscription(billingDb, session.user_id);
+const terminology           = await authDb.getTerminologyPreference(session.user_id);
 
 // Load document from ?doc= query param if provided.
 const docIdParam = Astro.url.searchParams.get('doc');
@@ -94,6 +95,7 @@ if (docIdParam) {
       initialAuditResult={initialAuditResult}
       initialCounterargResult={initialCounterargResult}
       initialActions={initialActions}
+      terminologyPreference={terminology}
     />
 
   </main>

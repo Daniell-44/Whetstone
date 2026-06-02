@@ -1,4 +1,5 @@
 import type { ArgumentExtractionResult, ExtractionStatement } from '../../lib/extraction';
+import type { TerminologyPreference } from '../../lib/labels';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 
 // ---------------------------------------------------------------------------
@@ -63,10 +64,11 @@ function StatementCard({ stmt }: { stmt: ExtractionStatement }) {
 // ---------------------------------------------------------------------------
 
 interface Props {
-  result: ArgumentExtractionResult;
+  result:                 ArgumentExtractionResult;
+  terminologyPreference?: TerminologyPreference;
 }
 
-export default function ArgumentExtraction({ result }: Props) {
+export default function ArgumentExtraction({ result, terminologyPreference }: Props) {
   const premises    = result.statements.filter(s => s.type === 'premise');
   const conclusions = result.statements.filter(s => s.type === 'conclusion');
   const isEmpty     = result.statements.length === 0;
@@ -76,7 +78,7 @@ export default function ArgumentExtraction({ result }: Props) {
       {/* Central claim */}
       <div>
         <p class="text-sm font-semibold text-gray-700 mb-1">
-          <LabelWithTooltip label="extraction" />
+          <LabelWithTooltip label="extraction" preference={terminologyPreference} />
         </p>
         <p class="text-base text-gray-900 font-medium">{result.centralClaim}</p>
         <span class="inline-block mt-1 text-xs text-gray-400">{result.confidence}% confidence</span>
@@ -90,7 +92,7 @@ export default function ArgumentExtraction({ result }: Props) {
           {premises.length > 0 && (
             <div>
               <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                <LabelWithTooltip label="extractionPremise" />
+                <LabelWithTooltip label="extractionPremise" preference={terminologyPreference} />
               </p>
               <div class="space-y-2">
                 {premises.map(stmt => (
@@ -104,7 +106,7 @@ export default function ArgumentExtraction({ result }: Props) {
           {conclusions.length > 0 && (
             <div>
               <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                <LabelWithTooltip label="extractionConclusion" />
+                <LabelWithTooltip label="extractionConclusion" preference={terminologyPreference} />
               </p>
               <div class="space-y-2">
                 {conclusions.map(stmt => (

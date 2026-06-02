@@ -20,7 +20,7 @@ class FakeAuthDb implements AuthDb {
     return this.users.get(id) ?? null;
   }
   async createUser(id: string, email: string) {
-    this.users.set(id, { id, email, created_at: new Date().toISOString() });
+    this.users.set(id, { id, email, created_at: new Date().toISOString(), terminology_preference: 'plain' });
   }
   async createMagicLink(id: string, userId: string, tokenHash: string, expiresAt: string) {
     this.magicLinks.set(id, {
@@ -47,6 +47,13 @@ class FakeAuthDb implements AuthDb {
   async extendSession(id: string, expiresAt: string) {
     const s = this.sessions.get(id);
     if (s) s.expires_at = expiresAt;
+  }
+  terminologyPrefs = new Map<string, string>();
+  async getTerminologyPreference(userId: string) {
+    return (this.terminologyPrefs.get(userId) === 'formal' ? 'formal' : 'plain') as 'plain' | 'formal';
+  }
+  async setTerminologyPreference(userId: string, preference: 'plain' | 'formal') {
+    this.terminologyPrefs.set(userId, preference);
   }
 }
 
@@ -170,7 +177,7 @@ describe('handleVerify', () => {
 
   beforeEach(() => {
     db = new FakeAuthDb();
-    db.users.set('user-1', { id: 'user-1', email: 'a@example.com', created_at: new Date().toISOString() });
+    db.users.set('user-1', { id: 'user-1', email: 'a@example.com', created_at: new Date().toISOString(), terminology_preference: 'plain' });
   });
 
   it('redirects to /account and sets cookie for a valid token', async () => {
