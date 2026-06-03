@@ -10,9 +10,9 @@ function makeFakeDocumentDb(): DocumentDb {
   const versions = new Map<string, DocumentVersion>();
 
   return {
-    createDocument: async (id, userId, title) => {
+    createDocument: async (id, userId, title, workspaceId?) => {
       const now = Date.now();
-      docs.set(id, { id, user_id: userId, title, status: 'active', created_at: now, updated_at: now });
+      docs.set(id, { id, user_id: userId, workspace_id: workspaceId ?? null, title, status: 'active', created_at: now, updated_at: now });
     },
 
     getDocumentById: async (id) => docs.get(id) ?? null,
@@ -27,6 +27,11 @@ function makeFakeDocumentDb(): DocumentDb {
     listActiveDocumentsForUser: async (userId) =>
       [...docs.values()]
         .filter(d => d.user_id === userId && d.status === 'active')
+        .sort((a, b) => b.updated_at - a.updated_at),
+
+    listActiveDocumentsForWorkspace: async (workspaceId) =>
+      [...docs.values()]
+        .filter(d => d.workspace_id === workspaceId && d.status === 'active')
         .sort((a, b) => b.updated_at - a.updated_at),
 
     updateDocumentTitle: async (id, title) => {

@@ -1,0 +1,268 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../../layouts/Base.astro';
+import { makeAuthDb } from '../../../../functions/_lib/auth/db';
+import { makeWorkspaceDb } from '../../../../functions/_lib/workspaces/db';
+import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
+
+const authDb      = makeAuthDb(env.DB);
+const workspaceDb = makeWorkspaceDb(env.DB);
+const session     = await getSessionFromRequest(Astro.request, authDb);
+
+if (!session) {
+  return Astro.redirect('/login?returnTo=' + encodeURIComponent(Astro.url.pathname));
+}
+
+const workspaceId = Astro.params.id!;
+const member      = await workspaceDb.getMember(workspaceId, session.user_id);
+
+if (!member) {
+  return Astro.redirect('/creator/documents');
+}
+
+const workspace   = await workspaceDb.getWorkspaceById(workspaceId);
+if (!workspace) return Astro.redirect('/creator/documents');
+
+const members     = await workspaceDb.listMembers(workspaceId);
+const invitations = await workspaceDb.listPendingInvitations(workspaceId);
+const canManage   = member.role === 'owner' || member.role === 'admin';
+const isOwner     = member.role === 'owner';
+const justJoined  = Astro.url.searchParams.get('joined') === '1';
+
+function formatDate(epochMs: number): string {
+  return new Date(epochMs).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+---
+<Base
+  title={`${workspace.name} — Settings — The Whetstone`}
+  description={`Workspace settings for ${workspace.name}.`}
+  canonicalPath={`/workspaces/${workspaceId}/settings`}
+  isLoggedIn={true}
+>
+  <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
+
+    <nav class="mb-10">
+      <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Documents</a>
+    </nav>
+
+    {justJoined && (
+      <div class="mb-8 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-800">
+        You've joined <strong>{workspace.name}</strong>. Welcome!
+      </div>
+    )}
+
+    <header class="mb-10">
+      <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Workspace</p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight">{workspace.name}</h1>
+      <p class="mt-2 text-sm text-gray-500">Your role: <span class="capitalize font-medium">{member.role}</span></p>
+    </header>
+
+    {/* Rename workspace */}
+    {canManage && (
+      <section class="mb-10">
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">Workspace name</h2>
+        <form id="rename-form" class="flex gap-3">
+          <input
+            id="workspace-name"
+            type="text"
+            value={workspace.name}
+            maxlength="100"
+            class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+          />
+          <button
+            type="submit"
+            class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+          >
+            Save
+          </button>
+        </form>
+        <p id="rename-status" class="mt-2 text-xs text-gray-400 hidden"></p>
+      </section>
+    )}
+
+    {/* Members */}
+    <section class="mb-10">
+      <h2 class="text-sm font-semibold text-gray-700 mb-3">Members ({members.length})</h2>
+      <ul class="divide-y divide-gray-100 rounded-xl border border-gray-100">
+        {members.map(m => (
+          <li class="flex items-center justify-between px-4 py-3 gap-4">
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-gray-900">{m.user_id}</p>
+              <p class="text-xs text-gray-400 capitalize">{m.role} · joined {formatDate(m.joined_at)}</p>
+            </div>
+            {isOwner && m.user_id !== session.user_id && m.role !== 'owner' && (
+              <button
+                type="button"
+                data-remove-member={m.user_id}
+                class="text-xs text-red-400 hover:text-red-600 transition-colors shrink-0"
+              >
+                Remove
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    {/* Invite member */}
+    {canManage && (
+      <section class="mb-10">
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">Invite a member</h2>
+        <form id="invite-form" class="flex gap-3">
+          <input
+            id="invite-email"
+            type="email"
+            placeholder="colleague@example.com"
+            class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+          />
+          <select
+            id="invite-role"
+            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+          >
+            <option value="member">Member</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button
+            type="submit"
+            class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+          >
+            Invite
+          </button>
+        </form>
+        <p id="invite-status" class="mt-2 text-xs text-gray-400 hidden"></p>
+
+        {invitations.length > 0 && (
+          <div class="mt-4">
+            <p class="text-xs font-medium text-gray-500 mb-2">Pending invitations</p>
+            <ul class="divide-y divide-gray-100 rounded-xl border border-gray-100">
+              {invitations.map(inv => (
+                <li class="flex items-center justify-between px-4 py-3 gap-4">
+                  <div>
+                    <p class="text-sm text-gray-900">{inv.email}</p>
+                    <p class="text-xs text-gray-400 capitalize">{inv.role} · expires {formatDate(inv.expires_at)}</p>
+                  </div>
+                  <button
+                    type="button"
+                    data-revoke-invitation={inv.id}
+                    class="text-xs text-gray-400 hover:text-red-600 transition-colors shrink-0"
+                  >
+                    Revoke
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+    )}
+
+    {/* Leave / delete */}
+    <section class="border-t border-gray-100 pt-8">
+      {!isOwner && (
+        <button
+          type="button"
+          id="leave-btn"
+          class="text-sm text-red-500 hover:text-red-700 transition-colors"
+        >
+          Leave workspace
+        </button>
+      )}
+      {isOwner && members.length === 1 && (
+        <button
+          type="button"
+          id="delete-btn"
+          class="text-sm text-red-500 hover:text-red-700 transition-colors"
+        >
+          Delete workspace
+        </button>
+      )}
+    </section>
+
+  </main>
+</Base>
+
+<script define:vars={{ workspaceId }}>
+  // Rename
+  const renameForm = document.getElementById('rename-form');
+  if (renameForm) {
+    renameForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name   = document.getElementById('workspace-name').value.trim();
+      const status = document.getElementById('rename-status');
+      if (!name) return;
+      const r = await fetch(`/api/workspaces/${workspaceId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      status.textContent = r.ok ? 'Saved.' : 'Failed to save.';
+      status.classList.remove('hidden');
+    });
+  }
+
+  // Invite
+  const inviteForm = document.getElementById('invite-form');
+  if (inviteForm) {
+    inviteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email  = document.getElementById('invite-email').value.trim();
+      const role   = document.getElementById('invite-role').value;
+      const status = document.getElementById('invite-status');
+      if (!email) return;
+      const r = await fetch(`/api/workspaces/${workspaceId}/invitations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, role }),
+      });
+      const data = await r.json();
+      if (data.ok) {
+        status.textContent = `Invitation sent to ${email}.`;
+        document.getElementById('invite-email').value = '';
+      } else {
+        status.textContent = data.error?.message ?? 'Failed to send invitation.';
+      }
+      status.classList.remove('hidden');
+    });
+  }
+
+  // Remove member
+  document.querySelectorAll('[data-remove-member]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const userId = btn.getAttribute('data-remove-member');
+      if (!confirm('Remove this member?')) return;
+      const r = await fetch(`/api/workspaces/${workspaceId}/members/${userId}`, { method: 'DELETE' });
+      if (r.ok) window.location.reload();
+    });
+  });
+
+  // Revoke invitation
+  document.querySelectorAll('[data-revoke-invitation]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const invId = btn.getAttribute('data-revoke-invitation');
+      const r = await fetch(`/api/workspaces/${workspaceId}/invitations/${invId}`, { method: 'DELETE' });
+      if (r.ok) window.location.reload();
+    });
+  });
+
+  // Leave workspace
+  const leaveBtn = document.getElementById('leave-btn');
+  if (leaveBtn) {
+    leaveBtn.addEventListener('click', async () => {
+      if (!confirm('Leave this workspace?')) return;
+      const r = await fetch(`/api/workspaces/${workspaceId}/members/` + document.querySelector('[data-my-user-id]')?.textContent, { method: 'DELETE' });
+      if (r.ok) window.location.href = '/creator/documents';
+    });
+  }
+
+  // Delete workspace
+  const deleteBtn = document.getElementById('delete-btn');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm('Permanently delete this workspace?')) return;
+      const r = await fetch(`/api/workspaces/${workspaceId}`, { method: 'DELETE' });
+      if (r.ok) window.location.href = '/creator/documents';
+    });
+  }
+</script>

@@ -1,10 +1,11 @@
 export interface Document {
-  id:         string;
-  user_id:    string;
-  title:      string;
-  status:     'active' | 'archived';
-  created_at: number;
-  updated_at: number;
+  id:           string;
+  user_id:      string;
+  workspace_id: string | null;
+  title:        string;
+  status:       'active' | 'archived';
+  created_at:   number;
+  updated_at:   number;
 }
 
 export interface DocumentVersion {
@@ -21,10 +22,11 @@ export interface DocumentVersion {
 }
 
 export interface DocumentDb {
-  createDocument(id: string, userId: string, title: string): Promise<void>;
+  createDocument(id: string, userId: string, title: string, workspaceId?: string): Promise<void>;
   getDocumentById(id: string): Promise<Document | null>;
   getActiveDocumentForUser(userId: string): Promise<Document | null>;
   listActiveDocumentsForUser(userId: string): Promise<Document[]>;
+  listActiveDocumentsForWorkspace(workspaceId: string): Promise<Document[]>;
   updateDocumentTitle(id: string, title: string): Promise<void>;
   archiveDocument(id: string): Promise<void>;
   countActiveDocumentsForUser(userId: string): Promise<number>;

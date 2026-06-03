@@ -5,7 +5,9 @@ import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import StudioEditor from '../../components/studio/StudioEditor';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
-import { makeBillingDb, userHasActiveSubscription } from '../../../functions/_lib/billing/subscription';
+import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
+import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
+import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeFindingActionDb } from '../../../functions/_lib/documents/finding-actions';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
@@ -13,15 +15,16 @@ import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import type { DocumentVersion } from '../../../functions/_lib/documents/types';
 
-const authDb    = makeAuthDb(env.DB);
-const billingDb = makeBillingDb(env.DB);
-const session   = await getSessionFromRequest(Astro.request, authDb);
+const authDb      = makeAuthDb(env.DB);
+const billingDb   = makeBillingDb(env.DB);
+const workspaceDb = makeWorkspaceDb(env.DB);
+const session     = await getSessionFromRequest(Astro.request, authDb);
 
 if (!session) {
   return Astro.redirect('/login?returnTo=/creator/studio');
 }
 
-const hasActiveSubscription = await userHasActiveSubscription(billingDb, session.user_id);
+const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, session.user_id);
 const terminology           = await authDb.getTerminologyPreference(session.user_id);
 
 // Load document from ?doc= query param if provided.

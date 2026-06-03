@@ -1883,3 +1883,128 @@ npx wrangler d1 execute whetstone-users-preview --file=migrations/0010_citation_
 - `npm test` — 484/484 passing (33 new + 451 existing)
 - `npx astro check` — 0 errors (0 warnings, 13 hints pre-existing)
 - `npm run build` — clean
+
+---
+
+## CS-15 — Multi-seat Workspaces
+
+**Goal**: A workspace abstraction that owns documents and has members with roles. One active subscription on any member entitles the entire workspace. Members are invited by email using a magic-link-style token flow.
+
+### Schema — `migrations/0011_workspaces.sql`
+
+Three new tables + one new column on `documents`:
+
+| Table / Change | Purpose |
+|---|---|
+| `workspaces` | One row per workspace; `owner_id` references `users.id` |
+| `workspace_members` | Many-to-many join between users and workspaces; `role IN ('owner','admin','member')` |
+| `workspace_invitations` | Pending invitations; token stored as SHA-256 hash; 7-day expiry; `accepted_at NULL` = still pending |
+| `documents.workspace_id` | Nullable FK to `workspaces.id`; null = pre-backfill personal document |
+
+Indexes on workspace owner, member user/workspace, invitation token hash, and document workspace.
+
+### Backfill strategy — `migrations/0012_workspaces_backfill.sql`
+
+Documentation-only — explains the backfill. Actual backfill runs via `POST /api/admin/backfill-workspaces`:
+- For each user with no workspace membership: creates a personal workspace, adds user as owner, sets `workspace_id` on all their existing documents.
+- Idempotent — skip users who already have a membership.
+
+### Workspace library — `functions/_lib/workspaces/`
+
+| File | Contents |
+|---|---|
+| `types.ts` | `WorkspaceRole`, `Workspace`, `WorkspaceMember`, `WorkspaceInvitation`, `WorkspaceWithRole`, `WorkspaceDb` interface |
+| `db.ts` | `makeWorkspaceDb(d1): WorkspaceDb` — D1-backed implementation |
+| `permissions.ts` | `userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, userId)`, `canManageWorkspace(role)`, `isOwner(role)` |
+| `handlers.ts` | All workspace endpoint logic: list/create/get/update/delete workspace; list/update/remove members; list/create/revoke invitations; accept invitation; backfill |
+
+### Subscription gate refactor
+
+`userHasActiveSubscriptionViaWorkspace` replaces `userHasActiveSubscription` at all subscription-check call sites:
+1. First checks the user directly.
+2. If not subscribed, iterates their workspaces and checks each co-member — returns `true` on the first subscribed co-member.
+
+Updated call sites:
+- `src/pages/api/citation-audit.ts`
+- `src/pages/api/counterargument.ts`
+- `src/pages/api/documents/index.ts`
+- `src/pages/api/documents/[id]/versions/[versionId]/counterargument.ts`
+- `src/pages/api/documents/[id]/versions/[versionId]/commitments.ts`
+- `src/pages/api/philosophical-commitments.ts`
+- `src/pages/creator/studio.astro`
+- `src/pages/pricing.astro`
+
+### Document scoping
+
+- `Document` interface gains `workspace_id: string | null`.
+- `DocumentDb` gains `listActiveDocumentsForWorkspace(workspaceId)` and optional 4th arg `workspaceId?` on `createDocument`.
+- `D1` implementation updated accordingly.
+
+### API endpoints
+
+| Route | Method | Handler |
+|---|---|---|
+| `/api/workspaces` | GET | List user's workspaces |
+| `/api/workspaces` | POST | Create workspace (caller becomes owner) |
+| `/api/workspaces/[id]` | GET | Get workspace + members + caller role |
+| `/api/workspaces/[id]` | PATCH | Rename (owner/admin only) |
+| `/api/workspaces/[id]` | DELETE | Delete (owner only; blocked if other members exist) |
+| `/api/workspaces/[id]/members` | GET | List members (any member) |
+| `/api/workspaces/[id]/members/[memberUserId]` | PATCH | Update role (owner only; cannot change own role) |
+| `/api/workspaces/[id]/members/[memberUserId]` | DELETE | Remove member (owner/admin; or self-remove; cannot remove owner) |
+| `/api/workspaces/[id]/invitations` | GET | List pending invitations (owner/admin only) |
+| `/api/workspaces/[id]/invitations` | POST | Create invitation + send email (owner/admin only) |
+| `/api/workspaces/[id]/invitations/[invId]` | DELETE | Revoke invitation (owner/admin only) |
+| `/api/workspaces/invitations/accept?token=` | GET | Accept invitation; redirects unauthenticated users to login with returnTo |
+| `/api/admin/backfill-workspaces` | POST | Secret-gated backfill; returns `{ workspacesCreated: N }` |
+
+### Invitation flow
+
+Same pattern as magic links: `generateOpaqueToken()` raw token sent in email URL; DB stores `hashToken(token)`; accept endpoint hashes the incoming token and looks it up.
+
+- Unauthenticated visitor → redirect to `/login?returnTo=/api/workspaces/invitations/accept?token=<t>`
+- Authenticated user, valid token → add as member, mark accepted, redirect to `/workspaces/<id>/settings?joined=1`
+- Expired / already-accepted → redirect to `/login?error=invalid_invitation`
+
+Email sent via `makeWorkspaceInvitationSender` (new function in `functions/_lib/auth/email.ts`). Best-effort — invitation is created even if email fails.
+
+### UI
+
+**`src/components/layout/WorkspaceSwitcher.tsx`** — Preact island. Fetches workspaces from `GET /api/workspaces` on mount. Renders a dropdown showing current workspace name + role. Clicking a workspace navigates to `/creator/documents?workspace=<id>`. "New workspace" option POSTs to create one and redirects to its settings page.
+
+**`src/pages/workspaces/[id]/settings.astro`** — SSR. Shows: workspace name (rename form for owner/admin); member list with role + joined date (owner can remove non-owners); invite-by-email form (owner/admin only); pending invitations list with revoke buttons; leave/delete workspace at the bottom. All mutations are client-side JS calls to the API routes. Shows "joined" banner on `?joined=1`.
+
+**`src/pages/creator/documents.astro`** — Updated: reads `?workspace=<id>` query param; if provided and user is a member, shows workspace documents via `listActiveDocumentsForWorkspace`; renders `WorkspaceSwitcher` in the header.
+
+### Email — `functions/_lib/auth/email.ts`
+
+`makeWorkspaceInvitationSender(resendApiKey)` added: sends "You've been invited to join <workspace>" email with a 7-day accept link.
+
+### Migration command
+
+```bash
+wrangler d1 execute whetstone-users         --file=migrations/0011_workspaces.sql --remote
+wrangler d1 execute whetstone-users-preview --file=migrations/0011_workspaces.sql --remote
+```
+
+Then run the backfill:
+```bash
+curl -X POST \
+  -H "X-Analyser-Secret: $ANALYSER_SECRET" \
+  https://devils-advocate-site.daniellivingstone2005.workers.dev/api/admin/backfill-workspaces
+```
+
+### Tests (64 new; 548 total)
+
+| File | Count | What is covered |
+|---|---|---|
+| `tests/workspaces/db.test.ts` | 13 | create/retrieve workspace, missing workspace returns null, add/retrieve/count members, list workspaces for user, rename, delete, remove member, update role, create/find/list/accept/delete invitations, find pending by email |
+| `tests/workspaces/permissions.test.ts` | 9 | `userHasActiveSubscriptionViaWorkspace`: user has direct sub, no sub anywhere, co-member has sub, expired co-member sub, no workspaces+no sub, multi-workspace short-circuits; `canManageWorkspace`/`isOwner` edge cases |
+| `tests/workspaces/endpoints.test.ts` | 31 | `handleListWorkspaces` (401, empty, returns list), `handleCreateWorkspace` (401, 400, creates + owner), `handleGetWorkspace` (401, 404, returns workspace+members+role), `handleUpdateWorkspace` (401, 403, renames), `handleDeleteWorkspace` (403, 409 when members exist, deletes), `handleListMembers` (404, returns list), `handleUpdateMember` (promote, 409 self-change, 403 non-owner), `handleRemoveMember` (removes, 409 owner, self-remove), `handleListInvitations` (403, returns list), `handleRevokeInvitation`, `handleBackfillWorkspaces` (401 no secret, 401 wrong, 405 GET, zero created) |
+| `tests/workspaces/invitations.test.ts` | 11 | `handleCreateInvitation`: 401, 403, 400 bad email, creates + normalises to lowercase, 409 duplicate pending, sendInvitation called with correct accept URL; `handleAcceptInvitation`: redirect to login unauthenticated, invalid token, no token, accepts + adds member + marks accepted, expired, idempotent (second call rejected) |
+
+### Build status
+
+- `npx vitest run` — 548/548 passing (64 new + 484 existing)
+- `npx astro check` — 0 errors
+- `npm run build` — clean

@@ -1,0 +1,17 @@
+-- CS-15: Workspace backfill (documentation only — DO NOT execute directly)
+--
+-- This migration documents the backfill strategy.  The actual backfill is
+-- performed by the admin endpoint POST /api/admin/backfill-workspaces, which
+-- is idempotent and safe to run multiple times.
+--
+-- What the backfill endpoint does:
+--   1. For each user who has no workspace membership yet:
+--      a. Creates a personal workspace named "<email>'s Workspace"
+--      b. Adds the user as the owner member of that workspace
+--      c. Sets workspace_id on all of the user's existing documents
+--   2. Skips users who already have at least one workspace membership.
+--
+-- Run the endpoint after applying 0011_workspaces.sql:
+--   curl -X POST \
+--     -H "X-Analyser-Secret: $ANALYSER_SECRET" \
+--     https://<worker>.workers.dev/api/admin/backfill-workspaces

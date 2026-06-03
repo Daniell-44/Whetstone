@@ -2,11 +2,11 @@ import type { Document, DocumentVersion, DocumentDb } from './types';
 
 export function makeDocumentDb(d1: D1Database): DocumentDb {
   return {
-    createDocument: async (id, userId, title) => {
+    createDocument: async (id, userId, title, workspaceId?) => {
       const now = Date.now();
       await d1
-        .prepare('INSERT INTO documents (id, user_id, title, status, created_at, updated_at) VALUES (?, ?, ?, \'active\', ?, ?)')
-        .bind(id, userId, title, now, now)
+        .prepare('INSERT INTO documents (id, user_id, workspace_id, title, status, created_at, updated_at) VALUES (?, ?, ?, ?, \'active\', ?, ?)')
+        .bind(id, userId, workspaceId ?? null, title, now, now)
         .run();
     },
 
@@ -23,6 +23,14 @@ export function makeDocumentDb(d1: D1Database): DocumentDb {
       const result = await d1
         .prepare("SELECT * FROM documents WHERE user_id = ? AND status = 'active' ORDER BY updated_at DESC")
         .bind(userId)
+        .all<Document>();
+      return result.results;
+    },
+
+    listActiveDocumentsForWorkspace: async (workspaceId) => {
+      const result = await d1
+        .prepare("SELECT * FROM documents WHERE workspace_id = ? AND status = 'active' ORDER BY updated_at DESC")
+        .bind(workspaceId)
         .all<Document>();
       return result.results;
     },

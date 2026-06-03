@@ -25,13 +25,14 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
   const versions = new Map<string, DocumentVersion>();
 
   const db: DocumentDb = {
-    createDocument: async (id, userId, title) => {
+    createDocument: async (id, userId, title, workspaceId?) => {
       const now = Date.now();
-      docs.set(id, { id, user_id: userId, title, status: 'active', created_at: now, updated_at: now });
+      docs.set(id, { id, user_id: userId, workspace_id: workspaceId ?? null, title, status: 'active', created_at: now, updated_at: now });
     },
     getDocumentById:         async (id) => docs.get(id) ?? null,
     getActiveDocumentForUser: async (userId) => [...docs.values()].find(d => d.user_id === userId && d.status === 'active') ?? null,
     listActiveDocumentsForUser: async (userId) => [...docs.values()].filter(d => d.user_id === userId && d.status === 'active'),
+    listActiveDocumentsForWorkspace: async (workspaceId) => [...docs.values()].filter(d => d.workspace_id === workspaceId && d.status === 'active'),
     updateDocumentTitle: async (id, title) => { const d = docs.get(id); if (d) docs.set(id, { ...d, title }); },
     archiveDocument: async (id) => { const d = docs.get(id); if (d) docs.set(id, { ...d, status: 'archived' }); },
     countActiveDocumentsForUser: async (userId) => [...docs.values()].filter(d => d.user_id === userId && d.status === 'active').length,

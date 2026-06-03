@@ -3,8 +3,10 @@ export const prerender = false;
 
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
+import WorkspaceSwitcher from '../../components/layout/WorkspaceSwitcher';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
+import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 import type { Document } from '../../../functions/_lib/documents/types';
 
@@ -15,8 +17,26 @@ if (!session) {
   return Astro.redirect('/login?returnTo=/creator/documents');
 }
 
-const docDb     = makeDocumentDb(env.DB);
-const documents: Document[] = await docDb.listActiveDocumentsForUser(session.user_id);
+const workspaceDb       = makeWorkspaceDb(env.DB);
+const docDb             = makeDocumentDb(env.DB);
+const workspaceIdParam  = Astro.url.searchParams.get('workspace');
+
+let documents: Document[];
+let workspaceName: string | null = null;
+
+if (workspaceIdParam) {
+  const member = await workspaceDb.getMember(workspaceIdParam, session.user_id);
+  if (member) {
+    const ws = await workspaceDb.getWorkspaceById(workspaceIdParam);
+    workspaceName = ws?.name ?? null;
+    documents     = await docDb.listActiveDocumentsForWorkspace(workspaceIdParam);
+  } else {
+    documents = await docDb.listActiveDocumentsForUser(session.user_id);
+  }
+} else {
+  documents = await docDb.listActiveDocumentsForUser(session.user_id);
+}
+
 const versionCounts: Record<string, number> = Object.fromEntries(
   await Promise.all(documents.map(async d => [d.id, await docDb.countVersionsForDocument(d.id)] as const))
 );
@@ -40,14 +60,19 @@ function formatDate(epochMs: number): string {
     <header class="mb-10 flex items-start justify-between">
       <div>
         <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Creator Studio</p>
-        <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight">My Documents</h1>
+        <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight">
+          {workspaceName ? workspaceName : 'My Documents'}
+        </h1>
       </div>
-      <a
-        href="/creator/studio"
-        class="mt-4 shrink-0 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
-      >
-        New draft
-      </a>
+      <div class="mt-4 flex items-center gap-3">
+        <WorkspaceSwitcher currentWorkspaceId={workspaceIdParam} client:load />
+        <a
+          href="/creator/studio"
+          class="shrink-0 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+        >
+          New draft
+        </a>
+      </div>
     </header>
 
     {documents.length === 0 ? (
