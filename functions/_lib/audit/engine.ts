@@ -1,6 +1,7 @@
 import { callWithRetry } from '../llm/retry';
 import { AuditResultSchema, AuditInputSchema } from './schemas';
 import { buildSystemPrompt, buildAuditPrompt } from './prompts';
+import { buildGoalsPreamble } from './goals';
 import { AUDIT_MODEL, AUDIT_THINKING_BUDGET, AUDIT_TEMPERATURE, AUDIT_MAX_TOKENS } from './constants';
 import type { AuditResult, AuditDeps } from './types';
 
@@ -45,6 +46,12 @@ export function validateQuotesInText(audit: AuditResult, inputText: string): voi
     }
   }
 
+  for (const finding of audit.modalScopeChecks) {
+    if (!inputText.includes(finding.evidence)) {
+      violations.push(`modalScopeChecks[${finding.claim.slice(0, 30)}].evidence: "${finding.evidence.slice(0, 60)}…"`);
+    }
+  }
+
   if (violations.length > 0) {
     throw new Error(
       `Audit quote validation failed — the following are not verbatim substrings of the input:\n` +
@@ -72,8 +79,9 @@ export async function auditText(
     throw new Error(`Invalid AuditInput: ${validated.error.message}`);
   }
 
-  const includePhase2    = deps.includePhase2 ?? false;
-  const systemInstruction = buildSystemPrompt(includePhase2);
+  const includePhase2     = deps.includePhase2 ?? false;
+  const goalsPreamble     = deps.goals ? buildGoalsPreamble(deps.goals) : undefined;
+  const systemInstruction = buildSystemPrompt(includePhase2, goalsPreamble);
 
   const { output, inputTokens, outputTokens } = await callWithRetry(
     () =>

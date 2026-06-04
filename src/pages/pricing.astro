@@ -20,101 +20,146 @@ const hasSubscription = session
   : false;
 
 const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
-
-// NOTE: The price displayed below ($22/mo) is hardcoded copy.
-// If you set a different amount in Stripe, update this page too.
 ---
 <Base
   title="Pricing — The Whetstone"
-  description="Creator Studio gives you full argument analysis plus counterargument generation. $22/month."
+  description="Free structural audit for readers. Solo plan for writers at $22/month. Studio for teams at $95/month."
   canonicalPath="/pricing"
   isLoggedIn={isLoggedIn}
 >
-  <main class="max-w-xl mx-auto px-6 pt-20 pb-24">
+  <main class="max-w-4xl mx-auto px-6 pt-20 pb-24">
 
     <header class="mb-12 text-center">
-      <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Plans</p>
       <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-4">
-        Simple pricing
+        Pricing
       </h1>
-      <p class="text-lg text-gray-500">One plan. Everything included.</p>
+      <p class="text-lg text-gray-500 max-w-xl mx-auto">
+        The audit engine is free for readers. Creators pay for the tools that make arguments stronger.
+      </p>
     </header>
 
     {checkoutCanceled && (
-      <div class="mb-8 rounded-xl bg-amber-50 border border-amber-200 px-5 py-4">
-        <p class="text-sm text-amber-800">Checkout was cancelled — no charge was made. Subscribe below when you're ready.</p>
+      <div class="mb-8 rounded-lg bg-amber-50 border border-amber-200 px-5 py-4 max-w-md mx-auto">
+        <p class="text-sm text-amber-800">Checkout was cancelled — no charge was made.</p>
       </div>
     )}
 
-    <!-- Plan card -->
-    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <!-- Three-tier grid -->
+    <div class="grid md:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden bg-white">
 
-      <!-- Header -->
-      <div class="bg-amber-50 border-b border-amber-100 px-8 py-7">
-        <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-2">Creator Studio</p>
-        <div class="flex items-baseline gap-1">
-          <span class="font-serif text-5xl text-gray-900">$22</span>
-          <span class="text-gray-400 text-sm">/month</span>
+      <!-- Free tier -->
+      <div class="p-8 border-b md:border-b-0 md:border-r border-gray-200">
+        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Free</p>
+        <div class="flex items-baseline gap-1 mb-1">
+          <span class="font-serif text-4xl text-gray-900">$0</span>
         </div>
-        <p class="mt-2 text-sm text-gray-500">Cancel anytime from your account page.</p>
+        <p class="text-sm text-gray-400 mb-6">No account required</p>
+
+        <ul class="space-y-3 text-sm text-gray-600 mb-8">
+          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> Toulmin decomposition</li>
+          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> 26 named fallacy patterns</li>
+          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> Loaded language detection</li>
+          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> Unstated warrant analysis</li>
+          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> Argument extraction</li>
+          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> 10 audits per day</li>
+        </ul>
+
+        <a
+          href="/reader"
+          class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
+        >
+          Use the Reader
+        </a>
       </div>
 
-      <!-- Features -->
-      <div class="px-8 py-6 space-y-3">
-        {[
-          'Full structural audit (Argument Structure, Reasoning Patterns, Word Choice)',
-          'Counterargument generation — up to 3 steelmanned opposing positions per draft',
-          'Up to 50 audits per day',
-          'Up to 20 counterargument runs per day',
-          'Priority access to new Creator tools as they ship',
-        ].map(feature => (
-          <div class="flex gap-3 items-start">
-            <span class="text-amber-500 mt-0.5 shrink-0">✓</span>
-            <span class="text-sm text-gray-700">{feature}</span>
-          </div>
-        ))}
-        <div class="pt-2 border-t border-gray-100 mt-4">
-          <div class="flex gap-3 items-start">
-            <span class="text-gray-300 mt-0.5 shrink-0">○</span>
-            <span class="text-sm text-gray-400">Public Audit page (/audit) stays free for everyone</span>
-          </div>
+      <!-- Solo tier — highlighted -->
+      <div class="p-8 border-b md:border-b-0 md:border-r border-gray-200 bg-amber-50/30 relative">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-amber-500" />
+        <p class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Solo</p>
+        <div class="flex items-baseline gap-1 mb-1">
+          <span class="font-serif text-4xl text-gray-900">$22</span>
+          <span class="text-gray-400 text-sm">/mo</span>
         </div>
-      </div>
+        <p class="text-sm text-gray-400 mb-6">Cancel anytime</p>
 
-      <!-- CTA -->
-      <div class="px-8 pb-8">
-        {!isLoggedIn ? (
-          <a
-            href="/login?returnTo=/pricing"
-            class="block w-full py-3 px-6 rounded-xl text-sm font-semibold text-center bg-amber-500 text-white hover:bg-amber-600 transition-colors"
-          >
-            Sign in to subscribe
-          </a>
-        ) : hasSubscription ? (
-          <div class="space-y-3">
-            <div class="rounded-xl bg-green-50 border border-green-200 px-5 py-3 text-center">
-              <p class="text-sm font-medium text-green-800">You're subscribed to Creator Studio</p>
-            </div>
-            <button
-              id="pricing-portal-btn"
-              type="button"
-              class="w-full py-2.5 px-6 rounded-xl text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+        <ul class="space-y-3 text-sm text-gray-700 mb-8">
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Everything in Free</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Philosophy-of-language lenses</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Modal scope & falsifiability checks</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Counterargument generation</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Philosophical commitments</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Citation audit</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Document persistence & versions</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Inline highlights (Grammarly-style)</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> 200 audits per day</li>
+          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> API access</li>
+        </ul>
+
+        <div>
+          {!isLoggedIn ? (
+            <a
+              href="/login?returnTo=/pricing"
+              class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center bg-amber-500 text-white hover:bg-amber-600 transition-colors"
             >
-              Manage subscription →
-            </button>
-          </div>
-        ) : (
-          <CheckoutButton client:load />
-        )}
+              Sign in to subscribe
+            </a>
+          ) : hasSubscription ? (
+            <div class="space-y-2">
+              <div class="rounded-lg bg-green-50 border border-green-200 px-4 py-2.5 text-center">
+                <p class="text-sm font-medium text-green-800">Subscribed</p>
+              </div>
+              <button
+                id="pricing-portal-btn"
+                type="button"
+                class="w-full py-2 px-6 rounded-lg text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                Manage →
+              </button>
+            </div>
+          ) : (
+            <CheckoutButton client:load />
+          )}
+        </div>
+      </div>
+
+      <!-- Studio tier -->
+      <div class="p-8">
+        <p class="text-xs font-bold uppercase tracking-wider text-violet-600 mb-2">Studio</p>
+        <div class="flex items-baseline gap-1 mb-1">
+          <span class="font-serif text-4xl text-gray-900">$95</span>
+          <span class="text-gray-400 text-sm">/mo</span>
+        </div>
+        <p class="text-sm text-gray-400 mb-6">Up to 5 seats</p>
+
+        <ul class="space-y-3 text-sm text-gray-700 mb-8">
+          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Everything in Solo</li>
+          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Structural validity check</li>
+          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Evidence-weighted likelihood</li>
+          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Tone & rhetorical posture</li>
+          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Multi-seat workspace</li>
+          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Shared document library</li>
+          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Priority API access</li>
+        </ul>
+
+        <a
+          href="mailto:daniel.livingstone44@gmail.com?subject=Whetstone Studio tier"
+          class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-violet-700 border border-violet-200 hover:bg-violet-50 transition-colors"
+        >
+          Contact us
+        </a>
       </div>
 
     </div>
 
-    <!-- Free tier note -->
-    <p class="mt-8 text-center text-xs text-gray-400">
-      The Reader hub and public Audit page are always free.
-      Creator Studio Pro unlocks the counterargument engine.
-    </p>
+    <!-- Newsroom callout -->
+    <div class="mt-8 text-center">
+      <p class="text-sm text-gray-400">
+        Need 10+ seats, admin dashboard, or CMS integration?{' '}
+        <a href="mailto:daniel.livingstone44@gmail.com?subject=Whetstone Newsroom tier" class="text-indigo-600 hover:text-indigo-800 font-medium">
+          Talk to us about Newsroom pricing →
+        </a>
+      </p>
+    </div>
 
   </main>
 </Base>
@@ -129,7 +174,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
         const data = await res.json() as { ok: boolean; url?: string };
         if (data.ok && data.url) window.location.assign(data.url);
       } catch {
-        if (btn) btn.textContent = 'Manage subscription →';
+        if (btn) btn.textContent = 'Manage →';
       }
     });
   </script>

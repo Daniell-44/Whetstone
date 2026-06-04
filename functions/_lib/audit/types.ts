@@ -48,6 +48,12 @@ export type FalsifiabilityIssue =
   | 'circular-truth-conditions'
   | 'unfalsifiable-dressed-as-substantive';
 
+export type ModalScopeIssue =
+  | 'necessity-overstated'          // uses must/will/certain where evidence supports only may/might/could
+  | 'possibility-treated-as-fact'   // a speculative could-happen scenario is treated as established in later claims
+  | 'contingency-obscured'          // a conditional prediction is presented without its conditions, inflating apparent certainty
+  | 'hedge-stripped-in-conclusion'; // premises contain explicit probability hedges that the conclusion silently drops
+
 // ---------------------------------------------------------------------------
 // Phase-2 finding interfaces
 // ---------------------------------------------------------------------------
@@ -80,6 +86,17 @@ export interface FalsifiabilityFinding {
   confidence:  number;
 }
 
+export interface ModalScopeCheckFinding {
+  claim:          string;   // brief paraphrase of the claim exhibiting the modal problem
+  inflatedModal:  string;   // verbatim word or phrase asserting stronger modality than the evidence supports
+  impliedModal:   string;   // the accurate modal word/phrase the evidence would support
+  issue:          ModalScopeIssue;
+  explanation:    string;
+  evidence:       string;   // verbatim substring from input
+  severity:       'high' | 'medium' | 'low';
+  confidence:     number;
+}
+
 // ---------------------------------------------------------------------------
 // Core result
 // ---------------------------------------------------------------------------
@@ -93,6 +110,7 @@ export interface AuditResult {
   keyTermScrutiny:      KeyTermScrutinyFinding[];
   referentChecks:       ReferentCheckFinding[];
   falsifiabilityChecks: FalsifiabilityFinding[];
+  modalScopeChecks:     ModalScopeCheckFinding[];
 }
 
 export interface AuditInput {
@@ -105,4 +123,5 @@ export interface AuditDeps {
   model?:           string;
   backoffDelaysMs?: readonly number[];
   includePhase2?:   boolean;
+  goals?:           import('./goals').DraftGoals;
 }

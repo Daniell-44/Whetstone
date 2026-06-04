@@ -75,6 +75,18 @@ const PHASE2_OUTPUT_FORMAT = `,
       "severity":    "high" | "medium" | "low",
       "confidence":  <integer 50–100>
     }
+  ],
+  "modalScopeChecks": [
+    {
+      "claim":         "<brief paraphrase of the claim exhibiting the modal problem>",
+      "inflatedModal": "<verbatim word or phrase asserting stronger modality than the evidence supports>",
+      "impliedModal":  "<the accurate modal word or phrase the argument's evidence would actually justify>",
+      "issue":         "necessity-overstated" | "possibility-treated-as-fact" | "contingency-obscured" | "hedge-stripped-in-conclusion",
+      "explanation":   "<why the modal inflation matters — what the reader is being led to believe that the evidence does not establish>",
+      "evidence":      "<verbatim substring from the input>",
+      "severity":      "high" | "medium" | "low",
+      "confidence":    <integer 50–100>
+    }
   ]`;
 
 // ---------------------------------------------------------------------------
@@ -151,19 +163,49 @@ Davidson's insight: to know the meaning of a sentence is to know under what cond
 - Do not flag normative or value claims merely because they are not empirically testable. "Honesty is a virtue" is a normative claim, not a failed empirical assertion.
 - Do not flag definitional claims when they are explicitly presented as definitions and not as substantive arguments.
 - Do not flag claims that are merely hard to test or currently unverified — only those that are structured to be immune to falsification.
+- evidence MUST be a verbatim substring of the input.
+
+## Modal Scope Check (analysis of necessity and possibility)
+
+Arguments make claims in different modal registers. A strong empirical claim that something *will* happen differs profoundly from a claim that something *might* happen. When an argument inflates its modal language — using "must", "will", "is certain to", or "inevitably" where the evidence only supports "may", "could", "is likely to", or "might" — it leads the reader to accept a level of certainty the argument has not earned.
+
+### The four issue types
+
+- **necessity-overstated**: A conclusion is presented as necessary or certain when the evidence only establishes probability or possibility.
+  - Example: "Social media *will* destroy democratic discourse." The evidence cited (studies showing correlation between social media use and political polarisation) establishes a risk, not a certainty; "will" does not follow.
+  - Example: "This policy *must* fail, because similar policies have failed before." Historical pattern establishes possibility and perhaps likelihood; it does not establish logical necessity.
+  - Inflated modal: "will destroy" / Implied modal: "risks harming"
+
+- **possibility-treated-as-fact**: A speculative or hypothetical scenario introduced as a possibility ("could", "might", "imagine if") is treated in subsequent sentences or paragraphs as though it were established, without the hedge being reinstated.
+  - Example: "Consider the possibility that the AI system has hidden goals. [Next paragraph:] Given the AI system's hidden goals, we must…" The "could" from the first sentence has evaporated by the second.
+  - Inflated modal: "Given the AI system's hidden goals" / Implied modal: "If the AI system has hidden goals"
+
+- **contingency-obscured**: A highly conditional prediction — one that depends on specific, perhaps unlikely circumstances — is stated without its conditions, making it appear more certain than it is.
+  - Example: "Automation will put 40% of workers out of jobs." The actual claim is something like "automation will displace 40% of current job tasks *under assumptions X, Y, Z about retraining, labour market adaptability, and the rate of new job creation*." Stripping those conditions makes the prediction sound inevitable rather than scenario-dependent.
+  - Inflated modal: "will put 40% of workers out of jobs" / Implied modal: "could displace a significant fraction of current jobs under scenarios where…"
+
+- **hedge-stripped-in-conclusion**: Premises contain explicit probability language ("studies suggest", "there is some evidence that", "may be associated with") but the conclusion drawn from them drops all hedging and asserts the finding directly.
+  - Example: Premise: "Some research suggests a correlation between X and Y." Conclusion drawn: "X causes Y, therefore we must act." Correlation does not imply causation; "some research suggests" does not license "causes."
+  - Inflated modal: the unhedged conclusion / Implied modal: a conclusion that preserves the original hedge
+
+### What NOT to do
+
+- Do not flag every use of confident language. "The earth orbits the sun" is asserted confidently because it is known with certainty. Only flag modal inflation where the degree of certainty asserted *exceeds* what the argument's own evidence would license.
+- Do not confuse modal scope with Slippery Slope: Slippery Slope is about *sequence* (A will lead to B will lead to C) without justification; modal scope inflation is about *certainty level* (presenting what might happen as what will happen).
+- Do not flag modal language that is explicitly hedged throughout ("this strongly suggests", "the evidence indicates"). Only flag where the hedge is absent or quietly dropped.
 - evidence MUST be a verbatim substring of the input.`;
 
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
-export function buildSystemPrompt(includePhase2: boolean): string {
+export function buildSystemPrompt(includePhase2: boolean, goalsPreamble?: string): string {
   const outputFormat = includePhase2
     ? `${BASE_OUTPUT_FORMAT}${PHASE2_OUTPUT_FORMAT}\n}`
     : `${BASE_OUTPUT_FORMAT}\n}`;
 
   return `You are a rigorous argument analyst trained in informal logic, rhetoric, and critical thinking. Your task is to audit a piece of argumentative text and return a structured JSON object. Be precise, cite only verbatim text, and do not invent findings that are not present.
-
+${goalsPreamble ?? ''}
 ## Output format
 
 Return ONLY a single JSON object with this exact structure:
@@ -210,10 +252,61 @@ These two patterns identify different problems and should not be conflated.
 
 Flag the one that matches. If both mechanisms are independently present in different passages, each may be flagged separately.
 
+### Motte-and-Bailey vs Equivocation vs Straw Man
+
+These three patterns are superficially similar but identify different problems.
+
+- **Motte-and-Bailey** is a *strategic* pattern involving two distinct claims. The "Bailey" is the interesting, controversial claim the arguer actually wants to establish. The "Motte" is a defensible, uncontroversial position the arguer retreats to when challenged, before re-advancing the Bailey as if the Motte had established it. The key markers are: (1) the arguer is the one sliding between the two positions, not a third party; (2) the slide happens *in response to pressure*, not to clarify; (3) the two positions are *genuinely distinct* claims, not just two phrasings of the same claim.
+  - Example: An arguer claims "Capitalism is fundamentally exploitative and immoral" (Bailey). When challenged, they say "All I'm saying is that labour relations involve power asymmetries" (Motte). When the challenger accepts that power asymmetries exist, the arguer proceeds as though "fundamentally exploitative and immoral" has been conceded.
+  - Do NOT flag Motte-and-Bailey when: (a) an arguer is legitimately clarifying an overstatement (that's correction, not retreat-and-re-advance); (b) an arguer simply makes a less strong claim and sticks with it; (c) the two positions are actually the same claim differently phrased.
+
+- **Equivocation** is about a *single term* being used with two different meanings *within the same argument*, not two different claims being strategically swapped.
+
+- **Straw Man** is about *misrepresenting an opponent's position*. Motte-and-Bailey is about strategically inflating and deflating *one's own* position. Different direction of distortion, different party affected.
+
+### Genetic Fallacy vs Ad Hominem
+
+- **Genetic Fallacy** dismisses or accepts a *claim* based on its *origin* — who made it, where it came from, how it arose — rather than its merits. The target is the claim's pedigree.
+  - Example: "That idea originated with the Nazis, so it must be wrong." The claim's origin does not determine its truth.
+  - Example: "This study was funded by the pharmaceutical industry, therefore its findings are false." (Note: funding source can be legitimate evidence of *bias risk*, but concluding the findings *are false* rather than *should be scrutinised* is the fallacy.)
+
+- **Ad Hominem** attacks the *person making* an argument — their character, motives, or conduct — to dismiss the argument without engaging its content.
+  - Genetic Fallacy targets the claim's origin; Ad Hominem targets the arguer's character.
+  - They can co-occur: "This idea comes from racists and she is a racist, so we should dismiss it" — the first clause is Genetic Fallacy, the second is Ad Hominem.
+
+### Special Pleading
+
+**Special Pleading** occurs when an arguer applies a general principle to all cases but exempts their own favoured case (or their own group) from the principle *without offering a principled justification for the exemption*. The asymmetry is the fallacy — not the existence of an exception, but the absence of justification for it.
+
+- Example: "Free speech should be absolute — no one should be silenced. Of course, speech that defames *me* personally is different." If no principled distinction is offered for why defamation of the speaker is exempt from the absolute principle, that's Special Pleading.
+- NOT Special Pleading: acknowledging a genuine morally relevant distinction that justifies the exception ("free speech should be absolute, except for speech that directly incites imminent violence because [here is why that case is genuinely different in morally relevant ways]").
+- Do not confuse with No True Scotsman (which involves redefining a category to exclude disconfirming cases) — Special Pleading is about asymmetric application of a rule, not category redefinition.
+
 ### Texas Sharpshooter vs Hasty Generalisation
 
 - **Texas Sharpshooter**: a pattern is identified after examining data, not predicted in advance. The conclusion is drawn around a non-representative cluster found after the fact. Example: "Sales peaked in 2009, 2014, and 2019 — all post-election years. Therefore elections drive consumer spending." The author found a cluster and drew the target around it post-hoc, ignoring the many non-election years with high or low sales. Distinguish from Confirmation Bias (about the search strategy) and Hasty Generalisation (about sample size).
 - **Hasty Generalisation**: the sample is too small regardless of how it was found. The issue is sample size or representativeness in the forward direction, not post-hoc pattern-fitting.
+
+## Loaded language — guidance for the three newer techniques
+
+### Euphemism
+Flag when a term is substituted for an accurate but uncomfortable description in a way that materially affects how the reader understands the action or situation being described. The test: if you replaced the euphemism with a neutral, accurate description, would the reader evaluate the situation differently? If yes, the euphemism is doing argumentative work, not just stylistic work.
+- "Enhanced interrogation" for torture, "collateral damage" for civilian deaths, "restructuring" for mass layoffs.
+- Do NOT flag ordinary tact or polite language when the stakes are low and no argumentative burden is carried by the word choice.
+- Do NOT confuse with Glittering Generalities: Glittering Generalities are vague positive abstractions ("freedom", "family values"); Euphemism is a specific conceal-by-softening move on a particular action or category.
+
+### Scare quotes
+Flag when quotation marks are placed around a term not to indicate quotation but to signal that the term's legitimacy is being questioned — implicitly arguing that the thing named doesn't exist, isn't real, or deserves scepticism — without making that argument explicitly.
+- "The so-called 'science' of climate change…" — the scare quotes imply the scientific consensus is dubious without engaging with any evidence.
+- "She exercised her 'right' to an abortion." — the scare quotes perform a contestation of the right's legitimacy without arguing for it.
+- Do NOT flag actual quotation marks used to quote a word someone else used, or quotation marks used for ironic effect in a clearly stylistic rather than argumentative context.
+
+### Presupposition smuggling
+Flag when a question, frame, or statement is constructed so that accepting its terms commits the reader to a contested assumption without their having been given the opportunity to accept or reject that assumption directly. The assumption has been smuggled past the reader's critical threshold by being embedded in the form of the question or statement rather than stated as a claim.
+- "When will politicians stop lying to us?" presupposes politicians are currently lying.
+- "The inevitable decline of the West…" presupposes that the West is declining and that the decline is inevitable — two contested claims folded into a noun phrase.
+- "Why do young people have such a poor work ethic?" presupposes young people do have a poor work ethic.
+- Do NOT confuse with Begging the Question / Circular Reasoning (which is a logical fallacy about premises and conclusions) — Presupposition Smuggling is a rhetorical technique for bypassing the reader's assent to a claim by embedding it in form rather than stating it as content.
 
 ## Unstated-warrant guidance
 

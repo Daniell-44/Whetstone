@@ -142,16 +142,28 @@ export async function handleVersionAudit(
     return json({ ok: false, error: { code: 'AUDIT_FAILED', message: 'Service unavailable' } }, 503);
   }
 
+  // Parse optional goals from request body
+  let goals: import('../audit/goals').DraftGoals | undefined;
+  try {
+    const body = await req.json() as { audience?: string; intent?: string } | null;
+    if (body?.audience && body?.intent) {
+      goals = { audience: body.audience as import('../audit/goals').Audience, intent: body.intent as import('../audit/goals').Intent };
+    }
+  } catch { /* no body or invalid JSON — goals stay undefined */ }
+
   try {
     const result = await auditText(version.content, {
-      provider: deps.provider,
-      apiKey:   deps.geminiApiKey,
+      provider:      deps.provider,
+      apiKey:        deps.geminiApiKey,
+      includePhase2: true, // Studio users always get the full lens suite
+      goals,
     });
     await deps.db.storeAuditResultOnVersion(versionId, JSON.stringify(result.audit));
     return json({ ok: true, audit: result.audit, usage: { inputTokens: result.inputTokens, outputTokens: result.outputTokens } });
   } catch (err) {
+    console.error('[version-audit] error:', err instanceof Error ? err.message : err);
     if (err instanceof ProviderError && !err.retryable) {
-      return json({ ok: false, error: { code: 'AUDIT_FAILED', message: 'Service temporarily unavailable' } }, 503);
+      return json({ ok: false, error: { code: 'AUDIT_FAILED', message: `Service error: ${err.message}` } }, 503);
     }
     const message = err instanceof Error ? err.message : 'Audit failed';
     return json({ ok: false, error: { code: 'AUDIT_FAILED', message } }, 500);

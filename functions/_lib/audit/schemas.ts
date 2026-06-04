@@ -57,6 +57,13 @@ const FALSIFIABILITY_ISSUES = [
   'unfalsifiable-dressed-as-substantive',
 ] as const;
 
+const MODAL_SCOPE_ISSUES = [
+  'necessity-overstated',
+  'possibility-treated-as-fact',
+  'contingency-obscured',
+  'hedge-stripped-in-conclusion',
+] as const;
+
 export const KeyTermScrutinyFindingSchema = z.object({
   term:        z.string().min(1),
   usage_a:     z.string().min(1),
@@ -85,6 +92,17 @@ export const FalsifiabilityFindingSchema = z.object({
   confidence:  confidenceField,
 });
 
+export const ModalScopeCheckFindingSchema = z.object({
+  claim:         z.string().min(1),
+  inflatedModal: z.string().min(1),
+  impliedModal:  z.string().min(1),
+  issue:         z.enum(MODAL_SCOPE_ISSUES),
+  explanation:   z.string().min(1),
+  evidence:      z.string().min(1),
+  severity:      severityField,
+  confidence:    confidenceField,
+});
+
 // ---------------------------------------------------------------------------
 // Root schema — Phase-2 arrays default to [] so anonymous audits pass
 // ---------------------------------------------------------------------------
@@ -98,6 +116,7 @@ export const AuditResultSchema = z.object({
   keyTermScrutiny:      z.array(KeyTermScrutinyFindingSchema).default([]),
   referentChecks:       z.array(ReferentCheckFindingSchema).default([]),
   falsifiabilityChecks: z.array(FalsifiabilityFindingSchema).default([]),
+  modalScopeChecks:     z.array(ModalScopeCheckFindingSchema).default([]),
 });
 
 export const AuditInputSchema = z.object({

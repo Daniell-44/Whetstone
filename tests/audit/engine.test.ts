@@ -184,6 +184,7 @@ describe('validateQuotesInText', () => {
     keyTermScrutiny:      [],
     referentChecks:       [],
     falsifiabilityChecks: [],
+    modalScopeChecks:     [],
   };
 
   it('passes when all quotes are verbatim substrings', () => {

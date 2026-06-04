@@ -15,8 +15,8 @@ import {
 // ---------------------------------------------------------------------------
 
 describe('LABELS_PLAIN', () => {
-  it('has 36 keys', () => {
-    expect(Object.keys(LABELS_PLAIN)).toHaveLength(36);
+  it('has 56 keys', () => {
+    expect(Object.keys(LABELS_PLAIN)).toHaveLength(56);
   });
 
   it('every value is a non-empty string', () => {

@@ -25,6 +25,10 @@ export const FALLACY_NAMES = [
   'Argument from Ignorance',
   'Gish Gallop',
   'Moving the Goalposts',
+  // Strategic and structural fallacies
+  'Motte-and-Bailey',
+  'Special Pleading',
+  'Genetic Fallacy',
 ] as const;
 
 export type FallacyName = (typeof FALLACY_NAMES)[number];
@@ -53,6 +57,9 @@ export const FALLACY_DESCRIPTIONS: Record<FallacyName, string> = {
   'Argument from Ignorance': 'Treating absence of evidence as evidence of absence (or vice versa).',
   'Gish Gallop':             'Overwhelming with many weak arguments rather than offering a few strong ones.',
   'Moving the Goalposts':    'Raising the bar for what counts as sufficient evidence when challenged.',
+  'Motte-and-Bailey':        'Defending a controversial claim (the Bailey) under pressure by retreating to an uncontroversial one (the Motte), then re-advancing the controversial claim as if the Motte had established it.',
+  'Special Pleading':        'Applying a principle to all cases except one\'s own or a favoured case, without principled justification for the exemption.',
+  'Genetic Fallacy':         'Dismissing or accepting a claim solely on the basis of its source or origin rather than its merits.',
 };
 
 export const LOADED_LANGUAGE_TECHNIQUES = [
@@ -61,6 +68,9 @@ export const LOADED_LANGUAGE_TECHNIQUES = [
   'Name-calling / dysphemism',
   'Glittering generalities',
   'False-precision numbers',
+  'Euphemism',
+  'Scare quotes',
+  'Presupposition smuggling',
 ] as const;
 
 export type LoadedLanguageTechnique = (typeof LOADED_LANGUAGE_TECHNIQUES)[number];
@@ -71,4 +81,7 @@ export const LOADED_LANGUAGE_DESCRIPTIONS: Record<LoadedLanguageTechnique, strin
   'Name-calling / dysphemism':  'Labelling people or ideas with pejorative terms to trigger negative associations.',
   'Glittering generalities':    'Vague virtuous words (freedom, family, justice) with no concrete meaning.',
   'False-precision numbers':    'Specific-sounding statistics presented without source or context to imply authority.',
+  'Euphemism':                  'Substituting a palatable term for an accurate but uncomfortable one, obscuring the nature of what is being described.',
+  'Scare quotes':               'Using quotation marks around a term to implicitly question its legitimacy without argument.',
+  'Presupposition smuggling':   'Framing a question or statement so that accepting its terms already commits the reader to a contested assumption.',
 };

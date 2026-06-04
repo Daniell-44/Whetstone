@@ -53,6 +53,17 @@ export const LABELS_PLAIN = {
   diffAdded:     'Newly appeared',
   diffPersisted: 'Still present',
 
+  // Modal scope
+  modalScopeChecks: 'Certainty Claims',
+
+  // Structural validity
+  structuralValidity:           'Argument Form Check',
+  validityVerdictValid:         'Logically valid',
+  validityVerdictInvalid:       'Conclusion doesn\'t follow',
+  validityVerdictInductive:     'Probable but not certain',
+  validityVerdictEnthymematic:  'Needs hidden premises',
+  validityVerdictIndeterminate: 'Too ambiguous to check',
+
   // Citation audit
   citationAudit:              'Source Match',
   citationVerdictWell:        'Source clearly supports',
@@ -60,6 +71,23 @@ export const LABELS_PLAIN = {
   citationVerdictMismatch:    "Source doesn't say that",
   citationVerdictUncited:     'No source given',
   citationVerdictUnfetchable: 'Source unreachable',
+
+  // Tone and rhetorical posture
+  tonePosture:          'Tone & Posture',
+  postureLabel:         'How the argument addresses you',
+  registerLabel:        'Emotional temperature',
+  tonalMovesLabel:      'Where tone does the work',
+  audiencePositionLabel: 'How you\'re cast',
+
+  // Evidence-weighted likelihood
+  evidenceWeighted:             'Evidence Check',
+  consensusStrongSupport:       'Well-established',
+  consensusModerateSupport:     'Mostly supported',
+  consensusContested:           'Actively debated',
+  consensusModerateOpposition:  'Mostly opposed',
+  consensusStrongOpposition:    'Strongly refuted',
+  consensusInsufficient:        'Not enough research',
+  consensusNotApplicable:       'Not an empirical claim',
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -104,12 +132,38 @@ export const LABELS_FORMAL = {
   diffAdded:     'Findings introduced in the new revision',
   diffPersisted: 'Findings persisting across revisions',
 
+  modalScopeChecks: 'Modal Scope Check',
+
+  structuralValidity:           'Structural Validity Check',
+  validityVerdictValid:         'Deductively valid',
+  validityVerdictInvalid:       'Deductively invalid',
+  validityVerdictInductive:     'Inductively strong',
+  validityVerdictEnthymematic:  'Enthymematic (suppressed premises)',
+  validityVerdictIndeterminate: 'Formally indeterminate',
+
   citationAudit:              'Citation Audit',
   citationVerdictWell:        'Citation alignment: strong',
   citationVerdictWeak:        'Citation alignment: weak',
   citationVerdictMismatch:    'Citation–claim mismatch',
   citationVerdictUncited:     'Uncited assertion',
   citationVerdictUnfetchable: 'Citation retrieval failed',
+
+  // Tone and rhetorical posture
+  tonePosture:          'Rhetorical Posture & Tonal Register',
+  postureLabel:         'Rhetorical posture',
+  registerLabel:        'Tonal register',
+  tonalMovesLabel:      'Tonal moves (rhetoric doing argumentative work)',
+  audiencePositionLabel: 'Audience position',
+
+  // Evidence-weighted likelihood
+  evidenceWeighted:             'Evidence-Weighted Likelihood',
+  consensusStrongSupport:       'Strong scientific consensus in support',
+  consensusModerateSupport:     'Moderate scientific consensus in support',
+  consensusContested:           'Actively contested in the literature',
+  consensusModerateOpposition:  'Moderate scientific consensus opposing',
+  consensusStrongOpposition:    'Strong scientific consensus opposing',
+  consensusInsufficient:        'Insufficient empirical data',
+  consensusNotApplicable:       'Not empirically assessable',
 } as const satisfies { [K in keyof typeof LABELS_PLAIN]: string };
 
 // ---------------------------------------------------------------------------
@@ -237,6 +291,36 @@ export const TOOLTIPS_PLAIN: Record<keyof typeof LABELS_PLAIN, { plain: string; 
     plain:    'Issues that were present in the earlier version and remain unchanged in the revision.',
     pedigree: 'Persisting issues indicate areas where the argument\'s structural problems have not yet been addressed.',
   },
+  modalScopeChecks: {
+    plain:    'Places where the argument asserts more certainty than the evidence warrants — using "will" or "must" where "might" or "could" is all the reasoning supports.',
+    pedigree: 'Grounded in modal logic\'s distinction between necessity (□) and possibility (◇). In natural language arguments, the substitution of necessity operators for possibility operators — "this will happen" for "this might happen" — is a pervasive form of epistemic overclaiming that misleads readers about the strength of evidential support.',
+  },
+
+  structuralValidity: {
+    plain:    'Does the conclusion actually follow from the premises? This check strips away the content and looks at the argument\'s logical form — whether the structure itself guarantees that if the premises are true, the conclusion must be true.',
+    pedigree: 'The distinction between validity and soundness goes back to Aristotle\'s Prior Analytics (c. 350 BCE). An argument is valid if its form is truth-preserving: no possible world makes the premises true and the conclusion false. Soundness adds that the premises are actually true. The Whetstone assesses validity only — form, not factual truth.',
+  },
+  validityVerdictValid: {
+    plain:    'The conclusion follows necessarily. If the premises are true, the conclusion must be true — no exceptions.',
+    pedigree: 'Deductive validity: in every model where the premises hold, the conclusion holds. The gold standard of logical entailment since Aristotle; formalised in Tarski\'s model-theoretic semantics (1936).',
+  },
+  validityVerdictInvalid: {
+    plain:    'The conclusion doesn\'t follow from the premises. There\'s a scenario where everything the argument claims is true, but the conclusion is still false.',
+    pedigree: 'Deductive invalidity is demonstrated by a countermodel: a logically possible interpretation in which the premises are satisfied and the conclusion is not. This is the standard proof method in model theory.',
+  },
+  validityVerdictInductive: {
+    plain:    'The premises make the conclusion likely, but don\'t guarantee it. The argument is strong but not airtight.',
+    pedigree: 'Inductive strength: the premises raise the probability of the conclusion without entailing it. Distinguished from deductive validity since Hume (A Treatise of Human Nature, 1739); formalised in Carnap\'s inductive logic and Bayesian confirmation theory.',
+  },
+  validityVerdictEnthymematic: {
+    plain:    'The argument relies on premises it doesn\'t state. Adding those hidden premises would make it valid — but some of them might be controversial.',
+    pedigree: 'The enthymeme — a syllogism with a suppressed premise — was identified by Aristotle in the Rhetoric as the standard form of ordinary persuasion. Most real-world arguments are enthymematic; identifying the suppressed premises is the first step toward assessing whether the argument actually works.',
+  },
+  validityVerdictIndeterminate: {
+    plain:    'The argument is too vague or ambiguous to assess formally — its logical structure can\'t be pinned down with confidence.',
+    pedigree: 'Some natural-language arguments resist formalisation due to scope ambiguity, vague predicates, or underspecified logical connectives. The indeterminate verdict acknowledges this rather than forcing a misleading formalisation.',
+  },
+
   citationAudit: {
     plain:    'For each factual claim in your draft that\'s backed by a cited source, we fetch the source and check whether it actually supports the claim. Mismatches and uncited claims are flagged so you can address them before publishing.',
     pedigree: 'Operationalises a core editorial discipline — verifying that citations actually establish what they\'re cited for — at the speed of LLM inference.',
@@ -260,6 +344,62 @@ export const TOOLTIPS_PLAIN: Record<keyof typeof LABELS_PLAIN, { plain: string; 
   citationVerdictUnfetchable: {
     plain:    'The cited source couldn\'t be retrieved — it may be paywalled, removed, or unavailable.',
     pedigree: 'Citation retrieval failed: the source exists but could not be accessed for automated verification (HTTP 4xx, paywall, or network error).',
+  },
+
+  // Tone and rhetorical posture
+  tonePosture: {
+    plain:    'How your writing addresses its audience — the stance you take (authoritative, conciliatory, adversarial, etc.) and the emotional temperature of the prose (measured, urgent, sardonic, etc.). This isn\'t about what you argue; it\'s about how you argue it.',
+    pedigree: 'Rhetorical analysis in the tradition of Aristotle\'s Rhetoric (ethos, pathos, logos) and Kenneth Burke\'s dramatistic pentad (A Grammar of Motives, 1945). The posture-register distinction maps to Wayne Booth\'s concept of the "implied author" (The Rhetoric of Fiction, 1961) — the persona the text constructs for its writer, which may differ from the writer\'s actual stance.',
+  },
+  postureLabel: {
+    plain:    'The implicit role you cast yourself and the reader in — are you the expert, the ally, the teacher, the prophet?',
+    pedigree: 'Relates to Aristotle\'s ethos: the character the speaker constructs through the speech itself, not their pre-existing reputation.',
+  },
+  registerLabel: {
+    plain:    'The emotional temperature of the prose — calm, urgent, angry, witty, clinical. Different from posture: you can be authoritative and measured, or authoritative and urgent.',
+    pedigree: 'Register analysis from systemic functional linguistics (Halliday, Language as Social Semiotic, 1978): field (topic), tenor (social relationship), and mode (channel) jointly constitute the register.',
+  },
+  tonalMovesLabel: {
+    plain:    'Specific passages where the way something is said matters as much as what is said — where rhetorical technique substitutes for or amplifies the logical content.',
+    pedigree: 'Perelman & Olbrechts-Tyteca\'s concept of "presence" (The New Rhetoric, 1958): rhetorical techniques that make certain elements more salient to the audience, affecting which premises receive emphasis independent of their logical weight.',
+  },
+  audiencePositionLabel: {
+    plain:    'How the text positions you as a reader — as an expert, a student, a juror, an ally, a witness to injustice.',
+    pedigree: 'Reader-response theory (Iser, The Implied Reader, 1974): every text constructs an "implied reader" whose role, knowledge, and sympathies are built into the text\'s structure.',
+  },
+
+  // Evidence-weighted likelihood
+  evidenceWeighted: {
+    plain:    'For each factual claim in your argument, we search the academic literature and assess how strongly the evidence supports or opposes it. Non-factual claims (value judgments, definitions) are flagged as such — they don\'t get percentages.',
+    pedigree: 'Evidence synthesis draws on the Semantic Scholar corpus (200M+ papers). Consensus assessment distinguishes between claim types: empirical claims receive evidence-weighted confidence; normative claims are identified as value judgments where empirical consensus is categorically inapplicable. Based on the philosophical distinction between is-statements and ought-statements (Hume\'s guillotine, A Treatise of Human Nature, 1739).',
+  },
+  consensusStrongSupport: {
+    plain:    'The scientific literature strongly supports this claim. ≥80% of relevant research points in the same direction, including well-cited recent work.',
+    pedigree: 'Strong consensus: the claim is well-established across the relevant literature, with consistent findings across multiple independent research groups and methodologies.',
+  },
+  consensusModerateSupport: {
+    plain:    'Most of the research supports this claim, but there\'s some notable dissent or methodological disagreement.',
+    pedigree: 'Moderate consensus: 55–79% of relevant papers support the claim, but meaningful counter-evidence or methodological criticism exists in the literature.',
+  },
+  consensusContested: {
+    plain:    'The scientific community is genuinely split on this. Evidence points in different directions, and the honest answer is that we don\'t know yet.',
+    pedigree: 'Contested: the literature is roughly balanced, or methodological disagreements prevent convergence. This is the epistemically honest assessment — forced certainty on contested evidence is itself a form of misleading the reader.',
+  },
+  consensusModerateOpposition: {
+    plain:    'Most of the research leans against this claim, though it has some support.',
+    pedigree: 'Moderate opposition: 55–79% of relevant papers contradict or fail to support the claim.',
+  },
+  consensusStrongOpposition: {
+    plain:    'The scientific literature strongly opposes this claim. The mainstream view rejects it.',
+    pedigree: 'Strong opposition: ≥80% of relevant research contradicts the claim. The scientific consensus decisively rejects the position.',
+  },
+  consensusInsufficient: {
+    plain:    'Not enough relevant research was found to assess whether this claim is true. This doesn\'t mean it\'s wrong — it means the evidence base is too thin to judge.',
+    pedigree: 'Insufficient data: fewer than 3 relevant papers found, or retrieved papers do not bear directly on the claim. Absence of evidence is not evidence of absence (Altman & Bland, BMJ 1995).',
+  },
+  consensusNotApplicable: {
+    plain:    'This isn\'t the kind of claim that scientific evidence can settle. It\'s a value judgment, a definition, or a prediction — not a factual assertion that research can verify.',
+    pedigree: 'The is–ought gap (Hume, 1739; Moore\'s naturalistic fallacy, 1903): normative claims cannot be derived from empirical premises alone. Assigning a confidence percentage to a value judgment would mislead the reader into thinking the question has a factual answer.',
   },
 };
 
@@ -388,6 +528,36 @@ export const TOOLTIPS_FORMAL = {
     plain:    'Defects common to both versions — argumentative problems the revision has not yet addressed, persisting across the full revision cycle.',
     pedigree: 'Persisting findings identify the structural problems most resistant to revision; they represent the argument\'s load-bearing weaknesses rather than surface-level issues.',
   },
+  modalScopeChecks: {
+    plain:    'Identification of modal inflation — cases where the argument shifts from epistemic possibility (◇p) to epistemic necessity (□p) without providing the additional warrant that would license that upgrade, or where probability language in premises is silently absent from conclusions.',
+    pedigree: 'Modal logic (Kripke semantics, 1959–63) distinguishes the accessibility relation for necessity from that for possibility; in epistemic contexts (Hintikka, Knowledge and Belief, 1962), a claim that p is necessary is far stronger than a claim that p is possible. The rhetorical exploitation of this difference — presenting possible outcomes as necessary — is a form of modal fallacy documented in informal logic (Woods & Walton, 1989) and closely related to the fallacy of affirming the consequent when applied to probabilistic conditionals.',
+  },
+
+  structuralValidity: {
+    plain:    'Assessment of deductive validity: does the argument\'s logical form guarantee that the truth of the premises entails the truth of the conclusion? The argument is formalised into symbolic notation and evaluated for structural entailment independently of propositional content.',
+    pedigree: 'Aristotle\'s Prior Analytics (c. 350 BCE) established the validity/soundness distinction; the modern model-theoretic treatment derives from Tarski ("The Concept of Truth in Formalized Languages", 1936) and Gentzen\'s natural deduction (1935). An argument is valid iff every model satisfying the premises also satisfies the conclusion; it is invalid iff there exists a countermodel.',
+  },
+  validityVerdictValid: {
+    plain:    'Deductively valid: in every model in which the premises are true, the conclusion is true. The argument\'s form is truth-preserving under all interpretations.',
+    pedigree: 'Model-theoretic validity (Tarski, 1936): Γ ⊨ φ iff every model satisfying all members of Γ also satisfies φ. Equivalently, under Gentzen\'s proof-theoretic characterisation, Γ ⊢ φ iff there exists a derivation of φ from Γ using only structural rules and the introduction/elimination rules of the logical constants.',
+  },
+  validityVerdictInvalid: {
+    plain:    'Deductively invalid: there exists a countermodel — a logically possible interpretation in which every premise is true and the conclusion is false. The argument\'s form is not truth-preserving.',
+    pedigree: 'Invalidity is the denial of model-theoretic entailment: ∃M such that M ⊨ Γ and M ⊭ φ. The countermodel method is the standard technique for demonstrating invalidity in first-order logic (Chang & Keisler, Model Theory, 1973).',
+  },
+  validityVerdictInductive: {
+    plain:    'Inductively strong: the premises confer high probability on the conclusion without entailing it. The argument is ampliative — the conclusion goes beyond what the premises deductively guarantee.',
+    pedigree: 'Hume\'s problem of induction (A Treatise of Human Nature, 1739) established that no finite set of observations deductively entails a universal generalisation. Modern treatments: Carnap\'s inductive logic (Logical Foundations of Probability, 1950), Bayesian confirmation theory (Howson & Urbach, Scientific Reasoning, 1989).',
+  },
+  validityVerdictEnthymematic: {
+    plain:    'Enthymematic: the argument as stated is invalid but becomes valid with the addition of specific identifiable suppressed premises. The assessment reports each suppressed premise, its structural role, and whether it is prima facie plausible.',
+    pedigree: 'Aristotle, Rhetoric I.2 (c. 350 BCE): the enthymeme is a "rhetorical syllogism" with one or more premises suppressed because the audience is expected to supply them. Identifying enthymematic structure is the central task of informal logic (Walton, Fundamentals of Critical Argumentation, 2006) — most real arguments are enthymematic, and the suppressed premises are often the most contestable elements.',
+  },
+  validityVerdictIndeterminate: {
+    plain:    'Formally indeterminate: the argument\'s logical structure cannot be formalised with sufficient confidence due to scope ambiguity, vague predicates, or underspecified logical connectives in the natural-language source.',
+    pedigree: 'Natural language introduces systematic ambiguity into logical formalisation: scope ambiguities (Russell, "On Denoting", 1905), vague predicates (Williamson, Vagueness, 1994), and pragmatic underspecification of logical constants (Grice, "Logic and Conversation", 1975). The indeterminate verdict acknowledges formalisation limits rather than forcing a spurious precision.',
+  },
+
   citationAudit: {
     plain:    'Automated verification of citations against their source documents: each factual claim with a URL is checked against the fetched source to determine whether the source actually supports the claim as stated.',
     pedigree: 'Operationalises the editorial standard of source verification — a core discipline in academic and journalistic practice — by fetching cited URLs and applying LLM-based claim–source comparison at inference speed.',
@@ -411,6 +581,62 @@ export const TOOLTIPS_FORMAL = {
   citationVerdictUnfetchable: {
     plain:    'The citation URL exists but the source could not be retrieved for automated verification — it may be paywalled, removed (404), or experiencing a network error.',
     pedigree: 'Citation retrieval failure: automated verification was not possible due to access restrictions or availability issues; the citation may still be valid but cannot be checked programmatically.',
+  },
+
+  // Tone and rhetorical posture
+  tonePosture: {
+    plain:    'Analysis of rhetorical posture (the stance the writer constructs through the text) and tonal register (the emotional temperature of the prose). Distinct from content analysis: posture and register describe HOW the argument addresses its audience, not WHAT it argues.',
+    pedigree: 'Aristotle\'s Rhetoric (c. 350 BCE) established the tripartite analysis of persuasive appeals: ethos (character of the speaker), pathos (emotional state of the audience), logos (the argument itself). Kenneth Burke\'s dramatistic pentad (A Grammar of Motives, 1945) extends this to the "attitude" — the manner of the act. The posture-register distinction maps to Wayne Booth\'s "implied author" (The Rhetoric of Fiction, 1961) and Halliday\'s register theory in systemic functional linguistics (Language as Social Semiotic, 1978).',
+  },
+  postureLabel: {
+    plain:    'Rhetorical posture: the implicit role the writer constructs for themselves and their audience through the text\'s structure, diction, and framing — authoritative, adversarial, conciliatory, pedagogical, confessional, ironic, prophetic, detached, or mixed.',
+    pedigree: 'Aristotle\'s ethos in the Rhetoric is the character the speaker constructs through the speech itself. Perelman & Olbrechts-Tyteca (The New Rhetoric, 1958) extend this to the "universal audience" — the audience the speaker implicitly constructs as their ideal interlocutor.',
+  },
+  registerLabel: {
+    plain:    'Tonal register: the emotional temperature and cadence of the prose — measured, urgent, indignant, sardonic, earnest, clinical, elegiac, or polemic. Register is independent of posture: a writer can be authoritative-and-measured or authoritative-and-urgent.',
+    pedigree: 'Halliday\'s register theory (Language as Social Semiotic, 1978): tenor (the social relationship between interactants) determines register. In argumentative writing, register choice affects which cognitive-affective response the reader activates, shaping receptivity to the logical content (Petty & Cacioppo, Elaboration Likelihood Model, 1986).',
+  },
+  tonalMovesLabel: {
+    plain:    'Tonal moves: specific passages where rhetorical technique does argumentative work — where the way something is said substitutes for, amplifies, or undermines the logical content.',
+    pedigree: 'Perelman & Olbrechts-Tyteca\'s concept of "presence" (The New Rhetoric, 1958): techniques that make certain elements more salient to consciousness, affecting which premises receive emphasis. Each tonal move is assessed for severity (how much the rhetoric substitutes for argument) and confidence (how likely the move is deliberate).',
+  },
+  audiencePositionLabel: {
+    plain:    'Audience position: how the text implicitly casts its reader — as expert, student, juror, ally, witness, or opponent.',
+    pedigree: 'Wolfgang Iser\'s "implied reader" (The Implied Reader, 1974; The Act of Reading, 1978): the text constructs a reader-role that the actual reader is invited to inhabit. The fit between implied and actual reader determines how persuasive the text feels.',
+  },
+
+  // Evidence-weighted likelihood
+  evidenceWeighted: {
+    plain:    'Evidence-weighted likelihood assessment: for each empirical claim extracted from the argument, the Semantic Scholar academic corpus is queried and the degree of scientific consensus is synthesised. Non-empirical claims (normative, definitional, predictive) are classified as such and explicitly excluded from confidence estimation.',
+    pedigree: 'Operationalises the is–ought distinction (Hume, A Treatise of Human Nature, 1739) and Moore\'s open question argument (Principia Ethica, 1903): only claims with empirical truth conditions receive evidence-weighted confidence. Integration via Semantic Scholar Academic Graph API (Kinney et al., "The Semantic Scholar Open Data Platform", arXiv:2301.10140, 2023) providing access to 200M+ papers with citation metadata.',
+  },
+  consensusStrongSupport: {
+    plain:    'Strong scientific consensus in support: ≥80% of relevant literature supports the claim, with consistent findings across independent research groups and methodologies.',
+    pedigree: 'Strong consensus: convergent evidence across multiple independent studies, analogous to IPCC "very high confidence" (≥90% probability) or Cochrane "high quality" evidence classification.',
+  },
+  consensusModerateSupport: {
+    plain:    'Moderate scientific consensus in support: 55–79% of relevant papers support the claim, with some notable dissent or methodological controversy.',
+    pedigree: 'Moderate consensus: the preponderance of evidence supports the claim but meaningful counter-evidence exists; analogous to IPCC "medium confidence" or Cochrane "moderate quality" evidence.',
+  },
+  consensusContested: {
+    plain:    'Actively contested in the literature: evidence is roughly balanced or significant methodological disagreement prevents convergence. This is the honest assessment — the field has not reached consensus.',
+    pedigree: 'Contested: the literature exhibits genuine Duhemian underdetermination (Duhem, The Aim and Structure of Physical Theory, 1906) — the available evidence is compatible with multiple interpretations. Forcing a consensus estimate on genuinely contested evidence would violate the epistemic norm of proportioning belief to evidence (Locke, Essay Concerning Human Understanding, 1689).',
+  },
+  consensusModerateOpposition: {
+    plain:    'Moderate scientific consensus opposing the claim: 55–79% of relevant papers contradict or fail to support it.',
+    pedigree: 'Moderate opposition: the weight of evidence leans against the claim, though it retains some empirical support.',
+  },
+  consensusStrongOpposition: {
+    plain:    'Strong scientific consensus against the claim: ≥80% of relevant research contradicts it. The scientific mainstream decisively rejects this position.',
+    pedigree: 'Strong opposition: convergent evidence against the claim across multiple independent research programs; the position is rejected by the epistemic community as currently constituted.',
+  },
+  consensusInsufficient: {
+    plain:    'Insufficient empirical data: fewer than 3 relevant papers found, or the retrieved papers do not bear directly on this specific claim. This is not evidence against the claim — it is an absence of assessable evidence.',
+    pedigree: 'Absence of evidence is not evidence of absence (Altman & Bland, "Absence of evidence is not evidence of absence", BMJ 311:485, 1995). The claim may be well-supported by evidence not indexed in Semantic Scholar, or may be too domain-specific for the corpus to cover.',
+  },
+  consensusNotApplicable: {
+    plain:    'Not empirically assessable: this claim is a value judgment, a definition, or a prediction about the future — not a factual assertion that existing research can verify or falsify. Assigning a confidence percentage would be misleading.',
+    pedigree: 'The is–ought gap (Hume, A Treatise of Human Nature III.i.1, 1739): "In every system of morality which I have hitherto met with, I have always remarked that the author proceeds for some time in the ordinary way of reasoning... when of a sudden I am surprised to find that instead of the usual copulations of propositions, is and is not, I meet with no proposition that is not connected with an ought or an ought not." Moore\'s naturalistic fallacy (Principia Ethica, 1903) extends this: no empirical property is identical with the evaluative property "good." Confidence percentages are categorically inapplicable to such claims.',
   },
 } satisfies { [K in keyof typeof TOOLTIPS_PLAIN]: { plain: string; pedigree: string } };
 

@@ -1,0 +1,143 @@
+{
+  "result": {
+    "factualClaims": [
+      {
+        "claim": "Chronic sleep deficiency in adolescents is associated with higher rates of depression, anxiety, and impaired academic performance",
+        "evidenceQuote": "chronic sleep deficiency in adolescents is associated with higher rates of depression, anxiety, and impaired academic performance.",
+        "citationUrl": null,
+        "verdict": "uncited",
+        "verdictExplanation": "No citation was provided for this claim.",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 95
+      },
+      {
+        "claim": "Blue light exposure suppresses melatonin production",
+        "evidenceQuote": "blue light exposure, which suppresses melatonin production",
+        "citationUrl": null,
+        "verdict": "uncited",
+        "verdictExplanation": "No citation was provided for this claim.",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 95
+      },
+      {
+        "claim": "Melatonin is the hormone that signals the body that it is time to sleep",
+        "evidenceQuote": "the hormone that signals the body that it is time to sleep.",
+        "citationUrl": null,
+        "verdict": "uncited",
+        "verdictExplanation": "No citation was provided for this claim.",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 95
+      },
+      {
+        "claim": "The United Kingdom introduced similar restrictions in January 2024",
+        "evidenceQuote": "The United Kingdom introduced similar restrictions in January 2024",
+        "citationUrl": null,
+        "verdict": "uncited",
+        "verdictExplanation": "No citation was provided for this claim.",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 95
+      },
+      {
+        "claim": "Academic performance data showed a six-point improvement in standardised test scores in pilot schools where restrictions were introduced",
+        "evidenceQuote": "academic performance data showing a six-point improvement in standardised test scores in pilot schools.",
+        "citationUrl": null,
+        "verdict": "uncited",
+        "verdictExplanation": "No citation was provided for this claim.",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 95
+      },
+      {
+        "claim": "Sixty-two percent of teenagers report getting fewer than eight hours of sleep on school nights",
+        "evidenceQuote": "sixty-two percent of teenagers report getting fewer than eight hours of sleep on school nights [1]",
+        "citationUrl": "https://example.org/aasm-survey-2023",
+        "citationContext": "American Academy of Sleep Medicine, Adolescent Sleep Health Survey 2023 (https://example.org/aasm-survey-2023)",
+        "verdict": "unfetchable",
+        "verdictExplanation": "The cited source could not be retrieved (paywalled, 404, or network error).",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 100
+      },
+      {
+        "claim": "Every additional hour of screen time before bed correlated with a twenty-minute delay in sleep onset",
+        "evidenceQuote": "every additional hour of screen time before bed correlated with a twenty-minute delay in sleep onset (https://example.org/stanford-screen-study-2022)",
+        "citationUrl": "https://example.org/stanford-screen-study-2022",
+        "verdict": "unfetchable",
+        "verdictExplanation": "The cited source could not be retrieved (paywalled, 404, or network error).",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 100
+      },
+      {
+        "claim": "France banned smartphones in schools in 2018",
+        "evidenceQuote": "France banned smartphones in schools in 2018",
+        "citationUrl": "https://example.org/french-phone-ban-evaluation",
+        "citationContext": "French Ministry of Education, Evaluation du dispositif d'interdiction des téléphones portables (https://example.org/french-phone-ban-evaluation)",
+        "verdict": "unfetchable",
+        "verdictExplanation": "The cited source could not be retrieved (paywalled, 404, or network error).",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 100
+      },
+      {
+        "claim": "Early evidence from French health authorities suggests the policy reduced reported sleep problems among twelve-to-fifteen year olds by seventeen percent",
+        "evidenceQuote": "early evidence from French health authorities suggests the policy reduced reported sleep problems among twelve-to-fifteen year olds by seventeen percent [2]",
+        "citationUrl": "https://example.org/french-phone-ban-evaluation",
+        "citationContext": "French Ministry of Education, Evaluation du dispositif d'interdiction des téléphones portables (https://example.org/french-phone-ban-evaluation)",
+        "verdict": "unfetchable",
+        "verdictExplanation": "The cited source could not be retrieved (paywalled, 404, or network error).",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 100
+      },
+      {
+        "claim": "The human brain consolidates memory during slow-wave sleep",
+        "evidenceQuote": "The human brain consolidates memory during slow-wave sleep",
+        "citationUrl": "https://example.org/memory-consolidation-review-2021",
+        "verdict": "unfetchable",
+        "verdictExplanation": "The cited source could not be retrieved (paywalled, 404, or network error).",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 100
+      },
+      {
+        "claim": "Without sufficient slow-wave sleep, long-term retention of learned material falls by up to forty percent",
+        "evidenceQuote": "without sufficient slow-wave sleep, long-term retention of learned material falls by up to forty percent (https://example.org/memory-consolidation-review-2021)",
+        "citationUrl": "https://example.org/memory-consolidation-review-2021",
+        "verdict": "unfetchable",
+        "verdictExplanation": "The cited source could not be retrieved (paywalled, 404, or network error).",
+        "sourceExcerpt": null,
+        "sourceTitle": null,
+        "sourcePublication": null,
+        "confidence": 100
+      }
+    ],
+    "notes": null,
+    "summary": {
+      "total": 11,
+      "wellCited": 0,
+      "weaklyCited": 0,
+      "mismatched": 0,
+      "uncited": 5,
+      "unfetchable": 6
+    }
+  },
+  "inputTokens": 1151,
+  "outputTokens": 981,
+  "citationsFetched": 0,
+  "citationsFailed": 4
+}

@@ -20,10 +20,23 @@ export interface ScorecardPosition {
   sources:   ScorecardSource[];
 }
 
+export type ScorecardCategory =
+  | 'politics'
+  | 'economics'
+  | 'science'
+  | 'technology'
+  | 'health'
+  | 'culture'
+  | 'philosophy'
+  | 'law'
+  | 'environment'
+  | 'education';
+
 export interface Scorecard {
   slug:          string;
   question:      string;
   dek:           string;
+  category?:     ScorecardCategory;
   positions:     ScorecardPosition[];
   metaAnalysis:  { bridgingWarrant: string; explanation: string };
   publishedDate: string;

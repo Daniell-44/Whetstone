@@ -1,8 +1,9 @@
-import { useState } from 'preact/hooks';
+import { useState, useMemo } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
 import AuditResults from './AuditResults';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
+import HighlightedDraft from '../studio/HighlightedDraft';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -201,16 +202,40 @@ export default function AuditForm() {
         </div>
       )}
 
-      {extraction && !loading && (
-        <div class="rounded-xl border border-emerald-200 bg-white p-6">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
-            Argument Skeleton
-          </h2>
-          <ArgumentExtraction result={extraction} />
+      {/* Split-panel results — text with highlights left, findings right */}
+      {result && !loading && (
+        <div class="flex flex-col xl:flex-row gap-4 items-start">
+
+          {/* Left: highlighted text + extraction */}
+          <div class="w-full xl:w-[55%] space-y-4">
+            {tab === 'text' && textInput && (
+              <HighlightedDraft
+                text={textInput}
+                audit={result}
+                activeFindingKey={null}
+                onHighlightClick={() => {}}
+              />
+            )}
+            {extraction && (
+              <div class="rounded-lg border border-emerald-200 bg-white p-4">
+                <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+                  Argument Skeleton
+                </h3>
+                <ArgumentExtraction result={extraction} />
+              </div>
+            )}
+          </div>
+
+          {/* Right: findings */}
+          <div class="w-full xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto">
+            <div class="rounded-lg border border-gray-200 bg-white p-4">
+              <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
+              <AuditResults result={result} />
+            </div>
+          </div>
+
         </div>
       )}
-
-      {result && !loading && <AuditResults result={result} />}
 
     </div>
   );

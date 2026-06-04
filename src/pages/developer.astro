@@ -1,0 +1,150 @@
+---
+export const prerender = false;
+
+import Base from '../layouts/Base.astro';
+---
+<Base
+  title="Developer API — The Whetstone"
+  description="Integrate The Whetstone's structural audit engine into your own workflow via the REST API."
+  canonicalPath="/developer"
+>
+  <main class="max-w-2xl mx-auto px-6 pt-20 pb-24">
+
+    <header class="mb-12">
+      <p class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-3">Developer</p>
+      <h1 class="font-serif text-4xl text-gray-900 leading-tight mb-4">API reference</h1>
+      <p class="text-lg text-gray-500 leading-relaxed">
+        A Creator Studio subscription gives you programmatic access to the same audit engine that
+        powers the web interface. Use it to integrate argument auditing into your CMS, editorial
+        pipeline, or research tooling.
+      </p>
+    </header>
+
+    <!-- Authentication -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Authentication</h2>
+      <p class="text-sm text-gray-600 leading-relaxed mb-4">
+        Generate an API key from your <a href="/account" class="text-indigo-600 hover:text-indigo-800 underline">account page</a>.
+        Keys are prefixed <code class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">wsk_live_</code> and
+        must be passed as a Bearer token on every request.
+      </p>
+      <div class="rounded-lg bg-gray-900 text-gray-100 px-5 py-4 text-sm font-mono overflow-x-auto">
+        <span class="text-gray-400">Authorization:</span> Bearer wsk_live_&lt;your-key&gt;
+      </div>
+      <p class="text-xs text-gray-400 mt-3">Keys inherit the rate limits of your subscription tier (200 audits/day).</p>
+    </section>
+
+    <!-- Endpoint: POST /api/audit -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold text-gray-900 mb-1">POST /api/audit</h2>
+      <p class="text-sm text-gray-500 mb-4">Run a full structural audit on a piece of text or a URL.</p>
+
+      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Request body (JSON)</h3>
+      <div class="rounded-lg bg-gray-900 text-gray-100 px-5 py-4 text-sm font-mono mb-4 overflow-x-auto">
+        <pre>{`{
+  "text": "Your argument text here…"
+}
+
+// OR pass a public URL:
+{
+  "url": "https://example.com/article"
+}`}</pre>
+      </div>
+
+      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Example (curl)</h3>
+      <div class="rounded-lg bg-gray-900 text-gray-100 px-5 py-4 text-sm font-mono mb-4 overflow-x-auto">
+        <pre>{`curl -X POST https://devils-advocate-site.daniellivingstone2005.workers.dev/api/audit \\
+  -H "Authorization: Bearer wsk_live_<your-key>" \\
+  -H "Content-Type: application/json" \\
+  -d '{"text": "All politicians lie, therefore no policy can be trusted."}'`}</pre>
+      </div>
+
+      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Success response (200)</h3>
+      <div class="rounded-lg bg-gray-900 text-gray-100 px-5 py-4 text-sm font-mono mb-4 overflow-x-auto">
+        <pre>{`{
+  "ok": true,
+  "audit": {
+    "summary": "…",
+    "toulmin": { … },
+    "fallacies": [ … ],
+    "loadedLanguage": [ … ],
+    "unstatedWarrants": [ … ],
+    "keyTermScrutiny": [ … ],
+    "referentCheck": [ … ],
+    "falsifiabilityCheck": [ … ]
+  },
+  "usage": {
+    "inputTokens": 320,
+    "outputTokens": 840
+  }
+}`}</pre>
+      </div>
+
+      <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Error responses</h3>
+      <div class="rounded-lg border border-gray-200 overflow-hidden text-sm">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500">Status</th>
+              <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500">Code</th>
+              <th class="px-4 py-2 text-left text-xs font-semibold text-gray-500">Meaning</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-gray-700">401</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-700">—</td>
+              <td class="px-4 py-2 text-xs text-gray-600">Missing or invalid API key</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-gray-700">400</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-700">INVALID_INPUT</td>
+              <td class="px-4 py-2 text-xs text-gray-600">Text too short (&lt;50 chars), too long (&gt;10,000 chars), or no text/url provided</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-gray-700">429</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-700">RATE_LIMITED</td>
+              <td class="px-4 py-2 text-xs text-gray-600">Daily audit limit reached; resets at midnight UTC</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 font-mono text-xs text-gray-700">503</td>
+              <td class="px-4 py-2 font-mono text-xs text-gray-700">AUDIT_FAILED</td>
+              <td class="px-4 py-2 text-xs text-gray-600">Upstream LLM temporarily unavailable; retry with backoff</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Key management -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Key management</h2>
+      <p class="text-sm text-gray-600 leading-relaxed mb-4">
+        Keys are managed from your <a href="/account" class="text-indigo-600 hover:text-indigo-800 underline">account page</a>.
+        You can have up to 10 active keys. Revoking a key is immediate and irreversible —
+        any integration using it will receive 401 responses.
+      </p>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        Plaintext keys are shown exactly once at creation. If you lose a key, revoke it and generate a new one.
+      </p>
+    </section>
+
+    <!-- Rate limits -->
+    <section class="mb-12">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Rate limits</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        API key requests share the same daily quota as your browser session (200 audits/day on the Solo tier).
+        The quota resets at midnight UTC. If you need a higher limit, contact us.
+      </p>
+    </section>
+
+    <!-- Footer CTA -->
+    <div class="rounded-lg border border-indigo-100 bg-indigo-50 px-5 py-4">
+      <p class="text-sm text-indigo-800">
+        No subscription yet?{' '}
+        <a href="/pricing" class="font-semibold underline hover:text-indigo-900">View pricing →</a>
+      </p>
+    </div>
+
+  </main>
+</Base>

@@ -12,10 +12,19 @@ export const INFERENCE_RULES = [
   'other',
 ] as const;
 
+export const CLAIM_TYPES = [
+  'empirical_contested',
+  'empirical_uncontested',
+  'normative',
+  'definitional',
+  'modal_predictive',
+] as const;
+
 export const ExtractionStatementSchema = z.object({
   id:                        z.string().min(1),
   type:                      z.enum(['premise', 'conclusion']),
   text:                      z.string().min(1),
+  claimType:                 z.enum(CLAIM_TYPES).default('empirical_contested'),
   derivedFrom:               z.array(z.string()).nullish(),
   inferenceRule:             z.enum(INFERENCE_RULES).nullish(),
   inferenceRuleExplanation:  z.string().nullish(),

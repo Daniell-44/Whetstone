@@ -7,13 +7,15 @@ export type {
   KeyTermScrutinyFinding,
   ReferentCheckFinding,
   FalsifiabilityFinding,
+  ModalScopeCheckFinding,
   KeyTermIssue,
   ReferentIssue,
   FalsifiabilityIssue,
+  ModalScopeIssue,
 } from '../../functions/_lib/audit/types';
 
 export { priorityScore, sortByPriority } from '../../functions/_lib/audit/priority';
-export { wordCount, avgSentenceLength, fleschKincaidGradeLevel, severityBreakdown, totalFindingCount } from '../../functions/_lib/audit/stats';
+export { wordCount, avgSentenceLength, fleschKincaidGradeLevel, severityBreakdown, totalFindingCount, argumentScore } from '../../functions/_lib/audit/stats';
 export {
   fallacyMatchKey,
   loadedLanguageMatchKey,
@@ -21,4 +23,5 @@ export {
   keyTermMatchKey,
   referentMatchKey,
   falsifiabilityMatchKey,
+  modalScopeMatchKey,
 } from '../../functions/_lib/audit/match-keys';

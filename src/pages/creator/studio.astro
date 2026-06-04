@@ -68,25 +68,22 @@ if (docIdParam) {
   canonicalPath="/creator/studio"
   isLoggedIn={true}
 >
-  <main class="max-w-5xl mx-auto px-6 pt-20 pb-16">
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 pt-4 pb-8">
 
-    <nav class="mb-10 flex items-center justify-between">
-      <a href="/creator" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Creator</a>
-      <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">My documents →</a>
-    </nav>
-
-    <header class="mb-10">
-      <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Creator Studio</p>
-      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-4">
-        Studio — audit your draft
-      </h1>
-      <p class="text-lg text-gray-500 leading-relaxed max-w-xl">
-        Paste your draft. We'll run the structural audit{hasActiveSubscription ? ' and surface the strongest opposing positions you haven\'t engaged with.' : '.'}
+    <!-- Compact toolbar nav -->
+    <nav class="mb-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/creator" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Creator</a>
+        <span class="text-gray-200">|</span>
+        <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase">Studio</p>
+      </div>
+      <div class="flex items-center gap-3">
         {!hasActiveSubscription && (
-          <span> <a href="/pricing" class="text-amber-600 hover:text-amber-700 underline">Subscribe</a> to also generate counterarguments.</span>
+          <a href="/pricing" class="text-xs text-amber-600 hover:text-amber-700 font-medium">Subscribe →</a>
         )}
-      </p>
-    </header>
+        <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">My documents →</a>
+      </div>
+    </nav>
 
     <StudioEditor
       client:load

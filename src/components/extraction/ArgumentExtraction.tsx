@@ -1,6 +1,8 @@
+import { useState } from 'preact/hooks';
 import type { ArgumentExtractionResult, ExtractionStatement } from '../../lib/extraction';
 import type { TerminologyPreference } from '../../lib/labels';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
+import ArgumentFlowChart from './ArgumentFlowChart';
 
 // ---------------------------------------------------------------------------
 // Inference rule pretty-printing
@@ -69,24 +71,59 @@ interface Props {
 }
 
 export default function ArgumentExtraction({ result, terminologyPreference }: Props) {
+  const [view, setView] = useState<'text' | 'diagram'>('text');
   const premises    = result.statements.filter(s => s.type === 'premise');
   const conclusions = result.statements.filter(s => s.type === 'conclusion');
   const isEmpty     = result.statements.length === 0;
 
   return (
     <div class="space-y-6">
-      {/* Central claim */}
+      {/* Central claim + view toggle */}
       <div>
-        <p class="text-sm font-semibold text-gray-700 mb-1">
-          <LabelWithTooltip label="extraction" preference={terminologyPreference} />
-        </p>
-        <p class="text-base text-gray-900 font-medium">{result.centralClaim}</p>
-        <span class="inline-block mt-1 text-xs text-gray-400">{result.confidence}% confidence</span>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-sm font-semibold text-gray-700 mb-1">
+              <LabelWithTooltip label="extraction" preference={terminologyPreference} />
+            </p>
+            <p class="text-base text-gray-900 font-medium">{result.centralClaim}</p>
+            <span class="inline-block mt-1 text-xs text-gray-400">{result.confidence}% confidence</span>
+          </div>
+          {!isEmpty && (
+            <div class="flex gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setView('text')}
+                class={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  view === 'text'
+                    ? 'bg-gray-200 text-gray-700'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                Text
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('diagram')}
+                class={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  view === 'diagram'
+                    ? 'bg-gray-200 text-gray-700'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                Diagram
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {isEmpty ? (
         <p class="text-sm text-gray-500 italic">{result.notes ?? 'No argument structure identified.'}</p>
+      ) : view === 'diagram' ? (
+        /* Flow chart view */
+        <ArgumentFlowChart result={result} />
       ) : (
+        /* Text view (original) */
         <>
           {/* Premises */}
           {premises.length > 0 && (

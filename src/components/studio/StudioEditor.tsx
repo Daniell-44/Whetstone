@@ -1,9 +1,13 @@
-import { useState, useCallback } from 'preact/hooks';
+import { useState, useCallback, useEffect } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
 import type { PhilosophicalCommitmentsResult } from '../../../functions/_lib/philosophical-commitments/types';
 import type { CitationAuditResult } from '../../../functions/_lib/citation-audit/types';
+import GoalSelector from './GoalSelector';
+import LiveStats from './LiveStats';
+import HighlightedDraft from './HighlightedDraft';
+import type { Audience, Intent } from '../../../functions/_lib/audit/goals';
 import AuditResults from '../audit/AuditResults';
 import CounterargumentResultDisplay from './CounterargumentResultDisplay';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
@@ -50,10 +54,19 @@ type CitationAuditApiResponse =
 const MIN_CHARS = 50;
 const MAX_CHARS = 10_000;
 
+// Hemingway-style demo text — demonstrates the tool's value immediately
+const SAMPLE_TEXT = `The case for mandatory bicycle helmets is straightforward: helmet use reduces head injuries by 60% and saves an estimated 400 lives per year in the UK. The inconvenience to cyclists is trivially small compared to this public health benefit. Those who resist the requirement are, in effect, arguing that their personal preference for helmet-free cycling outweighs hundreds of preventable deaths.
+
+Countries that have introduced helmet laws have seen cycling injuries drop sharply. Australia's mandatory helmet law, introduced in 1991, led to a significant reduction in head injuries among cyclists. The evidence is clear and the policy implication is obvious.
+
+Critics claim that helmet laws discourage cycling, but this objection misses the point entirely. We don't refuse to mandate seatbelts because some people might stop driving. Safety requirements are the baseline expectation in every other form of transport — cycling should be no different.
+
+The real question isn't whether helmets work. The science is settled on that. The question is whether we value convenience over human life. Any reasonable person would choose life.`;
+
 const AUDIT_ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMITED:  "You've reached the daily audit limit. Come back tomorrow.",
-  AUDIT_FAILED:  'The structural analysis failed. Please try again in a moment.',
   INVALID_INPUT: 'Please check your input and try again.',
+  // AUDIT_FAILED intentionally omitted — fall through to show the server's actual error message
 };
 
 const COUNTERARG_ERROR_MESSAGES: Record<string, string> = {
@@ -188,6 +201,10 @@ export default function StudioEditor({
     initialVersionId ? initialContent : null,
   );
   const [isRunning, setIsRunning] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
+  const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
+  const [audience, setAudience]   = useState<Audience>('general');
+  const [intent, setIntent]       = useState<Intent>('persuade');
   const [auditState, setAuditState] = useState<SectionState<AuditResult>>(
     initialAuditResult ? { status: 'done', data: initialAuditResult } : { status: 'idle' },
   );
@@ -207,6 +224,35 @@ export default function StudioEditor({
   const charCount   = draft.length;
   const canSubmit   = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
   const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (hasActiveSubscription && (counterargState.status !== 'idle' || commitmentsState.status !== 'idle' || citationState.status !== 'idle'));
+
+  // Update tab title with finding count
+  const findingCount = auditState.status === 'done'
+    ? auditState.data.namedFallacies.length
+      + auditState.data.loadedLanguage.length
+      + auditState.data.keyTermScrutiny.length
+      + auditState.data.referentChecks.length
+      + auditState.data.falsifiabilityChecks.length
+      + auditState.data.modalScopeChecks.length
+      + auditState.data.toulmin.unstatedWarrants.length
+    : 0;
+
+  if (typeof document !== 'undefined') {
+    document.title = findingCount > 0
+      ? `(${findingCount}) Creator Studio — The Whetstone`
+      : 'Creator Studio — The Whetstone';
+  }
+
+  // Ctrl/Cmd+Enter to analyse
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (canSubmit) void handleAnalyse();
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [canSubmit]);
 
   const handleTitleBlur = useCallback(async () => {
     if (!docId || title === savedTitle) return;
@@ -300,7 +346,10 @@ export default function StudioEditor({
     let citationDone    = !hasActiveSubscription;
 
     function checkDone() {
-      if (extractionDone && auditDone && counterargDone && commitmentsDone && citationDone) setIsRunning(false);
+      if (extractionDone && auditDone && counterargDone && commitmentsDone && citationDone) {
+        setIsRunning(false);
+        setIsEditing(false); // Switch to highlighted view
+      }
     }
 
     const versionPath = `/api/documents/${currentDocId}/versions/${currentVersionId}`;
@@ -318,7 +367,11 @@ export default function StudioEditor({
       .catch(() => setExtractionState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
       .finally(() => { extractionDone = true; checkDone(); });
 
-    fetch(`${versionPath}/audit`, { method: 'POST' })
+    fetch(`${versionPath}/audit`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ audience, intent }),
+    })
       .then(r => r.json() as Promise<AuditApiResponse>)
       .then(data => {
         if (data.ok) {
@@ -383,7 +436,7 @@ export default function StudioEditor({
   // ---------------------------------------------------------------------------
 
   const inputSection = (
-    <>
+    <div class="flex flex-col flex-1 gap-3">
       {/* Document title + actions */}
       <div class="flex items-center gap-3">
         <input
@@ -394,7 +447,7 @@ export default function StudioEditor({
           maxLength={200}
           placeholder="Untitled draft"
           disabled={isRunning}
-          class="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
+          class="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
         />
         {docId && (
           <a
@@ -416,93 +469,184 @@ export default function StudioEditor({
         )}
       </div>
 
-      {/* Textarea + button */}
-      <div class="rounded-xl border border-amber-200 bg-white p-6 space-y-4">
-        <div>
-          <textarea
-            value={draft}
-            onInput={e => setDraft((e.target as HTMLTextAreaElement).value)}
-            placeholder="Paste your draft here — any argumentative text, essay, or opinion piece (50–10,000 characters)."
-            rows={10}
-            disabled={isRunning}
-            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
-          />
-          <div class="flex justify-between mt-1.5 text-xs">
-            <span class={
-              charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600'
-              : charCount > MAX_CHARS               ? 'text-red-500'
-              :                                       'text-gray-400'
-            }>
-              {charCount > 0 && charCount < MIN_CHARS
-                ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
-                : charCount > MAX_CHARS
-                ? 'Too long — please trim to 10,000 characters'
-                : ''}
-            </span>
-            <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
-              {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
-            </span>
-          </div>
-        </div>
+      {/* Goal selector */}
+      <GoalSelector
+        audience={audience}
+        intent={intent}
+        onAudienceChange={setAudience}
+        onIntentChange={setIntent}
+        disabled={isRunning}
+      />
 
-        <div class="space-y-2">
+      {/* Draft display — either textarea (editing) or highlighted view (reviewing) */}
+      {!isEditing && showResults && auditState.status === 'done' ? (
+        /* Highlighted review mode — fills vertical space */
+        <div class="flex flex-col flex-1 space-y-2">
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-gray-400">Click a highlight to jump to the finding. Hover for details.</p>
+            <button
+              type="button"
+              onClick={() => { setIsEditing(true); setActiveFindingKey(null); }}
+              class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+            >
+              ✎ Edit draft
+            </button>
+          </div>
+          <div class="flex-1" style={{ minHeight: 'calc(100vh - 18rem)' }}>
+            <HighlightedDraft
+              text={draft}
+              audit={auditState.data}
+              activeFindingKey={activeFindingKey}
+              onHighlightClick={(key) => {
+                setActiveFindingKey(key);
+                const el = document.querySelector(`[data-finding-key="${key}"]`);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+            />
+          </div>
           <button
             type="button"
-            onClick={handleAnalyse}
-            disabled={!canSubmit}
-            class={`w-full py-3 px-6 rounded-xl text-sm font-semibold transition-colors ${
-              canSubmit
-                ? 'bg-amber-500 text-white hover:bg-amber-600'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }`}
+            onClick={() => { setIsEditing(true); }}
+            class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 transition-colors"
           >
-            {isRunning ? 'Analysing…' : 'Analyse my draft'}
+            Revise & re-analyse
           </button>
+        </div>
+      ) : (
+        /* Editing mode — textarea IS the surface, no wrapper box */
+        <div class="flex flex-col flex-1 space-y-2">
+          <div class="flex-1 flex flex-col">
+            <textarea
+              value={draft}
+              onInput={e => setDraft((e.target as HTMLTextAreaElement).value)}
+              placeholder="Paste your draft here — any argumentative text, essay, or opinion piece (50–10,000 characters)."
+              disabled={isRunning}
+              class="w-full flex-1 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
+              style={{ minHeight: 'calc(100vh - 16rem)' }}
+            />
+            <div class="flex justify-between mt-1.5 text-xs">
+              <span class={
+                charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600'
+                : charCount > MAX_CHARS               ? 'text-red-500'
+                :                                       'text-gray-400'
+              }>
+                {charCount > 0 && charCount < MIN_CHARS
+                  ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
+                  : charCount > MAX_CHARS
+                  ? 'Too long — please trim to 10,000 characters'
+                  : ''}
+              </span>
+              <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
+                {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
+              </span>
+            </div>
+            <LiveStats text={draft} />
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              type="button"
+              onClick={handleAnalyse}
+              disabled={!canSubmit}
+              class={`flex-1 py-2.5 px-6 rounded-lg text-sm font-semibold transition-colors ${
+                canSubmit
+                  ? 'bg-amber-500 text-white hover:bg-amber-600'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {isRunning ? 'Analysing…' : 'Analyse my draft'}
+            </button>
+            {!draft.trim() && !isRunning && (
+              <button
+                type="button"
+                onClick={() => { setDraft(SAMPLE_TEXT); setTitle('Mandatory bicycle helmets — sample argument'); }}
+                class="px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-700 transition-colors shrink-0"
+              >
+                Try an example
+              </button>
+            )}
+          </div>
+          {canSubmit && !isRunning && (
+            <p class="text-[10px] text-gray-300 text-center">⌘/Ctrl + Enter</p>
+          )}
           {isRunning && hasActiveSubscription && (
             <p class="text-xs text-center text-gray-400">
               ~60–90s — fetching cited sources and finding opposing cases takes longer than a simple audit.
             </p>
           )}
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 
+  // (Results are now distributed across left and right sidebars above)
+
   // ---------------------------------------------------------------------------
-  // Results section
+  // Left sidebar: structure + goals + document info
   // ---------------------------------------------------------------------------
 
-  const resultsSection = showResults ? (
-    <div class="space-y-6">
-      {/* Argument extraction — shown above critique */}
+  const leftSidebar = showResults ? (
+    <div class="space-y-4">
+      {/* Summary stats */}
+      {auditState.status === 'done' && (
+        <SummaryToolbar result={auditState.data} draftText={draft} draftTitle={title} />
+      )}
+
+      {/* Argument skeleton */}
       {extractionState.status !== 'idle' && (
-        <div class="rounded-xl border border-emerald-200 bg-white p-6">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-            Argument Skeleton
-          </h2>
-          {extractionState.status === 'loading' && (
-            <SectionLoading label="Mapping argument structure…" />
-          )}
-          {extractionState.status === 'error' && (
-            <SectionError code={extractionState.code} message={extractionState.message} />
-          )}
+        <div class="rounded-lg border border-emerald-200 bg-white p-4">
+          <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Argument Skeleton</h3>
+          {extractionState.status === 'loading' && <SectionLoading label="Mapping structure…" />}
+          {extractionState.status === 'error' && <SectionError code={extractionState.code} message={extractionState.message} />}
           {extractionState.status === 'done' && (
             <ArgumentExtraction result={extractionState.data} terminologyPreference={terminologyPreference} />
           )}
         </div>
       )}
 
-      {/* Structural audit */}
-      <div class="rounded-xl border border-gray-200 bg-white p-6">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-          Structural Audit
-        </h2>
-        {auditState.status === 'loading' && (
-          <SectionLoading label="Running structural audit…" />
+      {/* Framework Check */}
+      {hasActiveSubscription && commitmentsState.status !== 'idle' && (
+        <div class="rounded-lg border border-purple-200 bg-white p-4">
+          <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+            <LabelWithTooltip label="commitments" preference={terminologyPreference} />
+          </h3>
+          {commitmentsState.status === 'loading' && <SectionLoading label="Detecting frameworks…" />}
+          {commitmentsState.status === 'error' && <SectionError code={commitmentsState.code} message={commitmentsState.message} />}
+          {commitmentsState.status === 'done' && (
+            <PhilosophicalCommitmentsDisplay result={commitmentsState.data} terminologyPreference={terminologyPreference} />
+          )}
+        </div>
+      )}
+
+      {/* Counterarguments */}
+      <div class="rounded-lg border border-violet-200 bg-white p-4">
+        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+          <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
+        </h3>
+        {!hasActiveSubscription ? <CounterargUpsell /> : (
+          <>
+            {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
+            {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
+            {counterargState.status === 'done' && (
+              <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
+            )}
+          </>
         )}
-        {auditState.status === 'error' && (
-          <SectionError code={auditState.code} message={auditState.message} />
-        )}
+      </div>
+    </div>
+  ) : null;
+
+  // ---------------------------------------------------------------------------
+  // Right sidebar: audit findings + citation audit
+  // ---------------------------------------------------------------------------
+
+  const rightSidebar = showResults ? (
+    <div class="space-y-4">
+      {/* Audit findings */}
+      <div class="rounded-lg border border-gray-200 bg-white p-4">
+        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
+        {auditState.status === 'loading' && <SectionLoading label="Running audit…" />}
+        {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
         {auditState.status === 'done' && (
           <AuditResults
             result={auditState.data}
@@ -514,62 +658,15 @@ export default function StudioEditor({
         )}
       </div>
 
-      {/* Counterarguments */}
-      <div class="rounded-xl border border-violet-200 bg-white p-6">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-          <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
-        </h2>
-        {!hasActiveSubscription ? (
-          <CounterargUpsell />
-        ) : (
-          <>
-            {counterargState.status === 'loading' && (
-              <SectionLoading label="Generating strongest opposing positions…" />
-            )}
-            {counterargState.status === 'error' && (
-              <SectionError code={counterargState.code} message={counterargState.message} />
-            )}
-            {counterargState.status === 'done' && (
-              <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Framework Check — subscribed users only */}
-      {hasActiveSubscription && commitmentsState.status !== 'idle' && (
-        <div class="rounded-xl border border-purple-200 bg-white p-6">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
-            <LabelWithTooltip label="commitments" preference={terminologyPreference} />
-          </h2>
-          {commitmentsState.status === 'loading' && (
-            <SectionLoading label="Detecting philosophical frameworks…" />
-          )}
-          {commitmentsState.status === 'error' && (
-            <SectionError code={commitmentsState.code} message={commitmentsState.message} />
-          )}
-          {commitmentsState.status === 'done' && (
-            <PhilosophicalCommitmentsDisplay result={commitmentsState.data} terminologyPreference={terminologyPreference} />
-          )}
-        </div>
-      )}
-
       {/* Citation Audit */}
-      <div class="rounded-xl border border-sky-200 bg-white p-6">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+      <div class="rounded-lg border border-sky-200 bg-white p-4">
+        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
           <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
-        </h2>
-        {!hasActiveSubscription ? (
-          <CitationUpsell />
-        ) : (
+        </h3>
+        {!hasActiveSubscription ? <CitationUpsell /> : (
           <>
-            {citationState.status === 'idle' && null}
-            {citationState.status === 'loading' && (
-              <SectionLoading label="Fetching cited sources and analysing each claim — this can take 60–90 seconds for drafts with several citations." />
-            )}
-            {citationState.status === 'error' && (
-              <SectionError code={citationState.code} message={citationState.message} />
-            )}
+            {citationState.status === 'loading' && <SectionLoading label="Checking sources…" />}
+            {citationState.status === 'error' && <SectionError code={citationState.code} message={citationState.message} />}
             {citationState.status === 'done' && (
               <CitationAuditDisplay
                 result={citationState.data}
@@ -590,50 +687,49 @@ export default function StudioEditor({
   // ---------------------------------------------------------------------------
 
   if (!showResults) {
-    // Single-column layout — no results yet
+    // Centered single-column — before first audit
     return (
-      <div class="space-y-6">
+      <div class="max-w-3xl mx-auto space-y-6">
         {inputSection}
-        {/* Upsell shown before first run when not subscribed */}
         {!hasActiveSubscription && (
-          <>
-            <div class="rounded-xl border border-violet-200 bg-white p-6">
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-violet-200 bg-white p-4">
+              <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
                 <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
-              </h2>
+              </h3>
               <CounterargUpsell />
             </div>
-            <div class="rounded-xl border border-sky-200 bg-white p-6">
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-6">
+            <div class="rounded-lg border border-sky-200 bg-white p-4">
+              <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
                 <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
-              </h2>
+              </h3>
               <CitationUpsell />
             </div>
-          </>
+          </div>
         )}
       </div>
     );
   }
 
-  // Two-column layout — results visible
+  // Three-panel Grammarly-style layout — full width
   return (
-    <div class="space-y-6">
-      {/* SummaryToolbar — full width above columns */}
-      {auditState.status === 'done' && (
-        <SummaryToolbar result={auditState.data} draftText={draft} />
-      )}
+    <div class="flex flex-col xl:flex-row gap-4 items-start" style={{ minHeight: 'calc(100vh - 6rem)' }}>
 
-      <div class="flex flex-col lg:flex-row gap-8 items-start">
-        {/* Left column — input */}
-        <div class="w-full lg:w-[58%] space-y-6">
-          {inputSection}
-        </div>
-
-        {/* Right column — results (sticky) */}
-        <div class="w-full lg:w-[42%] space-y-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
-          {resultsSection}
-        </div>
+      {/* Left sidebar — structure, frameworks, counterarguments */}
+      <div class="w-full xl:w-[22%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto space-y-4 order-2 xl:order-1">
+        {leftSidebar}
       </div>
+
+      {/* Center — draft text with highlights, fills vertical space */}
+      <div class="w-full xl:w-[46%] xl:min-h-[calc(100vh-6rem)] order-1 xl:order-2 flex flex-col">
+        {inputSection}
+      </div>
+
+      {/* Right sidebar — findings, citation audit */}
+      <div class="w-full xl:w-[32%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto space-y-4 order-3">
+        {rightSidebar}
+      </div>
+
     </div>
   );
 }

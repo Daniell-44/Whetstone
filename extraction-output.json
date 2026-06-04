@@ -1,0 +1,120 @@
+{
+  "social-media-draft": {
+    "centralClaim": "Some form of regulatory intervention for social media platforms is justified to address the degradation of public discourse.",
+    "statements": [
+      {
+        "id": "P1",
+        "type": "premise",
+        "text": "When anyone can broadcast to millions with zero editorial oversight, the loudest, most outrageous voices win attention over the most accurate or careful ones.",
+        "derivedFrom": [],
+        "inferenceRule": null,
+        "inferenceRuleExplanation": null
+      },
+      {
+        "id": "P2",
+        "type": "premise",
+        "text": "Social media platforms optimize for engagement.",
+        "derivedFrom": [],
+        "inferenceRule": null,
+        "inferenceRuleExplanation": null
+      },
+      {
+        "id": "P3",
+        "type": "premise",
+        "text": "Outrage drives engagement more reliably than nuance.",
+        "derivedFrom": [],
+        "inferenceRule": null,
+        "inferenceRuleExplanation": null
+      },
+      {
+        "id": "C1",
+        "type": "conclusion",
+        "text": "The structural design of social media platforms ensures that the loudest, most outrageous voices win attention over the most accurate or careful ones.",
+        "derivedFrom": [
+          "P1",
+          "P2",
+          "P3"
+        ],
+        "inferenceRule": "other",
+        "inferenceRuleExplanation": "P1 describes a general condition; P2 and P3 describe how social media fulfills that condition, leading to the outcome specified in P1 as a structural reality."
+      },
+      {
+        "id": "P4",
+        "type": "premise",
+        "text": "Citizens who rely on social media as their primary news source are systematically exposed to a more distorted picture of reality than those who read long-form journalism or books.",
+        "derivedFrom": [],
+        "inferenceRule": null,
+        "inferenceRuleExplanation": null
+      },
+      {
+        "id": "★P5",
+        "type": "premise",
+        "text": "A public discourse where the loudest, most outrageous voices win over accurate ones leads to citizens being systematically exposed to a distorted picture of reality.",
+        "derivedFrom": [],
+        "inferenceRule": null,
+        "inferenceRuleExplanation": null
+      },
+      {
+        "id": "C2",
+        "type": "conclusion",
+        "text": "Social media platforms lead to a degraded epistemic commons.",
+        "derivedFrom": [
+          "C1",
+          "P4",
+          "★P5"
+        ],
+        "inferenceRule": "categorical_syllogism",
+        "inferenceRuleExplanation": "C1 describes the nature of information flow on social media; P4 provides empirical evidence for its effect; ★P5 connects the nature of the information flow to a degraded epistemic commons."
+      },
+      {
+        "id": "P6",
+        "type": "premise",
+        "text": "If we care about having a democracy that functions on accurate information, then we should care about the conditions under which citizens form their beliefs.",
+        "derivedFrom": [],
+        "inferenceRule": null,
+        "inferenceRuleExplanation": null
+      },
+      {
+        "id": "★P7",
+        "type": "premise",
+        "text": "A degraded epistemic commons negatively impacts the conditions under which citizens form their beliefs, harming democracy.",
+        "derivedFrom": [],
+        "inferenceRule": null,
+        "inferenceRuleExplanation": null
+      },
+      {
+        "id": "C3",
+        "type": "conclusion",
+        "text": "We should care about the conditions under which citizens form their beliefs due to the degraded epistemic commons.",
+        "derivedFrom": [
+          "P6",
+          "C2",
+          "★P7"
+        ],
+        "inferenceRule": "modus_ponens",
+        "inferenceRuleExplanation": "P6 states a conditional concern; C2 establishes the existence of the condition (degraded epistemic commons); ★P7 links C2 to the antecedent of P6, thereby activating the consequent."
+      },
+      {
+        "id": "★P8",
+        "type": "premise",
+        "text": "Caring about the conditions under which citizens form their beliefs, especially when those conditions are degraded by structural issues, justifies regulatory intervention.",
+        "derivedFrom": [],
+        "inferenceRule": null,
+        "inferenceRuleExplanation": null
+      },
+      {
+        "id": "C4",
+        "type": "conclusion",
+        "text": "Some form of regulatory intervention (e.g., transparency requirements, structural limits on the business model monetizing attention through emotional provocation) is justified.",
+        "derivedFrom": [
+          "C3",
+          "★P8"
+        ],
+        "inferenceRule": "modus_ponens",
+        "inferenceRuleExplanation": "C3 establishes the need to care; ★P8 states that this care justifies intervention, leading to the conclusion that intervention is justified."
+      }
+    ],
+    "notes": "P5, P7, and P8 are implicit premises that bridge the explicit statements, making the argument's logical flow complete.",
+    "confidence": 95
+  }
+}

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
-import type { AuditResult, UnstatedWarrant, NamedFallacy, LoadedLanguage, KeyTermScrutinyFinding, ReferentCheckFinding, FalsifiabilityFinding } from '../../lib/audit';
-import { sortByPriority, fallacyMatchKey, loadedLanguageMatchKey, unstatedWarrantMatchKey, keyTermMatchKey, referentMatchKey, falsifiabilityMatchKey } from '../../lib/audit';
+import type { AuditResult, UnstatedWarrant, NamedFallacy, LoadedLanguage, KeyTermScrutinyFinding, ReferentCheckFinding, FalsifiabilityFinding, ModalScopeCheckFinding } from '../../lib/audit';
+import { sortByPriority, fallacyMatchKey, loadedLanguageMatchKey, unstatedWarrantMatchKey, keyTermMatchKey, referentMatchKey, falsifiabilityMatchKey, modalScopeMatchKey } from '../../lib/audit';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 import type { TerminologyPreference } from '../../lib/labels';
 
@@ -727,6 +727,70 @@ function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord
   );
 }
 
+interface ModalScopeCardProps {
+  finding:      ModalScopeCheckFinding;
+  lens:         string;
+  documentId:   string | null | undefined;
+  versionId:    string | null | undefined;
+  actionRecord: ActionRecord | undefined;
+  busy:         boolean;
+  setAction:    (lens: string, matchKey: string, action: string) => void;
+  removeAction: (lens: string, matchKey: string) => void;
+}
+
+function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: ModalScopeCardProps) {
+  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
+  const matchKey  = modalScopeMatchKey(finding);
+  const addressed = actionRecord?.action === 'addressed';
+
+  return (
+    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+      <div class="flex items-start justify-between gap-2 mb-3">
+        <p class="text-sm font-semibold text-gray-900">
+          {finding.claim}
+          <span class="ml-2 text-xs font-normal text-gray-500 normal-case tracking-normal">
+            {finding.issue.replace(/-/g, ' ')}
+          </span>
+        </p>
+        <div class="flex items-center gap-1.5 shrink-0">
+          {addressed && <AddressedBadge />}
+          <ConfidenceBadge confidence={finding.confidence} />
+          <SeverityBadge severity={finding.severity} />
+        </div>
+      </div>
+      {/* Show the modal inflation inline */}
+      <div class="mb-2 flex items-baseline gap-2 flex-wrap">
+        <span class="text-xs font-semibold text-red-600 shrink-0">As stated:</span>
+        <span class="text-xs italic text-gray-700">"{finding.inflatedModal}"</span>
+        <span class="text-xs font-semibold text-emerald-600 shrink-0 ml-1">More accurate:</span>
+        <span class="text-xs italic text-gray-700">"{finding.impliedModal}"</span>
+      </div>
+      <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
+        "{finding.evidence}"
+      </blockquote>
+      <p class="text-xs text-gray-600 leading-relaxed">{finding.explanation}</p>
+      <div class="flex items-start gap-3 flex-wrap">
+        <FindingActionBtns
+          lens={lens}
+          matchKey={matchKey}
+          documentId={documentId}
+          actionRecord={actionRecord}
+          busy={busy}
+          setAction={setAction}
+          removeAction={removeAction}
+        />
+        <FeedbackBtns
+          documentId={documentId}
+          versionId={versionId}
+          targetLens="modalScopeChecks"
+          matchKey={matchKey}
+          findingSnapshot={finding}
+        />
+      </div>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // DismissedToggle
 // ---------------------------------------------------------------------------
@@ -756,6 +820,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
   const [showDismissedKeyTerms,     setShowDismissedKeyTerms]     = useState(false);
   const [showDismissedReferents,    setShowDismissedReferents]    = useState(false);
   const [showDismissedFalsifiabil,  setShowDismissedFalsifiabil]  = useState(false);
+  const [showDismissedModal,        setShowDismissedModal]        = useState(false);
 
   const LENS = 'audit';
 
@@ -824,10 +889,21 @@ export default function AuditResults({ result, documentId, versionId, initialAct
     return rec?.action === 'dismissed';
   });
 
+  const activeModal    = sortByPriority((result.modalScopeChecks ?? []).filter(f => {
+    const rec = getAction(modalScopeMatchKey(f));
+    return !rec || rec.action !== 'dismissed';
+  }));
+  const dismissedModal = (result.modalScopeChecks ?? []).filter(f => {
+    const rec = getAction(modalScopeMatchKey(f));
+    return rec?.action === 'dismissed';
+  });
+
   const hasFindings = activeFallacies.length > 0 || activeLoadedLang.length > 0 ||
     dismissedFallacies.length > 0 || dismissedLoadedLang.length > 0 ||
     activeKeyTerms.length > 0 || activeReferents.length > 0 || activeFalsifiabil.length > 0 ||
-    dismissedKeyTerms.length > 0 || dismissedReferents.length > 0 || dismissedFalsifiabil.length > 0;
+    activeModal.length > 0 ||
+    dismissedKeyTerms.length > 0 || dismissedReferents.length > 0 || dismissedFalsifiabil.length > 0 ||
+    dismissedModal.length > 0;
 
   return (
     <div class="space-y-8 border-t border-gray-100 pt-8">
@@ -1159,6 +1235,55 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                             versionId={versionId}
                             actionRecord={getAction(falsifiabilityMatchKey(f))}
                             busy={isBusy(falsifiabilityMatchKey(f))}
+                            setAction={setAction}
+                            removeAction={removeAction}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </section>
+          )}
+          {/* Phase-2: Modal Scope Checks */}
+          {(activeModal.length > 0 || dismissedModal.length > 0) && (
+            <section>
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+                <LabelWithTooltip label="modalScopeChecks" preference={terminologyPreference} />
+              </h2>
+              <div class="space-y-3">
+                {activeModal.map((f, i) => (
+                  <ModalScopeCard
+                    key={i}
+                    finding={f}
+                    lens={LENS}
+                    documentId={documentId}
+                    versionId={versionId}
+                    actionRecord={getAction(modalScopeMatchKey(f))}
+                    busy={isBusy(modalScopeMatchKey(f))}
+                    setAction={setAction}
+                    removeAction={removeAction}
+                  />
+                ))}
+                {dismissedModal.length > 0 && (
+                  <>
+                    <DismissedToggle
+                      count={dismissedModal.length}
+                      expanded={showDismissedModal}
+                      onToggle={() => setShowDismissedModal(v => !v)}
+                    />
+                    {showDismissedModal && (
+                      <div class="space-y-3 mt-2 opacity-50">
+                        {dismissedModal.map((f, i) => (
+                          <ModalScopeCard
+                            key={i}
+                            finding={f}
+                            lens={LENS}
+                            documentId={documentId}
+                            versionId={versionId}
+                            actionRecord={getAction(modalScopeMatchKey(f))}
+                            busy={isBusy(modalScopeMatchKey(f))}
                             setAction={setAction}
                             removeAction={removeAction}
                           />
