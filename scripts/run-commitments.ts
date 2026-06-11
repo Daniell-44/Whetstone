@@ -47,10 +47,10 @@ async function run() {
     try {
       const { result, inputTokens, outputTokens } = await detectCommitments(text, deps);
       results[name] = result;
-      console.log(`  ethical:        ${result.ethical ? `${result.ethical.framework} (${result.ethical.confidence}%)` : 'null'}`);
-      console.log(`  epistemic:      ${result.epistemic ? `${result.epistemic.framework} (${result.epistemic.confidence}%)` : 'null'}`);
-      console.log(`  political:      ${result.political ? `${result.political.framework} (${result.political.confidence}%)` : 'null'}`);
-      console.log(`  methodological: ${result.methodological ? `${result.methodological.framework} (${result.methodological.confidence}%)` : 'null'}`);
+      console.log(`  ethical:        ${result.ethical ? `${result.ethical.framework} (debug-conf ${result.ethical._debugConfidence ?? "?"}%)` : 'null'}`);
+      console.log(`  epistemic:      ${result.epistemic ? `${result.epistemic.framework} (debug-conf ${result.epistemic._debugConfidence ?? "?"}%)` : 'null'}`);
+      console.log(`  political:      ${result.political ? `${result.political.framework} (debug-conf ${result.political._debugConfidence ?? "?"}%)` : 'null'}`);
+      console.log(`  methodological: ${result.methodological ? `${result.methodological.framework} (debug-conf ${result.methodological._debugConfidence ?? "?"}%)` : 'null'}`);
       console.log(`  alternatives:   ${result.alternativePerspectives.length}`);
       console.log(`  notes:          ${result.notes ?? '(none)'}`);
       console.log(`  tokens:         ${inputTokens} in / ${outputTokens} out`);

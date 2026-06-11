@@ -69,7 +69,7 @@ console.log(`  URLs failed:     ${output.citationsFailed}`);
 console.log('\n=== Claims ===');
 
 for (const claim of output.result.factualClaims) {
-  console.log(`\n[${claim.verdict.toUpperCase()}] (${claim.confidence}%)`);
+  console.log(`\n[${claim.verdict.toUpperCase()}] (debug-conf ${claim._debugConfidence ?? '?'}%)`);
   console.log(`  Claim:   ${claim.claim}`);
   console.log(`  URL:     ${claim.citationUrl ?? '(none)'}`);
   console.log(`  Reason:  ${claim.verdictExplanation}`);

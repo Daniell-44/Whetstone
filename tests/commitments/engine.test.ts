@@ -69,7 +69,8 @@ describe('detectCommitments', () => {
     );
 
     expect(result.ethical?.framework).toBe('consequentialist');
-    expect(result.ethical?.confidence).toBe(80);
+    expect(result.ethical?._debugConfidence).toBe(80);
+    expect(result.ethical?.groundedness.kind).toBe('interpretive');
     expect(result.epistemic?.framework).toBe('empiricist');
     expect(result.political).toBeNull();
     expect(result.methodological).toBeNull();

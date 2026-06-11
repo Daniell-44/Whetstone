@@ -9,7 +9,17 @@ import type {
   EvidenceAssessment,
   EvidenceWeightedResult,
   EvidenceWeightedDeps,
+  ConsensusLevel,
 } from './types';
+import { empirical, type GroundednessSignal } from '../grounded/types';
+
+// Build the empirical groundedness signal from consensus + paper counts.
+// This is where the chip's display-side count comes from.
+function buildGroundedness(consensus: ConsensusLevel, topPapers: { stance: 'supports' | 'opposes' | 'mixed' | 'neutral' }[]): GroundednessSignal {
+  const supporting = topPapers.filter(p => p.stance === 'supports').length;
+  const opposing   = topPapers.filter(p => p.stance === 'opposes').length;
+  return empirical(supporting, opposing, consensus);
+}
 
 // ---------------------------------------------------------------------------
 // Input: extracted statements with claim types
@@ -38,6 +48,7 @@ function assessNonEmpirical(claim: ClaimInput): EvidenceAssessment {
     topPapers:         [],
     explanation:       nonEmpiricalExplanation(claim.claimType),
     caveats:           null,
+    groundedness:      buildGroundedness(level, []),
   };
 }
 
@@ -95,6 +106,7 @@ export async function assessEvidenceWeighted(
         topPapers:         [],
         explanation:       'No relevant academic papers were found for this claim. The evidence base is insufficient to assess consensus.',
         caveats:           null,
+        groundedness:      buildGroundedness('insufficient_data', []),
       });
       continue;
     }
@@ -131,6 +143,7 @@ export async function assessEvidenceWeighted(
         topPapers:         output.topPapers,
         explanation:       output.explanation,
         caveats:           output.caveats,
+        groundedness:      buildGroundedness(output.consensusLevel, output.topPapers),
       });
     } catch {
       // LLM synthesis failed — degrade to insufficient_data
@@ -143,6 +156,7 @@ export async function assessEvidenceWeighted(
         topPapers:         [],
         explanation:       'Evidence synthesis failed. Papers were found but could not be analysed.',
         caveats:           null,
+        groundedness:      buildGroundedness('insufficient_data', []),
       });
     }
   }

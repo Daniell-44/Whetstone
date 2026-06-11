@@ -15,7 +15,7 @@ const MINIMAL_AUDIT_JSON = JSON.stringify({
     grounds:          'Helmets reduce head injury risk by 60%.',
     statedWarrant:    null,
     unstatedWarrants: [
-      { warrant: 'Reducing injury risk is a good reason for policy.', necessity: 'Connects evidence to conclusion.', severity: 'medium', confidence: 80 },
+      { warrant: 'Reducing injury risk is a good reason for policy.', necessity: 'Connects evidence to conclusion.', severity: 'medium', groundedness: { kind: "structural" } as const },
     ],
     weakestLink: 'The grounds come from a single meta-analysis.',
   },
@@ -121,7 +121,7 @@ describe('auditText', () => {
     ).rejects.toThrow(/failed after 4 attempts/);
   });
 
-  it('rejects when a quote field is not a verbatim substring', async () => {
+  it('drops findings whose quotes are not verbatim substrings, but returns the rest', async () => {
     const auditWithBadQuote = JSON.stringify({
       centralClaim:   'Helmets save lives.',
       toulmin: {
@@ -137,7 +137,7 @@ describe('auditText', () => {
           quote:       'This phrase does not appear in the input text at all',
           explanation: 'Example fallacy.',
           severity:    'medium',
-          confidence:  75,
+          groundedness: { kind: "structural" } as const,
         },
       ],
       loadedLanguage: [],
@@ -148,9 +148,11 @@ describe('auditText', () => {
       async () => ({ content: auditWithBadQuote, inputTokens: 10, outputTokens: 5 }),
     ]);
 
-    await expect(
-      auditText('Cyclists should wear helmets.', makeDeps(provider)),
-    ).rejects.toThrow(/quote validation failed/);
+    // New drop-and-continue behaviour: audit resolves successfully with
+    // the offending finding stripped, rather than throwing.
+    const result = await auditText('Cyclists should wear helmets.', makeDeps(provider));
+    expect(result.audit.namedFallacies).toHaveLength(0);
+    expect(result.audit.toulmin.claim).toBe('Cyclists should wear helmets.');
   });
 
   it('accepts an audit with empty findings arrays', async () => {
@@ -191,7 +193,7 @@ describe('validateQuotesInText', () => {
     const audit = {
       ...baseAudit,
       namedFallacies: [
-        { name: 'Ad Hominem' as const, quote: 'hello world', explanation: 'x', severity: 'low' as const, confidence: 80 },
+        { name: 'Ad Hominem' as const, quote: 'hello world', explanation: 'x', severity: 'low' as const, groundedness: { kind: "structural" } as const },
       ],
     };
     expect(() => validateQuotesInText(audit, 'say hello world today')).not.toThrow();
@@ -201,7 +203,7 @@ describe('validateQuotesInText', () => {
     const audit = {
       ...baseAudit,
       namedFallacies: [
-        { name: 'Ad Hominem' as const, quote: 'not present', explanation: 'x', severity: 'low' as const, confidence: 80 },
+        { name: 'Ad Hominem' as const, quote: 'not present', explanation: 'x', severity: 'low' as const, groundedness: { kind: "structural" } as const },
       ],
     };
     expect(() => validateQuotesInText(audit, 'completely different text')).toThrow(/quote validation failed/);
@@ -211,7 +213,7 @@ describe('validateQuotesInText', () => {
     const audit = {
       ...baseAudit,
       loadedLanguage: [
-        { phrase: 'missing phrase', technique: 'Weasel words' as const, explanation: 'x', severity: 'low' as const, confidence: 70 },
+        { phrase: 'missing phrase', technique: 'Weasel words' as const, explanation: 'x', severity: 'low' as const, groundedness: { kind: "structural" } as const },
       ],
     };
     expect(() => validateQuotesInText(audit, 'some other text')).toThrow(/quote validation failed/);

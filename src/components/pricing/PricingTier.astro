@@ -1,0 +1,52 @@
+---
+interface Props {
+  label:        string;
+  labelColour:  string;
+  price:        string;
+  priceUnit?:   string;
+  subtext:      string;
+  features:     string[];
+  featureColour: string;
+  highlighted?: boolean;
+  accentBar?:   string;
+}
+
+const { label, labelColour, price, priceUnit, subtext, features, featureColour, highlighted, accentBar } = Astro.props;
+const tierKey = label.toLowerCase().replace(/[^a-z0-9]/g, '-');
+---
+<div class={`relative p-6 sm:p-8 ${highlighted ? 'bg-amber-50/30' : ''}`}>
+  {accentBar && <div class={`absolute top-0 left-0 right-0 h-1 ${accentBar}`} />}
+
+  <p class={`text-xs font-bold uppercase tracking-wider ${labelColour} mb-2`}>{label}</p>
+  <div class="flex items-baseline gap-1 mb-1">
+    <span class="font-serif text-4xl text-gray-900">{price}</span>
+    {priceUnit && <span class="text-gray-400 text-sm">{priceUnit}</span>}
+  </div>
+  <p class="text-sm text-gray-400 mb-4 sm:mb-6">{subtext}</p>
+
+  <!-- Mobile collapse toggle (CSS-only via :checked) -->
+  <input type="checkbox" id={`tier-toggle-${tierKey}`} class="peer/tier hidden" />
+  <label
+    for={`tier-toggle-${tierKey}`}
+    class="sm:hidden w-full flex items-center justify-between py-2 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer"
+  >
+    <span>{features.length} features</span>
+    <svg
+      class="w-4 h-4 transition-transform peer-checked/tier:rotate-180"
+      fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+    ><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </label>
+
+  <ul class={`space-y-2.5 text-sm mb-6 sm:mb-8 hidden peer-checked/tier:block sm:block`}>
+    {features.map((feature) => (
+      <li class={`flex gap-2 ${highlighted ? 'text-gray-700' : 'text-gray-600'}`}>
+        <span class={`shrink-0 ${featureColour}`}>✓</span>
+        <span>{feature}</span>
+      </li>
+    ))}
+  </ul>
+
+  <div>
+    <slot name="cta" />
+  </div>
+</div>

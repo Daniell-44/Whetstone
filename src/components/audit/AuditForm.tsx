@@ -1,9 +1,12 @@
 import { useState, useMemo } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
+import { totalFindingCount } from '../../lib/audit';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
 import AuditResults from './AuditResults';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import HighlightedDraft from '../studio/HighlightedDraft';
+import DeeperLensPanel from '../lens-panel/DeeperLensPanel';
+import { track } from '../../lib/analytics/track';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -12,7 +15,7 @@ import HighlightedDraft from '../studio/HighlightedDraft';
 type Tab = 'text' | 'url';
 
 type AuditApiResponse =
-  | { ok: true;  audit: AuditResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: true;  audit: AuditResult; sourceText?: string; usage: { inputTokens: number; outputTokens: number } }
   | { ok: false; error: { code: string; message: string } };
 
 type ExtractionApiResponse =
@@ -48,6 +51,9 @@ export default function AuditForm() {
   const [error, setError]         = useState<string | null>(null);
   const [result, setResult]       = useState<AuditResult | null>(null);
   const [extraction, setExtraction] = useState<ArgumentExtractionResult | null>(null);
+  // The text the audit ran against — used to drive the deeper-lens panel.
+  // For text-tab audits it equals textInput; for URL audits it's the extracted article body.
+  const [sourceText, setSourceText] = useState<string>('');
 
   const charCount = textInput.length;
   const textValid = charCount >= MIN_CHARS && charCount <= MAX_CHARS;
@@ -68,6 +74,8 @@ export default function AuditForm() {
 
     const isText = tab === 'text';
     const body   = isText ? { text: textInput } : { url: urlInput.trim() };
+    const startedAt = performance.now();
+    track('audit_started', { surface: 'reader', source_kind: isText ? 'text' : 'url' });
 
     try {
       const requests: Promise<unknown>[] = [
@@ -95,12 +103,22 @@ export default function AuditForm() {
         const data = auditData.value as AuditApiResponse;
         if (data.ok) {
           setResult(data.audit);
+          // Store the text the audit ran against (server-extracted for URLs)
+          // so the deeper-lens panel can fire follow-up calls.
+          setSourceText(data.sourceText ?? (isText ? textInput : ''));
+          track('audit_completed', {
+            latency_ms:    Math.round(performance.now() - startedAt),
+            finding_count: totalFindingCount(data.audit),
+            has_phase_two: false,
+          });
         } else {
           const code = data.error.code;
           setError(ERROR_MESSAGES[code] ?? data.error.message ?? 'Something went wrong.');
+          track('audit_failed', { error_code: code });
         }
       } else {
         setError('Network error — check your connection and try again.');
+        track('audit_failed', { error_code: 'NETWORK' });
       }
 
       // Handle extraction result (best-effort — don't block audit display on failure)
@@ -140,9 +158,10 @@ export default function AuditForm() {
             <textarea
               value={textInput}
               onInput={e => setTextInput((e.target as HTMLTextAreaElement).value)}
-              placeholder="Paste an article, speech, debate excerpt, or any argumentative text…"
-              rows={9}
+              placeholder="Paste an article, speech, or any argumentative text…"
+              rows={1}
               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
+              style="min-height: 44px;"
             />
             <div class="flex justify-between mt-1.5 text-xs">
               <span class={charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600' : charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
@@ -235,6 +254,12 @@ export default function AuditForm() {
           </div>
 
         </div>
+      )}
+
+      {/* Deeper lenses (free, on-demand) — works for both text and URL audits
+         (URL audits use server-returned extracted text). */}
+      {result && !loading && sourceText && (
+        <DeeperLensPanel text={sourceText} surface="reader" />
       )}
 
     </div>

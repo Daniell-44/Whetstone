@@ -14,11 +14,14 @@ export type MethodologicalCommitment =
   | 'reductionist' | 'holist' | 'individualist' | 'structuralist'
   | 'universalist' | 'contextualist' | 'mixed' | 'unclear';
 
+import type { GroundednessSignal } from '../grounded/types';
+
 export interface FrameworkDetection<T extends string> {
-  framework:   T;
-  evidence:    string;
-  explanation: string;
-  confidence:  number;
+  framework:        T;
+  evidence:         string;
+  explanation:      string;
+  groundedness:     GroundednessSignal;
+  _debugConfidence?:number;
 }
 
 export type FrameworkType = 'ethical' | 'epistemic' | 'political' | 'methodological';

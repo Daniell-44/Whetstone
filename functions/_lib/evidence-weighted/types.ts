@@ -37,15 +37,18 @@ export type ConsensusLevel =
   | 'insufficient_data'   // too few relevant papers to assess
   | 'not_applicable';     // normative / definitional / not empirically testable
 
+import type { GroundednessSignal } from '../grounded/types';
+
 export interface EvidenceAssessment {
-  claim:             string;         // the claim text from extraction
+  claim:             string;
   claimType:         ClaimType;
   consensusLevel:    ConsensusLevel;
-  confidencePercent: number | null;  // 0–100, null for non-empirical claims
-  paperCount:        number;         // how many relevant papers were found
-  topPapers:         EvidencePaper[];// the 3–5 most relevant papers
-  explanation:       string;         // LLM synthesis of what the literature says
-  caveats:           string | null;  // methodological caveats, recency issues, etc.
+  confidencePercent: number | null;  // domain-specific — assessed strength of consensus
+  paperCount:        number;
+  topPapers:         EvidencePaper[];
+  explanation:       string;
+  caveats:           string | null;
+  groundedness:      GroundednessSignal;  // derived from paperCount + consensusLevel
 }
 
 export interface EvidencePaper {

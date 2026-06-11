@@ -3,6 +3,7 @@ import type { CitationAuditResult, CitedClaim, CitationVerdict } from '../../../
 import { citationMatchKey } from '../../../functions/_lib/audit/match-keys';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 import type { TerminologyPreference } from '../../lib/labels';
+import GroundednessChip from '../grounded/GroundednessChip';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -96,7 +97,7 @@ function ClaimCard({
         <span class={`text-xs px-2 py-0.5 rounded-full font-semibold border shrink-0 ${badgeCls}`}>
           {VERDICT_LABEL[claim.verdict]}
         </span>
-        <span class="text-xs text-gray-400 ml-auto shrink-0">{claim.confidence}% confidence</span>
+        <span class="ml-auto shrink-0"><GroundednessChip groundedness={claim.groundedness} compact /></span>
       </div>
 
       {/* Claim text */}

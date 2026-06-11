@@ -9,7 +9,22 @@ import {
   MAX_CITED_CLAIMS_PER_AUDIT,
   CITATION_FETCH_PARALLELISM,
 } from './constants';
-import type { CitedClaim, CitationAuditResult } from './types';
+import type { CitedClaim, CitationAuditResult, CitationVerdict } from './types';
+import { empirical, type GroundednessSignal } from '../grounded/types';
+
+// Citation verdict → empirical groundedness signal. The verdict is the real
+// signal; this exposes it through the grounded-attribution surface so the chip
+// reads consistently with other empirical findings.
+function verdictGroundedness(verdict: CitationVerdict): GroundednessSignal {
+  switch (verdict) {
+    case 'well_cited':   return empirical(1, 0, 'strong_support');
+    case 'weakly_cited': return empirical(1, 0, 'moderate_support');
+    case 'mismatched':   return empirical(0, 1, 'strong_opposition');
+    case 'uncited':      return empirical(0, 0, 'insufficient_data');
+    case 'unfetchable':  return empirical(0, 0, 'insufficient_data');
+    case 'non_factual':  return empirical(0, 0, 'not_applicable');
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Public interface
@@ -43,7 +58,8 @@ function uncitedClaim(raw: { claim: string; evidenceQuote: string; citationUrl: 
     sourceExcerpt:      null,
     sourceTitle:        null,
     sourcePublication:  null,
-    confidence:         95,
+    groundedness:       verdictGroundedness('uncited'),
+    _debugConfidence:   95,
   };
 }
 
@@ -56,7 +72,8 @@ function unfetchableClaim(raw: { claim: string; evidenceQuote: string; citationU
     sourceExcerpt:      null,
     sourceTitle:        null,
     sourcePublication:  null,
-    confidence:         100,
+    groundedness:       verdictGroundedness('unfetchable'),
+    _debugConfidence:   100,
   };
 }
 
@@ -189,7 +206,8 @@ export async function auditCitations(
       sourceExcerpt:      stage2.output.sourceExcerpt,
       sourceTitle:        article.title       ?? null,
       sourcePublication:  article.publication ?? null,
-      confidence:         stage2.output.confidence,
+      groundedness:       verdictGroundedness(stage2.output.verdict),
+      _debugConfidence:   stage2.output.confidence,
     };
   });
 
@@ -221,7 +239,7 @@ export async function auditCitations(
     const ao = VERDICT_ORDER[a.verdict] ?? 99;
     const bo = VERDICT_ORDER[b.verdict] ?? 99;
     if (ao !== bo) return ao - bo;
-    return b.confidence - a.confidence; // within group: higher confidence first
+    return (b._debugConfidence ?? 0) - (a._debugConfidence ?? 0); // within group: higher legacy confidence first
   });
 
   // -------------------------------------------------------------------------

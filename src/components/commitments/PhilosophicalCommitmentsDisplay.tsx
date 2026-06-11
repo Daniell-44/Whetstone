@@ -5,6 +5,7 @@ import type {
 } from '../../../functions/_lib/philosophical-commitments/types';
 import type { TerminologyPreference } from '../../lib/labels';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
+import GroundednessChip from '../grounded/GroundednessChip';
 
 // ---------------------------------------------------------------------------
 // Framework pretty-printing
@@ -81,9 +82,7 @@ function DimensionCard({
             <span class="text-sm font-semibold text-gray-800">
               {FRAMEWORK_LABELS[detection.framework] ?? detection.framework}
             </span>
-            <span class="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-medium">
-              {detection.confidence}% confidence
-            </span>
+            <GroundednessChip groundedness={detection.groundedness} compact />
           </div>
           <p class="text-sm text-gray-700">{detection.explanation}</p>
           <p class="text-xs text-gray-500 italic border-l-2 border-purple-200 pl-2">

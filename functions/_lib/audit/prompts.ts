@@ -193,7 +193,14 @@ Arguments make claims in different modal registers. A strong empirical claim tha
 - Do not flag every use of confident language. "The earth orbits the sun" is asserted confidently because it is known with certainty. Only flag modal inflation where the degree of certainty asserted *exceeds* what the argument's own evidence would license.
 - Do not confuse modal scope with Slippery Slope: Slippery Slope is about *sequence* (A will lead to B will lead to C) without justification; modal scope inflation is about *certainty level* (presenting what might happen as what will happen).
 - Do not flag modal language that is explicitly hedged throughout ("this strongly suggests", "the evidence indicates"). Only flag where the hedge is absent or quietly dropped.
-- evidence MUST be a verbatim substring of the input.`;
+
+### Verbatim quote requirement (critical)
+
+- The \`evidence\` field MUST be a contiguous, verbatim substring of the input text. Copy the exact characters as they appear in the original — do NOT paraphrase, do NOT summarise, do NOT truncate with "…" or "...", do NOT join two non-adjacent passages with ellipses.
+- If you cannot find a single contiguous span (≥ 20 characters) that exemplifies the modal inflation, OMIT the finding rather than fabricate one. Empty arrays are valid and expected — fabricated quotes cause hard failures downstream.
+- The \`inflatedModal\` field should be a single word or short phrase from the input (verbatim). The \`impliedModal\` field is your own suggested replacement — that one can be your own wording.
+
+The same verbatim-substring rule applies to every "evidence" and "quote" field elsewhere in this prompt. Treat it as inviolable.`;
 
 // ---------------------------------------------------------------------------
 // Public API

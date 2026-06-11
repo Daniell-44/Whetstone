@@ -1,15 +1,32 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 import { callWithRetry } from '../llm/retry';
-import { TonePostureResultSchema } from './schemas';
+import { RawTonePostureResultSchema } from './schemas';
 import { TONE_SYSTEM_PROMPT, buildTonePrompt } from './prompts';
 import { TONE_MODEL, TONE_THINKING_BUDGET } from './constants';
 import type { TonePostureResult, TonePostureDeps } from './types';
+import { interpretive, bandFromLegacyConfidence } from '../grounded/types';
+
+type RawToneResult = z.infer<typeof RawTonePostureResultSchema>;
+
+function applyGroundedness(raw: RawToneResult): TonePostureResult {
+  const { confidence, ...rest } = raw;
+  return {
+    ...rest,
+    tonalMoves: rest.tonalMoves.map(({ confidence: mc, ...mRest }) => ({
+      ...mRest,
+      groundedness:     interpretive(bandFromLegacyConfidence(mc)),
+      _debugConfidence: mc,
+    })),
+    groundedness:     interpretive(bandFromLegacyConfidence(confidence)),
+    _debugConfidence: confidence,
+  };
+}
 
 export async function detectTonePosture(
   text: string,
   deps: TonePostureDeps,
 ): Promise<{ result: TonePostureResult; inputTokens: number; outputTokens: number }> {
-  const { output, inputTokens, outputTokens } = await callWithRetry<TonePostureResult>(
+  const { output: rawOutput, inputTokens, outputTokens } = await callWithRetry<RawToneResult>(
     () =>
       deps.provider.complete(
         {
@@ -22,10 +39,10 @@ export async function detectTonePosture(
         },
         deps.apiKey,
       ),
-    TonePostureResultSchema as z.ZodType<TonePostureResult>,
+    RawTonePostureResultSchema,
     'tone-posture',
     deps.backoffDelaysMs,
   );
 
-  return { result: output, inputTokens, outputTokens };
+  return { result: applyGroundedness(rawOutput), inputTokens, outputTokens };
 }

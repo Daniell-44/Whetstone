@@ -9,6 +9,29 @@ name = "devils-advocate-site"
 # Pass the output directory explicitly when deploying: `wrangler pages deploy dist`
 compatibility_date = "2025-01-01"
 
+# Deploy-routing settings.
+# workers_dev = true keeps the *.workers.dev URL as a fallback while transitioning
+# to the custom domain. Set to false once thewhetstone.net is fully verified in
+# production (~1 week of stable use).
+workers_dev = true
+# preview_urls = false disables per-deploy *.workers.dev preview URLs. We don't
+# use branch previews. Set to true if you start using `wrangler versions upload`.
+preview_urls = false
+
+# ---------------------------------------------------------------------------
+# Observability — enables Workers Logs in the Cloudflare dashboard.
+# After deploy: dashboard → your worker → Logs tab → Begin log stream.
+# Lets you see console.log / console.error output in the browser without
+# needing `wrangler tail` (which requires DNS to tail.developers.workers.dev).
+# ---------------------------------------------------------------------------
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+
 # ---------------------------------------------------------------------------
 # KV namespace — rate limiting
 # Create in the Cloudflare dashboard: Workers & Pages → KV → Create namespace
@@ -19,6 +42,12 @@ compatibility_date = "2025-01-01"
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
 id      = "f28cc72968cb476f809fe2047fe5b563"
+
+# Astro adapter auto-creates this every deploy unless it sees the binding
+# already. Pre-bind to skip recreation (otherwise deploy fails with 10014).
+[[kv_namespaces]]
+binding = "SESSION"
+id      = "63cfdd20b0184a7a933d90f863f01720"
 
 # ---------------------------------------------------------------------------
 # KV namespace — scorecard storage
@@ -32,6 +61,21 @@ id      = "f28cc72968cb476f809fe2047fe5b563"
 binding    = "SCORECARDS"
 id         = "3ace85b97e8e48a89abec51a906070d8"
 preview_id = "eba00c98cb6d428d9651520d45468229"
+
+# ---------------------------------------------------------------------------
+# KV namespace — shareable audit permalinks (30-day TTL).
+# Stores the audit JSON keyed by short ID (12-char base62). URL pattern:
+#   /audit/<id>  → renders the audit view
+#   /audit/<id>/card.svg → renders the OG card
+#
+# Create: wrangler kv namespace create AUDIT_LINKS
+#         wrangler kv namespace create AUDIT_LINKS --preview
+# ---------------------------------------------------------------------------
+
+[[kv_namespaces]]
+binding    = "AUDIT_LINKS"
+id         = "eebd46622849454999a9fa8fa20bd7cf"
+preview_id = "bcf2c52f114f4a7da0c8b087922bf0af"
 
 # ---------------------------------------------------------------------------
 # Environment variables (non-secret defaults shown here for documentation).
@@ -86,9 +130,13 @@ AUDIT_USER_DAILY_CAP  = "50"
 COUNTERARG_DAILY_CAP  = "20"
 COMMITMENTS_DAILY_CAP = "15"
 CITATION_DAILY_CAP    = "10"
-SITE_URL              = "https://devils-advocate-site.daniellivingstone2005.workers.dev"
+SITE_URL              = "https://thewhetstone.net"
+# Set to "1" to log magic-link sign-in codes via console.log so they appear in
+# `wrangler tail`. Useful when Resend email delivery is broken. Set to "0" or
+# remove this line in real production.
+AUTH_DEBUG_LOG_CODES  = "1"
 # Replace after creating the Stripe product and price (see checklist above)
-STRIPE_PRICE_ID       = "price_REPLACE_AFTER_STRIPE_PRODUCT_CREATED"
+STRIPE_PRICE_ID       = "price_1TgLe93xWchMRilKZy3OxpmT"
 # ALLOWED_ORIGINS: comma-separated. Example:
 # ALLOWED_ORIGINS = "chrome-extension://YOUR_EXTENSION_ID,https://whetstone.so"
 # RESEND_API_KEY is a secret — set via: wrangler secret put RESEND_API_KEY --config dist/server/wrangler.json

@@ -22,18 +22,28 @@ class FakeAuthDb implements AuthDb {
   async createUser(id: string, email: string) {
     this.users.set(id, { id, email, created_at: new Date().toISOString(), terminology_preference: 'plain' });
   }
-  async createMagicLink(id: string, userId: string, tokenHash: string, expiresAt: string) {
+  async createMagicLink(id: string, userId: string, tokenHash: string, expiresAt: string, returnTo: string | null = null, codeHash: string | null = null) {
     this.magicLinks.set(id, {
       id, user_id: userId, token_hash: tokenHash,
       created_at: new Date().toISOString(), expires_at: expiresAt, consumed_at: null,
+      return_to: returnTo, code_hash: codeHash, code_attempts: 0,
     });
   }
   async findMagicLinkByTokenHash(tokenHash: string) {
     return [...this.magicLinks.values()].find(m => m.token_hash === tokenHash) ?? null;
   }
+  async findLatestActiveMagicLinkForUser(userId: string) {
+    return [...this.magicLinks.values()]
+      .filter(m => m.user_id === userId && m.consumed_at === null && new Date(m.expires_at) > new Date())
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))[0] ?? null;
+  }
   async markMagicLinkConsumed(id: string) {
     const link = this.magicLinks.get(id);
     if (link) link.consumed_at = new Date().toISOString();
+  }
+  async incrementMagicLinkCodeAttempts(id: string) {
+    const link = this.magicLinks.get(id);
+    if (link) link.code_attempts += 1;
   }
   async createSession(id: string, userId: string, expiresAt: string) {
     this.sessions.set(id, { id, user_id: userId, created_at: new Date().toISOString(), expires_at: expiresAt });

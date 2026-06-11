@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://devils-advocate-site.pages.dev/sitemap-index.xml
+Sitemap: https://thewhetstone.net/sitemap-index.xml

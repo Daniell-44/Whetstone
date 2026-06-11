@@ -9,6 +9,7 @@ import {
   argumentScore,
 } from '../../lib/audit';
 import { auditToMarkdown, downloadMarkdown } from '../../lib/export-audit';
+import { track } from '../../lib/analytics/track';
 
 // ---------------------------------------------------------------------------
 // Score ring — circular progress indicator (SVG)
@@ -70,8 +71,39 @@ interface Props {
   draftTitle?: string;
 }
 
+type ShareState =
+  | { status: 'idle' }
+  | { status: 'sharing' }
+  | { status: 'shared'; url: string }
+  | { status: 'error' };
+
 export default function SummaryToolbar({ result, draftText, draftTitle }: Props) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied]   = useState(false);
+  const [share, setShare]     = useState<ShareState>({ status: 'idle' });
+
+  async function handleShare() {
+    setShare({ status: 'sharing' });
+    try {
+      const res = await fetch('/api/audit-link', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ audit: result, draftText, draftTitle }),
+      });
+      const data = await res.json() as { ok: boolean; url?: string };
+      if (data.ok && data.url) {
+        await navigator.clipboard.writeText(data.url);
+        setShare({ status: 'shared', url: data.url });
+        track('audit_share_link_created');
+        setTimeout(() => setShare({ status: 'idle' }), 3000);
+      } else {
+        setShare({ status: 'error' });
+        setTimeout(() => setShare({ status: 'idle' }), 3000);
+      }
+    } catch {
+      setShare({ status: 'error' });
+      setTimeout(() => setShare({ status: 'idle' }), 3000);
+    }
+  }
   const total     = totalFindingCount(result);
   const breakdown = severityBreakdown(result);
   const words     = wordCount(draftText);
@@ -80,7 +112,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
   const score     = argumentScore(result);
 
   return (
-    <div class="rounded-lg border border-gray-200 bg-white px-4 py-3 flex items-center gap-5">
+    <div class="rounded-lg border border-gray-200 bg-white px-3 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
       {/* Score ring */}
       <div class="flex items-center gap-3 shrink-0">
         <ScoreRing score={score} />
@@ -150,6 +182,23 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
           title="Download audit report as .md file"
         >
           ↓ Download
+        </button>
+        <button
+          onClick={() => void handleShare()}
+          disabled={share.status === 'sharing'}
+          class={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
+            share.status === 'shared'
+              ? 'text-emerald-600 bg-emerald-50'
+              : share.status === 'error'
+                ? 'text-red-600 bg-red-50'
+                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+          } disabled:opacity-60`}
+          title="Create a shareable permalink (30-day expiry). Auto-copies to clipboard."
+        >
+          {share.status === 'sharing' ? 'Sharing…' :
+           share.status === 'shared'  ? '🔗 Link copied' :
+           share.status === 'error'   ? 'Failed' :
+                                        '🔗 Share audit'}
         </button>
       </div>
     </div>

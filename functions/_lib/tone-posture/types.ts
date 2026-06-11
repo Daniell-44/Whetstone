@@ -31,12 +31,15 @@ export type TonalRegister =
 // Per-finding: specific tonal moves detected in the text
 // ---------------------------------------------------------------------------
 
+import type { GroundednessSignal } from '../grounded/types';
+
 export interface TonalMove {
-  passage:     string;    // verbatim substring from the input
-  move:        string;    // what the passage does rhetorically (e.g., "shifts to moral urgency", "deploys sarcasm to dismiss")
-  effect:      string;    // what this does to the reader (e.g., "positions the reader as complicit if they disagree")
-  severity:    'high' | 'medium' | 'low';
-  confidence:  number;    // 0–100
+  passage:          string;
+  move:             string;
+  effect:           string;
+  severity:         'high' | 'medium' | 'low';
+  groundedness:     GroundednessSignal;
+  _debugConfidence?:number;
 }
 
 // ---------------------------------------------------------------------------
@@ -50,10 +53,11 @@ export interface TonePostureResult {
   register:         TonalRegister;
   registerEvidence: string;
   registerExplanation: string;
-  tonalMoves:       TonalMove[];      // specific passages where the tone does argumentative work
-  audiencePosition: string;           // how the text positions its reader (ally, student, judge, witness, etc.)
+  tonalMoves:       TonalMove[];
+  audiencePosition: string;
   notes:            string | null;
-  confidence:       number;           // 0–100 overall
+  groundedness:     GroundednessSignal;
+  _debugConfidence?:number;
 }
 
 export interface TonePostureDeps {

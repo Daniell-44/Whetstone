@@ -6,7 +6,7 @@ import cloudflare from '@astrojs/cloudflare';
 import preact from '@astrojs/preact';
 
 export default defineConfig({
-  site: 'https://devils-advocate-site.pages.dev',
+  site: 'https://thewhetstone.net',
   // 'static' output with per-page `export const prerender = false` for on-demand pages.
   // Marketing and static pages stay prerendered; scorecard routes opt out.
   adapter: cloudflare(),

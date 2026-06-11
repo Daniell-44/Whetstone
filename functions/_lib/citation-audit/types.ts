@@ -6,6 +6,8 @@ export type CitationVerdict =
   | 'unfetchable'     // citation URL exists but couldn't be retrieved
   | 'non_factual';    // not actually a factual claim (analyst feedback only, not user-shown by default)
 
+import type { GroundednessSignal } from '../grounded/types';
+
 export interface CitedClaim {
   claim:               string;
   evidenceQuote:       string;
@@ -16,7 +18,8 @@ export interface CitedClaim {
   sourceExcerpt:       string | null;
   sourceTitle:         string | null;
   sourcePublication:   string | null;
-  confidence:          number; // 0-100
+  groundedness:        GroundednessSignal;
+  _debugConfidence?:   number;
 }
 
 export interface CitationAuditResult {

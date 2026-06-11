@@ -1,172 +1,230 @@
 ---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
+import AuditForm from '../components/audit/AuditForm';
+import HeroHeadline from '../components/reader/HeroHeadline';
+import { listScorecards } from '../../functions/_lib/scorecard/storage';
+
+const scorecards = await listScorecards(env.SCORECARDS);
+
+// Category tag colours
+const CATEGORY_STYLES: Record<string, { bg: string; text: string; chip: string }> = {
+  politics:    { bg: 'bg-red-600',     text: 'text-white', chip: 'bg-red-100 text-red-700' },
+  economics:   { bg: 'bg-emerald-600', text: 'text-white', chip: 'bg-emerald-100 text-emerald-700' },
+  science:     { bg: 'bg-blue-600',    text: 'text-white', chip: 'bg-blue-100 text-blue-700' },
+  technology:  { bg: 'bg-violet-600',  text: 'text-white', chip: 'bg-violet-100 text-violet-700' },
+  health:      { bg: 'bg-pink-600',    text: 'text-white', chip: 'bg-pink-100 text-pink-700' },
+  culture:     { bg: 'bg-amber-600',   text: 'text-white', chip: 'bg-amber-100 text-amber-700' },
+  philosophy:  { bg: 'bg-indigo-600',  text: 'text-white', chip: 'bg-indigo-100 text-indigo-700' },
+  law:         { bg: 'bg-gray-700',    text: 'text-white', chip: 'bg-gray-200 text-gray-700' },
+  environment: { bg: 'bg-green-600',   text: 'text-white', chip: 'bg-green-100 text-green-700' },
+  education:   { bg: 'bg-sky-600',     text: 'text-white', chip: 'bg-sky-100 text-sky-700' },
+};
+
+const TAG_COLOURS = [
+  { bg: 'bg-indigo-600',  text: 'text-white' },
+  { bg: 'bg-rose-600',    text: 'text-white' },
+  { bg: 'bg-emerald-600', text: 'text-white' },
+];
+
+function readTime(dek: string): string {
+  const words = dek.split(/\s+/).length;
+  const mins = Math.max(3, Math.ceil(words / 40) + 2);
+  return `${mins} min read`;
+}
+
+const categoryCounts: Record<string, number> = {};
+for (const sc of scorecards) {
+  if (sc.category) categoryCounts[sc.category] = (categoryCounts[sc.category] ?? 0) + 1;
+}
+const presentCategories = Object.keys(categoryCounts).sort();
 ---
 <Base
-  title="The Whetstone — structural logic auditor for written arguments"
-  description="Audit the reasoning in any argument. 26 fallacy patterns, Toulmin decomposition, counterargument generation, citation audit, and evidence-weighted likelihood. Free for readers. Pro tools for writers."
+  title="The Whetstone — audit any argument"
+  description="Paste any text or drop a URL. See the structure behind the argument: claims, evidence, where the logic breaks down, and the strongest opposing case. Free to try."
   canonicalPath="/"
 >
-  <main>
+  <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12 sm:pb-24">
 
     <!-- Hero -->
-    <section class="max-w-4xl mx-auto px-6 pt-24 pb-20">
-      <h1 class="font-serif text-5xl sm:text-6xl text-gray-900 leading-[1.1] mb-6">
-        See the structure<br class="hidden sm:block" /> behind every argument.
-      </h1>
-      <p class="text-xl text-gray-500 leading-relaxed max-w-2xl mb-10">
-        The Whetstone analyses the reasoning in any text — what's claimed, what evidence is offered,
-        where the logic breaks down, and the strongest opposing case the writer didn't engage with.
-        Not a verdict on who's right. A structural view of how the argument works.
-      </p>
-      <div class="flex flex-wrap gap-4">
-        <a
-          href="/reader"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          Try the audit — free
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+    <header class="mb-10 sm:mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="h-px flex-1 bg-gray-200" />
+        <p class="text-xs font-semibold tracking-[0.3em] text-indigo-500 uppercase shrink-0">The Whetstone · Reader</p>
+        <div class="h-px flex-1 bg-gray-200" />
+      </div>
+      <HeroHeadline client:load />
+    </header>
+
+    <!-- Audit form -->
+    <section class="mb-12 sm:mb-16 max-w-4xl mx-auto">
+      <AuditForm client:load />
+    </section>
+
+    <!-- Scorecards section with left rail -->
+    <section>
+      <div class="flex items-center gap-4 mb-6 sm:mb-8">
+        <h2 class="font-serif text-xl sm:text-2xl text-gray-900 shrink-0">Logic Scorecards</h2>
+        <div class="h-px flex-1 bg-gray-200" />
+        <a href="/scorecards" class="text-xs text-indigo-600 hover:text-indigo-800 transition-colors font-medium shrink-0">
+          View all →
         </a>
-        <a
-          href="/creator/studio"
-          class="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          Open Creator Studio
-        </a>
       </div>
+
+      {scorecards.length === 0 ? (
+        <div class="py-20 border-t border-gray-200 text-center">
+          <p class="font-serif text-2xl text-gray-300">No scorecards published yet.</p>
+        </div>
+      ) : (
+        <div class="flex flex-col lg:flex-row gap-8">
+
+          <!-- Left filter rail (desktop only) -->
+          <aside class="hidden lg:block w-56 shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Browse</p>
+            <nav class="space-y-1">
+              <a href="#all" class="flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
+                <span>All</span>
+                <span class="text-[10px] text-gray-500">{scorecards.length}</span>
+              </a>
+              {presentCategories.map(cat => (
+                <a
+                  href={`#${cat}`}
+                  class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+                >
+                  <span class="capitalize">{cat}</span>
+                  <span class="text-[10px] text-gray-400">{categoryCounts[cat]}</span>
+                </a>
+              ))}
+            </nav>
+
+            <div class="mt-6 pt-6 border-t border-gray-200">
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">About</p>
+              <p class="text-xs text-gray-500 leading-relaxed">
+                Each scorecard is an audited argument — claim, evidence, reasoning, and where it breaks down.
+              </p>
+              <a href="/how-it-works" class="block mt-3 text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                How scorecards work →
+              </a>
+            </div>
+          </aside>
+
+          <!-- Mobile category strip -->
+          <div class="lg:hidden flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-2 scrollbar-thin">
+            <a href="#all" class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-900">
+              All ({scorecards.length})
+            </a>
+            {presentCategories.map(cat => (
+              <a href={`#${cat}`} class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-50 text-gray-500 capitalize">
+                {cat} ({categoryCounts[cat]})
+              </a>
+            ))}
+          </div>
+
+          <!-- Main feed -->
+          <div class="flex-1 min-w-0">
+
+            <!-- Lead story -->
+            {scorecards.length > 0 && (
+              <a
+                href={`/scorecard/${scorecards[0].slug}`}
+                class="group block border-t border-b border-gray-200 py-6 sm:py-10 mb-8"
+              >
+                <div class="max-w-4xl">
+                  <div class="flex items-center gap-3 mb-4">
+                    {scorecards[0].category && CATEGORY_STYLES[scorecards[0].category] ? (
+                      <span class={`inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[scorecards[0].category!].bg} ${CATEGORY_STYLES[scorecards[0].category!].text}`}>
+                        {scorecards[0].category}
+                      </span>
+                    ) : (
+                      <span class={`inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${TAG_COLOURS[0].bg} ${TAG_COLOURS[0].text}`}>
+                        Featured
+                      </span>
+                    )}
+                    <span class="text-xs text-gray-400">{readTime(scorecards[0].dek)}</span>
+                  </div>
+                  <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-tight mb-4">
+                    {scorecards[0].question}
+                  </h3>
+                  <p class="text-base sm:text-lg text-gray-500 leading-relaxed mb-4">
+                    {scorecards[0].dek}
+                  </p>
+                  <p class="text-xs text-gray-400 tabular-nums">
+                    {new Date(scorecards[0].publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
+                      day: 'numeric', month: 'long', year: 'numeric',
+                    })}
+                  </p>
+                </div>
+              </a>
+            )}
+
+            <!--
+              2-col grid for the rest. Each card carries its own top border so
+              the layout survives any count (odd or even, 1 or 100). Mobile is
+              a single column with dividers between rows.
+            -->
+            {scorecards.length > 1 && (
+              <div class="grid sm:grid-cols-2 border border-gray-200 rounded-lg overflow-hidden bg-white">
+                {scorecards.slice(1).map((sc, i) => (
+                  <a
+                    href={`/scorecard/${sc.slug}`}
+                    class={[
+                      'group block py-5 px-5 hover:bg-gray-50 transition-colors',
+                      i >= 2 ? 'border-t border-gray-200' : '',
+                      i >= 1 && i < 2 ? 'border-t border-gray-200 sm:border-t-0' : '',
+                      i % 2 === 1 ? 'sm:border-l sm:border-gray-200' : '',
+                    ].filter(Boolean).join(' ')}
+                  >
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                      {sc.category && CATEGORY_STYLES[sc.category] ? (
+                        <span class={`inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[sc.category!].bg} ${CATEGORY_STYLES[sc.category!].text}`}>
+                          {sc.category}
+                        </span>
+                      ) : (
+                        <span class="inline-block px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-gray-700 text-white">
+                          Scorecard
+                        </span>
+                      )}
+                      <span class="text-[10px] text-gray-400">{readTime(sc.dek)}</span>
+                    </div>
+                    <h3 class="font-serif text-base sm:text-lg text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-2">
+                      {sc.question}
+                    </h3>
+                    <p class="text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-2 mb-2">{sc.dek}</p>
+                    <p class="text-[10px] text-gray-400 tabular-nums">
+                      {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                      })}
+                    </p>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+        </div>
+      )}
     </section>
 
-    <!-- What it finds — feature grid -->
-    <section class="border-t border-gray-200 bg-white">
-      <div class="max-w-5xl mx-auto px-6 py-20">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-10">What the engine analyses</h2>
-
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden">
-          <div class="p-6 border-b lg:border-b-0 sm:border-r border-gray-200">
-            <p class="text-2xl mb-3">🔬</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Argument structure</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              Toulmin decomposition — claim, grounds, warrant, weakest link. The skeleton of the argument, stripped of rhetoric.
-            </p>
-          </div>
-          <div class="p-6 border-b lg:border-b-0 lg:border-r border-gray-200">
-            <p class="text-2xl mb-3">⚠️</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">26 reasoning patterns</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              From Post Hoc to Motte-and-Bailey, Selection Bias to Genetic Fallacy. Verbatim quotes, severity, confidence.
-            </p>
-          </div>
-          <div class="p-6 border-b border-gray-200">
-            <p class="text-2xl mb-3">⚔️</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Counterarguments</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              The 2–3 strongest objections a thoughtful opponent would deploy — each with its own Toulmin structure.
-            </p>
-          </div>
-          <div class="p-6 sm:border-r border-b lg:border-b-0 border-gray-200">
-            <p class="text-2xl mb-3">📎</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Citation audit</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              Every cited URL fetched and checked — does the source actually support the claim it's cited for?
-            </p>
-          </div>
-          <div class="p-6 lg:border-r border-b lg:border-b-0 border-gray-200">
-            <p class="text-2xl mb-3">🧭</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Philosophical commitments</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              The ethical, epistemic, and political framework the argument operates within — made visible.
-            </p>
-          </div>
-          <div class="p-6">
-            <p class="text-2xl mb-3">📊</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Evidence-weighted likelihood</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              For empirical claims, we search 200M+ academic papers and assess scientific consensus. Value claims are flagged as such.
-            </p>
-          </div>
-        </div>
+    <!-- Footer info strip -->
+    <div class="grid sm:grid-cols-3 gap-0 mt-16 border-t border-gray-900 pt-6">
+      <div class="py-4 px-4 sm:px-6 sm:border-r sm:border-gray-200">
+        <h3 class="text-xs font-bold uppercase text-gray-900 mb-2">Chrome Extension</h3>
+        <p class="text-sm text-gray-500 leading-relaxed mb-2">Audit any argument while you read — runs in the side panel against the page in view.</p>
+        <a href="/extension" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Learn more →</a>
       </div>
-    </section>
-
-    <!-- Two products -->
-    <section class="border-t border-gray-200">
-      <div class="max-w-4xl mx-auto px-6 py-20">
-        <div class="grid md:grid-cols-2 gap-8">
-
-          <a href="/reader" class="group block rounded-xl border border-gray-200 p-8 hover:border-indigo-300 hover:shadow-sm transition-all">
-            <p class="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-3">Reader</p>
-            <h3 class="font-serif text-2xl text-gray-900 group-hover:text-indigo-700 transition-colors mb-3">
-              Audit any argument
-            </h3>
-            <p class="text-sm text-gray-500 leading-relaxed mb-4">
-              Paste text or a URL. The engine maps the structure, flags reasoning issues, and shows you the argument's bones. Free — no account required.
-            </p>
-            <p class="text-sm font-semibold text-indigo-600 group-hover:text-indigo-800">
-              Open the Reader →
-            </p>
-          </a>
-
-          <a href="/creator" class="group block rounded-xl border border-gray-200 p-8 hover:border-amber-300 hover:shadow-sm transition-all">
-            <p class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-3">Creator</p>
-            <h3 class="font-serif text-2xl text-gray-900 group-hover:text-amber-700 transition-colors mb-3">
-              Stress-test your writing
-            </h3>
-            <p class="text-sm text-gray-500 leading-relaxed mb-4">
-              Full audit suite, counterarguments, citation checking, revision tracking, and inline highlights. For students, journalists, and professional writers.
-            </p>
-            <p class="text-sm font-semibold text-amber-600 group-hover:text-amber-800">
-              Open Creator Studio →
-            </p>
-          </a>
-
-        </div>
+      <div class="py-4 px-4 sm:px-6 sm:border-r sm:border-gray-200">
+        <h3 class="text-xs font-bold uppercase text-gray-900 mb-2">Creator Studio</h3>
+        <p class="text-sm text-gray-500 leading-relaxed mb-2">Point the engine at your own writing.</p>
+        <a href="/creator" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Learn more →</a>
       </div>
-    </section>
-
-    <!-- Trust strip -->
-    <section class="border-t border-gray-200 bg-gray-50">
-      <div class="max-w-4xl mx-auto px-6 py-12">
-        <div class="grid sm:grid-cols-3 gap-8 text-center">
-          <div>
-            <p class="text-2xl font-serif text-gray-900 mb-1">26</p>
-            <p class="text-xs text-gray-400 uppercase tracking-wider">Reasoning patterns detected</p>
-          </div>
-          <div>
-            <p class="text-2xl font-serif text-gray-900 mb-1">11</p>
-            <p class="text-xs text-gray-400 uppercase tracking-wider">Analytical lenses</p>
-          </div>
-          <div>
-            <p class="text-2xl font-serif text-gray-900 mb-1">200M+</p>
-            <p class="text-xs text-gray-400 uppercase tracking-wider">Papers searchable via Semantic Scholar</p>
-          </div>
-        </div>
+      <div class="py-4 px-4 sm:px-6">
+        <h3 class="text-xs font-bold uppercase text-gray-900 mb-2">Strongest Opposing Case</h3>
+        <p class="text-sm text-gray-500 leading-relaxed mb-2">Paste any argument, get its steelmanned opposition.</p>
+        <a href="/strongest-opposing-case" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Try it →</a>
       </div>
-    </section>
-
-    <!-- Open source + privacy -->
-    <section class="border-t border-gray-200">
-      <div class="max-w-4xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12">
-        <div>
-          <h3 class="text-sm font-semibold text-gray-900 mb-3">Open source</h3>
-          <p class="text-sm text-gray-500 leading-relaxed mb-3">
-            Every prompt and schema is auditable in the public repository. A tool that shapes
-            how people read arguments should be transparent about how it works.
-          </p>
-          <a href="https://github.com/Daniell-44/The_Whetstone_Project" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors" target="_blank" rel="noopener">
-            View on GitHub →
-          </a>
-        </div>
-        <div>
-          <h3 class="text-sm font-semibold text-gray-900 mb-3">Privacy-first</h3>
-          <p class="text-sm text-gray-500 leading-relaxed mb-3">
-            No analytics. No tracking cookies. No advertising. We do not sell, share, or profile your data.
-            Audit text is processed and discarded — never stored.
-          </p>
-          <a href="/privacy" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
-            Privacy policy →
-          </a>
-        </div>
-      </div>
-    </section>
+    </div>
 
   </main>
 </Base>

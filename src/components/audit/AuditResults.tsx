@@ -3,7 +3,9 @@ import type { ComponentChildren } from 'preact';
 import type { AuditResult, UnstatedWarrant, NamedFallacy, LoadedLanguage, KeyTermScrutinyFinding, ReferentCheckFinding, FalsifiabilityFinding, ModalScopeCheckFinding } from '../../lib/audit';
 import { sortByPriority, fallacyMatchKey, loadedLanguageMatchKey, unstatedWarrantMatchKey, keyTermMatchKey, referentMatchKey, falsifiabilityMatchKey, modalScopeMatchKey } from '../../lib/audit';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
+import ShareFindingButton from './ShareFindingButton';
 import type { TerminologyPreference } from '../../lib/labels';
+import GroundednessChip from '../grounded/GroundednessChip';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -49,11 +51,8 @@ function SeverityBadge({ severity }: { severity: string }) {
   );
 }
 
-function ConfidenceBadge({ confidence }: { confidence: number }) {
-  return (
-    <span class="text-xs text-gray-400 shrink-0">{confidence}%</span>
-  );
-}
+// ConfidenceBadge was removed when grounded attribution replaced numeric
+// confidence. Use GroundednessChip from src/components/grounded.
 
 function AddressedBadge() {
   return (
@@ -418,7 +417,7 @@ function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy,
         <p class="text-sm font-semibold text-gray-900">{fallacy.name}</p>
         <div class="flex items-center gap-1.5 shrink-0">
           {addressed && <AddressedBadge />}
-          <ConfidenceBadge confidence={fallacy.confidence} />
+          <GroundednessChip groundedness={fallacy.groundedness} compact />
           <SeverityBadge severity={fallacy.severity} />
         </div>
       </div>
@@ -443,6 +442,13 @@ function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy,
           matchKey={matchKey}
           findingSnapshot={fallacy}
         />
+        <div class="ml-auto">
+          <ShareFindingButton
+            label={fallacy.name}
+            quote={fallacy.quote}
+            severity={fallacy.severity}
+          />
+        </div>
       </div>
     </div>
   );
@@ -472,7 +478,7 @@ function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, bu
         </span>
         <div class="flex items-center gap-1 shrink-0 mt-0.5">
           {addressed && <AddressedBadge />}
-          <ConfidenceBadge confidence={item.confidence} />
+          <GroundednessChip groundedness={item.groundedness} compact />
           <SeverityBadge severity={item.severity} />
         </div>
       </div>
@@ -494,6 +500,13 @@ function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, bu
           matchKey={matchKey}
           findingSnapshot={item}
         />
+        <div class="ml-auto">
+          <ShareFindingButton
+            label={item.technique}
+            quote={item.phrase}
+            severity={item.severity}
+          />
+        </div>
       </div>
     </div>
   );
@@ -520,7 +533,7 @@ function WarrantRow({ w, lens, documentId, versionId, actionRecord, busy, setAct
         <p class="text-sm text-gray-700 leading-relaxed">{w.warrant}</p>
         <div class="flex items-center gap-1.5 shrink-0 mt-0.5">
           {addressed && <AddressedBadge />}
-          <ConfidenceBadge confidence={w.confidence} />
+          <GroundednessChip groundedness={w.groundedness} compact />
           <SeverityBadge severity={w.severity} />
         </div>
       </div>
@@ -578,7 +591,7 @@ function KeyTermCard({ finding, lens, documentId, versionId, actionRecord, busy,
         </p>
         <div class="flex items-center gap-1.5 shrink-0">
           {addressed && <AddressedBadge />}
-          <ConfidenceBadge confidence={finding.confidence} />
+          <GroundednessChip groundedness={finding.groundedness} compact />
           <SeverityBadge severity={finding.severity} />
         </div>
       </div>
@@ -640,7 +653,7 @@ function ReferentCard({ finding, lens, documentId, versionId, actionRecord, busy
         </p>
         <div class="flex items-center gap-1.5 shrink-0">
           {addressed && <AddressedBadge />}
-          <ConfidenceBadge confidence={finding.confidence} />
+          <GroundednessChip groundedness={finding.groundedness} compact />
           <SeverityBadge severity={finding.severity} />
         </div>
       </div>
@@ -697,7 +710,7 @@ function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord
         </p>
         <div class="flex items-center gap-1.5 shrink-0">
           {addressed && <AddressedBadge />}
-          <ConfidenceBadge confidence={finding.confidence} />
+          <GroundednessChip groundedness={finding.groundedness} compact />
           <SeverityBadge severity={finding.severity} />
         </div>
       </div>
@@ -754,7 +767,7 @@ function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, bu
         </p>
         <div class="flex items-center gap-1.5 shrink-0">
           {addressed && <AddressedBadge />}
-          <ConfidenceBadge confidence={finding.confidence} />
+          <GroundednessChip groundedness={finding.groundedness} compact />
           <SeverityBadge severity={finding.severity} />
         </div>
       </div>

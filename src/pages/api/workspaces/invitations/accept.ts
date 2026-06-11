@@ -16,6 +16,6 @@ export const GET: APIRoute = async ({ request }) => {
     db:         workspaceDb,
     getSession: (req) => getSessionFromRequest(req, authDb).then(s => s ? { userId: s.user_id } : null),
     newId,
-    siteUrl:    env.SITE_URL ?? 'https://devils-advocate-site.daniellivingstone2005.workers.dev',
+    siteUrl:    env.SITE_URL ?? 'https://thewhetstone.net',
   });
 };

@@ -9,6 +9,7 @@ import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
 import { getUserSubscription } from '../../functions/_lib/billing/subscription';
 import TerminologyPicker from '../components/account/TerminologyPicker';
 import ApiKeysManager from '../components/account/ApiKeysManager';
+import AnalyticsConsentPicker from '../components/account/AnalyticsConsentPicker';
 
 const authDb    = makeAuthDb(env.DB);
 const billingDb = makeBillingDb(env.DB);
@@ -123,6 +124,13 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
       <h2 class="text-sm font-semibold text-gray-700 mb-1">Display preferences</h2>
       <p class="text-xs text-gray-400 mb-3">Choose how analytical concepts are labelled throughout the interface.</p>
       <TerminologyPicker initialPreference={terminology} client:load />
+    </div>
+
+    <!-- Analytics consent (opt-in only) -->
+    <div class="mt-8">
+      <h2 class="text-sm font-semibold text-gray-700 mb-1">Analytics</h2>
+      <p class="text-xs text-gray-400 mb-3">Off by default. Opt in to send anonymous product events.</p>
+      <AnalyticsConsentPicker client:load />
     </div>
 
     <!-- API keys (paid only) -->

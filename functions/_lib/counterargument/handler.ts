@@ -53,15 +53,6 @@ export async function handleCounterargRequest(
     }, 401);
   }
 
-  // Subscription gate — active Studio subscription required.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({
-      ok:    false,
-      error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active Studio subscription required.' },
-    }, 402);
-  }
-
   // Per-user rate limit keyed by user ID.
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(

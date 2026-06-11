@@ -31,7 +31,7 @@ export default function GoalSelector({ audience, intent, onAudienceChange, onInt
         <label class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
           Audience
         </label>
-        <div class="flex flex-wrap gap-1.5">
+        <div class="flex sm:flex-wrap gap-1.5 overflow-x-auto sm:overflow-x-visible -mx-1 px-1 pb-1 sm:pb-0 scrollbar-thin">
           {AUDIENCE_OPTIONS.map((opt) => (
             <button
               key={opt.value}
@@ -39,7 +39,7 @@ export default function GoalSelector({ audience, intent, onAudienceChange, onInt
               disabled={disabled}
               onClick={() => onAudienceChange(opt.value)}
               title={opt.hint}
-              class={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              class={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 audience === opt.value
                   ? 'bg-indigo-100 text-indigo-700 ring-1 ring-indigo-300'
                   : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
@@ -56,7 +56,7 @@ export default function GoalSelector({ audience, intent, onAudienceChange, onInt
         <label class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
           Intent
         </label>
-        <div class="flex flex-wrap gap-1.5">
+        <div class="flex sm:flex-wrap gap-1.5 overflow-x-auto sm:overflow-x-visible -mx-1 px-1 pb-1 sm:pb-0 scrollbar-thin">
           {INTENT_OPTIONS.map((opt) => (
             <button
               key={opt.value}
@@ -64,7 +64,7 @@ export default function GoalSelector({ audience, intent, onAudienceChange, onInt
               disabled={disabled}
               onClick={() => onIntentChange(opt.value)}
               title={opt.hint}
-              class={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              class={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 intent === opt.value
                   ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300'
                   : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'

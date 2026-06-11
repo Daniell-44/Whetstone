@@ -20,7 +20,9 @@ class FakeAuthDb implements AuthDb {
   }
   async createMagicLink()             {}
   async findMagicLinkByTokenHash()    { return null; }
+  async findLatestActiveMagicLinkForUser() { return null; }
   async markMagicLinkConsumed()       {}
+  async incrementMagicLinkCodeAttempts() {}
   async createSession(id: string, userId: string, expiresAt: string) {
     this.sessions.set(id, { id, user_id: userId, created_at: new Date().toISOString(), expires_at: expiresAt });
   }

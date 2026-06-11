@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { CitationAuditResult } from './types';
+import { GroundednessSignalSchema } from '../grounded/schemas';
 
 // ---------------------------------------------------------------------------
 // Stage 1 — extracted claims (output of claim-extraction LLM call)
@@ -54,7 +55,8 @@ export const CitedClaimSchema = z.object({
   sourceExcerpt:      z.string().nullable(),
   sourceTitle:        z.string().nullable(),
   sourcePublication:  z.string().nullable(),
-  confidence:         z.number().int().min(0).max(100),
+  groundedness:       GroundednessSignalSchema,
+  _debugConfidence:   z.number().int().min(0).max(100).optional(),
 });
 
 export const CitationAuditSummarySchema = z.object({

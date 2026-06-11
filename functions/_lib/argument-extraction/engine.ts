@@ -1,14 +1,29 @@
+import type { z } from 'zod';
 import { callWithRetry } from '../llm/retry';
-import { ArgumentExtractionResultSchema } from './schemas';
+import { RawArgumentExtractionResultSchema } from './schemas';
 import { EXTRACTION_SYSTEM_PROMPT } from './prompts';
 import { EXTRACTION_MODEL, EXTRACTION_THINKING_BUDGET } from './constants';
 import type { ArgumentExtractionResult, ExtractionDeps } from './types';
+import { interpretive, bandFromLegacyConfidence } from '../grounded/types';
+
+type RawExtractionResult = z.infer<typeof RawArgumentExtractionResultSchema>;
+
+// Argument extraction is interpretive — the central claim and statement
+// structure depend on a reading of the text.
+function applyGroundedness(raw: RawExtractionResult): ArgumentExtractionResult {
+  const { confidence, ...rest } = raw;
+  return {
+    ...rest,
+    groundedness:     interpretive(bandFromLegacyConfidence(confidence)),
+    _debugConfidence: confidence,
+  };
+}
 
 export async function extractArgument(
   text: string,
   deps: ExtractionDeps,
 ): Promise<{ result: ArgumentExtractionResult; inputTokens: number; outputTokens: number }> {
-  const { output, inputTokens, outputTokens } = await callWithRetry(
+  const { output: rawOutput, inputTokens, outputTokens } = await callWithRetry<RawExtractionResult>(
     () =>
       deps.provider.complete(
         {
@@ -21,10 +36,10 @@ export async function extractArgument(
         },
         deps.apiKey,
       ),
-    ArgumentExtractionResultSchema,
+    RawArgumentExtractionResultSchema,
     'argument-extraction',
     deps.backoffDelaysMs,
   );
 
-  return { result: output, inputTokens, outputTokens };
+  return { result: applyGroundedness(rawOutput), inputTokens, outputTokens };
 }

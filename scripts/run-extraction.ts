@@ -49,7 +49,7 @@ async function run() {
       results[name] = result;
       console.log(`  centralClaim: ${result.centralClaim}`);
       console.log(`  statements:   ${result.statements.length} (${result.statements.filter(s => s.type === 'premise').length} premises, ${result.statements.filter(s => s.type === 'conclusion').length} conclusions)`);
-      console.log(`  confidence:   ${result.confidence}%`);
+      console.log(`  groundedness: ${result.groundedness.kind} (debug-conf ${result._debugConfidence ?? '?'}%)`);
       console.log(`  notes:        ${result.notes ?? '(none)'}`);
       console.log(`  tokens:       ${inputTokens} in / ${outputTokens} out`);
     } catch (err) {

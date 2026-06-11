@@ -37,11 +37,6 @@ export async function handleCommitmentsRequest(
     return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
   }
 
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active Studio subscription required.' } }, 402);
-  }
-
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,

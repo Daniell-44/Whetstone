@@ -2,9 +2,36 @@ import type { BillingDb, DbUserWithSubscription, StripeSubscription } from './ty
 
 const ACTIVE_STATUSES = new Set(['active', 'trialing']);
 
+// ---------------------------------------------------------------------------
+// Comp account allowlist.
+//
+// Emails listed here get free Pro-tier access regardless of Stripe state.
+// Used for: founder account, beta testers, partner accounts, demo accounts.
+//
+// Edits are deployed by editing this list and running npm run build + wrangler
+// deploy. No database touch needed; no Stripe touch needed.
+//
+// All entries are case-insensitive and trimmed; the runtime comparison lowers
+// both sides. Keep this list small (<50). If it grows, move to a DB-backed
+// allowlist with an admin UI.
+// ---------------------------------------------------------------------------
+
+export const COMP_EMAILS = new Set<string>([
+  'daniel.livingstone44@gmail.com',
+]);
+
+function isCompEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return COMP_EMAILS.has(email.trim().toLowerCase());
+}
+
 export async function userHasActiveSubscription(db: BillingDb, userId: string): Promise<boolean> {
   const user = await db.getUserWithSubscription(userId);
   if (!user) return false;
+
+  // Comp allowlist short-circuit — checked before Stripe state.
+  if (isCompEmail(user.email)) return true;
+
   const { subscription_status, subscription_current_period_end } = user;
   if (!subscription_status || !ACTIVE_STATUSES.has(subscription_status)) return false;
   if (!subscription_current_period_end) return false;
@@ -18,7 +45,20 @@ export async function getUserSubscription(db: BillingDb, userId: string): Promis
   stripeCustomerId:     string | null;
 } | null> {
   const user = await db.getUserWithSubscription(userId);
-  if (!user || !user.subscription_status) return null;
+  if (!user) return null;
+
+  // Comp accounts: synthesise a permanent subscription record so the account
+  // page renders "active" without needing real Stripe data.
+  if (isCompEmail(user.email)) {
+    return {
+      status:               'active',
+      currentPeriodEnd:     null, // null indicates non-Stripe (comp) account
+      stripeSubscriptionId: null,
+      stripeCustomerId:     user.stripe_customer_id,
+    };
+  }
+
+  if (!user.subscription_status) return null;
   return {
     status:               user.subscription_status,
     currentPeriodEnd:     user.subscription_current_period_end,

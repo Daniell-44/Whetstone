@@ -1,10 +1,10 @@
 export type FetchFn = typeof globalThis.fetch;
 
-export type EmailSender = (to: string, magicLink: string) => Promise<void>;
+export type EmailSender = (to: string, magicLink: string, code: string) => Promise<void>;
 export type WorkspaceInvitationSender = (to: string, workspaceName: string, inviterEmail: string, acceptUrl: string) => Promise<void>;
 
 export function makeEmailSender(resendApiKey: string, fetchFn: FetchFn = fetch): EmailSender {
-  return async (to, magicLink) => {
+  return async (to, magicLink, code) => {
     const res = await fetchFn('https://api.resend.com/emails', {
       method:  'POST',
       headers: {
@@ -12,23 +12,33 @@ export function makeEmailSender(resendApiKey: string, fetchFn: FetchFn = fetch):
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        // Using Resend's sandbox sender — works without domain verification.
-        // Caveat: this only delivers to the email address on your Resend account.
-        // Replace with 'noreply@<your-verified-domain>' once you own and verify a domain in Resend.
-        from:    'onboarding@resend.dev',
+        // Uses our verified Resend domain. If domain verification isn't
+        // complete yet in Resend, sends will fail and the failure will appear
+        // in `[resend]` log lines. Revert to 'onboarding@resend.dev' temporarily
+        // if you need to roll back to the sandbox sender.
+        from:    'noreply@thewhetstone.net',
         to,
-        subject: 'Sign in to The Whetstone',
+        subject: `Your sign-in code: ${code}`,
         html: [
-          '<p>Click the link below to sign in to The Whetstone.</p>',
-          '<p>The link expires in 15 minutes and can only be used once.</p>',
-          `<p><a href="${magicLink}">Sign in</a></p>`,
-          '<p style="color:#888;font-size:13px">If you didn\'t request this, you can safely ignore it.</p>',
+          '<p>To sign in to The Whetstone, choose either method below.</p>',
+          '<p style="margin: 20px 0;"><strong>Option 1: click the link</strong> (works on the device you requested it from):</p>',
+          `<p style="margin: 10px 0;"><a href="${magicLink}" style="background: #4f46e5; color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; display: inline-block;">Sign in to The Whetstone</a></p>`,
+          '<p style="margin: 20px 0;"><strong>Option 2: type this 6-digit code</strong> on the device where you started signing in:</p>',
+          `<p style="font-family: monospace; font-size: 28px; letter-spacing: 6px; background: #f3f4f6; padding: 16px 24px; border-radius: 8px; display: inline-block; font-weight: bold; color: #111827;">${code}</p>`,
+          '<p style="color:#666;font-size:13px;margin-top:24px;">The link and code expire in 15 minutes and can only be used once.</p>',
+          '<p style="color:#888;font-size:13px">If you did not request this, you can safely ignore it.</p>',
         ].join(''),
       }),
     });
     if (!res.ok) {
+      // Pull the response body so the Resend failure is actually visible in
+      // wrangler tail rather than being silently swallowed upstream.
+      let detail = '';
+      try { detail = await res.text(); } catch { /* ignore */ }
+      console.error(`[resend] sign-in email send failed status=${res.status} to=${to} body=${detail.slice(0, 500)}`);
       throw new Error(`Resend API error: ${res.status}`);
     }
+    console.log(`[resend] sign-in email sent ok to=${to}`);
   };
 }
 

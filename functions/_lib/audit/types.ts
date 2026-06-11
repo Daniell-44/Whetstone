@@ -1,8 +1,23 @@
+// ---------------------------------------------------------------------------
+// Audit findings use grounded attribution. Every finding type below has:
+//   - severity:     'high' | 'medium' | 'low'   (unchanged)
+//   - groundedness: GroundednessSignal           (replaces self-reported confidence)
+//   - _debugConfidence?: number                  (legacy model-self-reported number,
+//                                                  preserved for calibration analysis,
+//                                                  NEVER displayed to the user)
+//
+// Every audit finding is `structural` (text-derivable). The engine injects
+// the signal at populate time, so prompts no longer need to emit confidence.
+// ---------------------------------------------------------------------------
+
+import type { GroundednessSignal } from '../grounded/types';
+
 export interface UnstatedWarrant {
-  warrant:    string;
-  necessity:  string;
-  severity:   'high' | 'medium' | 'low';
-  confidence: number;
+  warrant:          string;
+  necessity:        string;
+  severity:         'high' | 'medium' | 'low';
+  groundedness:     GroundednessSignal;
+  _debugConfidence?: number;
 }
 
 export interface ToulminAnalysis {
@@ -14,19 +29,21 @@ export interface ToulminAnalysis {
 }
 
 export interface NamedFallacy {
-  name:        string;
-  quote:       string;
-  explanation: string;
-  severity:    'high' | 'medium' | 'low';
-  confidence:  number;
+  name:             string;
+  quote:            string;
+  explanation:      string;
+  severity:         'high' | 'medium' | 'low';
+  groundedness:     GroundednessSignal;
+  _debugConfidence?: number;
 }
 
 export interface LoadedLanguage {
-  phrase:      string;
-  technique:   string;
-  explanation: string;
-  severity:    'high' | 'medium' | 'low';
-  confidence:  number;
+  phrase:           string;
+  technique:        string;
+  explanation:      string;
+  severity:         'high' | 'medium' | 'low';
+  groundedness:     GroundednessSignal;
+  _debugConfidence?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -59,42 +76,46 @@ export type ModalScopeIssue =
 // ---------------------------------------------------------------------------
 
 export interface KeyTermScrutinyFinding {
-  term:        string;
-  usage_a:     string;    // verbatim first use from input
-  usage_b:     string;    // verbatim second use showing the shift
-  issue:       KeyTermIssue;
-  explanation: string;
-  severity:    'high' | 'medium' | 'low';
-  confidence:  number;
+  term:             string;
+  usage_a:          string;
+  usage_b:          string;
+  issue:            KeyTermIssue;
+  explanation:      string;
+  severity:         'high' | 'medium' | 'low';
+  groundedness:     GroundednessSignal;
+  _debugConfidence?: number;
 }
 
 export interface ReferentCheckFinding {
-  phrase:      string;    // verbatim phrase with the problematic referent
-  issue:       ReferentIssue;
-  explanation: string;
-  evidence:    string;    // verbatim substring from input
-  severity:    'high' | 'medium' | 'low';
-  confidence:  number;
+  phrase:           string;
+  issue:            ReferentIssue;
+  explanation:      string;
+  evidence:         string;
+  severity:         'high' | 'medium' | 'low';
+  groundedness:     GroundednessSignal;
+  _debugConfidence?: number;
 }
 
 export interface FalsifiabilityFinding {
-  claim:       string;    // brief paraphrase of the claim
-  issue:       FalsifiabilityIssue;
-  explanation: string;
-  evidence:    string;    // verbatim substring from input
-  severity:    'high' | 'medium' | 'low';
-  confidence:  number;
+  claim:            string;
+  issue:            FalsifiabilityIssue;
+  explanation:      string;
+  evidence:         string;
+  severity:         'high' | 'medium' | 'low';
+  groundedness:     GroundednessSignal;
+  _debugConfidence?: number;
 }
 
 export interface ModalScopeCheckFinding {
-  claim:          string;   // brief paraphrase of the claim exhibiting the modal problem
-  inflatedModal:  string;   // verbatim word or phrase asserting stronger modality than the evidence supports
-  impliedModal:   string;   // the accurate modal word/phrase the evidence would support
-  issue:          ModalScopeIssue;
-  explanation:    string;
-  evidence:       string;   // verbatim substring from input
-  severity:       'high' | 'medium' | 'low';
-  confidence:     number;
+  claim:            string;
+  inflatedModal:    string;
+  impliedModal:     string;
+  issue:            ModalScopeIssue;
+  explanation:      string;
+  evidence:         string;
+  severity:         'high' | 'medium' | 'low';
+  groundedness:     GroundednessSignal;
+  _debugConfidence?: number;
 }
 
 // ---------------------------------------------------------------------------

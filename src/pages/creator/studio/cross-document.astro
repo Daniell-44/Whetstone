@@ -1,0 +1,73 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../../layouts/Base.astro';
+import CrossDocumentForm from '../../../components/cross-document/CrossDocumentForm';
+import { makeAuthDb } from '../../../../functions/_lib/auth/db';
+import { makeBillingDb } from '../../../../functions/_lib/billing/subscription';
+import { makeWorkspaceDb } from '../../../../functions/_lib/workspaces/db';
+import { userHasActiveSubscriptionViaWorkspace } from '../../../../functions/_lib/workspaces/permissions';
+import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
+
+const authDb      = makeAuthDb(env.DB);
+const billingDb   = makeBillingDb(env.DB);
+const workspaceDb = makeWorkspaceDb(env.DB);
+const session     = await getSessionFromRequest(Astro.request, authDb);
+
+if (!session) {
+  return Astro.redirect('/login?returnTo=/creator/studio/cross-document');
+}
+
+const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, session.user_id);
+---
+<Base
+  title="Cross-Document Audit — Creator Studio"
+  description="Audit 2–5 documents together. Find self-contradictions, repeated unstated warrants, and position shifts across an author's work."
+  canonicalPath="/creator/studio/cross-document"
+  isLoggedIn={true}
+>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
+
+    <nav class="mb-6 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-3">
+        <a href="/creator" class="text-gray-400 hover:text-gray-600 transition-colors">← Creator</a>
+        <span class="text-gray-200">|</span>
+        <p class="font-semibold tracking-widest text-violet-600 uppercase">Studio · Cross-Document</p>
+      </div>
+      <a href="/creator/studio" class="text-gray-400 hover:text-gray-600 transition-colors">← Back to Studio</a>
+    </nav>
+
+    <header class="mb-8">
+      <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mb-3">
+        Cross-document audit
+      </h1>
+      <p class="text-base sm:text-lg text-gray-500 leading-relaxed max-w-3xl">
+        Paste or link 2–5 documents — typically by the same author, or on the same topic.
+        The engine audits each one, then compares across them: claims that get contradicted,
+        warrants repeated without defence, positions that shift without acknowledgement, and
+        certainty that escalates without new evidence.
+      </p>
+      <p class="text-xs text-gray-400 mt-3">
+        Studio-tier feature. Each document is fully audited before the cross-document pass —
+        analysis takes 60–120 seconds.
+      </p>
+    </header>
+
+    {!hasActiveSubscription ? (
+      <div class="rounded-xl border border-violet-200 bg-violet-50 p-6 text-center space-y-4">
+        <p class="text-xs font-semibold uppercase tracking-widest text-violet-600">Studio Pro feature</p>
+        <p class="text-sm text-gray-700 max-w-sm mx-auto leading-relaxed">
+          Cross-document audit runs the full audit suite on each document plus a cross-document
+          synthesis pass. Subscribe to unlock it.
+        </p>
+        <a href="/pricing" class="inline-block rounded-xl bg-violet-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-violet-600 transition-colors">
+          See plans →
+        </a>
+      </div>
+    ) : (
+      <CrossDocumentForm client:load />
+    )}
+
+  </main>
+</Base>

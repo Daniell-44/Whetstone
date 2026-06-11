@@ -8,9 +8,11 @@ import { handleRequestLink } from '../../../../functions/_lib/auth/handlers';
 
 export const POST: APIRoute = async ({ request }) => {
   return handleRequestLink(request, {
-    db:          makeAuthDb(env.DB),
-    rateLimitKv: env.RATE_LIMIT,
-    sendEmail:   makeEmailSender(env.RESEND_API_KEY ?? ''),
-    siteUrl:     env.SITE_URL ?? 'https://whetstone.so',
+    db:            makeAuthDb(env.DB),
+    rateLimitKv:   env.RATE_LIMIT,
+    sendEmail:     makeEmailSender(env.RESEND_API_KEY ?? ''),
+    siteUrl:       env.SITE_URL ?? 'https://whetstone.so',
+    // Toggle on via wrangler.toml: AUTH_DEBUG_LOG_CODES = "1"
+    debugLogCodes: env.AUTH_DEBUG_LOG_CODES === '1',
   });
 };

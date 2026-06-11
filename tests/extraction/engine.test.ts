@@ -75,7 +75,8 @@ describe('extractArgument', () => {
     expect(result.statements[0]!.type).toBe('premise');
     expect(result.statements[1]!.type).toBe('conclusion');
     expect(result.statements[1]!.inferenceRule).toBe('modus_ponens');
-    expect(result.confidence).toBe(87);
+    expect(result._debugConfidence).toBe(87);
+    expect(result.groundedness.kind).toBe('interpretive');
     expect(inputTokens).toBe(150);
     expect(outputTokens).toBe(80);
   });
@@ -88,7 +89,7 @@ describe('extractArgument', () => {
     const { result } = await extractArgument('Just a descriptive paragraph.', makeDeps(provider));
     expect(result.centralClaim).toBe('(no argument)');
     expect(result.statements).toHaveLength(0);
-    expect(result.confidence).toBe(100);
+    expect(result._debugConfidence).toBe(100);
   });
 
   it('retries once on invalid JSON', async () => {

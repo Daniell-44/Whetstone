@@ -4,9 +4,26 @@ import type { CounterargumentResult } from '../../lib/counterargument';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
 import type { PhilosophicalCommitmentsResult } from '../../../functions/_lib/philosophical-commitments/types';
 import type { CitationAuditResult } from '../../../functions/_lib/citation-audit/types';
+import type { EvidenceWeightedResult } from '../../../functions/_lib/evidence-weighted/types';
+import type { PresuppositionResult } from '../../../functions/_lib/presupposition/types';
+import type { RhetoricalModeResult } from '../../../functions/_lib/rhetorical-mode/types';
+import type { EpistemicHumilityResult } from '../../../functions/_lib/epistemic-humility/types';
+import type { DisagreementEngagementResult } from '../../../functions/_lib/disagreement-engagement/types';
+import type { StructuralIncentiveResult } from '../../../functions/_lib/structural-incentive/types';
+import EvidenceWeightedDisplay from '../evidence/EvidenceWeightedDisplay';
+import PresuppositionDisplay from '../presupposition/PresuppositionDisplay';
+import RhetoricalModeDisplay from '../rhetorical-mode/RhetoricalModeDisplay';
+import EpistemicHumilityDisplay from '../epistemic-humility/EpistemicHumilityDisplay';
+import DisagreementEngagementDisplay from '../disagreement-engagement/DisagreementEngagementDisplay';
+import StructuralIncentiveDisplay from '../structural-incentive/StructuralIncentiveDisplay';
 import GoalSelector from './GoalSelector';
 import LiveStats from './LiveStats';
 import HighlightedDraft from './HighlightedDraft';
+import HeatmapDraft from './HeatmapDraft';
+import MobileFindingsSheet from './MobileFindingsSheet';
+import SamplePicker from './SamplePicker';
+import { totalFindingCount, argumentScore } from '../../lib/audit';
+import { SAMPLES, sampleSignature, type Sample } from '../../data/samples';
 import type { Audience, Intent } from '../../../functions/_lib/audit/goals';
 import AuditResults from '../audit/AuditResults';
 import CounterargumentResultDisplay from './CounterargumentResultDisplay';
@@ -16,6 +33,7 @@ import CitationAuditDisplay from '../citation-audit/CitationAuditDisplay';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 import type { TerminologyPreference } from '../../lib/labels';
 import SummaryToolbar from '../audit/SummaryToolbar';
+import { track } from '../../lib/analytics/track';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -47,6 +65,30 @@ type CitationAuditApiResponse =
   | { ok: true;  result: CitationAuditResult; usage: { inputTokens: number; outputTokens: number; citationsFetched: number; citationsFailed: number } }
   | { ok: false; error: { code: string; message: string } };
 
+type EvidenceApiResponse =
+  | { ok: true;  result: EvidenceWeightedResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
+type PresupApiResponse =
+  | { ok: true;  result: PresuppositionResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
+type RhetApiResponse =
+  | { ok: true;  result: RhetoricalModeResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
+type HumilityApiResponse =
+  | { ok: true;  result: EpistemicHumilityResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
+type DisagreeApiResponse =
+  | { ok: true;  result: DisagreementEngagementResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
+type StructuralIncentiveApiResponse =
+  | { ok: true;  result: StructuralIncentiveResult; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: false; error: { code: string; message: string } };
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -54,14 +96,8 @@ type CitationAuditApiResponse =
 const MIN_CHARS = 50;
 const MAX_CHARS = 10_000;
 
-// Hemingway-style demo text — demonstrates the tool's value immediately
-const SAMPLE_TEXT = `The case for mandatory bicycle helmets is straightforward: helmet use reduces head injuries by 60% and saves an estimated 400 lives per year in the UK. The inconvenience to cyclists is trivially small compared to this public health benefit. Those who resist the requirement are, in effect, arguing that their personal preference for helmet-free cycling outweighs hundreds of preventable deaths.
-
-Countries that have introduced helmet laws have seen cycling injuries drop sharply. Australia's mandatory helmet law, introduced in 1991, led to a significant reduction in head injuries among cyclists. The evidence is clear and the policy implication is obvious.
-
-Critics claim that helmet laws discourage cycling, but this objection misses the point entirely. We don't refuse to mandate seatbelts because some people might stop driving. Safety requirements are the baseline expectation in every other form of transport — cycling should be no different.
-
-The real question isn't whether helmets work. The science is settled on that. The question is whether we value convenience over human life. Any reasonable person would choose life.`;
+// Threshold for treating an edited sample as a new draft (signature mismatch threshold)
+const SAMPLE_DIRTY_CHAR_THRESHOLD = 50;
 
 const AUDIT_ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMITED:  "You've reached the daily audit limit. Come back tomorrow.",
@@ -160,6 +196,37 @@ function SectionLoading({ label }: { label: string }) {
 }
 
 // ---------------------------------------------------------------------------
+// LensButton — for on-demand deeper lenses. Compact pill that shows running
+// state. Disabled while loading; tappable again after error.
+// ---------------------------------------------------------------------------
+
+function LensButton({
+  label,
+  status,
+  onClick,
+}: {
+  label:   string;
+  status:  'idle' | 'loading' | 'done' | 'error';
+  onClick: () => void;
+}) {
+  const isLoading = status === 'loading';
+  const isDone    = status === 'done';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={isLoading || isDone}
+      class={`text-xs font-medium px-3 py-2 rounded-lg border transition-colors text-left
+        ${isDone     ? 'bg-emerald-50 border-emerald-200 text-emerald-700 cursor-default' :
+          isLoading  ? 'bg-indigo-50  border-indigo-200  text-indigo-500  cursor-wait'    :
+                       'bg-white      border-gray-200    text-gray-700    hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700'}`}
+    >
+      {isLoading ? `${label}…` : isDone ? `✓ ${label}` : label}
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main editor component
 // ---------------------------------------------------------------------------
 
@@ -203,8 +270,16 @@ export default function StudioEditor({
   const [isRunning, setIsRunning] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
   const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
+  const [draftViewMode, setDraftViewMode] = useState<'highlights' | 'heatmap'>('highlights');
   const [audience, setAudience]   = useState<Audience>('general');
   const [intent, setIntent]       = useState<Intent>('persuade');
+
+  // Sample-loading state — tracks whether the current draft was loaded from a
+  // pre-cached sample and whether the user has meaningfully edited it.
+  // If unedited (signature matches), we don't persist or burn API credits.
+  const [loadedSample, setLoadedSample]               = useState<Sample | null>(null);
+  const [loadedSampleSignature, setLoadedSampleSig]   = useState<string | null>(null);
+  const [samplePending, setSamplePending]             = useState(false);
   const [auditState, setAuditState] = useState<SectionState<AuditResult>>(
     initialAuditResult ? { status: 'done', data: initialAuditResult } : { status: 'idle' },
   );
@@ -220,6 +295,12 @@ export default function StudioEditor({
   const [citationState, setCitationState] = useState<SectionState<CitationAuditResult>>(
     initialCitationAuditResult ? { status: 'done', data: initialCitationAuditResult } : { status: 'idle' },
   );
+  const [evidenceState, setEvidenceState] = useState<SectionState<EvidenceWeightedResult>>({ status: 'idle' });
+  const [presupState,   setPresupState]   = useState<SectionState<PresuppositionResult>>({ status: 'idle' });
+  const [rhetState,     setRhetState]     = useState<SectionState<RhetoricalModeResult>>({ status: 'idle' });
+  const [humilityState, setHumilityState] = useState<SectionState<EpistemicHumilityResult>>({ status: 'idle' });
+  const [disagreeState, setDisagreeState] = useState<SectionState<DisagreementEngagementResult>>({ status: 'idle' });
+  const [siState,       setSiState]       = useState<SectionState<StructuralIncentiveResult>>({ status: 'idle' });
 
   const charCount   = draft.length;
   const canSubmit   = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
@@ -278,14 +359,63 @@ export default function StudioEditor({
     setExtractionState({ status: 'idle' });
     setCommitmentsState({ status: 'idle' });
     setCitationState({ status: 'idle' });
+    setEvidenceState({ status: 'idle' });
+    setLoadedSample(null);
+    setLoadedSampleSig(null);
     const url = new URL(window.location.href);
     url.searchParams.delete('doc');
     window.history.replaceState({}, '', url.toString());
   }, []);
 
+  // Load a sample: populate textarea, then show cached results after a short
+  // delay (~2-3s) to mirror real analysis timing. No document is created, no
+  // API call is made. Editing past the dirty threshold converts it to a real
+  // draft on next "Analyse" — preserving the pedagogical demo while letting
+  // the user iterate freely.
+  const handleLoadSample = useCallback(async (sample: Sample) => {
+    setSamplePending(true);
+    setLoadedSample(sample);
+    setLoadedSampleSig(sampleSignature(sample.text));
+    setDraft(sample.text);
+    setTitle(`${sample.shortLabel} — sample`);
+    setActiveFindingKey(null);
+
+    // Reset any prior results
+    setAuditState({ status: 'loading' });
+    setExtractionState({ status: 'loading' });
+    if (hasActiveSubscription) {
+      setCounterargState({ status: 'idle' });
+      setCommitmentsState({ status: 'idle' });
+      setCitationState({ status: 'idle' });
+    }
+
+    // Artificial delay so it feels like a real analysis (~2.4s)
+    await new Promise(r => setTimeout(r, 2400));
+
+    setAuditState({      status: 'done', data: sample.cached.audit });
+    setExtractionState({ status: 'done', data: sample.cached.extraction });
+    setSamplePending(false);
+    setIsEditing(false); // switch to highlighted-draft review mode
+  }, [hasActiveSubscription]);
+
+  // Has the user meaningfully edited the loaded sample?
+  const isSampleDirty = (() => {
+    if (!loadedSample || !loadedSampleSignature) return true; // not a sample → treat as real draft
+    if (draft === loadedSample.text) return false;
+    const lenDiff = Math.abs(draft.length - loadedSample.text.length);
+    return lenDiff > SAMPLE_DIRTY_CHAR_THRESHOLD;
+  })();
+
   const handleAnalyse = useCallback(async () => {
     if (!canSubmit) return;
     const text = draft;
+
+    // If a sample is loaded and unedited, the cached results are already in state.
+    // No document creation, no API call. Just switch to highlighted review mode.
+    if (loadedSample && !isSampleDirty) {
+      setIsEditing(false);
+      return;
+    }
 
     setIsRunning(true);
 
@@ -331,6 +461,10 @@ export default function StudioEditor({
     if (!currentDocId || !currentVersionId) { setIsRunning(false); return; }
 
     // --- run analysis ---
+    // Free tier: audit + extraction + the click-to-run deeper lenses.
+    // Pro tier auto-runs the expensive Pro-model engines (counterargument,
+    // commitments, citation). This keeps free-tier cost bounded — the Pro
+    // models only fire for paying users.
     setExtractionState({ status: 'loading' });
     setAuditState({ status: 'loading' });
     if (hasActiveSubscription) {
@@ -359,6 +493,27 @@ export default function StudioEditor({
       .then(data => {
         if (data.ok) {
           setExtractionState({ status: 'done', data: data.extraction });
+
+          // Fire evidence-weighted assessment for empirical_contested claims (subscription only)
+          if (hasActiveSubscription) {
+            const empiricalClaims = data.extraction.statements
+              .filter(s => s.claimType === 'empirical_contested' || s.claimType === 'empirical_uncontested')
+              .map(s => ({ id: s.id, text: s.text, claimType: s.claimType }));
+            if (empiricalClaims.length > 0) {
+              setEvidenceState({ status: 'loading' });
+              fetch('/api/evidence-weighted', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ claims: empiricalClaims }),
+              })
+                .then(r => r.json() as Promise<EvidenceApiResponse>)
+                .then(d => {
+                  if (d.ok) setEvidenceState({ status: 'done', data: d.result });
+                  else setEvidenceState({ status: 'error', code: d.error.code, message: d.error.message });
+                })
+                .catch(() => setEvidenceState({ status: 'error', code: 'NETWORK', message: 'Evidence check failed.' }));
+            }
+          }
         } else {
           const code = data.error.code;
           setExtractionState({ status: 'error', code, message: EXTRACTION_ERROR_MESSAGES[code] ?? data.error.message });
@@ -384,6 +539,9 @@ export default function StudioEditor({
       .catch(() => setAuditState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
       .finally(() => { auditDone = true; checkDone(); });
 
+    // Counterargument, commitments + citation are Pro-tier (Pro-model / external
+    // fetch cost). They auto-fire only for subscribers; free users see the
+    // upsell panel pointing to Studio Pro.
     if (hasActiveSubscription) {
       fetch(`${versionPath}/counterargument`, { method: 'POST' })
         .then(r => r.json() as Promise<CounterargApiResponse>)
@@ -411,7 +569,7 @@ export default function StudioEditor({
         .catch(() => setCommitmentsState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
         .finally(() => { commitmentsDone = true; checkDone(); });
 
-      // Citation audit — fires with the raw draft text (standalone endpoint)
+      // Citation audit — external URL fetching costs.
       fetch('/api/citation-audit', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -432,13 +590,79 @@ export default function StudioEditor({
   }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
 
   // ---------------------------------------------------------------------------
+  // runLens — on-demand deeper-lens caller.
+  // Each lens hits its own endpoint with the current draft text. Subscription
+  // and rate-limiting are enforced server-side; we just dispatch.
+  // ---------------------------------------------------------------------------
+
+  type LensName =
+    | 'presupposition'
+    | 'rhetorical-mode'
+    | 'epistemic-humility'
+    | 'disagreement-engagement'
+    | 'structural-incentive';
+
+  type AnyLensResponse =
+    | PresupApiResponse
+    | RhetApiResponse
+    | HumilityApiResponse
+    | DisagreeApiResponse
+    | StructuralIncentiveApiResponse;
+
+  const runLens = useCallback(async (
+    lens:   LensName,
+    text:   string,
+    setter: (s: SectionState<any>) => void,
+  ) => {
+    setter({ status: 'loading' });
+
+    // Map lens name to analytics event name
+    const startedEvent =
+      lens === 'presupposition'         ? 'presupposition_requested' :
+      lens === 'rhetorical-mode'        ? 'rhetorical_mode_requested' :
+      lens === 'epistemic-humility'     ? 'epistemic_humility_requested' :
+      lens === 'disagreement-engagement'? 'disagreement_engagement_requested' :
+                                          'structural_incentive_requested';
+    track(startedEvent as any, { surface: 'studio' });
+
+    try {
+      const res = await fetch(`/api/${lens}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ text }),
+      });
+      const data = await res.json() as AnyLensResponse;
+      if (data.ok) {
+        setter({ status: 'done', data: data.result });
+        // Fire completion event with lens-specific metadata where useful
+        const r = data.result as any;
+        if (lens === 'presupposition') {
+          track('presupposition_requested', { surface: 'studio_done', finding_count: r.presuppositions?.length ?? 0 });
+        } else if (lens === 'rhetorical-mode') {
+          track('rhetorical_mode_requested', { surface: 'studio_done', dominant_appeal: r.dominantAppeal ?? 'unknown' });
+        } else if (lens === 'epistemic-humility') {
+          track('epistemic_humility_requested', { surface: 'studio_done', verdict: r.overallVerdict ?? 'unknown' });
+        } else if (lens === 'disagreement-engagement') {
+          track('disagreement_engagement_requested', { surface: 'studio_done', verdict: r.overallVerdict ?? 'unknown' });
+        } else if (lens === 'structural-incentive') {
+          track('structural_incentive_requested', { surface: 'studio_done', alignment_count: r.alignments?.length ?? 0 });
+        }
+      } else {
+        setter({ status: 'error', code: data.error.code, message: data.error.message });
+      }
+    } catch {
+      setter({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' });
+    }
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // Input section (always visible)
   // ---------------------------------------------------------------------------
 
   const inputSection = (
     <div class="flex flex-col flex-1 gap-3">
-      {/* Document title + actions */}
-      <div class="flex items-center gap-3">
+      {/* Document title + actions — wraps on mobile so buttons don't squeeze */}
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
         <input
           type="text"
           value={title}
@@ -447,12 +671,12 @@ export default function StudioEditor({
           maxLength={200}
           placeholder="Untitled draft"
           disabled={isRunning}
-          class="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
+          class="w-full sm:flex-1 sm:w-auto rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-base sm:text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
         />
         {docId && (
           <a
             href={`/creator/documents/${docId}/versions`}
-            class="shrink-0 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
+            class="shrink-0 rounded-xl border border-gray-200 bg-white px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
           >
             History
           </a>
@@ -462,12 +686,41 @@ export default function StudioEditor({
             type="button"
             onClick={handleNewDraft}
             disabled={isRunning}
-            class="shrink-0 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-40"
+            class="shrink-0 rounded-xl border border-gray-200 bg-white px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-40"
           >
             New draft
           </button>
         )}
       </div>
+
+      {/* Cached sample banner */}
+      {loadedSample && !isSampleDirty && (
+        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
+          <span class="text-base shrink-0">📚</span>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-amber-800">
+              Pre-cached sample · {loadedSample.shortLabel}
+            </p>
+            <p class="text-[11px] text-amber-700 leading-snug mt-0.5">
+              This argument contains: {loadedSample.failureModes.join(', ')}. Edit the text or pick a new example to dismiss.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleNewDraft}
+            class="shrink-0 text-[11px] text-amber-700 hover:text-amber-900 font-medium underline"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      {/* Sample-loading status (artificial delay) */}
+      {samplePending && (
+        <div class="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-center">
+          <p class="text-xs font-medium text-indigo-700">Loading cached analysis…</p>
+        </div>
+      )}
 
       {/* Goal selector */}
       <GoalSelector
@@ -482,27 +735,70 @@ export default function StudioEditor({
       {!isEditing && showResults && auditState.status === 'done' ? (
         /* Highlighted review mode — fills vertical space */
         <div class="flex flex-col flex-1 space-y-2">
-          <div class="flex items-center justify-between">
-            <p class="text-xs text-gray-400">Click a highlight to jump to the finding. Hover for details.</p>
-            <button
-              type="button"
-              onClick={() => { setIsEditing(true); setActiveFindingKey(null); }}
-              class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
-            >
-              ✎ Edit draft
-            </button>
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <p class="text-xs text-gray-400">
+              {draftViewMode === 'highlights'
+                ? 'Click a highlight to jump to the finding. Hover for details.'
+                : 'Hover for finding details. Click any colour to jump to the top finding. Darker = more density.'}
+            </p>
+            <div class="flex items-center gap-3">
+              {/* View toggle */}
+              <div class="flex gap-0.5 p-0.5 bg-gray-100 rounded-md">
+                <button
+                  type="button"
+                  onClick={() => setDraftViewMode('highlights')}
+                  class={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
+                    draftViewMode === 'highlights'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                >
+                  Highlights
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDraftViewMode('heatmap')}
+                  class={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
+                    draftViewMode === 'heatmap'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                >
+                  Heatmap
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setIsEditing(true); setActiveFindingKey(null); }}
+                class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+              >
+                ✎ Edit draft
+              </button>
+            </div>
           </div>
           <div class="flex-1" style={{ minHeight: 'calc(100vh - 18rem)' }}>
-            <HighlightedDraft
-              text={draft}
-              audit={auditState.data}
-              activeFindingKey={activeFindingKey}
-              onHighlightClick={(key) => {
-                setActiveFindingKey(key);
-                const el = document.querySelector(`[data-finding-key="${key}"]`);
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }}
-            />
+            {draftViewMode === 'highlights' ? (
+              <HighlightedDraft
+                text={draft}
+                audit={auditState.data}
+                activeFindingKey={activeFindingKey}
+                onHighlightClick={(key) => {
+                  setActiveFindingKey(key);
+                  const el = document.querySelector(`[data-finding-key="${key}"]`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+              />
+            ) : (
+              <HeatmapDraft
+                text={draft}
+                audit={auditState.data}
+                onFindingClick={(key) => {
+                  setActiveFindingKey(key);
+                  const el = document.querySelector(`[data-finding-key="${key}"]`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+              />
+            )}
           </div>
           <button
             type="button"
@@ -521,8 +817,8 @@ export default function StudioEditor({
               onInput={e => setDraft((e.target as HTMLTextAreaElement).value)}
               placeholder="Paste your draft here — any argumentative text, essay, or opinion piece (50–10,000 characters)."
               disabled={isRunning}
-              class="w-full flex-1 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
-              style={{ minHeight: 'calc(100vh - 16rem)' }}
+              data-tour-anchor="studio-textarea"
+              class="w-full flex-1 min-h-[50vh] sm:min-h-[50vh] xl:min-h-[calc(100vh-22rem)] border border-gray-200 bg-white px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
             />
             <div class="flex justify-between mt-1.5 text-xs">
               <span class={
@@ -543,11 +839,12 @@ export default function StudioEditor({
             <LiveStats text={draft} />
           </div>
 
-          <div class="flex gap-2">
+          <div class="flex flex-col sm:flex-row gap-2">
             <button
               type="button"
               onClick={handleAnalyse}
               disabled={!canSubmit}
+              data-tour-anchor="studio-analyse"
               class={`flex-1 py-2.5 px-6 rounded-lg text-sm font-semibold transition-colors ${
                 canSubmit
                   ? 'bg-amber-500 text-white hover:bg-amber-600'
@@ -557,13 +854,7 @@ export default function StudioEditor({
               {isRunning ? 'Analysing…' : 'Analyse my draft'}
             </button>
             {!draft.trim() && !isRunning && (
-              <button
-                type="button"
-                onClick={() => { setDraft(SAMPLE_TEXT); setTitle('Mandatory bicycle helmets — sample argument'); }}
-                class="px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-700 transition-colors shrink-0"
-              >
-                Try an example
-              </button>
+              <SamplePicker onPick={(s) => { void handleLoadSample(s); }} disabled={isRunning || samplePending} />
             )}
           </div>
           {canSubmit && !isRunning && (
@@ -589,7 +880,9 @@ export default function StudioEditor({
     <div class="space-y-4">
       {/* Summary stats */}
       {auditState.status === 'done' && (
-        <SummaryToolbar result={auditState.data} draftText={draft} draftTitle={title} />
+        <div data-tour-anchor="studio-share">
+          <SummaryToolbar result={auditState.data} draftText={draft} draftTitle={title} />
+        </div>
       )}
 
       {/* Argument skeleton */}
@@ -599,13 +892,17 @@ export default function StudioEditor({
           {extractionState.status === 'loading' && <SectionLoading label="Mapping structure…" />}
           {extractionState.status === 'error' && <SectionError code={extractionState.code} message={extractionState.message} />}
           {extractionState.status === 'done' && (
-            <ArgumentExtraction result={extractionState.data} terminologyPreference={terminologyPreference} />
+            <ArgumentExtraction
+              result={extractionState.data}
+              terminologyPreference={terminologyPreference}
+              evidenceAssessments={evidenceState.status === 'done' ? evidenceState.data.assessments : undefined}
+            />
           )}
         </div>
       )}
 
-      {/* Framework Check */}
-      {hasActiveSubscription && commitmentsState.status !== 'idle' && (
+      {/* Framework Check — free tier */}
+      {commitmentsState.status !== 'idle' && (
         <div class="rounded-lg border border-purple-200 bg-white p-4">
           <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
             <LabelWithTooltip label="commitments" preference={terminologyPreference} />
@@ -623,14 +920,11 @@ export default function StudioEditor({
         <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
           <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
         </h3>
-        {!hasActiveSubscription ? <CounterargUpsell /> : (
-          <>
-            {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
-            {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
-            {counterargState.status === 'done' && (
-              <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
-            )}
-          </>
+        {/* Counterarguments are now free — runs on every audit. */}
+        {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
+        {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
+        {counterargState.status === 'done' && (
+          <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
         )}
       </div>
     </div>
@@ -643,7 +937,7 @@ export default function StudioEditor({
   const rightSidebar = showResults ? (
     <div class="space-y-4">
       {/* Audit findings */}
-      <div class="rounded-lg border border-gray-200 bg-white p-4">
+      <div data-tour-anchor="studio-findings" class="rounded-lg border border-gray-200 bg-white p-4">
         <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
         {auditState.status === 'loading' && <SectionLoading label="Running audit…" />}
         {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
@@ -679,6 +973,120 @@ export default function StudioEditor({
           </>
         )}
       </div>
+
+      {/* Evidence-Weighted Likelihood (Studio Pro) */}
+      {hasActiveSubscription && evidenceState.status !== 'idle' && (
+        <div class="rounded-lg border border-emerald-200 bg-white p-4">
+          <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+            Evidence Check
+          </h3>
+          {evidenceState.status === 'loading' && <SectionLoading label="Searching academic literature…" />}
+          {evidenceState.status === 'error' && <SectionError code={evidenceState.code} message={evidenceState.message} />}
+          {evidenceState.status === 'done' && (
+            <EvidenceWeightedDisplay result={evidenceState.data} />
+          )}
+        </div>
+      )}
+
+      {/* ----------------------------------------------------------------- */}
+      {/* On-demand deeper lenses (free tier). Fire when the user clicks;   */}
+      {/* cached per draft via component state. All Flash-tier — cheap per  */}
+      {/* call. Free until users come online and we calibrate.              */}
+      {/* ----------------------------------------------------------------- */}
+      {auditState.status === 'done' && (
+        <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
+            <span class="text-[10px] text-gray-400">click to run</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <LensButton
+              label="Presuppositions"
+              status={presupState.status}
+              onClick={() => void runLens('presupposition', draft, setPresupState)}
+            />
+            <LensButton
+              label="Rhetorical mode"
+              status={rhetState.status}
+              onClick={() => void runLens('rhetorical-mode', draft, setRhetState)}
+            />
+            <LensButton
+              label="Epistemic humility"
+              status={humilityState.status}
+              onClick={() => void runLens('epistemic-humility', draft, setHumilityState)}
+            />
+            <LensButton
+              label="Engagement quality"
+              status={disagreeState.status}
+              onClick={() => void runLens('disagreement-engagement', draft, setDisagreeState)}
+            />
+          </div>
+
+          {/* Cui bono — sharp-edged lens, visually separated + always-shown caveat in display */}
+          <div class="border-t border-gray-100 pt-3">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
+                Structural-incentive analysis
+              </p>
+              <p class="text-[10px] text-gray-400 italic">structural, not personal</p>
+            </div>
+            <p class="text-[11px] text-gray-500 leading-relaxed mb-2">
+              Whose positions in a political economy benefit if a reader accepts this framing.
+              Interest-aligned arguments can still be correct — this lens surfaces a question, not a verdict.
+            </p>
+            <LensButton
+              label="Structural incentives"
+              status={siState.status}
+              onClick={() => void runLens('structural-incentive', draft, setSiState)}
+            />
+          </div>
+
+          {presupState.status === 'loading' && <SectionLoading label="Surfacing presuppositions…" />}
+          {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
+          {presupState.status === 'done' && (
+            <div>
+              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Presuppositions</h4>
+              <PresuppositionDisplay result={presupState.data} />
+            </div>
+          )}
+
+          {rhetState.status === 'loading' && <SectionLoading label="Analysing rhetorical balance…" />}
+          {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
+          {rhetState.status === 'done' && (
+            <div>
+              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Rhetorical mode</h4>
+              <RhetoricalModeDisplay result={rhetState.data} />
+            </div>
+          )}
+
+          {humilityState.status === 'loading' && <SectionLoading label="Checking certainty calibration…" />}
+          {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
+          {humilityState.status === 'done' && (
+            <div>
+              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Epistemic humility</h4>
+              <EpistemicHumilityDisplay result={humilityState.data} />
+            </div>
+          )}
+
+          {disagreeState.status === 'loading' && <SectionLoading label="Evaluating engagement with opposing positions…" />}
+          {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
+          {disagreeState.status === 'done' && (
+            <div>
+              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Engagement quality</h4>
+              <DisagreementEngagementDisplay result={disagreeState.data} />
+            </div>
+          )}
+
+          {siState.status === 'loading' && <SectionLoading label="Mapping structural interest alignment…" />}
+          {siState.status === 'error' && <SectionError code={siState.code} message={siState.message} />}
+          {siState.status === 'done' && (
+            <div>
+              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Structural-incentive analysis</h4>
+              <StructuralIncentiveDisplay result={siState.data} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   ) : null;
 
@@ -711,25 +1119,50 @@ export default function StudioEditor({
     );
   }
 
-  // Three-panel Grammarly-style layout — full width
+  // Compute counts for the mobile bottom sheet tabs
+  const findingsCount = auditState.status === 'done' ? totalFindingCount(auditState.data) : 0;
+  const score = auditState.status === 'done' ? argumentScore(auditState.data) : null;
+
+  // Mobile bottom-sheet tabs
+  const mobileTabs = showResults ? [
+    { id: 'findings',  label: 'Findings',        count: findingsCount, body: rightSidebar },
+    { id: 'structure', label: 'Structure',       body: leftSidebar },
+  ] : [];
+
+  const scoreBadge = score !== null ? (
+    <span class="text-[10px] font-bold rounded-full px-1.5 py-0.5 bg-white/20">{score}</span>
+  ) : null;
+
+  // Three-panel Grammarly-style layout on desktop; single-column + bottom sheet on mobile
   return (
-    <div class="flex flex-col xl:flex-row gap-4 items-start" style={{ minHeight: 'calc(100vh - 6rem)' }}>
+    <>
+      <div class="flex flex-col xl:flex-row gap-4 items-start" style={{ minHeight: 'calc(100vh - 6rem)' }}>
 
-      {/* Left sidebar — structure, frameworks, counterarguments */}
-      <div class="w-full xl:w-[22%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto space-y-4 order-2 xl:order-1">
-        {leftSidebar}
+        {/* Left sidebar — hidden on mobile (moved to bottom sheet) */}
+        <div class="hidden xl:block w-full xl:w-[22%] xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4 xl:order-1">
+          {leftSidebar}
+        </div>
+
+        {/* Center — always visible. Full width on mobile. */}
+        <div class="w-full xl:w-[46%] xl:min-h-[calc(100vh-6rem)] xl:order-2 flex flex-col">
+          {inputSection}
+        </div>
+
+        {/* Right sidebar — hidden on mobile (moved to bottom sheet) */}
+        <div class="hidden xl:block w-full xl:w-[32%] xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4">
+          {rightSidebar}
+        </div>
+
       </div>
 
-      {/* Center — draft text with highlights, fills vertical space */}
-      <div class="w-full xl:w-[46%] xl:min-h-[calc(100vh-6rem)] order-1 xl:order-2 flex flex-col">
-        {inputSection}
-      </div>
-
-      {/* Right sidebar — findings, citation audit */}
-      <div class="w-full xl:w-[32%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto space-y-4 order-3">
-        {rightSidebar}
-      </div>
-
-    </div>
+      {/* Mobile bottom-sheet for findings + structure (only after analysis) */}
+      {showResults && (
+        <MobileFindingsSheet
+          tabs={mobileTabs}
+          totalFindings={findingsCount}
+          scoreBadge={scoreBadge}
+        />
+      )}
+    </>
   );
 }

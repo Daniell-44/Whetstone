@@ -28,11 +28,14 @@ export interface ExtractionStatement {
   inferenceRuleExplanation?: string | null;
 }
 
+import type { GroundednessSignal } from '../grounded/types';
+
 export interface ArgumentExtractionResult {
-  centralClaim: string;
-  statements:   ExtractionStatement[];
-  notes:        string | null;
-  confidence:   number;
+  centralClaim:      string;
+  statements:        ExtractionStatement[];
+  notes:             string | null;
+  groundedness:      GroundednessSignal;
+  _debugConfidence?: number;
 }
 
 export interface ExtractionDeps {

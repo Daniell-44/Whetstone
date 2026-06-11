@@ -1,20 +1,21 @@
 import { useState, useRef, useCallback, useMemo } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
+import type { GroundednessSignal } from '../../../functions/_lib/grounded/types';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 interface Highlight {
-  start:       number;
-  end:         number;
-  quote:       string;
-  lens:        string;
-  label:       string;
-  explanation: string;
-  severity:    'high' | 'medium' | 'low';
-  confidence:  number;
-  matchKey:    string;
+  start:        number;
+  end:          number;
+  quote:        string;
+  lens:         string;
+  label:        string;
+  explanation:  string;
+  severity:     'high' | 'medium' | 'low';
+  groundedness: GroundednessSignal;
+  matchKey:     string;
 }
 
 interface Props {
@@ -59,7 +60,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       label:       f.name,
       explanation: f.explanation,
       severity:    f.severity,
-      confidence:  f.confidence,
+      groundedness: f.groundedness,
       matchKey:    `namedFallacies:${f.name}:${f.quote.slice(0, 40)}`,
     });
   }
@@ -76,7 +77,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       label:       l.technique,
       explanation: l.explanation,
       severity:    l.severity,
-      confidence:  l.confidence,
+      groundedness: l.groundedness,
       matchKey:    `loadedLanguage:${l.technique}:${l.phrase.slice(0, 40)}`,
     });
   }
@@ -94,7 +95,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
         label:       `Term shift: "${k.term}"`,
         explanation: k.explanation,
         severity:    k.severity,
-        confidence:  k.confidence,
+        groundedness: k.groundedness,
         matchKey:    `keyTermScrutiny:${k.term}:${k.usage_a.slice(0, 40)}`,
       });
     }
@@ -112,7 +113,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       label:       `Vague reference: "${r.phrase}"`,
       explanation: r.explanation,
       severity:    r.severity,
-      confidence:  r.confidence,
+      groundedness: r.groundedness,
       matchKey:    `referentChecks:${r.phrase}:${r.evidence.slice(0, 40)}`,
     });
   }
@@ -129,7 +130,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       label:       `Unfalsifiable: "${f.claim.slice(0, 30)}…"`,
       explanation: f.explanation,
       severity:    f.severity,
-      confidence:  f.confidence,
+      groundedness: f.groundedness,
       matchKey:    `falsifiabilityChecks:${f.claim.slice(0, 30)}:${f.evidence.slice(0, 40)}`,
     });
   }
@@ -146,7 +147,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       label:       `Modal inflation: "${m.inflatedModal}" → "${m.impliedModal}"`,
       explanation: m.explanation,
       severity:    m.severity,
-      confidence:  m.confidence,
+      groundedness: m.groundedness,
       matchKey:    `modalScopeChecks:${m.claim.slice(0, 30)}:${m.evidence.slice(0, 40)}`,
     });
   }
@@ -211,7 +212,7 @@ function HoverCard({ highlight, x, y }: { highlight: Highlight; x: number; y: nu
           highlight.severity === 'medium' ? 'bg-amber-100 text-amber-700' :
           'bg-gray-100 text-gray-600'
         }`}>{highlight.severity}</span>
-        <span class="text-gray-400">{highlight.confidence}% confidence</span>
+        <span class="text-gray-400">structural</span>
       </div>
     </div>
   );

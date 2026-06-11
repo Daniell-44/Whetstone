@@ -1,0 +1,220 @@
+// ---------------------------------------------------------------------------
+// DeeperLensPanel — on-demand lens runner.
+//
+// Used on both the Reader (free) and Studio (free + Pro). Renders four
+// lens buttons; each fires its endpoint on click and renders the result
+// inline below. The structural-incentive lens is visually separated and
+// always-on-caveat per its design.
+//
+// Auth model:
+//   - Endpoints require sign-in (401 if not signed in)
+//   - We render the "Sign in to use" upsell when 401 is received
+//   - All lens endpoints are now free-tier (no SUBSCRIPTION_REQUIRED)
+// ---------------------------------------------------------------------------
+
+import { useState, useCallback } from 'preact/hooks';
+import type { PresuppositionResult } from '../../../functions/_lib/presupposition/types';
+import type { RhetoricalModeResult } from '../../../functions/_lib/rhetorical-mode/types';
+import type { EpistemicHumilityResult } from '../../../functions/_lib/epistemic-humility/types';
+import type { DisagreementEngagementResult } from '../../../functions/_lib/disagreement-engagement/types';
+import type { StructuralIncentiveResult } from '../../../functions/_lib/structural-incentive/types';
+import PresuppositionDisplay from '../presupposition/PresuppositionDisplay';
+import RhetoricalModeDisplay from '../rhetorical-mode/RhetoricalModeDisplay';
+import EpistemicHumilityDisplay from '../epistemic-humility/EpistemicHumilityDisplay';
+import DisagreementEngagementDisplay from '../disagreement-engagement/DisagreementEngagementDisplay';
+import StructuralIncentiveDisplay from '../structural-incentive/StructuralIncentiveDisplay';
+import { track } from '../../lib/analytics/track';
+
+type SectionState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'done'; data: T }
+  | { status: 'error'; code: string; message: string };
+
+type LensName =
+  | 'presupposition'
+  | 'rhetorical-mode'
+  | 'epistemic-humility'
+  | 'disagreement-engagement'
+  | 'structural-incentive';
+
+type AnyLensResponse =
+  | { ok: true; result: PresuppositionResult }
+  | { ok: true; result: RhetoricalModeResult }
+  | { ok: true; result: EpistemicHumilityResult }
+  | { ok: true; result: DisagreementEngagementResult }
+  | { ok: true; result: StructuralIncentiveResult }
+  | { ok: false; error: { code: string; message: string } };
+
+interface Props {
+  /** Text to analyse with each lens. */
+  text:    string;
+  /** Surface label for analytics (e.g. "reader", "studio"). */
+  surface: string;
+}
+
+function LensButton({
+  label,
+  status,
+  onClick,
+}: {
+  label:   string;
+  status:  'idle' | 'loading' | 'done' | 'error';
+  onClick: () => void;
+}) {
+  const isLoading = status === 'loading';
+  const isDone    = status === 'done';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={isLoading || isDone}
+      class={`text-xs font-medium px-3 py-2 rounded-lg border transition-colors text-left
+        ${isDone     ? 'bg-emerald-50 border-emerald-200 text-emerald-700 cursor-default' :
+          isLoading  ? 'bg-indigo-50  border-indigo-200  text-indigo-500  cursor-wait'    :
+                       'bg-white      border-gray-200    text-gray-700    hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700'}`}
+    >
+      {isLoading ? `${label}…` : isDone ? `✓ ${label}` : label}
+    </button>
+  );
+}
+
+function SectionLoading({ label }: { label: string }) {
+  return (
+    <div class="rounded-lg bg-indigo-50 border border-indigo-100 p-4 text-center">
+      <p class="text-sm text-indigo-700 font-medium">{label}</p>
+    </div>
+  );
+}
+
+function SectionError({ code, message }: { code: string; message: string }) {
+  if (code === 'UNAUTHORIZED') {
+    return (
+      <div class="rounded-lg bg-amber-50 border border-amber-200 p-4 text-center">
+        <p class="text-sm text-amber-800 font-medium mb-1">Sign in to use this lens</p>
+        <p class="text-xs text-amber-700 mb-3">Free with a Whetstone account.</p>
+        <a href="/login?returnTo=/reader" class="inline-block text-xs text-amber-700 font-semibold underline hover:text-amber-900">
+          Sign in →
+        </a>
+      </div>
+    );
+  }
+  return (
+    <div class="rounded-lg bg-red-50 border border-red-200 p-3">
+      <p class="text-xs text-red-700">{message}</p>
+    </div>
+  );
+}
+
+export default function DeeperLensPanel({ text, surface }: Props) {
+  const [presupState,  setPresupState]   = useState<SectionState<PresuppositionResult>>({ status: 'idle' });
+  const [rhetState,    setRhetState]     = useState<SectionState<RhetoricalModeResult>>({ status: 'idle' });
+  const [humilityState, setHumilityState] = useState<SectionState<EpistemicHumilityResult>>({ status: 'idle' });
+  const [disagreeState, setDisagreeState] = useState<SectionState<DisagreementEngagementResult>>({ status: 'idle' });
+  const [siState,       setSiState]       = useState<SectionState<StructuralIncentiveResult>>({ status: 'idle' });
+
+  const runLens = useCallback(async (
+    lens:   LensName,
+    setter: (s: SectionState<any>) => void,
+  ) => {
+    setter({ status: 'loading' });
+
+    const eventName =
+      lens === 'presupposition'         ? 'presupposition_requested' :
+      lens === 'rhetorical-mode'        ? 'rhetorical_mode_requested' :
+      lens === 'epistemic-humility'     ? 'epistemic_humility_requested' :
+      lens === 'disagreement-engagement'? 'disagreement_engagement_requested' :
+                                          'structural_incentive_requested';
+    track(eventName as any, { surface });
+
+    try {
+      const res = await fetch(`/api/${lens}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ text }),
+      });
+      const data = await res.json() as AnyLensResponse;
+      if (data.ok) {
+        setter({ status: 'done', data: data.result });
+      } else {
+        setter({ status: 'error', code: data.error.code, message: data.error.message });
+      }
+    } catch {
+      setter({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' });
+    }
+  }, [text, surface]);
+
+  return (
+    <div class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
+        <span class="text-[10px] text-gray-400">click to run · free</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <LensButton label="Presuppositions"   status={presupState.status}   onClick={() => void runLens('presupposition',         setPresupState)} />
+        <LensButton label="Rhetorical mode"   status={rhetState.status}     onClick={() => void runLens('rhetorical-mode',        setRhetState)} />
+        <LensButton label="Epistemic humility" status={humilityState.status} onClick={() => void runLens('epistemic-humility',     setHumilityState)} />
+        <LensButton label="Engagement quality" status={disagreeState.status} onClick={() => void runLens('disagreement-engagement', setDisagreeState)} />
+      </div>
+
+      <div class="border-t border-gray-100 pt-3">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
+            Structural-incentive analysis
+          </p>
+          <p class="text-[10px] text-gray-400 italic">structural, not personal</p>
+        </div>
+        <p class="text-[11px] text-gray-500 leading-relaxed mb-2">
+          Whose positions in a political economy benefit if a reader accepts this framing.
+          Interest-aligned arguments can still be correct — this lens surfaces a question, not a verdict.
+        </p>
+        <LensButton label="Structural incentives" status={siState.status} onClick={() => void runLens('structural-incentive', setSiState)} />
+      </div>
+
+      {presupState.status === 'loading' && <SectionLoading label="Surfacing presuppositions…" />}
+      {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
+      {presupState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Presuppositions</h4>
+          <PresuppositionDisplay result={presupState.data} />
+        </div>
+      )}
+
+      {rhetState.status === 'loading' && <SectionLoading label="Analysing rhetorical balance…" />}
+      {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
+      {rhetState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Rhetorical mode</h4>
+          <RhetoricalModeDisplay result={rhetState.data} />
+        </div>
+      )}
+
+      {humilityState.status === 'loading' && <SectionLoading label="Checking certainty calibration…" />}
+      {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
+      {humilityState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Epistemic humility</h4>
+          <EpistemicHumilityDisplay result={humilityState.data} />
+        </div>
+      )}
+
+      {disagreeState.status === 'loading' && <SectionLoading label="Evaluating engagement with opposing positions…" />}
+      {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
+      {disagreeState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Engagement quality</h4>
+          <DisagreementEngagementDisplay result={disagreeState.data} />
+        </div>
+      )}
+
+      {siState.status === 'loading' && <SectionLoading label="Mapping structural interest alignment…" />}
+      {siState.status === 'error' && <SectionError code={siState.code} message={siState.message} />}
+      {siState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Structural-incentive analysis</h4>
+          <StructuralIncentiveDisplay result={siState.data} />
+        </div>
+      )}
+    </div>
+  );
+}

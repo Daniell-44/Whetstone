@@ -4,6 +4,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import StudioEditor from '../../components/studio/StudioEditor';
+import OnboardingTour from '../../components/onboarding/OnboardingTour';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
 import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
@@ -81,6 +82,8 @@ if (docIdParam) {
         {!hasActiveSubscription && (
           <a href="/pricing" class="text-xs text-amber-600 hover:text-amber-700 font-medium">Subscribe →</a>
         )}
+        <a href="/creator/studio/transcript" class="text-xs text-gray-400 hover:text-amber-600 transition-colors">Transcript →</a>
+        <a href="/creator/studio/cross-document" class="text-xs text-gray-400 hover:text-violet-600 transition-colors">Cross-document →</a>
         <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">My documents →</a>
       </div>
     </nav>
@@ -97,6 +100,8 @@ if (docIdParam) {
       initialActions={initialActions}
       terminologyPreference={terminology}
     />
+
+    <OnboardingTour client:load />
 
   </main>
 </Base>

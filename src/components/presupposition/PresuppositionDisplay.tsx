@@ -1,0 +1,67 @@
+import type { PresuppositionResult, Presupposition } from '../../../functions/_lib/presupposition/types';
+import GroundednessChip from '../grounded/GroundednessChip';
+
+const DOMAIN_LABEL: Record<string, string> = {
+  ontological: 'Ontological',
+  normative:   'Normative',
+  epistemic:   'Epistemic',
+  causal:      'Causal',
+  categorical: 'Categorical',
+  temporal:    'Temporal',
+  agent:       'Agent',
+  other:       'Other',
+};
+
+const CONTEST_BADGE: Record<string, { label: string; cls: string }> = {
+  widely_shared:    { label: 'Widely shared',    cls: 'bg-emerald-100 text-emerald-700' },
+  community_shared: { label: 'Community-shared', cls: 'bg-sky-100 text-sky-700' },
+  contested:        { label: 'Contested',        cls: 'bg-amber-100 text-amber-700' },
+  minority:         { label: 'Minority view',    cls: 'bg-red-100 text-red-700' },
+};
+
+function PresupCard({ p }: { p: Presupposition }) {
+  const badge = CONTEST_BADGE[p.contestability] ?? CONTEST_BADGE.contested;
+  return (
+    <div class="rounded-lg border border-gray-200 bg-white p-4">
+      <div class="flex items-center gap-2 mb-2 flex-wrap">
+        <span class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600">{DOMAIN_LABEL[p.domain] ?? p.domain}</span>
+        <span class={`text-[10px] font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
+        <span class="ml-auto"><GroundednessChip groundedness={p.groundedness} compact /></span>
+      </div>
+      <p class="text-sm text-gray-900 font-medium leading-snug mb-2">"{p.statement}"</p>
+      <blockquote class="text-xs text-gray-500 border-l-2 border-gray-200 pl-2.5 italic mb-2 leading-relaxed">
+        {p.triggerPassage}
+      </blockquote>
+      <p class="text-xs text-gray-600 leading-relaxed mb-2">{p.whyItMatters}</p>
+      {p.alternatives.length > 0 && (
+        <div class="text-[11px] text-gray-500">
+          <span class="font-semibold text-gray-600">Alternative frames:</span>{' '}
+          {p.alternatives.join(' · ')}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function PresuppositionDisplay({ result }: { result: PresuppositionResult }) {
+  return (
+    <div class="space-y-4">
+      <div class="rounded-lg border border-indigo-100 bg-indigo-50/60 p-4">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-1.5">Implied audience</p>
+        <p class="text-sm text-gray-800 leading-relaxed">{result.audienceProfile}</p>
+      </div>
+
+      {result.presuppositions.length === 0 ? (
+        <p class="text-sm text-gray-400">No clear presuppositions identified.</p>
+      ) : (
+        <div class="space-y-3">
+          {result.presuppositions.map((p, i) => <PresupCard key={i} p={p} />)}
+        </div>
+      )}
+
+      {result.notes && (
+        <p class="text-xs text-gray-400 italic">{result.notes}</p>
+      )}
+    </div>
+  );
+}

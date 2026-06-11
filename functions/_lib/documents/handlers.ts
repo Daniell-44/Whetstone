@@ -191,9 +191,10 @@ export async function handleVersionCounterarg(
   const session = await deps.getSession(req);
   if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
 
+  // Counterargument (steelman) is a Pro feature — Pro-model cost.
   const hasSubscription = await deps.checkSubscription(session.userId);
   if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active subscription required' } }, 402);
+    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Counterargument is a Studio Pro feature.' } }, 402);
   }
 
   const doc = await deps.db.getDocumentById(docId);
@@ -297,9 +298,10 @@ export async function handleVersionCommitments(
   const session = await deps.getSession(req);
   if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
 
+  // Philosophical commitments is a Pro feature — Pro-model cost.
   const hasSubscription = await deps.checkSubscription(session.userId);
   if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active subscription required' } }, 402);
+    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Framework analysis is a Studio Pro feature.' } }, 402);
   }
 
   const doc = await deps.db.getDocumentById(docId);

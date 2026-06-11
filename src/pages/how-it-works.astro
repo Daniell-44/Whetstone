@@ -2,126 +2,219 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base
-  title="How it works — Devil's Advocate"
-  description="How Devil's Advocate analyses argument structure, what the Toulmin frame is, and what the tool does not do."
+  title="How it works — The Whetstone"
+  description="What the engine analyses, the analytical lenses it applies, and what it won't do."
   canonicalPath="/how-it-works"
-
 >
-  <main class="max-w-2xl mx-auto px-6 pt-20 pb-16">
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-16">
 
-    <nav class="mb-12">
+    <nav class="mb-10">
       <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← The Whetstone</a>
     </nav>
 
+    <header class="mb-12">
+      <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mb-3">
+        How it works
+      </h1>
+      <p class="text-base text-gray-500 leading-relaxed">
+        Plain-English guide to the eleven lenses the engine applies, the philosophical frameworks behind them,
+        and the limits of what the tool can and won't do.
+      </p>
+    </header>
 
-    <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mb-3">
-      How it works
-    </h1>
-    <p class="text-sm text-gray-400 mb-12">A plain-English guide to the tool and the frame it uses.</p>
-
-    <!-- Section 1: What the tool does -->
-    <section class="mb-12">
-      <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">What it does</h2>
+    <!-- Section 1 — what it actually does -->
+    <section class="mb-14">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">What the engine actually does</h2>
+      <p class="text-base text-gray-700 leading-relaxed mb-4">
+        You paste a piece of argumentative text — an op-ed, a thread, a draft, a transcript. The engine reads it as
+        an argument: not as prose, not as opinion, not as a verdict on who's right. It returns a structural view
+        of how the argument works.
+      </p>
       <p class="text-base text-gray-700 leading-relaxed">
-        When you highlight text on any article and open Devil's Advocate, the tool reads the passage
-        as an argument — not as prose, not as opinion, not as fact. It identifies what position is
-        being argued for, what evidence is offered in support, what assumption connects them, and
-        whether any familiar reasoning patterns appear. It then writes the strongest single-paragraph
-        case for the opposing position. The result is a structured view of the argument, not a
-        verdict on who is right.
+        Eleven analytical lenses run in parallel. Each catches a different failure mode in reasoning. The output is
+        a structured report — claims, evidence, hidden assumptions, fallacy patterns, opposing positions — with
+        verbatim quotes from your text, severity ratings, and confidence scores on every finding.
       </p>
     </section>
 
-    <!-- Section 2: The Toulmin frame -->
-    <section class="mb-12">
-      <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">The Toulmin frame</h2>
-      <p class="text-base text-gray-700 leading-relaxed mb-6">
-        The tool uses the Toulmin model of argumentation — a framework from philosophy of language
-        that breaks any argument into six components. You do not need to know the framework to use
-        the tool, but understanding it makes the output more useful.
+    <!-- Section 2 — the eleven lenses -->
+    <section class="mb-14">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">The eleven analytical lenses</h2>
+      <p class="text-sm text-gray-500 mb-6">
+        Each lens has a name in the code (used by API consumers) and a plain-English label (used in the UI).
+        The philosophical pedigree is given because the lenses come from somewhere — they aren't arbitrary.
       </p>
-      <dl class="space-y-5">
+
+      <div class="space-y-5">
+
         <div class="pl-4 border-l-2 border-indigo-200">
-          <dt class="text-sm font-semibold text-gray-900 mb-1">Claim</dt>
-          <dd class="text-sm text-gray-600 leading-relaxed">
-            The main position being argued for. <em>"Remote work increases productivity."</em>
-          </dd>
+          <p class="text-sm font-semibold text-gray-900 mb-1">1. Argument structure <span class="text-xs text-gray-400 font-normal">— Toulmin decomposition</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            The claim, grounds, warrant, qualifier, and rebuttal. Plus the weakest link — which of these components
+            is least supported. From Stephen Toulmin's <em>The Uses of Argument</em> (1958).
+          </p>
         </div>
+
         <div class="pl-4 border-l-2 border-indigo-200">
-          <dt class="text-sm font-semibold text-gray-900 mb-1">Grounds</dt>
-          <dd class="text-sm text-gray-600 leading-relaxed">
-            The evidence or reasons offered in support.
-            <em>"Studies show output rose 13% after companies moved to remote."</em>
-          </dd>
+          <p class="text-sm font-semibold text-gray-900 mb-1">2. Reasoning patterns <span class="text-xs text-gray-400 font-normal">— 26 named fallacies</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            From Ad Hominem to Motte-and-Bailey, Selection Bias to Genetic Fallacy. Each finding includes the
+            verbatim quote that exemplifies it, the severity (high / medium / low), and the confidence (50–100%).
+            Catalogue grounded in Aristotle's <em>Sophistical Refutations</em>, extended by Walton and Hansen.
+          </p>
         </div>
-        <div class="pl-4 border-l-4 border-indigo-400">
-          <dt class="text-sm font-semibold text-indigo-800 mb-1">Warrant <span class="font-normal text-indigo-500">(the load-bearing field)</span></dt>
-          <dd class="text-sm text-indigo-700 leading-relaxed">
-            The usually-unstated assumption that connects the grounds to the claim — the thing the
-            argument requires you to accept without arguing for it explicitly.
-            <em>"Output measured in those studies is representative of productivity in general."</em>
-            The warrant is where most arguments are actually contested.
-          </dd>
+
+        <div class="pl-4 border-l-2 border-indigo-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">3. Loaded language <span class="text-xs text-gray-400 font-normal">— 8 rhetorical techniques</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Emotionally charged terms, weasel words, glittering generalities, scare quotes, presupposition
+            smuggling, euphemism, false-precision numbers, name-calling. The argumentative work done by diction
+            rather than logic.
+          </p>
         </div>
-        <div class="pl-4 border-l-2 border-gray-200">
-          <dt class="text-sm font-semibold text-gray-900 mb-1">Backing</dt>
-          <dd class="text-sm text-gray-600 leading-relaxed">
-            Support for the warrant itself, when present.
-            <em>"The studies used a consistent output metric validated across industries."</em>
-          </dd>
+
+        <div class="pl-4 border-l-2 border-indigo-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">4. Unstated warrants <span class="text-xs text-gray-400 font-normal">— hidden assumptions</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            The premises the argument needs but doesn't state. Most arguments are enthymemes —
+            Aristotle's term, in the <em>Rhetoric</em>, for syllogisms with a suppressed premise. The hidden
+            premise is often where the disagreement actually lives.
+          </p>
         </div>
-        <div class="pl-4 border-l-2 border-gray-200">
-          <dt class="text-sm font-semibold text-gray-900 mb-1">Qualifier</dt>
-          <dd class="text-sm text-gray-600 leading-relaxed">
-            A word or phrase limiting the claim's scope.
-            <em>"Remote work <strong>generally</strong> increases productivity."</em>
-          </dd>
+
+        <div class="pl-4 border-l-2 border-indigo-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">5. Key-term scrutiny <span class="text-xs text-gray-400 font-normal">— Wittgensteinian</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Tracks whether load-bearing words are used consistently across the text. Detects stipulative
+            smuggling, cross-language-game equivocation, and family-resemblance overreach. Grounded in
+            Wittgenstein's <em>Philosophical Investigations</em>.
+          </p>
         </div>
-        <div class="pl-4 border-l-2 border-gray-200">
-          <dt class="text-sm font-semibold text-gray-900 mb-1">Rebuttal</dt>
-          <dd class="text-sm text-gray-600 leading-relaxed">
-            Conditions the argument itself acknowledges as exceptions.
-            <em>"Unless the role requires intensive real-time collaboration."</em>
-          </dd>
+
+        <div class="pl-4 border-l-2 border-indigo-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">6. Vague reference check <span class="text-xs text-gray-400 font-normal">— Russellian</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Appeals to groups whose referent is empty ("real Americans"), vague ("the establishment"), or
+            presuppose facts not established ("the proven link between X and Y"). From Russell's
+            <em>On Denoting</em> (1905) and his theory of definite descriptions.
+          </p>
         </div>
-      </dl>
+
+        <div class="pl-4 border-l-2 border-indigo-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">7. Testability check <span class="text-xs text-gray-400 font-normal">— Davidsonian falsifiability</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            For each major claim: what evidence would refute it? Claims with no truth conditions, circular
+            truth conditions, or that are unfalsifiable while dressed as substantive are flagged. Grounded
+            in Davidson's truth-conditional semantics.
+          </p>
+        </div>
+
+        <div class="pl-4 border-l-2 border-indigo-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">8. Certainty claims <span class="text-xs text-gray-400 font-normal">— modal scope check</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Where the argument substitutes necessity ("will", "must") for possibility ("might", "could") without
+            the evidence to license the upgrade. Or where premises hedge but the conclusion drops the hedge.
+            Grounded in Kripke's modal logic semantics.
+          </p>
+        </div>
+
+        <div class="pl-4 border-l-2 border-amber-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">9. Counterarguments <span class="text-xs text-amber-600 font-normal">— Studio tier</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            The 2–3 strongest opposing positions a thoughtful opponent would deploy — each steelmanned, each
+            with its own Toulmin structure. Standalone free version available at <a href="/strongest-opposing-case" class="text-indigo-600 hover:text-indigo-800 underline">/strongest-opposing-case</a>.
+          </p>
+        </div>
+
+        <div class="pl-4 border-l-2 border-amber-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">10. Philosophical commitments <span class="text-xs text-amber-600 font-normal">— Studio tier</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            The ethical, epistemic, political, and methodological framework the argument operates within —
+            consequentialist vs deontological, empiricist vs rationalist, individualist vs structuralist.
+            Made visible so the writer can decide whether to defend, soften, or replace the underlying frame.
+          </p>
+        </div>
+
+        <div class="pl-4 border-l-2 border-amber-200">
+          <p class="text-sm font-semibold text-gray-900 mb-1">11. Evidence-weighted likelihood <span class="text-xs text-amber-600 font-normal">— Studio tier</span></p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            For empirical claims only, we search 200M+ papers via Semantic Scholar and synthesise the scientific
+            consensus — strong support, contested, opposed, insufficient data. Value claims are explicitly flagged
+            as not empirically assessable. Grounded in Hume's is–ought distinction (1739).
+          </p>
+        </div>
+
+      </div>
     </section>
 
-    <!-- Section 3: What it isn't -->
-    <section class="mb-12">
-      <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">What it isn't</h2>
+    <!-- Section 3 — three modes of engagement -->
+    <section class="mb-14">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Three ways to use the engine</h2>
+      <div class="space-y-4">
+        <div class="rounded-xl border border-gray-200 p-5">
+          <p class="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-2">Reader · free</p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Paste text or a URL at <a href="/reader" class="text-indigo-600 underline">/reader</a>. Returns the
+            full lens suite minus the Studio-tier features. Five audits per day, no account required.
+          </p>
+        </div>
+        <div class="rounded-xl border border-amber-200 p-5">
+          <p class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Creator Studio · $22/mo</p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Full lens suite at <a href="/creator/studio" class="text-amber-600 underline">/creator/studio</a>.
+            Document persistence, revision tracking, inline highlights, counterarguments, citation audit,
+            evidence-weighted likelihood, transcript audit. For writers who care.
+          </p>
+        </div>
+        <div class="rounded-xl border border-gray-200 p-5">
+          <p class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Devil's Advocate · Chrome extension</p>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Audit any argument inline while reading on the web. Highlight text or analyse the whole article.
+            Inline highlights overlay the original page. Coming to the Chrome Web Store.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4 — what it isn't -->
+    <section class="mb-14">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">What it won't do</h2>
       <ul class="space-y-3 text-base text-gray-700">
         <li class="pl-4 border-l-2 border-amber-300">
-          <strong class="font-medium">It doesn't adjudicate claims.</strong> The tool analyses argument structure — not whether specific assertions are accurate. Whether the study cited is real, or whether the statistic holds up, is your job. Tier 3 retrieval (coming later) will help you check sources. The tool never asserts that a claim is true or false.
+          <strong class="font-medium">It won't adjudicate claims.</strong> The tool analyses argument <em>structure</em>,
+          not factual accuracy of specific assertions. Whether a cited study is real, or a statistic holds up, is
+          your job — though the citation audit and evidence-weighted likelihood lenses help.
         </li>
         <li class="pl-4 border-l-2 border-amber-300">
-          <strong class="font-medium">Not a political moderator.</strong> It does not decide which side of a contested question is correct. The same analysis runs on a climate-change argument and a sceptic's counter-argument. The frame is neutral; the conclusions are yours.
+          <strong class="font-medium">It's not a political moderator.</strong> The same engine runs on a
+          climate-policy argument and a climate-sceptic counter-argument. The frame is neutral; the conclusions
+          you draw remain yours.
         </li>
         <li class="pl-4 border-l-2 border-amber-300">
-          <strong class="font-medium">Not a writing improver.</strong> The tool helps you understand the argument in front of you. It does not suggest how to make your own writing more persuasive, more shareable, or better-optimised for any platform.
+          <strong class="font-medium">It's not a writing improver.</strong> The engine audits but does not rewrite.
+          Preserving the writer's voice is a deliberate design choice — the work of fixing flagged issues
+          stays with the writer.
         </li>
         <li class="pl-4 border-l-2 border-amber-300">
-          <strong class="font-medium">Not always right.</strong> The tool surfaces reasoning patterns when confidence is high (&ge;75%). It will sometimes miss things; it will sometimes flag patterns that, on closer reading, are not present. Treat it as a prompt, not a verdict.
+          <strong class="font-medium">It is not always right.</strong> Findings carry confidence scores (50–100%)
+          precisely because the tool can be wrong. Treat findings as prompts to look more carefully, not as verdicts.
+          Calibration improves with feedback — the thumbs on each finding feed the prompt-iteration process.
         </li>
       </ul>
     </section>
 
-    <!-- Section 4: What's coming -->
+    <!-- Section 5 — open source -->
     <section class="mb-12">
-      <h2 class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-4">What's coming</h2>
-      <p class="text-base text-gray-700 leading-relaxed">
-        The current extension is the Reader surface — analysis of text you encounter. A Creator
-        Studio is in development: the same analysis engine, applied to your own writing before
-        you post it. The studio is aimed at people who care whether their arguments are well-formed
-        — students, journalists, Substackers, anyone whose work depends on reasoning clearly in
-        public. No timeline commitment here; the extension ships first, and the studio follows when
-        the analysis engine is battle-tested.
+      <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Open and inspectable</h2>
+      <p class="text-base text-gray-700 leading-relaxed mb-3">
+        Every prompt, schema, and analytical framework is in the public repository. A tool that shapes
+        how people read arguments should itself be transparent. If a finding seems off, you can read the
+        prompt that produced it.
       </p>
+      <a href="https://github.com/Daniell-44/Whetstone" target="_blank" rel="noopener" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+        View on GitHub →
+      </a>
     </section>
-
-    <footer class="pt-6 border-t border-gray-100">
-      <a href="/privacy" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">Privacy policy →</a>
-    </footer>
 
   </main>
 </Base>

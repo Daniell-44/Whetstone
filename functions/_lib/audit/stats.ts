@@ -1,4 +1,5 @@
 import type { AuditResult } from './types';
+import { kindWeight } from '../grounded/types';
 
 // ---------------------------------------------------------------------------
 // Text statistics — pure functions, no side effects
@@ -75,14 +76,16 @@ export function totalFindingCount(audit: AuditResult): number {
 // ---------------------------------------------------------------------------
 // Argument quality score (0–100)
 //
-// Starts at 100 and deducts based on findings weighted by severity and
-// confidence. The formula intentionally caps deductions so that even a
-// heavily-flagged piece doesn't score 0 (some arguments are intentionally
-// provocative and still structurally valid).
+// Starts at 100 and deducts per finding, weighted by:
+//   - severity   (high/medium/low)
+//   - kindWeight (structural > empirical w/ consensus > interpretive)
 //
-// The score answers: "how structurally clean is this argument?"
-// High = few issues. Low = many high-severity issues. Not a verdict on
-// whether the argument is *right* — only whether it's well-constructed.
+// The kind weighting means a structural fallacy (verifiable in the quoted
+// text) drags the score more than an interpretive reading. This is honest:
+// findings the reader can verify deserve more weight than findings that
+// depend on a debatable reading.
+//
+// Logarithmic-ish cap so a heavily-flagged piece can't score 0.
 // ---------------------------------------------------------------------------
 
 const SEVERITY_WEIGHT: Record<string, number> = { high: 8, medium: 4, low: 1.5 };
@@ -102,13 +105,21 @@ export function argumentScore(audit: AuditResult): number {
 
   let totalDeduction = 0;
   for (const f of findings) {
-    const weight     = SEVERITY_WEIGHT[f.severity] ?? 2;
-    const confidence = f.confidence / 100;
-    totalDeduction  += weight * confidence;
+    const sevWeight  = SEVERITY_WEIGHT[f.severity] ?? 2;
+    const kindFactor = kindWeight(f.groundedness);
+    totalDeduction  += sevWeight * kindFactor;
   }
 
-  // Logarithmic scaling so many small issues don't crater the score
-  // but a few high-severity issues cause meaningful drops
   const scaled = Math.min(80, totalDeduction * 2.5);
   return Math.max(10, Math.round(100 - scaled));
+}
+
+// ---------------------------------------------------------------------------
+// Priority score for individual findings — used to sort the findings list.
+// ---------------------------------------------------------------------------
+
+export function findingPriorityScore<T extends { severity: 'high' | 'medium' | 'low'; groundedness: import('../grounded/types').GroundednessSignal }>(
+  f: T,
+): number {
+  return (SEVERITY_WEIGHT[f.severity] ?? 2) * kindWeight(f.groundedness);
 }

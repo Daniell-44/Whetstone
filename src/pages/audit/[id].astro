@@ -1,0 +1,83 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import AuditResults from '../../components/audit/AuditResults';
+import SummaryToolbar from '../../components/audit/SummaryToolbar';
+import { getAuditLink } from '../../../functions/_lib/audit-links/storage';
+
+const { id } = Astro.params;
+if (!id) return new Response('Not Found', { status: 404 });
+
+const stored = env.AUDIT_LINKS ? await getAuditLink(env.AUDIT_LINKS, id) : null;
+if (!stored) return new Response('Audit link not found or expired', { status: 404 });
+
+const { audit, draftTitle, draftSnippet, savedAt } = stored;
+
+const savedDate = new Date(savedAt).toLocaleDateString('en-GB', {
+  day: 'numeric', month: 'long', year: 'numeric',
+});
+
+// OG card override — the per-link card pulls the most-severe finding for preview
+const cardUrl = `/audit/${id}/card.svg`;
+
+const titleText = draftTitle ?? 'Shared audit — The Whetstone';
+const description = draftSnippet.length > 0
+  ? `"${draftSnippet}…" — audited by The Whetstone`
+  : 'A shareable audit from The Whetstone';
+---
+<Base
+  title={titleText}
+  description={description}
+  canonicalPath={`/audit/${id}`}
+>
+  <!-- OG override — uses per-audit dynamic card -->
+  <slot name="head">
+    <meta property="og:image" content={`https://thewhetstone.net${cardUrl}`} slot="head" />
+    <meta name="twitter:image" content={`https://thewhetstone.net${cardUrl}`} slot="head" />
+  </slot>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-16">
+
+    <nav class="mb-6 flex items-center justify-between text-xs">
+      <a href="/reader" class="text-gray-400 hover:text-gray-600 transition-colors">← Reader</a>
+      <span class="text-gray-400">Shared audit · {savedDate}</span>
+    </nav>
+
+    <header class="mb-8">
+      <p class="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-2">Audit · Shared link</p>
+      <h1 class="font-serif text-2xl sm:text-3xl text-gray-900 leading-tight mb-3">
+        {draftTitle ?? 'Audited argument'}
+      </h1>
+      {draftSnippet && (
+        <blockquote class="text-sm sm:text-base text-gray-600 italic border-l-4 border-gray-200 pl-4 mt-3 leading-relaxed">
+          "{draftSnippet}…"
+        </blockquote>
+      )}
+    </header>
+
+    <!-- Summary toolbar (score + counts) -->
+    <div class="mb-6">
+      <SummaryToolbar result={audit} draftText={draftSnippet} draftTitle={draftTitle ?? undefined} client:load />
+    </div>
+
+    <!-- Audit results -->
+    <div class="rounded-xl border border-gray-200 bg-white p-5 sm:p-6">
+      <AuditResults result={audit} client:load />
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-10 rounded-xl border border-indigo-200 bg-indigo-50 p-5 text-center space-y-3">
+      <p class="text-sm font-semibold text-indigo-700">Audit your own argument</p>
+      <p class="text-xs text-indigo-600 leading-relaxed max-w-md mx-auto">
+        The same engine that produced this audit is free at <a href="/reader" class="underline font-medium">/reader</a>.
+        No account required. Paste any text or URL.
+      </p>
+      <a href="/reader" class="inline-block px-5 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors">
+        Open the Reader →
+      </a>
+    </div>
+
+  </main>
+</Base>

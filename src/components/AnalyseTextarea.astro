@@ -249,10 +249,6 @@ import WorthKnowing from './WorthKnowing.astro';
     return text.trim().split(/\s+/).filter(Boolean).length;
   }
 
-  function capitalise(s: string): string {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-
   function pillClass(strength: string): string {
     if (strength === 'strong')   return 'pill-strong';
     if (strength === 'moderate') return 'pill-moderate';

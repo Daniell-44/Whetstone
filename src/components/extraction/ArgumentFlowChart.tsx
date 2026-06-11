@@ -98,7 +98,14 @@ export default function ArgumentFlowChart({ result }: Props) {
       })
       .then(({ svg }) => {
         if (containerRef.current) {
-          containerRef.current.innerHTML = svg;
+          // Mermaid emits SVG with explicit width/height attributes that
+          // overflow on mobile and break parent layout. Strip them and let
+          // CSS handle sizing: width=100%, height=auto, max-width=container.
+          const responsive = svg
+            .replace(/<svg([^>]*?)\swidth="[^"]*"/, '<svg$1')
+            .replace(/<svg([^>]*?)\sheight="[^"]*"/, '<svg$1')
+            .replace(/<svg(\s|>)/, '<svg style="max-width:100%;height:auto;display:block;margin:0 auto"$1');
+          containerRef.current.innerHTML = responsive;
         }
         setLoading(false);
       })

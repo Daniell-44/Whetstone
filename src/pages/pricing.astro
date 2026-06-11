@@ -4,6 +4,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
 import CheckoutButton from '../components/billing/CheckoutButton';
+import PricingTier from '../components/pricing/PricingTier.astro';
 import { makeAuthDb } from '../../functions/_lib/auth/db';
 import { makeBillingDb } from '../../functions/_lib/billing/subscription';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
@@ -23,11 +24,11 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 ---
 <Base
   title="Pricing — The Whetstone"
-  description="Free structural audit for readers. Solo plan for writers at $22/month. Studio for teams at $95/month."
+  description="Free structural audit for readers. Solo plan for writers at A$33/month. Studio for teams from A$95/month."
   canonicalPath="/pricing"
   isLoggedIn={isLoggedIn}
 >
-  <main class="max-w-4xl mx-auto px-6 pt-20 pb-24">
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 sm:pt-20 pb-16 sm:pb-24">
 
     <header class="mb-12 text-center">
       <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-4">
@@ -44,63 +45,55 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
       </div>
     )}
 
-    <!-- Three-tier grid -->
-    <div class="grid md:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden bg-white">
+    <!-- Three-tier grid — collapsible feature lists on mobile -->
+    <div class="grid md:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden bg-white divide-y md:divide-y-0 md:divide-x divide-gray-200">
 
-      <!-- Free tier -->
-      <div class="p-8 border-b md:border-b-0 md:border-r border-gray-200">
-        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Free</p>
-        <div class="flex items-baseline gap-1 mb-1">
-          <span class="font-serif text-4xl text-gray-900">$0</span>
-        </div>
-        <p class="text-sm text-gray-400 mb-6">No account required</p>
-
-        <ul class="space-y-3 text-sm text-gray-600 mb-8">
-          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> Toulmin decomposition</li>
-          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> 26 named fallacy patterns</li>
-          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> Loaded language detection</li>
-          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> Unstated warrant analysis</li>
-          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> Argument extraction</li>
-          <li class="flex gap-2"><span class="text-gray-300 shrink-0">✓</span> 10 audits per day</li>
-        </ul>
-
-        <a
-          href="/reader"
-          class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
-        >
+      <PricingTier
+        label="Free"
+        labelColour="text-gray-400"
+        price="$0"
+        subtext="Sign-up required for Studio"
+        features={[
+          'Toulmin decomposition + 26 fallacy patterns',
+          'Loaded language + unstated warrants',
+          'Argument extraction + structure diagram',
+          'Presupposition, rhetorical mode, epistemic humility',
+          'Disagreement quality, structural incentive',
+          '5 audits per day (3 without an account)',
+        ]}
+        featureColour="text-gray-300"
+      >
+        <a slot="cta" href="/reader" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors">
           Use the Reader
         </a>
-      </div>
+      </PricingTier>
 
-      <!-- Solo tier — highlighted -->
-      <div class="p-8 border-b md:border-b-0 md:border-r border-gray-200 bg-amber-50/30 relative">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-amber-500" />
-        <p class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Solo</p>
-        <div class="flex items-baseline gap-1 mb-1">
-          <span class="font-serif text-4xl text-gray-900">$22</span>
-          <span class="text-gray-400 text-sm">/mo</span>
-        </div>
-        <p class="text-sm text-gray-400 mb-6">Cancel anytime</p>
-
-        <ul class="space-y-3 text-sm text-gray-700 mb-8">
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Everything in Free</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Philosophy-of-language lenses</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Modal scope & falsifiability checks</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Counterargument generation</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Philosophical commitments</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Citation audit</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Document persistence & versions</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> Inline highlights (Grammarly-style)</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> 200 audits per day</li>
-          <li class="flex gap-2"><span class="text-amber-500 shrink-0">✓</span> API access</li>
-        </ul>
-
-        <div>
+      <PricingTier
+        label="Solo"
+        labelColour="text-amber-600"
+        price="A$33"
+        priceUnit="/mo"
+        subtext="Cancel anytime"
+        highlighted={true}
+        accentBar="bg-amber-500"
+        features={[
+          'Everything in Free',
+          'Counterargument generation (steelman)',
+          'Philosophical commitments',
+          'Citation audit (URL fetching)',
+          'Evidence-weighted likelihood (Semantic Scholar)',
+          'Transcript audit (YouTube + speeches)',
+          'Cross-document audit (self-contradiction detection)',
+          'Document persistence & versions',
+          'Inline highlights (Grammarly-style)',
+          '100 audits per month (add blocks for more)',
+          'API access',
+        ]}
+        featureColour="text-amber-500"
+      >
+        <Fragment slot="cta">
           {!isLoggedIn ? (
-            <a
-              href="/login?returnTo=/pricing"
-              class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center bg-amber-500 text-white hover:bg-amber-600 transition-colors"
-            >
+            <a href="/login?returnTo=/pricing" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center bg-amber-500 text-white hover:bg-amber-600 transition-colors">
               Sign in to subscribe
             </a>
           ) : hasSubscription ? (
@@ -108,46 +101,35 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
               <div class="rounded-lg bg-green-50 border border-green-200 px-4 py-2.5 text-center">
                 <p class="text-sm font-medium text-green-800">Subscribed</p>
               </div>
-              <button
-                id="pricing-portal-btn"
-                type="button"
-                class="w-full py-2 px-6 rounded-lg text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
-              >
+              <button id="pricing-portal-btn" type="button" class="w-full py-2 px-6 rounded-lg text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors">
                 Manage →
               </button>
             </div>
           ) : (
             <CheckoutButton client:load />
           )}
-        </div>
-      </div>
+        </Fragment>
+      </PricingTier>
 
-      <!-- Studio tier -->
-      <div class="p-8">
-        <p class="text-xs font-bold uppercase tracking-wider text-violet-600 mb-2">Studio</p>
-        <div class="flex items-baseline gap-1 mb-1">
-          <span class="font-serif text-4xl text-gray-900">$95</span>
-          <span class="text-gray-400 text-sm">/mo</span>
-        </div>
-        <p class="text-sm text-gray-400 mb-6">Up to 5 seats</p>
-
-        <ul class="space-y-3 text-sm text-gray-700 mb-8">
-          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Everything in Solo</li>
-          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Structural validity check</li>
-          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Evidence-weighted likelihood</li>
-          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Tone & rhetorical posture</li>
-          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Multi-seat workspace</li>
-          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Shared document library</li>
-          <li class="flex gap-2"><span class="text-violet-500 shrink-0">✓</span> Priority API access</li>
-        </ul>
-
-        <a
-          href="mailto:daniel.livingstone44@gmail.com?subject=Whetstone Studio tier"
-          class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-violet-700 border border-violet-200 hover:bg-violet-50 transition-colors"
-        >
+      <PricingTier
+        label="Studio"
+        labelColour="text-violet-600"
+        price="A$95"
+        priceUnit="/mo"
+        subtext="Up to 5 seats"
+        features={[
+          'Everything in Solo',
+          'Multi-seat workspace (up to 5)',
+          'Shared document library',
+          'Priority API access',
+          'Higher monthly audit limit',
+        ]}
+        featureColour="text-violet-500"
+      >
+        <a slot="cta" href="mailto:daniel.livingstone44@gmail.com?subject=Whetstone Studio tier" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-violet-700 border border-violet-200 hover:bg-violet-50 transition-colors">
           Contact us
         </a>
-      </div>
+      </PricingTier>
 
     </div>
 

@@ -15,7 +15,7 @@ const {
   isLoggedIn = false,
 } = Astro.props;
 
-const siteUrl = 'https://devils-advocate-site.pages.dev';
+const siteUrl = 'https://thewhetstone.net';
 const ogImage = `${siteUrl}/og-image.png`;
 const pageUrl = `${siteUrl}${canonicalPath}`;
 
@@ -43,11 +43,46 @@ const currentPath = canonicalPath;
     <meta name="twitter:title"       content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image"       content={ogImage} />
-  </head>
-  <body class="min-h-screen text-gray-900 font-sans antialiased">
 
-    <!-- Site navigation -->
-    <header class="border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+    <!--
+      page_view analytics fire — opt-in only.
+      Stays inline so it doesn't add a JS import to every page. It just POSTs
+      one event if the consent flag is set. Silent on failure.
+    -->
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem('whetstone.analytics_consent') !== 'on') return;
+          var ref = document.referrer || '';
+          var kind = !ref ? 'direct'
+            : (ref.indexOf(window.location.origin) === 0 ? 'internal' : 'external');
+          var h = sessionStorage.getItem('whetstone.session_hash');
+          if (!h) {
+            var b = new Uint8Array(8); crypto.getRandomValues(b);
+            h = Array.from(b, function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+            sessionStorage.setItem('whetstone.session_hash', h);
+          }
+          fetch('/api/analytics/track', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            keepalive: true,
+            body: JSON.stringify({
+              events: [{
+                eventName:   'page_view',
+                sessionHash: h,
+                path:        location.pathname,
+                metadata:    { referrer_kind: kind },
+              }],
+            }),
+          }).catch(function () {});
+        } catch (_) {}
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen text-gray-900 font-sans antialiased pb-16 sm:pb-0">
+
+    <!-- Site navigation — desktop -->
+    <header class="hidden sm:block border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
       <div class="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
 
         <!-- Brand mark -->
@@ -58,28 +93,22 @@ const currentPath = canonicalPath;
         <!-- Nav links -->
         <nav class="flex items-center gap-5 text-sm">
           <a
-            href="/reader"
-            class={`transition-colors ${currentPath === '/reader' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
+            href="/"
+            class={`transition-colors ${currentPath === '/' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
           >
-            Reader
+            Audit
           </a>
           <a
             href="/creator"
             class={`transition-colors ${currentPath?.startsWith('/creator') ? 'text-amber-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
           >
-            Creator
+            Studio
           </a>
           <a
-            href="/how-it-works"
-            class={`transition-colors hidden sm:block ${currentPath === '/how-it-works' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
+            href="/about"
+            class={`transition-colors hidden sm:block ${currentPath === '/about' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
           >
-            How it works
-          </a>
-          <a
-            href="/privacy"
-            class={`transition-colors hidden sm:block ${currentPath === '/privacy' ? 'text-indigo-600 font-medium' : 'text-gray-500 hover:text-gray-800'}`}
-          >
-            Privacy
+            About
           </a>
           {isLoggedIn ? (
             <a
@@ -101,9 +130,56 @@ const currentPath = canonicalPath;
       </div>
     </header>
 
+    <!-- Site navigation — mobile (slim top brand bar) -->
+    <header class="sm:hidden border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-30">
+      <div class="px-4 h-12 flex items-center justify-between">
+        <a href="/" class="font-serif text-base text-gray-900">The Whetstone.</a>
+        {isLoggedIn ? (
+          <a href="/account" class="text-xs text-gray-500">Account</a>
+        ) : (
+          <a href="/login" class="text-xs text-gray-500">Sign in</a>
+        )}
+      </div>
+    </header>
+
     <slot />
 
-    <footer class="border-t border-gray-100 mt-24 py-8">
+    <!-- Mobile bottom tab bar — primary navigation -->
+    <nav
+      class="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200 grid grid-cols-4 h-16"
+      style="padding-bottom: env(safe-area-inset-bottom, 0);"
+    >
+      <a
+        href="/"
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/' ? 'text-indigo-600' : 'text-gray-400'}`}
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span class="text-[10px] font-medium">Home</span>
+      </a>
+      <a
+        href="/reader"
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/reader') || currentPath?.startsWith('/scorecard') ? 'text-indigo-600' : 'text-gray-400'}`}
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span class="text-[10px] font-medium">Reader</span>
+      </a>
+      <a
+        href="/creator/studio"
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/creator') ? 'text-amber-600' : 'text-gray-400'}`}
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span class="text-[10px] font-medium">Studio</span>
+      </a>
+      <a
+        href="/pricing"
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/pricing' || currentPath === '/how-it-works' ? 'text-indigo-600' : 'text-gray-400'}`}
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-[10px] font-medium">About</span>
+      </a>
+    </nav>
+
+    <footer class="hidden sm:block border-t border-gray-100 mt-24 py-8">
       <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4 text-xs text-gray-400">
         <a href="/" class="hover:text-gray-600 transition-colors">The Whetstone <span class="text-gray-300">·</span> Devil's Advocate Chrome extension</a>
         <nav class="flex gap-5">

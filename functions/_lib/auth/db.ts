@@ -15,12 +15,15 @@ export interface DbSession {
 }
 
 export interface DbMagicLink {
-  id:          string;
-  user_id:     string;
-  token_hash:  string;
-  created_at:  string;
-  expires_at:  string;
-  consumed_at: string | null;
+  id:             string;
+  user_id:        string;
+  token_hash:     string;
+  created_at:     string;
+  expires_at:     string;
+  consumed_at:    string | null;
+  return_to:      string | null;
+  code_hash:      string | null;
+  code_attempts:  number;
 }
 
 // Narrow interface so the auth helpers work against D1 in production
@@ -29,9 +32,11 @@ export interface AuthDb {
   findUserByEmail(email: string): Promise<DbUser | null>;
   findUserById(id: string): Promise<DbUser | null>;
   createUser(id: string, email: string): Promise<void>;
-  createMagicLink(id: string, userId: string, tokenHash: string, expiresAt: string): Promise<void>;
+  createMagicLink(id: string, userId: string, tokenHash: string, expiresAt: string, returnTo: string | null, codeHash: string | null): Promise<void>;
   findMagicLinkByTokenHash(tokenHash: string): Promise<DbMagicLink | null>;
+  findLatestActiveMagicLinkForUser(userId: string): Promise<DbMagicLink | null>;
   markMagicLinkConsumed(id: string): Promise<void>;
+  incrementMagicLinkCodeAttempts(id: string): Promise<void>;
   createSession(id: string, userId: string, expiresAt: string): Promise<void>;
   findSessionById(id: string): Promise<DbSession | null>;
   deleteSession(id: string): Promise<void>;
@@ -52,19 +57,42 @@ export function makeAuthDb(d1: D1Database): AuthDb {
       await d1.prepare('INSERT INTO users (id, email) VALUES (?, ?)').bind(id, email).run();
     },
 
-    createMagicLink: async (id, userId, tokenHash, expiresAt) => {
+    createMagicLink: async (id, userId, tokenHash, expiresAt, returnTo, codeHash) => {
       await d1
-        .prepare('INSERT INTO magic_links (id, user_id, token_hash, expires_at) VALUES (?, ?, ?, ?)')
-        .bind(id, userId, tokenHash, expiresAt)
+        .prepare('INSERT INTO magic_links (id, user_id, token_hash, expires_at, return_to, code_hash) VALUES (?, ?, ?, ?, ?, ?)')
+        .bind(id, userId, tokenHash, expiresAt, returnTo, codeHash)
         .run();
     },
 
     findMagicLinkByTokenHash: (tokenHash) =>
       d1.prepare('SELECT * FROM magic_links WHERE token_hash = ?').bind(tokenHash).first<DbMagicLink>(),
 
+    // The most recent unconsumed, unexpired magic_link for this user. Used by
+    // the code-verify path: we don't have a token to look up by, so we look up
+    // by user and verify the code against the stored hash.
+    findLatestActiveMagicLinkForUser: (userId) =>
+      d1
+        .prepare(
+          `SELECT * FROM magic_links
+           WHERE user_id = ?
+             AND consumed_at IS NULL
+             AND expires_at > datetime('now')
+           ORDER BY created_at DESC
+           LIMIT 1`,
+        )
+        .bind(userId)
+        .first<DbMagicLink>(),
+
     markMagicLinkConsumed: async (id) => {
       await d1
         .prepare("UPDATE magic_links SET consumed_at = datetime('now') WHERE id = ?")
+        .bind(id)
+        .run();
+    },
+
+    incrementMagicLinkCodeAttempts: async (id) => {
+      await d1
+        .prepare('UPDATE magic_links SET code_attempts = code_attempts + 1 WHERE id = ?')
         .bind(id)
         .run();
     },
