@@ -9,6 +9,7 @@ import { makeTopicTakesDb } from '../../../../../functions/_lib/topic/takes-db';
 import type { TopicTake } from '../../../../../functions/_lib/topic/takes-db';
 import { filterTakeBody, filterDisplayName } from '../../../../../functions/_lib/topic/take-filter';
 import { getTopic } from '../../../../../functions/_lib/topic/storage';
+import { getScorecard } from '../../../../../functions/_lib/scorecard/storage';
 import { generateId } from '../../../../../functions/_lib/auth/tokens';
 
 const ADMIN_EMAIL = 'daniel.livingstone44@gmail.com';
@@ -44,9 +45,10 @@ export async function POST({ request, params }: APIContext) {
   const session = await getSessionFromRequest(request, authDb);
   if (!session) return json({ ok: false, error: 'Sign in to post a take.' }, 401);
 
-  // Topic must exist + be published (admins may post on drafts).
-  const topic = await getTopic(env.SCORECARDS, slug);
-  if (!topic) return json({ ok: false, error: 'Topic not found.' }, 404);
+  // The slug must resolve to a real Briefing (topic) or Scorecard before we
+  // accept a comment on it.
+  const exists = (await getTopic(env.SCORECARDS, slug)) || (await getScorecard(env.SCORECARDS, slug));
+  if (!exists) return json({ ok: false, error: 'Not found.' }, 404);
 
   let raw: unknown;
   try { raw = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400); }
