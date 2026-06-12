@@ -46,7 +46,11 @@ For each presupposition:
 - **contestability**: one of the labels above
 - **whyItMatters**: 1-2 sentences explaining what changes for the argument if a reader rejects this presupposition. Be specific.
 - **alternatives**: 1-3 alternative frames a different audience might bring. Each should be a short phrase or clause, not a full sentence.
-- **confidence**: 0-100, your confidence that this is a real presupposition in the text (not your imagination of one).
+- **readingContestability**: how much careful, informed readers would DISPUTE that this is genuinely a presupposition of the text (as opposed to your own projection). This is about the reading, not about the assumption's popularity.
+  - **low** — almost any careful reader would agree the text presupposes this; the trigger passage plainly relies on it.
+  - **medium** — a reasonable reader could see it, but another could read the passage without committing to this presupposition.
+  - **high** — a genuine judgement call; it takes an interpretive leap to attribute this presupposition to the author.
+- **confidence**: 0-100, your confidence that this is a real presupposition (retained for diagnostics; rate readingContestability carefully as it is what readers see).
 
 CRITICAL CONSTRAINTS:
 - Identify 3-7 presuppositions per piece. Fewer for short or focused arguments; more for sprawling pieces with many embedded assumptions.

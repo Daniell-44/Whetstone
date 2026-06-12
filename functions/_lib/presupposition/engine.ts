@@ -4,7 +4,7 @@ import { RawPresuppositionResultSchema } from './schemas';
 import { PRESUP_SYSTEM_PROMPT, buildPresupPrompt } from './prompts';
 import { PRESUP_MODEL, PRESUP_THINKING_BUDGET } from './constants';
 import type { PresuppositionResult, PresuppositionDeps } from './types';
-import { interpretive, bandFromLegacyConfidence } from '../grounded/types';
+import { interpretive, bandFromLegacyConfidence, bandFromContestability } from '../grounded/types';
 
 type RawPresuppositionResult = z.infer<typeof RawPresuppositionResultSchema>;
 
@@ -12,9 +12,13 @@ function applyGroundedness(raw: RawPresuppositionResult): PresuppositionResult {
   return {
     audienceProfile: raw.audienceProfile,
     notes:           raw.notes,
-    presuppositions: raw.presuppositions.map(({ confidence, ...rest }) => ({
+    presuppositions: raw.presuppositions.map(({ confidence, readingContestability, ...rest }) => ({
       ...rest,
-      groundedness:     interpretive(bandFromLegacyConfidence(confidence)),
+      // Path-1: prefer the model's direct contestability rating; fall back to
+      // the legacy confidence bridge only if it wasn't emitted.
+      groundedness:     readingContestability
+        ? interpretive(bandFromContestability(readingContestability))
+        : interpretive(bandFromLegacyConfidence(confidence)),
       _debugConfidence: confidence,
     })),
   };

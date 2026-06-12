@@ -105,9 +105,32 @@ export function empirical(
  * during migration. Used so engines that already emit numeric confidence
  * (legacy state) can produce an honest groundedness without re-prompting.
  * Tunable — these thresholds will be revisited after eval-harness work.
+ *
+ * DEPRECATED by path-1: prefer bandFromContestability, where the model rates
+ * how contestable the reading is directly (an answerable question) rather than
+ * self-reporting a confidence number (noise). Retained only as a fallback for
+ * engines/responses that don't yet emit `contestability`.
  */
 export function bandFromLegacyConfidence(c: number): InterpretiveBand {
   if (c >= 80) return 'high';
   if (c >= 55) return 'medium';
   return 'low';
+}
+
+/**
+ * How contestable an interpretive reading is — i.e. how much careful, informed
+ * readers would disagree about whether the finding is a fair reading of the
+ * text. This is a question a model CAN answer (it's about the space of
+ * reasonable readings), unlike self-reported "confidence".
+ *
+ *   low    = most careful readers would accept this reading  -> strong footing
+ *   medium = reasonable readers could go either way
+ *   high   = very much a judgement call; easy to read otherwise
+ *
+ * Mapped (inverted) onto the interpretive band: less contestable = higher band.
+ */
+export type ReadingContestability = 'low' | 'medium' | 'high';
+
+export function bandFromContestability(c: ReadingContestability): InterpretiveBand {
+  return c === 'low' ? 'high' : c === 'medium' ? 'medium' : 'low';
 }
