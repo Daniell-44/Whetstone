@@ -10,14 +10,14 @@ const existingScorecards = await listScorecards(env.SCORECARDS);
 ---
 
 <Base
-  title="Curator — The Whetstone"
+  title="Curator - The Whetstone"
   description="Private curator page for composing, generating, and publishing Logic Scorecards."
   canonicalPath="/curator"
 >
   <main class="min-h-screen bg-gray-50 pb-24">
     <div class="max-w-3xl mx-auto px-6 pt-10 pb-4">
       <h1 class="font-serif text-2xl text-gray-900 mb-1">Curator</h1>
-      <p class="text-sm text-gray-400">Private authoring page — not linked from the public nav.</p>
+      <p class="text-sm text-gray-400">Private authoring page - not linked from the public nav.</p>
     </div>
     <CuratorEditor existingScorecards={existingScorecards} client:load />
   </main>

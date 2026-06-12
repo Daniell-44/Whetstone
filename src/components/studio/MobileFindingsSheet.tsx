@@ -53,7 +53,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
   if (tabs.length === 0) return null;
   const active = tabs.find(t => t.id === activeTab) ?? tabs[0]!;
 
-  // Touch handlers — swipe-down to dismiss
+  // Touch handlers - swipe-down to dismiss
   const handleTouchStart = (e: TouchEvent) => {
     dragStartY.current = e.touches[0]?.clientY ?? null;
   };
@@ -88,7 +88,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
         </button>
       )}
 
-      {/* Backdrop — fades in/out */}
+      {/* Backdrop - fades in/out */}
       {mounted && (
         <div
           class="sm:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-[280ms]"
@@ -97,7 +97,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
         />
       )}
 
-      {/* Sheet — slides up from bottom, follows drag */}
+      {/* Sheet - slides up from bottom, follows drag */}
       {mounted && (
         <div
           ref={sheetRef}
@@ -109,7 +109,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
             transition: transform ${dragStartY.current === null ? '280ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none'};
           `}
         >
-          {/* Grab handle — also the touch target for drag */}
+          {/* Grab handle - also the touch target for drag */}
           <div
             class="w-full pt-2.5 pb-2 flex justify-center cursor-pointer"
             onTouchStart={handleTouchStart as unknown as EventListener}

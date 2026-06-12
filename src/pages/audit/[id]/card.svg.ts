@@ -48,7 +48,7 @@ export async function GET({ params }: APIContext) {
   const fallacies = stored.audit.namedFallacies;
   const loaded    = stored.audit.loadedLanguage;
   // All audit findings are structural (verifiable in quoted text). Sort by
-  // severity only — no secondary confidence tiebreaker now that confidence
+  // severity only - no secondary confidence tiebreaker now that confidence
   // is no longer a user-facing signal.
   const allFindings = [
     ...fallacies.map(f => ({ label: f.name, quote: f.quote, severity: f.severity })),

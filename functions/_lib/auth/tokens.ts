@@ -15,7 +15,7 @@ export function generateId(): string {
 
 /**
  * Cryptographically-secure 6-digit numeric code, zero-padded.
- * Range 000000–999999 (1M combinations). Always paired with a rate-limiter
+ * Range 000000-999999 (1M combinations). Always paired with a rate-limiter
  * because brute-force is feasible without one.
  */
 export function generateSixDigitCode(): string {

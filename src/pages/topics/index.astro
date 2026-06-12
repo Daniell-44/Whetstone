@@ -1,0 +1,60 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import { listTopics } from '../../../functions/_lib/topic/storage';
+import { leaningStyle } from '../../components/topic/types';
+
+const topics = await listTopics(env.SCORECARDS, { publishedOnly: true });
+---
+<Base
+  title="Topics — The Whetstone"
+  description="Debatable questions, argued across the spectrum. Curated sources, structural audits, and the assumptions every side shares."
+  canonicalPath="/topics"
+>
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-24">
+    <header class="mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <p class="text-xs font-semibold tracking-[0.3em] text-indigo-500 uppercase shrink-0">The Whetstone · Topics</p>
+        <div class="h-px flex-1 bg-gray-200" />
+      </div>
+      <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 mb-3 leading-tight">Topics, argued across the spectrum</h1>
+      <p class="text-base text-gray-500 leading-relaxed">
+        Each topic gathers a few balanced sources, audits how each one argues, and surfaces what every side
+        quietly assumes. Left to right, with the structure made visible.
+      </p>
+    </header>
+
+    {topics.length === 0 ? (
+      <div class="py-20 border-t border-gray-200 text-center">
+        <p class="font-serif text-2xl text-gray-300">No topics published yet.</p>
+      </div>
+    ) : (
+      <ul class="divide-y divide-gray-100">
+        {topics.map(t => {
+          const left   = t.sources.filter(s => s.leaning <= -15).length;
+          const center = t.sources.filter(s => s.leaning > -15 && s.leaning < 15).length;
+          const right  = t.sources.filter(s => s.leaning >= 15).length;
+          return (
+            <li>
+              <a href={`/topic/${t.slug}`} class="group block py-5 sm:py-6">
+                <div class="flex items-center gap-2 mb-1.5 text-[11px] text-gray-400">
+                  <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500" />{left}</span>
+                  <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-500" />{center}</span>
+                  <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500" />{right}</span>
+                  <span class="text-gray-300 mx-1">·</span>
+                  <span>{t.sources.length} sources</span>
+                </div>
+                <h2 class="font-serif text-lg sm:text-xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-1">
+                  {t.question}
+                </h2>
+                <p class="text-sm text-gray-500 leading-relaxed line-clamp-2">{t.framing}</p>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </main>
+</Base>

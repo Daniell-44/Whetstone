@@ -63,7 +63,7 @@ function AddressedBadge() {
 }
 
 // ---------------------------------------------------------------------------
-// FeedbackBtns — thumbs-up / thumbs-down per finding
+// FeedbackBtns - thumbs-up / thumbs-down per finding
 // ---------------------------------------------------------------------------
 
 type VoteState = 'up' | 'down' | null;
@@ -101,7 +101,7 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
           qualitative: qualitative ?? null,
         }),
       });
-    } catch { /* fire-and-forget — vote still registers in UI */ }
+    } catch { /* fire-and-forget - vote still registers in UI */ }
     setSubmitting(false);
   }
 
@@ -369,7 +369,7 @@ function FindingActionBtns({
     );
   }
 
-  // dismissed — only shown inside the dismissed expander, show Re-flag only
+  // dismissed - only shown inside the dismissed expander, show Re-flag only
   return (
     <button
       type="button"
@@ -1004,7 +1004,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
       {!hasFindings ? (
         <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-5">
           <p class="text-sm text-emerald-700">
-            No reasoning patterns or loaded language detected — the argument's structural integrity
+            No reasoning patterns or loaded language detected - the argument's structural integrity
             is the focus of the analysis above.
           </p>
         </div>

@@ -27,7 +27,7 @@ export const GET: APIRoute = async ({ request, params }) => {
   return new Response(JSON.stringify({ ok: true, versions }), { headers: { 'Content-Type': 'application/json' } });
 };
 
-// POST /api/documents/[id]/versions — create new version
+// POST /api/documents/[id]/versions - create new version
 export const POST: APIRoute = async ({ request, params }) => {
   const authDb = makeAuthDb(env.DB);
   const docDb  = makeDocumentDb(env.DB);

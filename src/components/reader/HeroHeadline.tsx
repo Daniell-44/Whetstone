@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Reader landing hero headline — A/B experiment surface.
+// Reader landing hero headline - A/B experiment surface.
 //
 // Renders the H1 + subheadline of the Reader page. The static control copy
 // is also rendered SSR-side in reader.astro so first-paint is correct for

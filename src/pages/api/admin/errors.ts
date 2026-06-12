@@ -6,7 +6,7 @@ import { makeAuthDb } from '../../../../functions/_lib/auth/db';
 import { makeErrorDb } from '../../../../functions/_lib/errors/db';
 import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
 
-// Hardcoded admin email — only this user can view errors.
+// Hardcoded admin email - only this user can view errors.
 const ADMIN_EMAIL = 'daniel.livingstone44@gmail.com';
 
 function json(body: unknown, status = 200): Response {
@@ -17,7 +17,7 @@ function json(body: unknown, status = 200): Response {
 }
 
 export async function GET({ request, url }: APIContext) {
-  // Auth check — must be the admin
+  // Auth check - must be the admin
   const authDb  = makeAuthDb(env.DB);
   const session = await getSessionFromRequest(request, authDb);
   if (!session) return json({ error: 'Unauthorised' }, 401);

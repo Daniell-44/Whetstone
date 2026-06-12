@@ -39,7 +39,7 @@ export default function SamplePicker({ onPick, disabled }: Props) {
         <div class="absolute z-30 right-0 sm:right-auto sm:left-0 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
           <div class="px-4 py-2.5 border-b border-gray-100 bg-gray-50">
             <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Pre-cached examples</p>
-            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Pick a sample to see the analysis instantly — no API call.</p>
+            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Pick a sample to see the analysis instantly - no API call.</p>
           </div>
           <ul class="divide-y divide-gray-100">
             {SAMPLES.map((s) => (

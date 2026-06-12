@@ -63,10 +63,10 @@ const blankScorecard = (): Scorecard => ({
 // ---------------------------------------------------------------------------
 
 const EXTRACT_ERRORS: Record<string, string> = {
-  TOO_SHORT: 'Article too short — paste the text manually.',
-  NOT_HTML: 'URL does not point to HTML — paste the text manually.',
-  FETCH_FAILED: 'Could not fetch the URL — paste the text manually.',
-  EXTRACTION_FAILED: 'Could not extract article text — paste the text manually.',
+  TOO_SHORT: 'Article too short - paste the text manually.',
+  NOT_HTML: 'URL does not point to HTML - paste the text manually.',
+  FETCH_FAILED: 'Could not fetch the URL - paste the text manually.',
+  EXTRACTION_FAILED: 'Could not extract article text - paste the text manually.',
 };
 
 async function apiPost(
@@ -89,8 +89,8 @@ async function apiPost(
 }
 
 function fmtApiError(status: number, data: unknown): string {
-  if (status === 0)   return 'Network error — check your connection.';
-  if (status === 401) return 'Secret invalid — check the secret field above.';
+  if (status === 0)   return 'Network error - check your connection.';
+  if (status === 401) return 'Secret invalid - check the secret field above.';
   if (status === 500) {
     const d = data as Record<string, unknown>;
     const msg = d?.error ?? d?.message ?? 'Unknown server error';
@@ -361,7 +361,7 @@ export default function CuratorEditor({
               class={inputCls}
               onChange={e => handleLoadExisting((e.currentTarget as HTMLSelectElement).value)}
             >
-              <option value="">— select to load into editor —</option>
+              <option value="">- select to load into editor -</option>
               {existingScorecards.map(sc => (
                 <option key={sc.slug} value={sc.slug}>
                   {sc.question} ({sc.publishedDate})
@@ -584,7 +584,7 @@ export default function CuratorEditor({
             )}
           </button>
           {generating && (
-            <span class="text-xs text-gray-400">Engine is running — results populate the Editor below</span>
+            <span class="text-xs text-gray-400">Engine is running - results populate the Editor below</span>
           )}
         </div>
       </section>

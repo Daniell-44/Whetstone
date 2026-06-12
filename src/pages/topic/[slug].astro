@@ -1,0 +1,44 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import TopicPage from '../../components/topic/TopicPage';
+import type { TopicData } from '../../components/topic/types';
+import { getTopic } from '../../../functions/_lib/topic/storage';
+
+const { slug } = Astro.params;
+const stored = slug ? await getTopic(env.SCORECARDS, slug) : null;
+
+if (!stored || stored.status !== 'published') {
+  return Astro.redirect('/topics', 302);
+}
+
+// Map the stored record onto the display component's shape.
+const data: TopicData = {
+  question:  stored.question,
+  framing:   stored.framing,
+  sources:   stored.sources,
+  takeaways: stored.takeaways,
+};
+---
+<Base
+  title={`${stored.question} — The Whetstone`}
+  description={stored.framing.slice(0, 160)}
+  canonicalPath={`/topic/${stored.slug}`}
+>
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-24">
+    <nav class="mb-6 text-xs">
+      <a href="/topics" class="text-gray-400 hover:text-gray-600 transition-colors">← All topics</a>
+    </nav>
+
+    <TopicPage data={data} client:load />
+
+    {stored.editorNote && (
+      <section class="mt-8 rounded-lg border border-gray-200 bg-white p-4 sm:p-5">
+        <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Editor's note</p>
+        <p class="text-sm text-gray-700 leading-relaxed">{stored.editorNote}</p>
+      </section>
+    )}
+  </main>
+</Base>

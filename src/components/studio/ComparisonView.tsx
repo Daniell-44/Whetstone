@@ -161,7 +161,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
         </h2>
 
         {!auditDiff.fromAudited && !auditDiff.toAudited ? (
-          <p class="text-sm text-gray-400">Neither version has been audited — run the analysis to compare findings.</p>
+          <p class="text-sm text-gray-400">Neither version has been audited - run the analysis to compare findings.</p>
         ) : (
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <StatPill
@@ -235,8 +235,8 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
               </p>
               <SideBySide labelA={`v${from.version_number}`} labelB={`v${to.version_number}`}>
                 {[
-                  <p class="text-sm text-gray-700 leading-relaxed">{auditDiff.centralClaim.from ?? '—'}</p>,
-                  <p class="text-sm text-gray-700 leading-relaxed">{auditDiff.centralClaim.to ?? '—'}</p>,
+                  <p class="text-sm text-gray-700 leading-relaxed">{auditDiff.centralClaim.from ?? '-'}</p>,
+                  <p class="text-sm text-gray-700 leading-relaxed">{auditDiff.centralClaim.to ?? '-'}</p>,
                 ]}
               </SideBySide>
             </div>
@@ -245,8 +245,8 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
           {(auditDiff.toulmin.from ?? auditDiff.toulmin.to) && (
             <div class="space-y-4">
               {(['claim', 'grounds', 'weakestLink'] as const).map(field => {
-                const fromVal = auditDiff.toulmin.from?.[field] ?? '—';
-                const toVal   = auditDiff.toulmin.to?.[field]   ?? '—';
+                const fromVal = auditDiff.toulmin.from?.[field] ?? '-';
+                const toVal   = auditDiff.toulmin.to?.[field]   ?? '-';
                 const labelKey = field === 'claim' ? 'toulminClaim'
                                : field === 'grounds' ? 'toulminGrounds'
                                : 'weakestLink';
@@ -279,7 +279,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
           {auditDiff.fallacies.removed.length === 0 &&
            auditDiff.fallacies.added.length === 0 &&
            auditDiff.fallacies.persisted.length === 0 ? (
-            <p class="text-sm text-gray-400">No reasoning pattern data to compare — run the audit on both versions.</p>
+            <p class="text-sm text-gray-400">No reasoning pattern data to compare - run the audit on both versions.</p>
           ) : (
             <>
               {auditDiff.fallacies.removed.length > 0 && (

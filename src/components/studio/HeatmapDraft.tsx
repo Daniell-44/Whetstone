@@ -3,7 +3,7 @@ import type { AuditResult } from '../../lib/audit';
 import { kindWeight, type GroundednessSignal } from '../../../functions/_lib/grounded/types';
 
 // ---------------------------------------------------------------------------
-// HeatmapDraft — density-aware overlay
+// HeatmapDraft - density-aware overlay
 //
 // Inline highlights show one finding per passage (highest-severity wins on
 // overlaps). The heatmap instead shows the *density* of findings: every
@@ -44,7 +44,7 @@ function contributionWeight(severity: string, g: GroundednessSignal): number {
 }
 
 // ---------------------------------------------------------------------------
-// Extract every quotable contribution from the audit (no dedup — heatmap
+// Extract every quotable contribution from the audit (no dedup - heatmap
 // wants all overlapping findings).
 // ---------------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ function buildRuns(text: string, contributions: Contribution[]): Run[] {
 }
 
 // ---------------------------------------------------------------------------
-// Colour scale — transparent at 0, then yellow → orange → red → deep red
+// Colour scale - transparent at 0, then yellow → orange → red → deep red
 // ---------------------------------------------------------------------------
 
 function heatColour(weight: number, max: number): string {

@@ -14,7 +14,7 @@ export interface RequestLinkDeps {
   /**
    * When true, log the magic link URL and 6-digit code to console.log so they
    * can be retrieved via `wrangler tail`. ONLY enable this during development
-   * or while debugging email delivery — never in real production.
+   * or while debugging email delivery - never in real production.
    */
   debugLogCodes?: boolean;
 }
@@ -80,7 +80,7 @@ export async function handleRequestLink(
     });
   }
 
-  // Validate returnTo — must be a same-origin path starting with '/' and NOT
+  // Validate returnTo - must be a same-origin path starting with '/' and NOT
   // starting with '//' (which would be a protocol-relative URL pointing
   // off-site). Limited to 200 chars to keep the column lean.
   const rawReturnTo = 'returnTo' in obj ? String(obj.returnTo) : '';
@@ -90,7 +90,7 @@ export async function handleRequestLink(
   // when debugLogCodes is on. Off by default; never set in real production.
   let debugPayload: { code: string; link: string } | null = null;
 
-  // Always return ok — never reveal whether an email address is registered.
+  // Always return ok - never reveal whether an email address is registered.
   try {
     let user = await deps.db.findUserByEmail(rawEmail);
     if (!user) {
@@ -139,7 +139,7 @@ function sanitiseReturnTo(raw: string): string | null {
   if (!raw) return null;
   if (raw.length > 200) return null;
   if (!raw.startsWith('/')) return null;     // must be a path
-  if (raw.startsWith('//')) return null;     // protocol-relative — off-site
+  if (raw.startsWith('//')) return null;     // protocol-relative - off-site
   if (raw.includes('\\')) return null;       // backslashes can confuse URL parsers
   // Whitelist additional shape: only safe URL characters
   if (!/^[a-zA-Z0-9/_\-?=&.%~]+$/.test(raw)) return null;
@@ -184,7 +184,7 @@ export async function handleVerify(
  *
  * Security:
  *   - Code is hashed (SHA-256) in storage; we compare hashes, not plaintext
- *   - Per-link attempt counter caps at 5 — wrong code 5 times locks the link
+ *   - Per-link attempt counter caps at 5 - wrong code 5 times locks the link
  *   - Per-IP rate limit (3 attempts per 10 min) on top of per-link
  *   - Same single-use semantic as the link: consumed_at gets set on success
  */
@@ -198,7 +198,7 @@ export async function handleVerifyCode(
     });
   }
 
-  // IP rate limit — per IP per 10-minute window, hard cap.
+  // IP rate limit - per IP per 10-minute window, hard cap.
   const ip      = request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? 'unknown';
   const window  = Math.floor(Date.now() / (10 * 60 * 1000));
   const rlKey   = `auth:code:rl:${ip}:${window}`;

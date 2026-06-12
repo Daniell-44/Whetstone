@@ -17,7 +17,7 @@ export default function LoginForm({ returnTo }: Props) {
   const [codeError, setCodeError] = useState('');
   const [effectiveReturnTo, setEffectiveReturnTo] = useState<string | undefined>(returnTo);
 
-  // Countdown — shows mm:ss until the code expires.
+  // Countdown - shows mm:ss until the code expires.
   const [sentAt, setSentAt] = useState<number | null>(null);
   const [now, setNow]       = useState<number>(Date.now());
   const tickRef = useRef<number | null>(null);
@@ -77,7 +77,7 @@ export default function LoginForm({ returnTo }: Props) {
         setState('error');
       }
     } catch {
-      setErrMsg('Network error — check your connection.');
+      setErrMsg('Network error - check your connection.');
       setState('error');
     }
   }
@@ -112,7 +112,7 @@ export default function LoginForm({ returnTo }: Props) {
       setCodeError(data.error ?? 'Invalid code.');
       setState('sent');
     } catch {
-      setCodeError('Network error — check your connection.');
+      setCodeError('Network error - check your connection.');
       setState('sent');
     }
   }
@@ -128,7 +128,7 @@ export default function LoginForm({ returnTo }: Props) {
           </p>
           <p class="text-xs text-indigo-700 mt-2 tabular-nums">
             {expired ? (
-              <span class="text-red-700 font-medium">Code expired — request a new one</span>
+              <span class="text-red-700 font-medium">Code expired - request a new one</span>
             ) : (
               <>Code expires in <strong>{mins}:{secs.toString().padStart(2, '0')}</strong></>
             )}

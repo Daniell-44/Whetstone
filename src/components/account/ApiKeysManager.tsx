@@ -69,7 +69,7 @@ export default function ApiKeysManager() {
       {/* One-time reveal banner */}
       {revealed && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
-          <p className="text-xs font-semibold text-amber-800 mb-2">Copy your key now — it won't be shown again.</p>
+          <p className="text-xs font-semibold text-amber-800 mb-2">Copy your key now - it won't be shown again.</p>
           <code className="block text-xs font-mono text-amber-900 break-all bg-amber-100 rounded px-3 py-2 select-all">
             {revealed}
           </code>

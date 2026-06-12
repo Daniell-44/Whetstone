@@ -12,13 +12,13 @@ type Phase =
 
 type Tab = 'youtube' | 'text' | 'srt';
 
-const SAMPLE_TEXT = `So the question I want to address today is whether mandatory bicycle helmet laws are actually good public health policy. And I think most people who haven't really thought about this assume the answer is obviously yes — helmets save lives, more helmets, more lives saved. But I think the empirical record is much more complicated than that.
+const SAMPLE_TEXT = `So the question I want to address today is whether mandatory bicycle helmet laws are actually good public health policy. And I think most people who haven't really thought about this assume the answer is obviously yes - helmets save lives, more helmets, more lives saved. But I think the empirical record is much more complicated than that.
 
 When Australia introduced its mandatory helmet law in 1991, cycling participation dropped by something like 30 to 40 percent depending on which study you look at. And what happens when fewer people are cycling? Well, drivers become less aware of cyclists, and per-cyclist injury rates actually went up in some Australian cities. So you have to weigh the harm reduction from helmets against the harm increase from reduced cycling.
 
-Now critics will say, well, that's just one country. But the pattern repeats. The Netherlands, which has the lowest cyclist death rate per capita in the developed world, has no helmet law. Helmet use is around five percent. What they have instead is infrastructure — protected bike lanes everywhere. So the question becomes, why are we mandating helmets instead of building infrastructure?
+Now critics will say, well, that's just one country. But the pattern repeats. The Netherlands, which has the lowest cyclist death rate per capita in the developed world, has no helmet law. Helmet use is around five percent. What they have instead is infrastructure - protected bike lanes everywhere. So the question becomes, why are we mandating helmets instead of building infrastructure?
 
-The standard reply is that infrastructure is expensive and helmet laws are cheap. But I think this is a category error. The infrastructure investment pays back in ways that compound — more cycling means healthier population, less traffic congestion, lower transportation emissions. Helmet laws are a band-aid; infrastructure addresses the underlying conditions.`;
+The standard reply is that infrastructure is expensive and helmet laws are cheap. But I think this is a category error. The infrastructure investment pays back in ways that compound - more cycling means healthier population, less traffic congestion, lower transportation emissions. Helmet laws are a band-aid; infrastructure addresses the underlying conditions.`;
 
 export default function TranscriptStudio() {
   const [tab, setTab]               = useState<Tab>('youtube');
@@ -133,7 +133,7 @@ export default function TranscriptStudio() {
             <textarea
               value={text}
               onInput={e => setText((e.target as HTMLTextAreaElement).value)}
-              placeholder="Paste a transcript here — any length up to ~60,000 characters (about a 1-hour podcast)."
+              placeholder="Paste a transcript here - any length up to ~60,000 characters (about a 1-hour podcast)."
               rows={10}
               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-300"
             />
@@ -178,7 +178,7 @@ export default function TranscriptStudio() {
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
-          {phase.status === 'loading' ? 'Auditing transcript… (~60–120s)' : 'Audit transcript'}
+          {phase.status === 'loading' ? 'Auditing transcript… (~60-120s)' : 'Audit transcript'}
         </button>
       </div>
 
@@ -264,7 +264,7 @@ function CrossSegmentSection({ findings, summary }: { findings: CrossSegmentFind
 
 function SegmentCard({ segment, audit }: { segment: ArgumentSegment; audit: SegmentAudit | undefined }) {
   const [open, setOpen] = useState(false);
-  const timeRange = segment.startSec > 0 ? `${fmtTime(segment.startSec)} – ${fmtTime(segment.endSec)}` : '';
+  const timeRange = segment.startSec > 0 ? `${fmtTime(segment.startSec)} - ${fmtTime(segment.endSec)}` : '';
 
   return (
     <div class="rounded-xl border border-gray-200 bg-white overflow-hidden">

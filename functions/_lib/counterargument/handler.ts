@@ -53,6 +53,16 @@ export async function handleCounterargRequest(
     }, 401);
   }
 
+  // Counterargument is a Pro feature (Pro-model cost). Gate on subscription
+  // to match the version-endpoint behaviour and prevent uncapped free use.
+  const hasSubscription = await deps.checkSubscription(session.userId);
+  if (!hasSubscription) {
+    return json({
+      ok:    false,
+      error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Counterargument is a Studio Pro feature.' },
+    }, 402);
+  }
+
   // Per-user rate limit keyed by user ID.
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(

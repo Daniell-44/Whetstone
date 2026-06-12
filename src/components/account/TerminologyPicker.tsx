@@ -75,7 +75,7 @@ export default function TerminologyPicker({ initialPreference }: Props) {
           <p class="text-xs text-green-600">Saved</p>
         )}
         {status === 'error' && (
-          <p class="text-xs text-red-500">Failed to save — try again</p>
+          <p class="text-xs text-red-500">Failed to save - try again</p>
         )}
       </div>
     </div>

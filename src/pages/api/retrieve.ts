@@ -15,7 +15,7 @@ const MAX_SOURCES = 4;
 const HEAD_TIMEOUT_MS = 3000;
 
 // ---------------------------------------------------------------------------
-// Per-IP rate limit — in-memory, acceptable for this stage.
+// Per-IP rate limit - in-memory, acceptable for this stage.
 // ---------------------------------------------------------------------------
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -104,7 +104,7 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'lookup_unavailable' });
   }
 
-  // Step 1 — Tavily search
+  // Step 1 - Tavily search
   let tavilyResults: TavilyResult[];
   try {
     const tavilyRes = await fetch(TAVILY_SEARCH_URL, {
@@ -139,7 +139,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const tavilyUrlSet = new Set(tavilyResults.map((r) => r.url));
 
-  // Step 2 — Gemini citation classification
+  // Step 2 - Gemini citation classification
   const gemini = new GeminiClient(geminiKey);
   let citations: Array<{ url: string; stance: string; quote: string; description: string }>;
 
@@ -167,14 +167,14 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'lookup_unavailable' });
   }
 
-  // Step 3 — Validate each citation
+  // Step 3 - Validate each citation
   const validated: RetrievedSource[] = [];
   let validationDropped = 0;
 
   for (const cit of citations) {
     if (validated.length >= MAX_SOURCES) break;
 
-    // URL must originate from Tavily — prevents hallucination
+    // URL must originate from Tavily - prevents hallucination
     if (!tavilyUrlSet.has(cit.url)) {
       validationDropped++;
       continue;
@@ -212,7 +212,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  // Silence over partial unreliable output — <2 valid → return empty
+  // Silence over partial unreliable output - <2 valid → return empty
   if (validated.length < MIN_SOURCES) {
     return json({ sources: [], meta: { validationDropped } });
   }

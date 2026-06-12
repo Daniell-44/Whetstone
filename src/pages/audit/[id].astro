@@ -19,12 +19,12 @@ const savedDate = new Date(savedAt).toLocaleDateString('en-GB', {
   day: 'numeric', month: 'long', year: 'numeric',
 });
 
-// OG card override — the per-link card pulls the most-severe finding for preview
+// OG card override - the per-link card pulls the most-severe finding for preview
 const cardUrl = `/audit/${id}/card.svg`;
 
-const titleText = draftTitle ?? 'Shared audit — The Whetstone';
+const titleText = draftTitle ?? 'Shared audit - The Whetstone';
 const description = draftSnippet.length > 0
-  ? `"${draftSnippet}…" — audited by The Whetstone`
+  ? `"${draftSnippet}…" - audited by The Whetstone`
   : 'A shareable audit from The Whetstone';
 ---
 <Base
@@ -32,7 +32,7 @@ const description = draftSnippet.length > 0
   description={description}
   canonicalPath={`/audit/${id}`}
 >
-  <!-- OG override — uses per-audit dynamic card -->
+  <!-- OG override - uses per-audit dynamic card -->
   <slot name="head">
     <meta property="og:image" content={`https://thewhetstone.net${cardUrl}`} slot="head" />
     <meta name="twitter:image" content={`https://thewhetstone.net${cardUrl}`} slot="head" />

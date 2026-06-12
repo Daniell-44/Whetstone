@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 
-// Shareable claim card — dynamic SVG generator.
+// Shareable claim card - dynamic SVG generator.
 // Used by social-share buttons and the embeddable image format.
 //
 // URL params:
@@ -24,14 +24,14 @@ const SEVERITY_COLOURS: Record<string, { bg: string; bgPale: string; text: strin
 };
 
 // ---------------------------------------------------------------------------
-// SVG-safe text escape — < > & " ' protection only.
+// SVG-safe text escape - < > & " ' protection only.
 // ---------------------------------------------------------------------------
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
 // ---------------------------------------------------------------------------
-// Word-wrap helper for SVG text — splits a long quote into multiple <tspan>
+// Word-wrap helper for SVG text - splits a long quote into multiple <tspan>
 // lines fitting within `maxCharsPerLine`.
 // ---------------------------------------------------------------------------
 function wrapText(text: string, maxCharsPerLine: number, maxLines: number): string[] {
@@ -55,7 +55,7 @@ function wrapText(text: string, maxCharsPerLine: number, maxLines: number): stri
 }
 
 // ---------------------------------------------------------------------------
-// GET — render the card
+// GET - render the card
 // ---------------------------------------------------------------------------
 export const GET: APIRoute = async ({ url }) => {
   const label    = url.searchParams.get('label')    ?? 'Logic Finding';

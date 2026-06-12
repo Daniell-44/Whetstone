@@ -34,7 +34,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   EXTRACTION_FAILED: "Couldn't extract the article text from that URL. Try pasting the text directly using the Text tab.",
   TOO_SHORT:         'The extracted text was too short to audit. Try pasting the full article text directly.',
   NOT_HTML:          "That URL doesn't point to an HTML page. Try pasting the text directly using the Text tab.",
-  FETCH_FAILED:      "Couldn't reach that URL — check it's publicly accessible, or paste the text directly.",
+  FETCH_FAILED:      "Couldn't reach that URL - check it's publicly accessible, or paste the text directly.",
   AUDIT_FAILED:      'The analysis failed. Please try again in a moment.',
   INVALID_INPUT:     'Please check your input and try again.',
 };
@@ -51,7 +51,7 @@ export default function AuditForm() {
   const [error, setError]         = useState<string | null>(null);
   const [result, setResult]       = useState<AuditResult | null>(null);
   const [extraction, setExtraction] = useState<ArgumentExtractionResult | null>(null);
-  // The text the audit ran against — used to drive the deeper-lens panel.
+  // The text the audit ran against - used to drive the deeper-lens panel.
   // For text-tab audits it equals textInput; for URL audits it's the extracted article body.
   const [sourceText, setSourceText] = useState<string>('');
 
@@ -117,11 +117,11 @@ export default function AuditForm() {
           track('audit_failed', { error_code: code });
         }
       } else {
-        setError('Network error — check your connection and try again.');
+        setError('Network error - check your connection and try again.');
         track('audit_failed', { error_code: 'NETWORK' });
       }
 
-      // Handle extraction result (best-effort — don't block audit display on failure)
+      // Handle extraction result (best-effort - don't block audit display on failure)
       if (extractionData && extractionData.status === 'fulfilled') {
         const data = extractionData.value as ExtractionApiResponse;
         if (data.ok) setExtraction(data.extraction);
@@ -168,7 +168,7 @@ export default function AuditForm() {
                 {charCount > 0 && charCount < MIN_CHARS
                   ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
                   : charCount > MAX_CHARS
-                  ? 'Too long — please trim to 10,000 characters'
+                  ? 'Too long - please trim to 10,000 characters'
                   : ''}
               </span>
               <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
@@ -186,7 +186,7 @@ export default function AuditForm() {
               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
             />
             <p class="mt-1.5 text-xs text-gray-400">
-              The page must be publicly accessible. Paywalled articles can't be extracted — paste the text directly instead.
+              The page must be publicly accessible. Paywalled articles can't be extracted - paste the text directly instead.
             </p>
           </div>
         )}
@@ -207,7 +207,7 @@ export default function AuditForm() {
       {loading && (
         <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-5 text-center">
           <p class="text-sm text-indigo-700 font-medium">
-            Reading and analysing — this takes 15–30 seconds.
+            Reading and analysing - this takes 15-30 seconds.
           </p>
           <p class="text-xs text-indigo-400 mt-1">
             The engine maps the argument structure and checks for logical issues.
@@ -221,7 +221,7 @@ export default function AuditForm() {
         </div>
       )}
 
-      {/* Split-panel results — text with highlights left, findings right */}
+      {/* Split-panel results - text with highlights left, findings right */}
       {result && !loading && (
         <div class="flex flex-col xl:flex-row gap-4 items-start">
 
@@ -256,10 +256,35 @@ export default function AuditForm() {
         </div>
       )}
 
-      {/* Deeper lenses (free, on-demand) — works for both text and URL audits
+      {/* Deeper lenses (free, on-demand) - works for both text and URL audits
          (URL audits use server-returned extracted text). */}
       {result && !loading && sourceText && (
         <DeeperLensPanel text={sourceText} surface="reader" />
+      )}
+
+      {/* Studio conversion panel - names the Pro features the Reader doesn't
+         include. Naming the locked features is the upsell. */}
+      {result && !loading && (
+        <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-5">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Go deeper in Studio</p>
+          <p class="text-sm text-gray-700 leading-relaxed mb-3">
+            The Reader gives you the full structural audit free. Studio adds the tools for working on your own writing:
+          </p>
+          <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-gray-600 mb-4">
+            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Counterargument (steelman the other side)</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Citation audit - checks your sources</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Evidence-weighted likelihood</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Cross-document self-contradiction check</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Save drafts with version history</li>
+            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Inline highlights as you edit</li>
+          </ul>
+          <div class="flex flex-wrap items-center gap-3">
+            <a href="/creator/studio" class="inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors">
+              Open Studio →
+            </a>
+            <a href="/pricing" class="text-xs text-gray-500 hover:text-gray-700 underline">See plans</a>
+          </div>
+        </div>
       )}
 
     </div>

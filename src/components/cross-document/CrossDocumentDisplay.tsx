@@ -76,7 +76,7 @@ export default function CrossDocumentDisplay({ result }: { result: CrossDocument
           </div>
 
           {result.synthesis.findings.length === 0 ? (
-            <p class="text-sm text-gray-500">No significant cross-document patterns found — the documents are internally consistent.</p>
+            <p class="text-sm text-gray-500">No significant cross-document patterns found - the documents are internally consistent.</p>
           ) : (
             <div class="space-y-3">
               <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
@@ -94,7 +94,7 @@ export default function CrossDocumentDisplay({ result }: { result: CrossDocument
         </div>
       ) : (
         <p class="text-sm text-gray-500">
-          Cross-document synthesis was not produced — each document was audited individually above.
+          Cross-document synthesis was not produced - each document was audited individually above.
         </p>
       )}
     </div>

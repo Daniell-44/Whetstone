@@ -77,7 +77,7 @@ export default function CrossDocumentForm() {
         setPhase({ status: 'error', message: data.error.message });
       }
     } catch {
-      setPhase({ status: 'error', message: 'Network error — check your connection.' });
+      setPhase({ status: 'error', message: 'Network error - check your connection.' });
     }
   }
 
@@ -119,7 +119,7 @@ export default function CrossDocumentForm() {
               type="text"
               value={doc.label}
               onInput={e => updateDoc(i, { label: (e.target as HTMLInputElement).value })}
-              placeholder="Label (optional) — e.g. author, date, title"
+              placeholder="Label (optional) - e.g. author, date, title"
               maxLength={120}
               class="w-full rounded-md border border-gray-200 px-3 py-1.5 text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-300"
             />
@@ -128,7 +128,7 @@ export default function CrossDocumentForm() {
               <textarea
                 value={doc.text}
                 onInput={e => updateDoc(i, { text: (e.target as HTMLTextAreaElement).value })}
-                placeholder="Paste this document's text (50–10,000 characters)…"
+                placeholder="Paste this document's text (50-10,000 characters)…"
                 rows={5}
                 class="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-1 focus:ring-indigo-300"
               />
@@ -170,7 +170,7 @@ export default function CrossDocumentForm() {
       {phase.status === 'loading' && (
         <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-5 text-center">
           <p class="text-sm text-indigo-700 font-medium">Auditing each document, then comparing across them…</p>
-          <p class="text-xs text-indigo-400 mt-1">This takes 60–120 seconds — each document is fully audited before the cross-document pass.</p>
+          <p class="text-xs text-indigo-400 mt-1">This takes 60-120 seconds - each document is fully audited before the cross-document pass.</p>
         </div>
       )}
 

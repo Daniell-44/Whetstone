@@ -37,7 +37,7 @@ export async function POST({ request }: APIContext) {
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return json({ ok: false }, 400);
 
-  // Resolve user id from cookie if present — analytics for signed-in users is
+  // Resolve user id from cookie if present - analytics for signed-in users is
   // joined to their account; anonymous events stay session-hash-only.
   const authDb  = makeAuthDb(env.DB);
   const session = await getSessionFromRequest(request, authDb);

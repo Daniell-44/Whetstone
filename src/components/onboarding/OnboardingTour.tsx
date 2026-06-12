@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// OnboardingTour — 5-step floating walkthrough for first-time Studio users.
+// OnboardingTour - 5-step floating walkthrough for first-time Studio users.
 //
 // Behaviour:
 //   - Shows automatically on first /creator/studio visit (localStorage-gated)
@@ -29,17 +29,17 @@ const STEPS: Step[] = [
   {
     anchor: 'studio-textarea',
     title:  'Paste your draft here',
-    body:   'Any argumentative text — an essay, op-ed, Substack post. 50–10,000 characters. The engine reads the structure, not the surface.',
+    body:   'Any argumentative text - an essay, op-ed, Substack post. 50-10,000 characters. The engine reads the structure, not the surface.',
   },
   {
     anchor: 'studio-analyse',
     title:  'Click Analyse',
-    body:   'Takes 15–30 seconds. The engine maps the argument with the Toulmin framework, surfaces 26 named fallacy patterns, finds loaded language, and identifies unstated warrants.',
+    body:   'Takes 15-30 seconds. The engine maps the argument with the Toulmin framework, surfaces 26 named fallacy patterns, finds loaded language, and identifies unstated warrants.',
   },
   {
     anchor: 'studio-findings',
     title:  'Read the findings',
-    body:   'Each finding cites the exact passage. Click to jump to it in the text. Accept, dismiss, or mark as addressed — your responses persist with the document.',
+    body:   'Each finding cites the exact passage. Click to jump to it in the text. Accept, dismiss, or mark as addressed - your responses persist with the document.',
   },
   {
     anchor: 'studio-deeper-lenses',
@@ -49,7 +49,7 @@ const STEPS: Step[] = [
   {
     anchor: 'studio-share',
     title:  'Share or save',
-    body:   "Share the audit as a permalink — the link includes the source text and findings. Save documents for later; versions are tracked automatically.",
+    body:   "Share the audit as a permalink - the link includes the source text and findings. Save documents for later; versions are tracked automatically.",
   },
 ];
 

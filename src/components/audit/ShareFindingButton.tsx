@@ -62,7 +62,7 @@ export default function ShareFindingButton({ label, quote, severity, source }: P
               Copy URL
             </button>
             <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${quote}" — flagged as ${label} by The Whetstone`)}&url=${encodeURIComponent(absoluteCardUrl)}`}
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${quote}" - flagged as ${label} by The Whetstone`)}&url=${encodeURIComponent(absoluteCardUrl)}`}
               target="_blank"
               rel="noopener noreferrer"
               class="flex-1 text-center px-2 py-1.5 rounded-md text-[11px] font-medium text-white bg-gray-900 hover:bg-black transition-colors"

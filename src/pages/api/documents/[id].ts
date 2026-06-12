@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ request, params }) => {
   return json({ ok: true, document: doc, latestVersion });
 };
 
-// PATCH /api/documents/[id]  — update title
+// PATCH /api/documents/[id]  - update title
 export const PATCH: APIRoute = async ({ request, params }) => {
   const { error, doc, docDb } = await getOwned(request, params.id!);
   if (error) return error;
@@ -44,14 +44,14 @@ export const PATCH: APIRoute = async ({ request, params }) => {
 
   const { title } = body as { title?: string };
   if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 200) {
-    return json({ ok: false, error: { code: 'INVALID_INPUT', message: 'Title must be 1–200 characters' } }, 400);
+    return json({ ok: false, error: { code: 'INVALID_INPUT', message: 'Title must be 1-200 characters' } }, 400);
   }
 
   await docDb!.updateDocumentTitle(doc!.id, title.trim());
   return json({ ok: true });
 };
 
-// DELETE /api/documents/[id]  — archive
+// DELETE /api/documents/[id]  - archive
 export const DELETE: APIRoute = async ({ request, params }) => {
   const { error, doc, docDb } = await getOwned(request, params.id!);
   if (error) return error;

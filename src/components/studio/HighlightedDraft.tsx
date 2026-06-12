@@ -48,7 +48,7 @@ const SEVERITY_ACTIVE: Record<string, string> = {
 function extractHighlights(text: string, audit: AuditResult): Highlight[] {
   const highlights: Highlight[] = [];
 
-  // Named fallacies — have `quote` field
+  // Named fallacies - have `quote` field
   for (const f of audit.namedFallacies) {
     const idx = text.indexOf(f.quote);
     if (idx === -1) continue;
@@ -65,7 +65,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
     });
   }
 
-  // Loaded language — have `phrase` field
+  // Loaded language - have `phrase` field
   for (const l of audit.loadedLanguage) {
     const idx = text.indexOf(l.phrase);
     if (idx === -1) continue;
@@ -82,7 +82,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
     });
   }
 
-  // Key-term scrutiny — have usage_a and usage_b
+  // Key-term scrutiny - have usage_a and usage_b
   for (const k of audit.keyTermScrutiny) {
     for (const usage of [k.usage_a, k.usage_b]) {
       const idx = text.indexOf(usage);
@@ -101,7 +101,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
     }
   }
 
-  // Referent checks — have `evidence` field
+  // Referent checks - have `evidence` field
   for (const r of audit.referentChecks) {
     const idx = text.indexOf(r.evidence);
     if (idx === -1) continue;
@@ -118,7 +118,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
     });
   }
 
-  // Falsifiability checks — have `evidence` field
+  // Falsifiability checks - have `evidence` field
   for (const f of audit.falsifiabilityChecks) {
     const idx = text.indexOf(f.evidence);
     if (idx === -1) continue;
@@ -135,7 +135,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
     });
   }
 
-  // Modal scope checks — have `evidence` field
+  // Modal scope checks - have `evidence` field
   for (const m of audit.modalScopeChecks) {
     const idx = text.indexOf(m.evidence);
     if (idx === -1) continue;
@@ -159,7 +159,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
 }
 
 // ---------------------------------------------------------------------------
-// Resolve overlaps — keep highest-severity highlight for overlapping regions
+// Resolve overlaps - keep highest-severity highlight for overlapping regions
 // ---------------------------------------------------------------------------
 
 function resolveOverlaps(highlights: Highlight[]): Highlight[] {
@@ -173,7 +173,7 @@ function resolveOverlaps(highlights: Highlight[]): Highlight[] {
     const last    = resolved[resolved.length - 1]!;
 
     if (current.start < last.end) {
-      // Overlap — keep the one with higher severity
+      // Overlap - keep the one with higher severity
       const currentRank = SEVERITY_RANK[current.severity] ?? 2;
       const lastRank    = SEVERITY_RANK[last.severity] ?? 2;
       if (currentRank < lastRank) {

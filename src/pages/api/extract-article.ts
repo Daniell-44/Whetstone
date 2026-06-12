@@ -1,7 +1,7 @@
 // POST /api/extract-article
 //
 // Given a URL, fetches the page and extracts clean article text, title, and
-// publication name. Returns the result directly — extraction failure is a
+// publication name. Returns the result directly - extraction failure is a
 // normal outcome (ok: false) that the UI should handle by falling back to
 // a manual paste box. Gated by the same X-Analyser-Secret auth as
 // /api/analyse-debate.
@@ -25,7 +25,7 @@ function json(body: unknown, status = 200): Response {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  // Auth gate — must match ANALYSER_SECRET env var.
+  // Auth gate - must match ANALYSER_SECRET env var.
   const secret = request.headers.get('X-Analyser-Secret');
   if (!env.ANALYSER_SECRET || secret !== env.ANALYSER_SECRET) {
     return json({ error: 'unauthorized', message: 'Valid X-Analyser-Secret header required' }, 401);
@@ -46,7 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Extraction failures (ok: false) are a normal outcome — return 200.
+  // Extraction failures (ok: false) are a normal outcome - return 200.
   const result = await fetchAndExtract(parsed.data.url);
   return json(result);
 };

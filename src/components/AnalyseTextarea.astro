@@ -1,5 +1,5 @@
 ---
-// Demo component — calls /api/analyze and renders results client-side.
+// Demo component - calls /api/analyze and renders results client-side.
 // Used on /reader; will be reused on /creator/studio.
 import WorthKnowing from './WorthKnowing.astro';
 ---
@@ -9,7 +9,7 @@ import WorthKnowing from './WorthKnowing.astro';
   <div class="da-demo-inner">
     <h2 class="da-demo-heading">Try it now</h2>
     <p class="da-demo-sub">
-      Paste any argument — an article paragraph, an op-ed claim, a news piece — and see how the tool reads it.
+      Paste any argument - an article paragraph, an op-ed claim, a news piece - and see how the tool reads it.
     </p>
 
     <textarea
@@ -160,7 +160,7 @@ import WorthKnowing from './WorthKnowing.astro';
     border-left: 2px solid #d1d5db;
   }
 
-  /* Warrant — most prominent */
+  /* Warrant - most prominent */
   .da-warrant {
     padding: 0.875rem 1rem;
     border-radius: 0.5rem;
@@ -364,7 +364,7 @@ import WorthKnowing from './WorthKnowing.astro';
   }
 
   // ---------------------------------------------------------------------------
-  // Retrieved sources — WorthKnowing rendering
+  // Retrieved sources - WorthKnowing rendering
   // ---------------------------------------------------------------------------
 
   type RetrievedSource = {
@@ -407,7 +407,7 @@ import WorthKnowing from './WorthKnowing.astro';
 
       // Our per-IP rate limit
       if (res.status === 429) {
-        sourcesEl.innerHTML = '<p class="wk-notice">Source lookup is rate-limited — try again in a few minutes.</p>';
+        sourcesEl.innerHTML = '<p class="wk-notice">Source lookup is rate-limited - try again in a few minutes.</p>';
         return;
       }
 
@@ -466,7 +466,7 @@ import WorthKnowing from './WorthKnowing.astro';
         const data = await res.json() as { retryAfterSeconds?: number };
         statusEl.textContent = '';
         statusEl.classList.add('hidden');
-        resultEl.innerHTML = `<div class="da-error">Rate limit reached — try again in ${data.retryAfterSeconds ?? 'a while'}.</div>`;
+        resultEl.innerHTML = `<div class="da-error">Rate limit reached - try again in ${data.retryAfterSeconds ?? 'a while'}.</div>`;
         resultEl.classList.remove('hidden');
         submitBtn.disabled = false;
         return;

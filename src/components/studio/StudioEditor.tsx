@@ -102,7 +102,7 @@ const SAMPLE_DIRTY_CHAR_THRESHOLD = 50;
 const AUDIT_ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMITED:  "You've reached the daily audit limit. Come back tomorrow.",
   INVALID_INPUT: 'Please check your input and try again.',
-  // AUDIT_FAILED intentionally omitted — fall through to show the server's actual error message
+  // AUDIT_FAILED intentionally omitted - fall through to show the server's actual error message
 };
 
 const COUNTERARG_ERROR_MESSAGES: Record<string, string> = {
@@ -196,7 +196,7 @@ function SectionLoading({ label }: { label: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// LensButton — for on-demand deeper lenses. Compact pill that shows running
+// LensButton - for on-demand deeper lenses. Compact pill that shows running
 // state. Disabled while loading; tappable again after error.
 // ---------------------------------------------------------------------------
 
@@ -274,7 +274,7 @@ export default function StudioEditor({
   const [audience, setAudience]   = useState<Audience>('general');
   const [intent, setIntent]       = useState<Intent>('persuade');
 
-  // Sample-loading state — tracks whether the current draft was loaded from a
+  // Sample-loading state - tracks whether the current draft was loaded from a
   // pre-cached sample and whether the user has meaningfully edited it.
   // If unedited (signature matches), we don't persist or burn API credits.
   const [loadedSample, setLoadedSample]               = useState<Sample | null>(null);
@@ -319,8 +319,8 @@ export default function StudioEditor({
 
   if (typeof document !== 'undefined') {
     document.title = findingCount > 0
-      ? `(${findingCount}) Creator Studio — The Whetstone`
-      : 'Creator Studio — The Whetstone';
+      ? `(${findingCount}) Creator Studio - The Whetstone`
+      : 'Creator Studio - The Whetstone';
   }
 
   // Ctrl/Cmd+Enter to analyse
@@ -370,14 +370,14 @@ export default function StudioEditor({
   // Load a sample: populate textarea, then show cached results after a short
   // delay (~2-3s) to mirror real analysis timing. No document is created, no
   // API call is made. Editing past the dirty threshold converts it to a real
-  // draft on next "Analyse" — preserving the pedagogical demo while letting
+  // draft on next "Analyse" - preserving the pedagogical demo while letting
   // the user iterate freely.
   const handleLoadSample = useCallback(async (sample: Sample) => {
     setSamplePending(true);
     setLoadedSample(sample);
     setLoadedSampleSig(sampleSignature(sample.text));
     setDraft(sample.text);
-    setTitle(`${sample.shortLabel} — sample`);
+    setTitle(`${sample.shortLabel} - sample`);
     setActiveFindingKey(null);
 
     // Reset any prior results
@@ -463,7 +463,7 @@ export default function StudioEditor({
     // --- run analysis ---
     // Free tier: audit + extraction + the click-to-run deeper lenses.
     // Pro tier auto-runs the expensive Pro-model engines (counterargument,
-    // commitments, citation). This keeps free-tier cost bounded — the Pro
+    // commitments, citation). This keeps free-tier cost bounded - the Pro
     // models only fire for paying users.
     setExtractionState({ status: 'loading' });
     setAuditState({ status: 'loading' });
@@ -519,7 +519,7 @@ export default function StudioEditor({
           setExtractionState({ status: 'error', code, message: EXTRACTION_ERROR_MESSAGES[code] ?? data.error.message });
         }
       })
-      .catch(() => setExtractionState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
+      .catch(() => setExtractionState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
       .finally(() => { extractionDone = true; checkDone(); });
 
     fetch(`${versionPath}/audit`, {
@@ -536,7 +536,7 @@ export default function StudioEditor({
           setAuditState({ status: 'error', code, message: AUDIT_ERROR_MESSAGES[code] ?? data.error.message });
         }
       })
-      .catch(() => setAuditState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
+      .catch(() => setAuditState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
       .finally(() => { auditDone = true; checkDone(); });
 
     // Counterargument, commitments + citation are Pro-tier (Pro-model / external
@@ -553,7 +553,7 @@ export default function StudioEditor({
             setCounterargState({ status: 'error', code, message: COUNTERARG_ERROR_MESSAGES[code] ?? data.error.message });
           }
         })
-        .catch(() => setCounterargState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
+        .catch(() => setCounterargState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
         .finally(() => { counterargDone = true; checkDone(); });
 
       fetch(`${versionPath}/commitments`, { method: 'POST' })
@@ -566,10 +566,10 @@ export default function StudioEditor({
             setCommitmentsState({ status: 'error', code, message: COMMITMENTS_ERROR_MESSAGES[code] ?? data.error.message });
           }
         })
-        .catch(() => setCommitmentsState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
+        .catch(() => setCommitmentsState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
         .finally(() => { commitmentsDone = true; checkDone(); });
 
-      // Citation audit — external URL fetching costs.
+      // Citation audit - external URL fetching costs.
       fetch('/api/citation-audit', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -584,13 +584,13 @@ export default function StudioEditor({
             setCitationState({ status: 'error', code, message: CITATION_ERROR_MESSAGES[code] ?? data.error.message });
           }
         })
-        .catch(() => setCitationState({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' }))
+        .catch(() => setCitationState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
         .finally(() => { citationDone = true; checkDone(); });
     }
   }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
 
   // ---------------------------------------------------------------------------
-  // runLens — on-demand deeper-lens caller.
+  // runLens - on-demand deeper-lens caller.
   // Each lens hits its own endpoint with the current draft text. Subscription
   // and rate-limiting are enforced server-side; we just dispatch.
   // ---------------------------------------------------------------------------
@@ -651,7 +651,7 @@ export default function StudioEditor({
         setter({ status: 'error', code: data.error.code, message: data.error.message });
       }
     } catch {
-      setter({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' });
+      setter({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' });
     }
   }, []);
 
@@ -661,7 +661,7 @@ export default function StudioEditor({
 
   const inputSection = (
     <div class="flex flex-col flex-1 gap-3">
-      {/* Document title + actions — wraps on mobile so buttons don't squeeze */}
+      {/* Document title + actions - wraps on mobile so buttons don't squeeze */}
       <div class="flex flex-wrap items-center gap-2 sm:gap-3">
         <input
           type="text"
@@ -731,9 +731,9 @@ export default function StudioEditor({
         disabled={isRunning}
       />
 
-      {/* Draft display — either textarea (editing) or highlighted view (reviewing) */}
+      {/* Draft display - either textarea (editing) or highlighted view (reviewing) */}
       {!isEditing && showResults && auditState.status === 'done' ? (
-        /* Highlighted review mode — fills vertical space */
+        /* Highlighted review mode - fills vertical space */
         <div class="flex flex-col flex-1 space-y-2">
           <div class="flex items-center justify-between flex-wrap gap-2">
             <p class="text-xs text-gray-400">
@@ -809,13 +809,13 @@ export default function StudioEditor({
           </button>
         </div>
       ) : (
-        /* Editing mode — textarea IS the surface, no wrapper box */
+        /* Editing mode - textarea IS the surface, no wrapper box */
         <div class="flex flex-col flex-1 space-y-2">
           <div class="flex-1 flex flex-col">
             <textarea
               value={draft}
               onInput={e => setDraft((e.target as HTMLTextAreaElement).value)}
-              placeholder="Paste your draft here — any argumentative text, essay, or opinion piece (50–10,000 characters)."
+              placeholder="Paste your draft here - any argumentative text, essay, or opinion piece (50-10,000 characters)."
               disabled={isRunning}
               data-tour-anchor="studio-textarea"
               class="w-full flex-1 min-h-[50vh] sm:min-h-[50vh] xl:min-h-[calc(100vh-22rem)] border border-gray-200 bg-white px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
@@ -829,7 +829,7 @@ export default function StudioEditor({
                 {charCount > 0 && charCount < MIN_CHARS
                   ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
                   : charCount > MAX_CHARS
-                  ? 'Too long — please trim to 10,000 characters'
+                  ? 'Too long - please trim to 10,000 characters'
                   : ''}
               </span>
               <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
@@ -862,7 +862,7 @@ export default function StudioEditor({
           )}
           {isRunning && hasActiveSubscription && (
             <p class="text-xs text-center text-gray-400">
-              ~60–90s — fetching cited sources and finding opposing cases takes longer than a simple audit.
+              ~60-90s - fetching cited sources and finding opposing cases takes longer than a simple audit.
             </p>
           )}
         </div>
@@ -901,7 +901,7 @@ export default function StudioEditor({
         </div>
       )}
 
-      {/* Framework Check — free tier */}
+      {/* Framework Check - free tier */}
       {commitmentsState.status !== 'idle' && (
         <div class="rounded-lg border border-purple-200 bg-white p-4">
           <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
@@ -920,7 +920,7 @@ export default function StudioEditor({
         <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
           <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
         </h3>
-        {/* Counterarguments are now free — runs on every audit. */}
+        {/* Counterarguments are now free - runs on every audit. */}
         {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
         {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
         {counterargState.status === 'done' && (
@@ -990,7 +990,7 @@ export default function StudioEditor({
 
       {/* ----------------------------------------------------------------- */}
       {/* On-demand deeper lenses (free tier). Fire when the user clicks;   */}
-      {/* cached per draft via component state. All Flash-tier — cheap per  */}
+      {/* cached per draft via component state. All Flash-tier - cheap per  */}
       {/* call. Free until users come online and we calibrate.              */}
       {/* ----------------------------------------------------------------- */}
       {auditState.status === 'done' && (
@@ -1022,7 +1022,7 @@ export default function StudioEditor({
             />
           </div>
 
-          {/* Cui bono — sharp-edged lens, visually separated + always-shown caveat in display */}
+          {/* Cui bono - sharp-edged lens, visually separated + always-shown caveat in display */}
           <div class="border-t border-gray-100 pt-3">
             <div class="flex items-center justify-between mb-2">
               <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
@@ -1032,7 +1032,7 @@ export default function StudioEditor({
             </div>
             <p class="text-[11px] text-gray-500 leading-relaxed mb-2">
               Whose positions in a political economy benefit if a reader accepts this framing.
-              Interest-aligned arguments can still be correct — this lens surfaces a question, not a verdict.
+              Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
             </p>
             <LensButton
               label="Structural incentives"
@@ -1095,7 +1095,7 @@ export default function StudioEditor({
   // ---------------------------------------------------------------------------
 
   if (!showResults) {
-    // Centered single-column — before first audit
+    // Centered single-column - before first audit
     return (
       <div class="max-w-3xl mx-auto space-y-6">
         {inputSection}
@@ -1138,17 +1138,17 @@ export default function StudioEditor({
     <>
       <div class="flex flex-col xl:flex-row gap-4 items-start" style={{ minHeight: 'calc(100vh - 6rem)' }}>
 
-        {/* Left sidebar — hidden on mobile (moved to bottom sheet) */}
+        {/* Left sidebar - hidden on mobile (moved to bottom sheet) */}
         <div class="hidden xl:block w-full xl:w-[22%] xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4 xl:order-1">
           {leftSidebar}
         </div>
 
-        {/* Center — always visible. Full width on mobile. */}
+        {/* Center - always visible. Full width on mobile. */}
         <div class="w-full xl:w-[46%] xl:min-h-[calc(100vh-6rem)] xl:order-2 flex flex-col">
           {inputSection}
         </div>
 
-        {/* Right sidebar — hidden on mobile (moved to bottom sheet) */}
+        {/* Right sidebar - hidden on mobile (moved to bottom sheet) */}
         <div class="hidden xl:block w-full xl:w-[32%] xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4">
           {rightSidebar}
         </div>

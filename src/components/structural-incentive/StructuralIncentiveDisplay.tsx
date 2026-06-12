@@ -47,7 +47,7 @@ export default function StructuralIncentiveDisplay({ result }: { result: Structu
         </div>
       )}
 
-      {/* Caveat ALWAYS shown — non-optional UI element. The lens is dangerous without it. */}
+      {/* Caveat ALWAYS shown - non-optional UI element. The lens is dangerous without it. */}
       <div class="rounded-lg border border-gray-300 bg-gray-50 px-4 py-3">
         <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-600 mb-1">Important</p>
         <p class="text-xs text-gray-700 leading-relaxed">{result.importantCaveat}</p>

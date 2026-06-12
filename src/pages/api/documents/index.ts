@@ -12,7 +12,7 @@ import { userHasActiveSubscriptionViaWorkspace } from '../../../../functions/_li
 
 function newId() { return crypto.randomUUID(); }
 
-// GET /api/documents — list the authenticated user's active documents
+// GET /api/documents - list the authenticated user's active documents
 export const GET: APIRoute = async ({ request }) => {
   const authDb  = makeAuthDb(env.DB);
   const session = await getSessionFromRequest(request, authDb);
@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ request }) => {
   return new Response(JSON.stringify({ ok: true, documents }), { headers: { 'Content-Type': 'application/json' } });
 };
 
-// POST /api/documents — create a document + first version
+// POST /api/documents - create a document + first version
 export const POST: APIRoute = async ({ request }) => {
   const authDb      = makeAuthDb(env.DB);
   const billingDb   = makeBillingDb(env.DB);

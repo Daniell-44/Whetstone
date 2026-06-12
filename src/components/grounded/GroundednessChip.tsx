@@ -6,7 +6,7 @@ import {
 } from '../../../functions/_lib/grounded/types';
 
 // ---------------------------------------------------------------------------
-// GroundednessChip — always-on visual indicator of finding type.
+// GroundednessChip - always-on visual indicator of finding type.
 //
 // Colours:
 //   structural   → blue       (verifiable in text)

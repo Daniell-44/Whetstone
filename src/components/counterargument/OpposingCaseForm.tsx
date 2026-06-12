@@ -50,7 +50,7 @@ export default function OpposingCaseForm() {
         setPhase({ status: 'error', message: data.error.message });
       }
     } catch {
-      setPhase({ status: 'error', message: 'Network error — check your connection and try again.' });
+      setPhase({ status: 'error', message: 'Network error - check your connection and try again.' });
     }
   }
 
@@ -62,7 +62,7 @@ export default function OpposingCaseForm() {
         <textarea
           value={text}
           onInput={e => setText((e.target as HTMLTextAreaElement).value)}
-          placeholder="Paste an argument you believe in — or one you want to test against the strongest opposing case…"
+          placeholder="Paste an argument you believe in - or one you want to test against the strongest opposing case…"
           rows={9}
           disabled={phase.status === 'loading'}
           class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-300 transition-colors disabled:opacity-60"
@@ -77,7 +77,7 @@ export default function OpposingCaseForm() {
             {charCount > 0 && charCount < MIN_CHARS
               ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
               : charCount > MAX_CHARS
-                ? 'Too long — trim to 10,000 characters'
+                ? 'Too long - trim to 10,000 characters'
                 : ''}
           </span>
           <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// DeeperLensPanel — on-demand lens runner.
+// DeeperLensPanel - on-demand lens runner.
 //
 // Used on both the Reader (free) and Studio (free + Pro). Renders four
 // lens buttons; each fires its endpoint on click and renders the result
@@ -140,7 +140,7 @@ export default function DeeperLensPanel({ text, surface }: Props) {
         setter({ status: 'error', code: data.error.code, message: data.error.message });
       }
     } catch {
-      setter({ status: 'error', code: 'NETWORK', message: 'Network error — check your connection.' });
+      setter({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' });
     }
   }, [text, surface]);
 
@@ -166,7 +166,7 @@ export default function DeeperLensPanel({ text, surface }: Props) {
         </div>
         <p class="text-[11px] text-gray-500 leading-relaxed mb-2">
           Whose positions in a political economy benefit if a reader accepts this framing.
-          Interest-aligned arguments can still be correct — this lens surfaces a question, not a verdict.
+          Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
         </p>
         <LensButton label="Structural incentives" status={siState.status} onClick={() => void runLens('structural-incentive', setSiState)} />
       </div>

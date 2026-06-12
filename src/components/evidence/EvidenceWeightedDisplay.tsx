@@ -145,7 +145,7 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
         </p>
       )}
 
-      {/* Top papers — expandable */}
+      {/* Top papers - expandable */}
       {a.topPapers.length > 0 && (
         <>
           <button

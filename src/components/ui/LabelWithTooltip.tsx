@@ -9,7 +9,7 @@ interface Props {
 // Renders the friendly label text followed by a native <details> tooltip.
 // The <details> expands inline when the user clicks "(?)", showing two sentences:
 // one plain-English explanation, one with the philosophical/historical pedigree.
-// No JavaScript state — pure HTML disclosure element. Reset styles are applied
+// No JavaScript state - pure HTML disclosure element. Reset styles are applied
 // so the tooltip doesn't inherit uppercase/tracking from parent headings.
 export default function LabelWithTooltip({ label, preference }: Props) {
   const labels   = getLabels(preference);

@@ -2,7 +2,7 @@
 // This function is a thin relay. It adds the server-held API key and returns the
 // provider response. It never logs, stores, or inspects request content (prompts,
 // completions, or user text). KV stores only rate-limit counters: { count, day }.
-// Zero Data Retention (ZDR) with the upstream provider is enforced contractually —
+// Zero Data Retention (ZDR) with the upstream provider is enforced contractually -
 // see BUILD_BRIEF.md §4 for the non-code step Daniel completes separately before
 // public launch.
 
@@ -131,7 +131,7 @@ export const POST: APIRoute = async ({ request }) => {
   const cors    = corsHeaders(origin, allowed);
 
   // ---------------------------------------------------------------------------
-  // Rate limiting — device UUID (soft) then IP backstop (harder).
+  // Rate limiting - device UUID (soft) then IP backstop (harder).
   // ---------------------------------------------------------------------------
 
   const cap      = parseInt(env.FREE_TIER_DAILY_CAP ?? '25', 10);
@@ -177,7 +177,7 @@ export const POST: APIRoute = async ({ request }) => {
   // ---------------------------------------------------------------------------
   // Provider selection
   // X-Cost-Test override is only honoured when the header value matches
-  // COST_TEST_SECRET — used for local cost-comparison testing.
+  // COST_TEST_SECRET - used for local cost-comparison testing.
   // ---------------------------------------------------------------------------
 
   let providerName = env.LLM_PROVIDER ?? 'gemini';
@@ -198,7 +198,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // ---------------------------------------------------------------------------
-  // API key lookup — never echoed back to the client
+  // API key lookup - never echoed back to the client
   // ---------------------------------------------------------------------------
 
   const apiKey = providerName === 'anthropic'
@@ -227,7 +227,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // ---------------------------------------------------------------------------
-  // Cost logging — token counts only, never content
+  // Cost logging - token counts only, never content
   // ---------------------------------------------------------------------------
 
   const estimatedCostUsd = estimateCost(req.model, result.inputTokens, result.outputTokens);

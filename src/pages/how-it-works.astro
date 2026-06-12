@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base
-  title="How it works — The Whetstone"
+  title="How it works - The Whetstone"
   description="What the engine analyses, the analytical lenses it applies, and what it won't do."
   canonicalPath="/how-it-works"
 >
@@ -22,50 +22,50 @@ import Base from '../layouts/Base.astro';
       </p>
     </header>
 
-    <!-- Section 1 — what it actually does -->
+    <!-- Section 1 - what it actually does -->
     <section class="mb-14">
       <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">What the engine actually does</h2>
       <p class="text-base text-gray-700 leading-relaxed mb-4">
-        You paste a piece of argumentative text — an op-ed, a thread, a draft, a transcript. The engine reads it as
+        You paste a piece of argumentative text - an op-ed, a thread, a draft, a transcript. The engine reads it as
         an argument: not as prose, not as opinion, not as a verdict on who's right. It returns a structural view
         of how the argument works.
       </p>
       <p class="text-base text-gray-700 leading-relaxed">
         Eleven analytical lenses run in parallel. Each catches a different failure mode in reasoning. The output is
-        a structured report — claims, evidence, hidden assumptions, fallacy patterns, opposing positions — with
+        a structured report - claims, evidence, hidden assumptions, fallacy patterns, opposing positions - with
         verbatim quotes from your text, severity ratings, and confidence scores on every finding.
       </p>
     </section>
 
-    <!-- Section 2 — the eleven lenses -->
+    <!-- Section 2 - the eleven lenses -->
     <section class="mb-14">
       <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">The eleven analytical lenses</h2>
       <p class="text-sm text-gray-500 mb-6">
         Each lens has a name in the code (used by API consumers) and a plain-English label (used in the UI).
-        The philosophical pedigree is given because the lenses come from somewhere — they aren't arbitrary.
+        The philosophical pedigree is given because the lenses come from somewhere - they aren't arbitrary.
       </p>
 
       <div class="space-y-5">
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">1. Argument structure <span class="text-xs text-gray-400 font-normal">— Toulmin decomposition</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">1. Argument structure <span class="text-xs text-gray-400 font-normal">- Toulmin decomposition</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
-            The claim, grounds, warrant, qualifier, and rebuttal. Plus the weakest link — which of these components
+            The claim, grounds, warrant, qualifier, and rebuttal. Plus the weakest link - which of these components
             is least supported. From Stephen Toulmin's <em>The Uses of Argument</em> (1958).
           </p>
         </div>
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">2. Reasoning patterns <span class="text-xs text-gray-400 font-normal">— 26 named fallacies</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">2. Reasoning patterns <span class="text-xs text-gray-400 font-normal">- 26 named fallacies</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
             From Ad Hominem to Motte-and-Bailey, Selection Bias to Genetic Fallacy. Each finding includes the
-            verbatim quote that exemplifies it, the severity (high / medium / low), and the confidence (50–100%).
+            verbatim quote that exemplifies it, the severity (high / medium / low), and the confidence (50-100%).
             Catalogue grounded in Aristotle's <em>Sophistical Refutations</em>, extended by Walton and Hansen.
           </p>
         </div>
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">3. Loaded language <span class="text-xs text-gray-400 font-normal">— 8 rhetorical techniques</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">3. Loaded language <span class="text-xs text-gray-400 font-normal">- 8 rhetorical techniques</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
             Emotionally charged terms, weasel words, glittering generalities, scare quotes, presupposition
             smuggling, euphemism, false-precision numbers, name-calling. The argumentative work done by diction
@@ -74,16 +74,16 @@ import Base from '../layouts/Base.astro';
         </div>
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">4. Unstated warrants <span class="text-xs text-gray-400 font-normal">— hidden assumptions</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">4. Unstated warrants <span class="text-xs text-gray-400 font-normal">- hidden assumptions</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
-            The premises the argument needs but doesn't state. Most arguments are enthymemes —
+            The premises the argument needs but doesn't state. Most arguments are enthymemes -
             Aristotle's term, in the <em>Rhetoric</em>, for syllogisms with a suppressed premise. The hidden
             premise is often where the disagreement actually lives.
           </p>
         </div>
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">5. Key-term scrutiny <span class="text-xs text-gray-400 font-normal">— Wittgensteinian</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">5. Key-term scrutiny <span class="text-xs text-gray-400 font-normal">- Wittgensteinian</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
             Tracks whether load-bearing words are used consistently across the text. Detects stipulative
             smuggling, cross-language-game equivocation, and family-resemblance overreach. Grounded in
@@ -92,7 +92,7 @@ import Base from '../layouts/Base.astro';
         </div>
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">6. Vague reference check <span class="text-xs text-gray-400 font-normal">— Russellian</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">6. Vague reference check <span class="text-xs text-gray-400 font-normal">- Russellian</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
             Appeals to groups whose referent is empty ("real Americans"), vague ("the establishment"), or
             presuppose facts not established ("the proven link between X and Y"). From Russell's
@@ -101,7 +101,7 @@ import Base from '../layouts/Base.astro';
         </div>
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">7. Testability check <span class="text-xs text-gray-400 font-normal">— Davidsonian falsifiability</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">7. Testability check <span class="text-xs text-gray-400 font-normal">- Davidsonian falsifiability</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
             For each major claim: what evidence would refute it? Claims with no truth conditions, circular
             truth conditions, or that are unfalsifiable while dressed as substantive are flagged. Grounded
@@ -110,7 +110,7 @@ import Base from '../layouts/Base.astro';
         </div>
 
         <div class="pl-4 border-l-2 border-indigo-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">8. Certainty claims <span class="text-xs text-gray-400 font-normal">— modal scope check</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">8. Certainty claims <span class="text-xs text-gray-400 font-normal">- modal scope check</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
             Where the argument substitutes necessity ("will", "must") for possibility ("might", "could") without
             the evidence to license the upgrade. Or where premises hedge but the conclusion drops the hedge.
@@ -119,35 +119,35 @@ import Base from '../layouts/Base.astro';
         </div>
 
         <div class="pl-4 border-l-2 border-amber-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">9. Counterarguments <span class="text-xs text-amber-600 font-normal">— Studio tier</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">9. Counterarguments <span class="text-xs text-amber-600 font-normal">- Studio tier</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
-            The 2–3 strongest opposing positions a thoughtful opponent would deploy — each steelmanned, each
+            The 2-3 strongest opposing positions a thoughtful opponent would deploy - each steelmanned, each
             with its own Toulmin structure. Standalone free version available at <a href="/strongest-opposing-case" class="text-indigo-600 hover:text-indigo-800 underline">/strongest-opposing-case</a>.
           </p>
         </div>
 
         <div class="pl-4 border-l-2 border-amber-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">10. Philosophical commitments <span class="text-xs text-amber-600 font-normal">— Studio tier</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">10. Philosophical commitments <span class="text-xs text-amber-600 font-normal">- Studio tier</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
-            The ethical, epistemic, political, and methodological framework the argument operates within —
+            The ethical, epistemic, political, and methodological framework the argument operates within -
             consequentialist vs deontological, empiricist vs rationalist, individualist vs structuralist.
             Made visible so the writer can decide whether to defend, soften, or replace the underlying frame.
           </p>
         </div>
 
         <div class="pl-4 border-l-2 border-amber-200">
-          <p class="text-sm font-semibold text-gray-900 mb-1">11. Evidence-weighted likelihood <span class="text-xs text-amber-600 font-normal">— Studio tier</span></p>
+          <p class="text-sm font-semibold text-gray-900 mb-1">11. Evidence-weighted likelihood <span class="text-xs text-amber-600 font-normal">- Studio tier</span></p>
           <p class="text-sm text-gray-600 leading-relaxed">
             For empirical claims only, we search 200M+ papers via Semantic Scholar and synthesise the scientific
-            consensus — strong support, contested, opposed, insufficient data. Value claims are explicitly flagged
-            as not empirically assessable. Grounded in Hume's is–ought distinction (1739).
+            consensus - strong support, contested, opposed, insufficient data. Value claims are explicitly flagged
+            as not empirically assessable. Grounded in Hume's is-ought distinction (1739).
           </p>
         </div>
 
       </div>
     </section>
 
-    <!-- Section 3 — three modes of engagement -->
+    <!-- Section 3 - three modes of engagement -->
     <section class="mb-14">
       <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Three ways to use the engine</h2>
       <div class="space-y-4">
@@ -176,14 +176,14 @@ import Base from '../layouts/Base.astro';
       </div>
     </section>
 
-    <!-- Section 4 — what it isn't -->
+    <!-- Section 4 - what it isn't -->
     <section class="mb-14">
       <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">What it won't do</h2>
       <ul class="space-y-3 text-base text-gray-700">
         <li class="pl-4 border-l-2 border-amber-300">
           <strong class="font-medium">It won't adjudicate claims.</strong> The tool analyses argument <em>structure</em>,
           not factual accuracy of specific assertions. Whether a cited study is real, or a statistic holds up, is
-          your job — though the citation audit and evidence-weighted likelihood lenses help.
+          your job - though the citation audit and evidence-weighted likelihood lenses help.
         </li>
         <li class="pl-4 border-l-2 border-amber-300">
           <strong class="font-medium">It's not a political moderator.</strong> The same engine runs on a
@@ -192,18 +192,18 @@ import Base from '../layouts/Base.astro';
         </li>
         <li class="pl-4 border-l-2 border-amber-300">
           <strong class="font-medium">It's not a writing improver.</strong> The engine audits but does not rewrite.
-          Preserving the writer's voice is a deliberate design choice — the work of fixing flagged issues
+          Preserving the writer's voice is a deliberate design choice - the work of fixing flagged issues
           stays with the writer.
         </li>
         <li class="pl-4 border-l-2 border-amber-300">
-          <strong class="font-medium">It is not always right.</strong> Findings carry confidence scores (50–100%)
+          <strong class="font-medium">It is not always right.</strong> Findings carry confidence scores (50-100%)
           precisely because the tool can be wrong. Treat findings as prompts to look more carefully, not as verdicts.
-          Calibration improves with feedback — the thumbs on each finding feed the prompt-iteration process.
+          Calibration improves with feedback - the thumbs on each finding feed the prompt-iteration process.
         </li>
       </ul>
     </section>
 
-    <!-- Section 5 — open source -->
+    <!-- Section 5 - open source -->
     <section class="mb-12">
       <h2 class="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-4">Open and inspectable</h2>
       <p class="text-base text-gray-700 leading-relaxed mb-3">

@@ -1,6 +1,6 @@
 // POST /api/analyse-debate
 //
-// Expensive endpoint — multiple LLM calls per request. Gated by X-Analyser-Secret
+// Expensive endpoint - multiple LLM calls per request. Gated by X-Analyser-Secret
 // so only the curator can invoke it. Does NOT go through /api/llm (that endpoint
 // applies per-device end-user quotas; this endpoint must not be subject to them).
 
@@ -20,7 +20,7 @@ function json(body: unknown, status = 200): Response {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  // Auth gate — must match ANALYSER_SECRET env var.
+  // Auth gate - must match ANALYSER_SECRET env var.
   const secret = request.headers.get('X-Analyser-Secret');
   if (!env.ANALYSER_SECRET || secret !== env.ANALYSER_SECRET) {
     return json({ error: 'unauthorized', message: 'Valid X-Analyser-Secret header required' }, 401);

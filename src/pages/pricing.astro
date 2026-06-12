@@ -23,7 +23,7 @@ const hasSubscription = session
 const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 ---
 <Base
-  title="Pricing — The Whetstone"
+  title="Pricing - The Whetstone"
   description="Free structural audit for readers. Solo plan for writers at A$33/month. Studio for teams from A$95/month."
   canonicalPath="/pricing"
   isLoggedIn={isLoggedIn}
@@ -41,11 +41,11 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 
     {checkoutCanceled && (
       <div class="mb-8 rounded-lg bg-amber-50 border border-amber-200 px-5 py-4 max-w-md mx-auto">
-        <p class="text-sm text-amber-800">Checkout was cancelled — no charge was made.</p>
+        <p class="text-sm text-amber-800">Checkout was cancelled - no charge was made.</p>
       </div>
     )}
 
-    <!-- Three-tier grid — collapsible feature lists on mobile -->
+    <!-- Three-tier grid - collapsible feature lists on mobile -->
     <div class="grid md:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden bg-white divide-y md:divide-y-0 md:divide-x divide-gray-200">
 
       <PricingTier

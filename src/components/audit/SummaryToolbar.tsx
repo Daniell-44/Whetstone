@@ -12,7 +12,7 @@ import { auditToMarkdown, downloadMarkdown } from '../../lib/export-audit';
 import { track } from '../../lib/analytics/track';
 
 // ---------------------------------------------------------------------------
-// Score ring — circular progress indicator (SVG)
+// Score ring - circular progress indicator (SVG)
 // ---------------------------------------------------------------------------
 
 function ScoreRing({ score }: { score: number }) {

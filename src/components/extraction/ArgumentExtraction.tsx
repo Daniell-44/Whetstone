@@ -7,7 +7,7 @@ import ArgumentFlowChart from './ArgumentFlowChart';
 import GroundednessChip from '../grounded/GroundednessChip';
 
 // ---------------------------------------------------------------------------
-// Consensus badge — small chip on statement cards for empirical claims
+// Consensus badge - small chip on statement cards for empirical claims
 // ---------------------------------------------------------------------------
 
 const CONSENSUS_CHIP: Record<string, { label: string; cls: string }> = {
@@ -72,12 +72,12 @@ type View = 'diagram' | 'inverted' | 'detailed';
 
 const VIEW_OPTIONS: { id: View; label: string; hint: string }[] = [
   { id: 'diagram',  label: 'Diagram',  hint: 'Visual flow chart of premises and conclusions' },
-  { id: 'inverted', label: 'Inverted', hint: 'Conclusion first, supporting premises nested below' },
+  { id: 'inverted', label: 'Top-down', hint: 'Conclusion first, supporting premises nested below' },
   { id: 'detailed', label: 'Detailed', hint: 'All premises and conclusions, numbered' },
 ];
 
 // ---------------------------------------------------------------------------
-// Statement card — used in Detailed view
+// Statement card - used in Detailed view
 // ---------------------------------------------------------------------------
 
 function StatementCard({ stmt, assessment }: {
@@ -124,10 +124,10 @@ function StatementCard({ stmt, assessment }: {
 }
 
 // ---------------------------------------------------------------------------
-// Inverted view — conclusion at the top, premises nested as support beneath
+// Inverted view - conclusion at the top, premises nested as support beneath
 //
 // Pattern adopted: "inverted pyramid" from newspaper headlines, mapped to
-// arguments — the thesis (terminal conclusion) is stated first, then the
+// arguments - the thesis (terminal conclusion) is stated first, then the
 // premises that derive it are unpacked underneath, recursively for sub-claims.
 // This mirrors how a careful reader actually inspects an argument: "what's
 // the conclusion?" → "what supports it?" → "what supports those?"
@@ -241,7 +241,7 @@ function InvertedView({ result, evidenceAssessments }: {
   if (terminalConclusions.length === 0) {
     return (
       <div class="space-y-2">
-        <p class="text-xs text-gray-400 italic">No terminal conclusion identified — listing all statements:</p>
+        <p class="text-xs text-gray-400 italic">No terminal conclusion identified - listing all statements:</p>
         {result.statements.map(s => (
           <StatementCard key={s.id} stmt={s} assessment={matchAssessment(s, evidenceAssessments)} />
         ))}
@@ -276,7 +276,7 @@ function InvertedView({ result, evidenceAssessments }: {
 }
 
 // ---------------------------------------------------------------------------
-// Detailed view — the original numbered-list layout
+// Detailed view - the original numbered-list layout
 // ---------------------------------------------------------------------------
 
 function DetailedView({ result, terminologyPreference, evidenceAssessments }: {
@@ -316,7 +316,7 @@ function DetailedView({ result, terminologyPreference, evidenceAssessments }: {
 }
 
 // ---------------------------------------------------------------------------
-// Expand modal — full-viewport diagram for visual inspection
+// Expand modal - full-viewport diagram for visual inspection
 // ---------------------------------------------------------------------------
 
 function ExpandModal({

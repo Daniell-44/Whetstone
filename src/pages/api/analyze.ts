@@ -23,7 +23,7 @@ const TIER2_MODEL = 'gemini-2.5-flash-lite';
 const CONFIDENCE_THRESHOLD = 0.75;
 
 // ---------------------------------------------------------------------------
-// Per-IP rate limit — in-memory, acceptable for this stage.
+// Per-IP rate limit - in-memory, acceptable for this stage.
 // DUPLICATED intent: replace with KV-backed rate limit before public launch.
 // ---------------------------------------------------------------------------
 
@@ -88,7 +88,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const client = new GeminiClient(apiKey);
 
-  // Tier 1 — triage
+  // Tier 1 - triage
   let isArgument: boolean;
   try {
     const triageResponse = await client.complete({
@@ -116,7 +116,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  // Tier 2 — full analysis
+  // Tier 2 - full analysis
   try {
     const schema = isCreator ? CreatorAnalysisResultSchema : AnalysisResultSchema;
     const analysisResponse = await client.complete({

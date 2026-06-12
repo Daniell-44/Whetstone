@@ -18,7 +18,7 @@ export default function CheckoutButton() {
       }
       // Not signed in: bounce to /login with returnTo so they come back to
       // /pricing after auth and can click Subscribe again from a signed-in
-      // session — no manual navigation required.
+      // session - no manual navigation required.
       if (res.status === 401) {
         window.location.assign('/login?returnTo=/pricing');
         return;
@@ -47,7 +47,7 @@ export default function CheckoutButton() {
             : 'bg-amber-500 text-white hover:bg-amber-600'
         }`}
       >
-        {isLoading ? 'Redirecting to checkout…' : 'Subscribe — A$33/mo'}
+        {isLoading ? 'Redirecting to checkout…' : 'Subscribe - A$33/mo'}
       </button>
       {error && (
         <p class="text-sm text-red-600 text-center">{error}</p>

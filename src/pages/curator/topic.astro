@@ -1,0 +1,39 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import CuratorTopicForm from '../../components/topic/CuratorTopicForm';
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+
+const ADMIN_EMAIL = 'daniel.livingstone44@gmail.com';
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+
+if (!session) {
+  return Astro.redirect('/login?returnTo=/curator/topic');
+}
+const user = await authDb.findUserById(session.user_id);
+const isAdmin = !!user && user.email === ADMIN_EMAIL;
+---
+<Base title="Topic curator — The Whetstone" canonicalPath="/curator/topic" isLoggedIn={true}>
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-24">
+    <nav class="mb-6 text-xs">
+      <a href="/topics" class="text-gray-400 hover:text-gray-600">← Topics</a>
+    </nav>
+    <h1 class="font-serif text-2xl sm:text-3xl text-gray-900 mb-2">Topic curator</h1>
+    {isAdmin ? (
+      <>
+        <p class="text-sm text-gray-500 mb-6 leading-relaxed">
+          Enter the question and 2-5 sources (outlet, URL, and the article text to analyse). Click
+          <strong> Run analysis</strong> to auto-fill the structure, takeaways, and a suggested leaning for each
+          source - then adjust anything (especially leaning), and Save draft or Publish.
+        </p>
+        <CuratorTopicForm client:load />
+      </>
+    ) : (
+      <p class="text-sm text-red-600">This page is restricted.</p>
+    )}
+  </main>
+</Base>

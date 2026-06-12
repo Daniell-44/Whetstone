@@ -30,20 +30,20 @@ const loginDate = new Date(session.created_at).toLocaleDateString('en-GB', {
 const checkoutSuccess = Astro.url.searchParams.get('checkout') === 'success';
 
 function formatPeriodEnd(ms: number | null | undefined): string {
-  if (!ms) return '—';
+  if (!ms) return '-';
   return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 const ACTIVE_STATUSES = new Set(['active', 'trialing']);
 const isActive = sub && ACTIVE_STATUSES.has(sub.status);
 ---
-<Base title="Account — The Whetstone" canonicalPath="/account" isLoggedIn={true}>
+<Base title="Account - The Whetstone" canonicalPath="/account" isLoggedIn={true}>
   <main class="max-w-md mx-auto px-6 py-16">
     <h1 class="text-2xl font-semibold text-gray-900 mb-8">Your account</h1>
 
     {checkoutSuccess && (
       <div class="mb-6 rounded-xl bg-green-50 border border-green-200 px-5 py-4">
-        <p class="text-sm font-medium text-green-800">Subscription activated — welcome to Creator Studio Pro.</p>
+        <p class="text-sm font-medium text-green-800">Subscription activated - welcome to Creator Studio Pro.</p>
       </div>
     )}
 
@@ -51,7 +51,7 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
     <div class="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100">
       <div class="px-5 py-4">
         <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Email</p>
-        <p class="text-sm text-gray-900">{user?.email ?? '—'}</p>
+        <p class="text-sm text-gray-900">{user?.email ?? '-'}</p>
       </div>
       <div class="px-5 py-4">
         <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Session started</p>
@@ -72,7 +72,7 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
               href="/pricing"
               class="inline-block rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
             >
-              Subscribe to Studio — $22/mo
+              Subscribe to Studio - $22/mo
             </a>
           </div>
         ) : isActive ? (
@@ -138,7 +138,7 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
       <div class="mt-8">
         <h2 class="text-sm font-semibold text-gray-700 mb-1">API access</h2>
         <p class="text-xs text-gray-400 mb-3">
-          Use your subscription programmatically — integrate The Whetstone into your CMS or editorial pipeline.{' '}
+          Use your subscription programmatically - integrate The Whetstone into your CMS or editorial pipeline.{' '}
           <a href="/developer" class="underline hover:text-gray-600">View API docs →</a>
         </p>
         <ApiKeysManager client:load />
@@ -148,7 +148,7 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
     <!-- Feedback acknowledgement -->
     <div class="mt-8 rounded-lg border border-gray-100 bg-gray-50 px-5 py-4">
       <p class="text-xs text-gray-500 leading-relaxed">
-        Your feedback shapes The Whetstone — thumbs-up and thumbs-down on findings help tune the engine over time. Thank you.
+        Your feedback shapes The Whetstone - thumbs-up and thumbs-down on findings help tune the engine over time. Thank you.
       </p>
     </div>
 

@@ -1,0 +1,78 @@
+---
+export const prerender = false;
+
+import Base from '../layouts/Base.astro';
+import TopicPage from '../components/topic/TopicPage';
+import type { TopicData } from '../components/topic/types';
+
+// Mock data - a preview of the curated topic-page layout. Replace with real
+// curated + cross-document-audited data when the topic-page system ships.
+const demo: TopicData = {
+  question: 'Should schools ban smartphones during the school day?',
+  framing:
+    'Five outlets across the spectrum argue this differently. Below: where they actually agree, the real point of dispute, and the assumption none of them defends. Each source is positioned by its lean; click any to see the structure of its argument.',
+  sources: [
+    {
+      id: 's1', outlet: 'BBC News', writer: null, date: '2 Jun 2026', type: 'news', leaning: 2,
+      title: 'Schools trial phone bans amid mixed evidence on outcomes',
+      url: 'https://example.com/bbc',
+      mainPoint: 'Reports the trials and the contested evidence base without taking a side.',
+      centralClaim: 'Phone-ban trials are expanding but the evidence on learning outcomes is mixed.',
+      keyWarrant: 'Assumes "measurable test-score change" is the relevant standard for judging the policy.',
+      steelman: 'A neutral report should withhold judgement until longitudinal data exists; premature endorsement would be its own bias.',
+    },
+    {
+      id: 's2', outlet: 'The Guardian', writer: 'A. Writer', date: '28 May 2026', type: 'opinion', leaning: -45,
+      title: 'Banning phones treats a symptom, not the disease',
+      url: 'https://example.com/guardian',
+      mainPoint: 'Argues bans dodge the real issue: under-resourced schools and attention-extractive platforms.',
+      centralClaim: 'Phone bans are a distraction from structural underfunding of education.',
+      keyWarrant: 'Assumes the burden of fixing attention belongs to systems, not individuals or schools.',
+      steelman: 'A ban that ignores why kids reach for phones will be evaded; address the cause, not the device.',
+    },
+    {
+      id: 's3', outlet: 'The Spectator', writer: 'B. Columnist', date: '30 May 2026', type: 'opinion', leaning: 58,
+      title: 'Just ban them - the case for discipline is obvious',
+      url: 'https://example.com/spectator',
+      mainPoint: 'Argues for an immediate, unconditional ban as a matter of authority and focus.',
+      centralClaim: 'Schools should ban phones outright; debate over evidence is an excuse for inaction.',
+      keyWarrant: 'Assumes restoring adult authority is self-evidently good and needs no outcome data.',
+      steelman: 'Some goods (focus, discipline) are prior to measurement; waiting for RCTs is a category error.',
+    },
+    {
+      id: 's4', outlet: 'The Conversation', writer: 'Dr C. Researcher', date: '1 Jun 2026', type: 'analysis', leaning: -12,
+      title: 'What the research actually shows about phones and learning',
+      url: 'https://example.com/conversation',
+      mainPoint: 'Reviews the literature: small, context-dependent effects, no clean verdict.',
+      centralClaim: 'The effect of phone bans on learning is real but small and highly context-dependent.',
+      keyWarrant: 'Assumes peer-reviewed effect sizes are the right arbiter of the policy question.',
+      steelman: 'Policy should track the evidence; modest effects justify modest, reversible interventions.',
+    },
+    {
+      id: 's5', outlet: 'Sky News', writer: 'D. Presenter', date: '29 May 2026', type: 'opinion', leaning: 38,
+      title: 'Parents back bans - politicians should listen',
+      url: 'https://example.com/sky',
+      mainPoint: 'Argues democratic legitimacy: parents want it, so schools should act.',
+      centralClaim: 'Strong parental support is sufficient grounds for schools to ban phones.',
+      keyWarrant: 'Assumes majority parental preference should determine school policy.',
+      steelman: 'Schools serve families; sustained popular demand is a legitimate basis for action.',
+    },
+  ],
+  takeaways: {
+    agree: 'All five accept that phone use affects attention in class to some degree - none dispute the basic phenomenon.',
+    realDisagreement: 'Not whether phones distract, but who is responsible for the fix (systems vs schools vs parents) and what standard of evidence justifies acting.',
+    sharedAssumption: 'Every source assumes the question is "ban or not." None considers graduated or design-based alternatives (lockable pouches, app-level limits, opt-in zones).',
+    talkingPast: 'The evidence-first pieces and the authority-first pieces are answering different questions - "what does the data show" vs "what kind of institution should a school be" - and never engage each other directly.',
+  },
+};
+---
+<Base
+  title="Topic preview - The Whetstone"
+  description="Preview of the curated topic-page layout: balanced sources on a left-right spectrum with cross-document synthesis."
+  canonicalPath="/topic-demo"
+>
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-24">
+    <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-600 mb-4">Preview · mock data</p>
+    <TopicPage data={demo} client:load />
+  </main>
+</Base>
