@@ -136,7 +136,7 @@ SITE_URL              = "https://thewhetstone.net"
 # remove this line in real production.
 AUTH_DEBUG_LOG_CODES  = "1"
 # Replace after creating the Stripe product and price (see checklist above)
-STRIPE_PRICE_ID       = "price_1TgLe93xWchMRilKZy3OxpmT"
+STRIPE_PRICE_ID       = "price_1ThNsH3xWchMRiIKgQiJik37"
 # ALLOWED_ORIGINS: comma-separated. Example:
 # ALLOWED_ORIGINS = "chrome-extension://YOUR_EXTENSION_ID,https://whetstone.so"
 # RESEND_API_KEY is a secret — set via: wrangler secret put RESEND_API_KEY --config dist/server/wrangler.json
