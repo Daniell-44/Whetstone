@@ -11,7 +11,7 @@ type RawPresuppositionResult = z.infer<typeof RawPresuppositionResultSchema>;
 function applyGroundedness(raw: RawPresuppositionResult): PresuppositionResult {
   return {
     audienceProfile: raw.audienceProfile,
-    notes:           raw.notes,
+    notes:           raw.notes ?? null,
     presuppositions: raw.presuppositions.map(({ confidence, readingContestability, ...rest }) => ({
       ...rest,
       // Path-1: prefer the model's direct contestability rating; fall back to

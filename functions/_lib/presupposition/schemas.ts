@@ -28,7 +28,9 @@ export const RawPresuppositionSchema = z.object({
 export const RawPresuppositionResultSchema = z.object({
   presuppositions: z.array(RawPresuppositionSchema).max(8),
   audienceProfile: z.string().min(10),
-  notes:           z.string().nullable(),
+  // Tolerate the model omitting `notes` entirely (not just sending null) —
+  // a frequent cause of avoidable validation failures.
+  notes:           z.string().nullable().optional(),
 });
 
 // Canonical — with groundedness
