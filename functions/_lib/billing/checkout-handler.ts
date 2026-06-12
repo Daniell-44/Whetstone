@@ -47,24 +47,32 @@ export async function handleCheckoutRequest(
     return json({ ok: false, error: { code: 'NOT_FOUND', message: 'User not found' } }, 404);
   }
 
-  // Get existing Stripe customer or create one now.
-  let customerId = user.stripe_customer_id;
-  if (!customerId) {
-    const customer = await deps.createCustomer(deps.stripeApiKey, {
-      email:    user.email,
-      metadata: { user_id: session.userId },
+  try {
+    // Get existing Stripe customer or create one now.
+    let customerId = user.stripe_customer_id;
+    if (!customerId) {
+      const customer = await deps.createCustomer(deps.stripeApiKey, {
+        email:    user.email,
+        metadata: { user_id: session.userId },
+      });
+      customerId = customer.id;
+      await deps.db.updateStripeCustomerId(session.userId, customerId);
+    }
+
+    const checkoutSession = await deps.createCheckoutSession(deps.stripeApiKey, {
+      customerId,
+      priceId:    deps.stripePriceId,
+      successUrl: `${deps.siteUrl}/account?checkout=success`,
+      cancelUrl:  `${deps.siteUrl}/pricing?checkout=canceled`,
+      mode:       'subscription',
     });
-    customerId = customer.id;
-    await deps.db.updateStripeCustomerId(session.userId, customerId);
+
+    return json({ ok: true, url: checkoutSession.url });
+  } catch (err) {
+    // Surface the real Stripe error (e.g. "No such price" from a mode
+    // mismatch) instead of an opaque 500.
+    const message = err instanceof Error ? err.message : 'Checkout failed';
+    console.error(`[checkout] Stripe error: ${message}`);
+    return json({ ok: false, error: { code: 'STRIPE_ERROR', message } }, 502);
   }
-
-  const checkoutSession = await deps.createCheckoutSession(deps.stripeApiKey, {
-    customerId,
-    priceId:    deps.stripePriceId,
-    successUrl: `${deps.siteUrl}/account?checkout=success`,
-    cancelUrl:  `${deps.siteUrl}/pricing?checkout=canceled`,
-    mode:       'subscription',
-  });
-
-  return json({ ok: true, url: checkoutSession.url });
 }
