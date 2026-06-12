@@ -90,7 +90,7 @@ const shareUrl = `${baseUrl}/scorecard/${scorecard.slug}`;
           <ScorecardView scorecard={scorecard} />
         </div>
         <div id="discussion">
-          <TopicTakes slug={scorecard.slug} signedIn={signedIn} client:load />
+          <TopicTakes slug={scorecard.slug} signedIn={signedIn} returnTo={`/scorecard/${scorecard.slug}`} client:load />
         </div>
       </article>
 

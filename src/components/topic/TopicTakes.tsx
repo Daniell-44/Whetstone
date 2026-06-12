@@ -10,7 +10,8 @@ interface Take {
 
 const NAME_KEY = 'whetstone.take_name';
 
-export default function TopicTakes({ slug, signedIn }: { slug: string; signedIn: boolean }) {
+export default function TopicTakes({ slug, signedIn, returnTo }: { slug: string; signedIn: boolean; returnTo?: string }) {
+  const signInReturn = returnTo ?? `/topic/${slug}`;
   const [takes, setTakes]   = useState<Take[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [name, setName]     = useState('');
@@ -149,7 +150,7 @@ export default function TopicTakes({ slug, signedIn }: { slug: string; signedIn:
       ) : (
         <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
           <p class="text-sm text-gray-600">
-            <a href={`/login?returnTo=/topic/${slug}`} class="text-indigo-600 font-medium hover:text-indigo-800">Sign in</a>
+            <a href={`/login?returnTo=${encodeURIComponent(signInReturn)}`} class="text-indigo-600 font-medium hover:text-indigo-800">Sign in</a>
             {' '}to add your take.
           </p>
         </div>
