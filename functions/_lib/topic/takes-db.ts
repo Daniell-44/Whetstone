@@ -19,6 +19,8 @@ export interface TopicTakesDb {
   listApproved(slug: string): Promise<TopicTake[]>;
   /** All takes for a topic regardless of status (admin moderation view). */
   listAll(slug: string): Promise<TopicTake[]>;
+  /** Takes across ALL topics with a given status (admin moderation queue). */
+  listByStatus(status: TakeStatus, limit?: number): Promise<TopicTake[]>;
   /** A user's existing take on a topic, if any (one per user per topic). */
   findUserTake(slug: string, userId: string): Promise<TopicTake | null>;
   insert(take: TopicTake): Promise<void>;
@@ -39,6 +41,11 @@ export function makeTopicTakesDb(d1: D1Database): TopicTakesDb {
       d1.prepare(
         `SELECT * FROM topic_takes WHERE topic_slug = ? ORDER BY created_at DESC`,
       ).bind(slug).all<TopicTake>().then(r => r.results ?? []),
+
+    listByStatus: (status, limit = 200) =>
+      d1.prepare(
+        `SELECT * FROM topic_takes WHERE status = ? ORDER BY created_at DESC LIMIT ?`,
+      ).bind(status, limit).all<TopicTake>().then(r => r.results ?? []),
 
     findUserTake: (slug, userId) =>
       d1.prepare(

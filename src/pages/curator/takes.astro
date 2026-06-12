@@ -1,0 +1,40 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import ModerationQueue from '../../components/topic/ModerationQueue';
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+
+const ADMIN_EMAIL = 'daniel.livingstone44@gmail.com';
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+
+if (!session) {
+  return Astro.redirect('/login?returnTo=/curator/takes');
+}
+const user = await authDb.findUserById(session.user_id);
+const isAdmin = !!user && user.email === ADMIN_EMAIL;
+---
+<Base title="Take moderation — The Whetstone" canonicalPath="/curator/takes" isLoggedIn={true}>
+  <main class="max-w-2xl mx-auto px-4 sm:px-6 pt-8 pb-24">
+    <nav class="mb-6 text-xs flex items-center gap-3">
+      <a href="/topics" class="text-gray-400 hover:text-gray-600">← Topics</a>
+      <span class="text-gray-200">|</span>
+      <a href="/curator/topic" class="text-gray-400 hover:text-gray-600">Topic curator</a>
+    </nav>
+    <h1 class="font-serif text-2xl sm:text-3xl text-gray-900 mb-2">Take moderation</h1>
+    {isAdmin ? (
+      <>
+        <p class="text-sm text-gray-500 mb-6 leading-relaxed">
+          Reported takes land in <strong>Pending</strong> (hidden from readers). Approve to restore, Hide to keep
+          hidden, or Delete to remove entirely. Check <strong>Approved</strong> to proactively pull anything live.
+        </p>
+        <ModerationQueue client:load />
+      </>
+    ) : (
+      <p class="text-sm text-red-600">This page is restricted.</p>
+    )}
+  </main>
+</Base>
