@@ -5,6 +5,38 @@
 export type TerminologyPreference = 'plain' | 'formal';
 
 // ---------------------------------------------------------------------------
+// Deeper-lens button labels. These 5 lenses previously hardcoded academic
+// names that ignored the Plain/Formal toggle. This dedicated map wires them in
+// without forcing tooltip entries for each (they have their own inline blurbs).
+// ---------------------------------------------------------------------------
+
+export const DEEPER_LENS_KEYS = [
+  'presupposition', 'rhetoricalMode', 'epistemicHumility', 'disagreementEngagement', 'structuralIncentive',
+] as const;
+export type DeeperLensKey = typeof DEEPER_LENS_KEYS[number];
+
+export const DEEPER_LENS_LABELS: Record<TerminologyPreference, Record<DeeperLensKey, string>> = {
+  plain: {
+    presupposition:         'Taken for Granted',
+    rhetoricalMode:         'How It Persuades',
+    epistemicHumility:      'Certainty Check',
+    disagreementEngagement: 'Fairness to Critics',
+    structuralIncentive:    'Who Benefits',
+  },
+  formal: {
+    presupposition:         'Presuppositions',
+    rhetoricalMode:         'Rhetorical Mode',
+    epistemicHumility:      'Epistemic Humility',
+    disagreementEngagement: 'Disagreement Engagement',
+    structuralIncentive:    'Structural Incentive',
+  },
+};
+
+export function getDeeperLensLabels(preference?: TerminologyPreference): Record<DeeperLensKey, string> {
+  return preference === 'formal' ? DEEPER_LENS_LABELS.formal : DEEPER_LENS_LABELS.plain;
+}
+
+// ---------------------------------------------------------------------------
 // Plain labels (accessible English)
 // ---------------------------------------------------------------------------
 
@@ -31,9 +63,9 @@ export const LABELS_PLAIN = {
   // Philosophical commitments
   commitments:                 'Framework Check',
   commitmentsEthical:          'Ethical Framework',
-  commitmentsEpistemic:        'Epistemic Stance',
+  commitmentsEpistemic:        'How it decides what\'s true',
   commitmentsPolitical:        'Political Framework',
-  commitmentsMethodological:   'Methodological Approach',
+  commitmentsMethodological:   'How it explains things',
   commitmentsAlternatives:     'Alternative Perspectives',
 
   // Counterargument
@@ -77,7 +109,7 @@ export const LABELS_PLAIN = {
   postureLabel:         'How the argument addresses you',
   registerLabel:        'Emotional temperature',
   tonalMovesLabel:      'Where tone does the work',
-  audiencePositionLabel: 'How you\'re cast',
+  audiencePositionLabel: 'The role it puts you in',
 
   // Evidence-weighted likelihood
   evidenceWeighted:             'Evidence Check',

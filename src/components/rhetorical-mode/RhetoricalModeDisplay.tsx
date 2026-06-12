@@ -2,23 +2,23 @@ import type { RhetoricalModeResult, RhetoricalMove } from '../../../functions/_l
 import GroundednessChip from '../grounded/GroundednessChip';
 
 const APPEAL_META: Record<string, { label: string; cls: string; bar: string; desc: string }> = {
-  ethos:  { label: 'Ethos',  cls: 'bg-violet-100 text-violet-700', bar: 'bg-violet-500', desc: 'Authority / credibility' },
-  pathos: { label: 'Pathos', cls: 'bg-rose-100   text-rose-700',   bar: 'bg-rose-500',   desc: 'Emotion / values'        },
-  logos:  { label: 'Logos',  cls: 'bg-sky-100    text-sky-700',    bar: 'bg-sky-500',    desc: 'Logic / evidence'        },
+  ethos:  { label: 'Authority', cls: 'bg-violet-100 text-violet-700', bar: 'bg-violet-500', desc: 'Appeals to credibility / standing (ethos)' },
+  pathos: { label: 'Emotion',   cls: 'bg-rose-100   text-rose-700',   bar: 'bg-rose-500',   desc: 'Appeals to feeling / values (pathos)'    },
+  logos:  { label: 'Logic',     cls: 'bg-sky-100    text-sky-700',    bar: 'bg-sky-500',    desc: 'Appeals to evidence / reasoning (logos)' },
 };
 
 function BalanceBar({ balance }: { balance: RhetoricalModeResult['balance'] }) {
   return (
     <div class="space-y-2">
       <div class="flex h-3 rounded-full overflow-hidden bg-gray-100">
-        {balance.logosPercent > 0 && <div class="bg-sky-500" style={`width: ${balance.logosPercent}%`} title={`Logos ${balance.logosPercent}%`} />}
-        {balance.pathosPercent > 0 && <div class="bg-rose-500" style={`width: ${balance.pathosPercent}%`} title={`Pathos ${balance.pathosPercent}%`} />}
-        {balance.ethosPercent > 0 && <div class="bg-violet-500" style={`width: ${balance.ethosPercent}%`} title={`Ethos ${balance.ethosPercent}%`} />}
+        {balance.logosPercent > 0 && <div class="bg-sky-500" style={`width: ${balance.logosPercent}%`} title={`Logic ${balance.logosPercent}%`} />}
+        {balance.pathosPercent > 0 && <div class="bg-rose-500" style={`width: ${balance.pathosPercent}%`} title={`Emotion ${balance.pathosPercent}%`} />}
+        {balance.ethosPercent > 0 && <div class="bg-violet-500" style={`width: ${balance.ethosPercent}%`} title={`Authority ${balance.ethosPercent}%`} />}
       </div>
       <div class="flex items-center justify-between text-[11px] tabular-nums">
-        <span class="text-sky-700">Logos {balance.logosPercent}%</span>
-        <span class="text-rose-700">Pathos {balance.pathosPercent}%</span>
-        <span class="text-violet-700">Ethos {balance.ethosPercent}%</span>
+        <span class="text-sky-700">Logic {balance.logosPercent}%</span>
+        <span class="text-rose-700">Emotion {balance.pathosPercent}%</span>
+        <span class="text-violet-700">Authority {balance.ethosPercent}%</span>
       </div>
     </div>
   );
@@ -43,7 +43,7 @@ export default function RhetoricalModeDisplay({ result }: { result: RhetoricalMo
     <div class="space-y-4">
       <div class="rounded-lg border border-gray-200 bg-white p-4">
         <div class="flex items-center justify-between mb-3">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-500">Appeal balance</p>
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-500">What it leans on</p>
           <GroundednessChip groundedness={result.groundedness} compact />
         </div>
         <BalanceBar balance={result.balance} />

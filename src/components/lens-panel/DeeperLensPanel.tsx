@@ -13,6 +13,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState, useCallback } from 'preact/hooks';
+import { getDeeperLensLabels, type TerminologyPreference } from '../../lib/labels';
 import type { PresuppositionResult } from '../../../functions/_lib/presupposition/types';
 import type { RhetoricalModeResult } from '../../../functions/_lib/rhetorical-mode/types';
 import type { EpistemicHumilityResult } from '../../../functions/_lib/epistemic-humility/types';
@@ -51,6 +52,8 @@ interface Props {
   text:    string;
   /** Surface label for analytics (e.g. "reader", "studio"). */
   surface: string;
+  /** Terminology preference for lens labels (defaults to plain). */
+  preference?: TerminologyPreference;
 }
 
 function LensButton({
@@ -106,7 +109,8 @@ function SectionError({ code, message }: { code: string; message: string }) {
   );
 }
 
-export default function DeeperLensPanel({ text, surface }: Props) {
+export default function DeeperLensPanel({ text, surface, preference }: Props) {
+  const lensLabels = getDeeperLensLabels(preference);
   const [presupState,  setPresupState]   = useState<SectionState<PresuppositionResult>>({ status: 'idle' });
   const [rhetState,    setRhetState]     = useState<SectionState<RhetoricalModeResult>>({ status: 'idle' });
   const [humilityState, setHumilityState] = useState<SectionState<EpistemicHumilityResult>>({ status: 'idle' });
@@ -151,16 +155,16 @@ export default function DeeperLensPanel({ text, surface }: Props) {
         <span class="text-[10px] text-gray-400">click to run · free</span>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <LensButton label="Presuppositions"   status={presupState.status}   onClick={() => void runLens('presupposition',         setPresupState)} />
-        <LensButton label="Rhetorical mode"   status={rhetState.status}     onClick={() => void runLens('rhetorical-mode',        setRhetState)} />
-        <LensButton label="Epistemic humility" status={humilityState.status} onClick={() => void runLens('epistemic-humility',     setHumilityState)} />
-        <LensButton label="Engagement quality" status={disagreeState.status} onClick={() => void runLens('disagreement-engagement', setDisagreeState)} />
+        <LensButton label={lensLabels.presupposition}         status={presupState.status}   onClick={() => void runLens('presupposition',         setPresupState)} />
+        <LensButton label={lensLabels.rhetoricalMode}         status={rhetState.status}     onClick={() => void runLens('rhetorical-mode',        setRhetState)} />
+        <LensButton label={lensLabels.epistemicHumility}      status={humilityState.status} onClick={() => void runLens('epistemic-humility',     setHumilityState)} />
+        <LensButton label={lensLabels.disagreementEngagement} status={disagreeState.status} onClick={() => void runLens('disagreement-engagement', setDisagreeState)} />
       </div>
 
       <div class="border-t border-gray-100 pt-3">
         <div class="flex items-center justify-between mb-2">
           <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
-            Structural-incentive analysis
+            {lensLabels.structuralIncentive}
           </p>
           <p class="text-[10px] text-gray-400 italic">structural, not personal</p>
         </div>
@@ -168,14 +172,14 @@ export default function DeeperLensPanel({ text, surface }: Props) {
           Whose positions in a political economy benefit if a reader accepts this framing.
           Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
         </p>
-        <LensButton label="Structural incentives" status={siState.status} onClick={() => void runLens('structural-incentive', setSiState)} />
+        <LensButton label={lensLabels.structuralIncentive} status={siState.status} onClick={() => void runLens('structural-incentive', setSiState)} />
       </div>
 
       {presupState.status === 'loading' && <SectionLoading label="Surfacing presuppositions…" />}
       {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
       {presupState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Presuppositions</h4>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">{lensLabels.presupposition}</h4>
           <PresuppositionDisplay result={presupState.data} />
         </div>
       )}
@@ -184,7 +188,7 @@ export default function DeeperLensPanel({ text, surface }: Props) {
       {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
       {rhetState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Rhetorical mode</h4>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">{lensLabels.rhetoricalMode}</h4>
           <RhetoricalModeDisplay result={rhetState.data} />
         </div>
       )}
@@ -193,7 +197,7 @@ export default function DeeperLensPanel({ text, surface }: Props) {
       {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
       {humilityState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Epistemic humility</h4>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">{lensLabels.epistemicHumility}</h4>
           <EpistemicHumilityDisplay result={humilityState.data} />
         </div>
       )}
@@ -202,7 +206,7 @@ export default function DeeperLensPanel({ text, surface }: Props) {
       {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
       {disagreeState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Engagement quality</h4>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">{lensLabels.disagreementEngagement}</h4>
           <DisagreementEngagementDisplay result={disagreeState.data} />
         </div>
       )}
@@ -211,7 +215,7 @@ export default function DeeperLensPanel({ text, surface }: Props) {
       {siState.status === 'error' && <SectionError code={siState.code} message={siState.message} />}
       {siState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Structural-incentive analysis</h4>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">{lensLabels.structuralIncentive}</h4>
           <StructuralIncentiveDisplay result={siState.data} />
         </div>
       )}

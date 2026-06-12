@@ -62,9 +62,9 @@ export function kindWeight(g: GroundednessSignal): number {
 // ---------------------------------------------------------------------------
 
 export const GROUNDEDNESS_LABEL: Record<GroundednessKind, string> = {
-  structural:   'Structural',
-  interpretive: 'Interpretive',
-  empirical:    'Empirical',
+  structural:   'Logic',
+  interpretive: 'Judgment call',
+  empirical:    'Factual',
 };
 
 export const GROUNDEDNESS_DESCRIPTION: Record<GroundednessKind, string> = {
@@ -73,10 +73,11 @@ export const GROUNDEDNESS_DESCRIPTION: Record<GroundednessKind, string> = {
   empirical:    'Claim about the world. Backed by counted external sources.',
 };
 
+// Band now reflects how contestable the reading is (path-1), not "confidence".
 export const INTERPRETIVE_BAND_LABEL: Record<InterpretiveBand, string> = {
-  high:   'high confidence',
-  medium: 'medium confidence',
-  low:    'low confidence',
+  high:   'hard to dispute',
+  medium: 'a fair reading',
+  low:    'contestable',
 };
 
 // ---------------------------------------------------------------------------
