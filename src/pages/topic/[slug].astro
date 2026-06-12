@@ -4,8 +4,11 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import TopicPage from '../../components/topic/TopicPage';
+import TopicTakes from '../../components/topic/TopicTakes';
 import type { TopicData } from '../../components/topic/types';
 import { getTopic } from '../../../functions/_lib/topic/storage';
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 
 const { slug } = Astro.params;
 const stored = slug ? await getTopic(env.SCORECARDS, slug) : null;
@@ -13,6 +16,9 @@ const stored = slug ? await getTopic(env.SCORECARDS, slug) : null;
 if (!stored || stored.status !== 'published') {
   return Astro.redirect('/topics', 302);
 }
+
+const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
+const signedIn = !!session;
 
 // Map the stored record onto the display component's shape.
 const data: TopicData = {
@@ -40,5 +46,7 @@ const data: TopicData = {
         <p class="text-sm text-gray-700 leading-relaxed">{stored.editorNote}</p>
       </section>
     )}
+
+    <TopicTakes slug={stored.slug} signedIn={signedIn} client:load />
   </main>
 </Base>
