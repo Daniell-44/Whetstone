@@ -21,6 +21,7 @@ export const ScorecardPositionSchema = z.object({
   bestCase:  ToulminChainSchema,
   fatalFlaw: z.object({ name: z.string().min(1), explanation: z.string().min(1) }),
   sources:   z.array(ScorecardSourceSchema).min(1),
+  leaning:   z.number().min(-100).max(100).optional(),
 });
 
 export const ScorecardSchema = z.object({
@@ -48,6 +49,7 @@ export const DebateArticleInputSchema = z.object({
 export const DebatePositionInputSchema = z.object({
   label:    z.string().min(1),
   articles: z.array(DebateArticleInputSchema).min(1).max(5),
+  leaning:  z.number().min(-100).max(100).optional(),
 });
 
 export const DebateInputSchema = z.object({

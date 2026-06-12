@@ -18,6 +18,9 @@ export interface ScorecardPosition {
   bestCase:  ToulminChain;
   fatalFlaw: { name: string; explanation: string };
   sources:   ScorecardSource[];
+  /** Optional left-right placement (-100..+100). Drives the Briefing spectrum.
+   *  Absent on legacy scorecards, which simply render without a spectrum. */
+  leaning?:  number;
 }
 
 export type ScorecardCategory =

@@ -4,6 +4,7 @@ export const prerender = false;
 import { env } from "cloudflare:workers";
 import Base from '../../layouts/Base.astro';
 import ScorecardView from '../../components/scorecard/Scorecard.astro';
+import PositionSpectrum from '../../components/scorecard/PositionSpectrum';
 import TopicTakes from '../../components/topic/TopicTakes';
 import { getScorecard, listScorecards } from '../../../functions/_lib/scorecard/storage';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
@@ -87,6 +88,7 @@ const shareUrl = `${baseUrl}/scorecard/${scorecard.slug}`;
       <!-- CENTER: bounded reading column -->
       <article class="lg:col-span-7 max-w-3xl">
         <div id="overview">
+          <PositionSpectrum positions={scorecard.positions} client:load />
           <ScorecardView scorecard={scorecard} />
         </div>
         <div id="discussion">

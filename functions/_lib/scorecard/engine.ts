@@ -178,6 +178,7 @@ export async function generateScorecard(
         publication: a.publication,
         url:         a.url,
       })),
+      leaning:   pos.leaning,
     })),
     metaAnalysis: {
       bridgingWarrant: stage2Result.output.bridgingWarrant,

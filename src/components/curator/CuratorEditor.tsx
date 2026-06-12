@@ -18,6 +18,7 @@ interface ComposerArticle {
 interface ComposerPosition {
   label: string;
   articles: ComposerArticle[];
+  leaning: number;
 }
 
 interface ComposerState {
@@ -35,7 +36,7 @@ const newArticle = (): ComposerArticle => ({
   url: '', title: '', publication: '', text: '', extracting: false, extractError: null,
 });
 
-const newComposerPosition = (): ComposerPosition => ({ label: '', articles: [newArticle()] });
+const newComposerPosition = (): ComposerPosition => ({ label: '', articles: [newArticle()], leaning: 0 });
 
 const defaultComposer = (): ComposerState => ({
   question: '',
@@ -245,6 +246,7 @@ export default function CuratorEditor({
 
     const positions = composer.positions.map(pos => ({
       label: pos.label.trim(),
+      leaning: pos.leaning,
       articles: pos.articles
         .filter(a => a.text.trim())
         .map(a => ({
@@ -438,6 +440,24 @@ export default function CuratorEditor({
                 >
                   ✕
                 </button>
+              </div>
+
+              <div class="flex items-center gap-2 mt-2">
+                <label class="text-[11px] text-gray-400 shrink-0">Leaning (-100 left … +100 right)</label>
+                <input
+                  type="number" min={-100} max={100}
+                  class={inputCls + ' w-24'}
+                  value={pos.leaning}
+                  onInput={e => {
+                    const leaning = parseInt((e.currentTarget as HTMLInputElement).value || '0', 10);
+                    setComposer(prev => {
+                      const positions = [...prev.positions];
+                      positions[posIdx] = { ...positions[posIdx]!, leaning };
+                      return { ...prev, positions };
+                    });
+                  }}
+                />
+                <span class="text-[11px] text-gray-400">drives the Briefing spectrum</span>
               </div>
 
               {/* Articles */}
