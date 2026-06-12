@@ -11,11 +11,11 @@ import { useVariant } from '../../lib/ab/useVariant';
 
 const COPY = {
   control: {
-    headline: ['Think more carefully', 'about arguments.'],
+    headline: 'Think more carefully about arguments.',
     sub:      'Paste any text, drop a URL, or browse published logic scorecards below.',
   },
   concrete: {
-    headline: ["See where an argument's", 'reasoning breaks down.'],
+    headline: "See where an argument's reasoning breaks down.",
     sub:      'Paste any text, drop a URL, or browse a scorecard to see the engine at work.',
   },
 } as const;
@@ -27,8 +27,8 @@ export default function HeroHeadline() {
 
   return (
     <>
-      <h1 class="font-serif text-3xl sm:text-5xl text-gray-900 leading-tight text-center mb-4 max-w-3xl mx-auto">
-        {copy.headline[0]}<br class="hidden sm:block" /> {copy.headline[1]}
+      <h1 class="font-serif text-2xl sm:text-4xl text-gray-900 leading-tight text-center text-balance mb-4 max-w-4xl mx-auto">
+        {copy.headline}
       </h1>
       <p class="text-base sm:text-lg text-gray-500 leading-relaxed text-center max-w-2xl mx-auto">
         {copy.sub}
