@@ -1,0 +1,98 @@
+---
+export const prerender = true;
+// Standalone preview of 3 masthead directions. Not linked anywhere; for design choice only.
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Masthead options — The Whetstone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #f3f4f6; font-family: 'Inter', system-ui, sans-serif; color: #111827; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+    .opt { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 32px; overflow: hidden; }
+    .optlabel { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #6366f1; padding: 12px 20px; border-bottom: 1px solid #f3f4f6; background: #fafafa; }
+    .stage { padding: 36px 32px; }
+    .navrow { display: flex; gap: 22px; font-size: 13px; color: #6b7280; }
+    .navrow a { color: #6b7280; text-decoration: none; }
+    .lead { margin-top: 28px; padding-top: 22px; border-top: 1px solid #eee; }
+    .kicker { font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #6366f1; margin: 0 0 8px; }
+    .note { font-size: 12px; color: #9ca3af; padding: 0 20px 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="font-family:'Fraunces',serif; font-size:24px; margin:0 0 6px;">Masthead directions</h1>
+    <p style="color:#6b7280; font-size:14px; margin:0 0 32px;">Same content, three personalities. Pick the feel; we apply it site-wide.</p>
+
+    <!-- A — THE BROADSHEET -->
+    <div class="opt">
+      <div class="optlabel">Option A · The Broadsheet (newspaper of record)</div>
+      <div class="stage" style="background:#fdfcf8;">
+        <div style="text-align:center;">
+          <div style="font-family:'Playfair Display',serif; font-weight:900; font-size:46px; letter-spacing:.01em; line-height:1;">The Whetstone</div>
+          <div style="height:1px; background:#111; margin:14px auto 4px; max-width:520px;"></div>
+          <div style="height:3px; border-top:1px solid #111; border-bottom:1px solid #111; max-width:520px; margin:0 auto 10px;"></div>
+          <div style="font-size:11px; letter-spacing:.35em; text-transform:uppercase; color:#374151;">Arguments, examined</div>
+          <div style="font-size:10px; letter-spacing:.1em; color:#9ca3af; margin-top:8px;">FRIDAY, 12 JUNE 2026 · NO. 1</div>
+        </div>
+        <div class="lead" style="text-align:center;">
+          <p class="kicker">Briefing</p>
+          <div style="font-family:'Playfair Display',serif; font-size:30px; font-weight:700; line-height:1.15; max-width:640px; margin:0 auto;">Will generative AI eliminate creative jobs?</div>
+        </div>
+      </div>
+      <p class="note">Centred nameplate, double rule, letterspaced strapline, edition line. Authority &amp; tradition — The Times / NYT / FT. Best if you want "newspaper of record" gravitas.</p>
+    </div>
+
+    <!-- B — THE REVIEW -->
+    <div class="opt">
+      <div class="optlabel">Option B · The Review (literary / intellectual)</div>
+      <div class="stage">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div>
+            <div style="font-family:'Fraunces',serif; font-weight:600; font-size:40px; line-height:1;">The Whetstone</div>
+            <div style="font-family:'Fraunces',serif; font-style:italic; font-size:16px; color:#6b7280; margin-top:8px;">Arguments, examined.</div>
+          </div>
+          <div class="navrow" style="align-self:flex-end;">
+            <a>Reader</a><a>Studio</a><a>About</a>
+          </div>
+        </div>
+        <div style="height:1px; background:#e5e7eb; margin:22px 0 0;"></div>
+        <div class="lead" style="border-top:none; padding-top:24px;">
+          <p class="kicker">Briefing</p>
+          <div style="font-family:'Fraunces',serif; font-size:32px; font-weight:600; line-height:1.15; max-width:640px;">Will generative AI eliminate creative jobs?</div>
+        </div>
+      </div>
+      <p class="note">Left nameplate (Fraunces), italic strapline, lots of air, hairline rules. Thoughtful &amp; essayistic — LRB / The Atlantic / Aeon. Best fit for a tool about <em>examining</em> reasoning.</p>
+    </div>
+
+    <!-- C — THE WIRE -->
+    <div class="opt">
+      <div class="optlabel">Option C · The Wire (modern digital newsroom)</div>
+      <div class="stage">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:8px; height:30px; background:#4f46e5;"></div>
+            <div>
+              <div style="font-family:'Fraunces',serif; font-weight:600; font-size:28px; line-height:1;">The Whetstone</div>
+              <div style="font-size:10px; letter-spacing:.22em; text-transform:uppercase; color:#9ca3af; margin-top:4px;">Arguments, examined</div>
+            </div>
+          </div>
+          <div class="navrow"><a>Reader</a><a>Studio</a><a>About</a></div>
+        </div>
+        <div style="height:2px; background:#111; margin:18px 0 0;"></div>
+        <div class="lead" style="border-top:none; padding-top:22px; display:flex; gap:16px; align-items:flex-start;">
+          <div style="background:#4f46e5; color:#fff; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:4px 8px; border-radius:3px; white-space:nowrap;">Briefing</div>
+          <div style="font-family:'Inter',sans-serif; font-size:26px; font-weight:700; line-height:1.2; max-width:600px; letter-spacing:-.01em;">Will generative AI eliminate creative jobs?</div>
+        </div>
+      </div>
+      <p class="note">Accent bar, compact serif wordmark + sans strapline, bold solid rule, coloured kicker chip, sans headlines. Brisk &amp; contemporary — Axios / Semafor / Politico. Best if you want "smart digital newsroom" energy.</p>
+    </div>
+
+  </div>
+</body>
+</html>
