@@ -134,7 +134,7 @@ SITE_URL              = "https://thewhetstone.net"
 # Set to "1" to log magic-link sign-in codes via console.log so they appear in
 # `wrangler tail`. Useful when Resend email delivery is broken. Set to "0" or
 # remove this line in real production.
-AUTH_DEBUG_LOG_CODES  = "1"
+AUTH_DEBUG_LOG_CODES  = "0"
 # Replace after creating the Stripe product and price (see checklist above)
 STRIPE_PRICE_ID       = "price_1ThNsH3xWchMRiIKgQiJik37"
 # ALLOWED_ORIGINS: comma-separated. Example:
