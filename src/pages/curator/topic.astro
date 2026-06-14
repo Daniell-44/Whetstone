@@ -17,12 +17,12 @@ if (!session) {
 const user = await authDb.findUserById(session.user_id);
 const isAdmin = !!user && user.email === ADMIN_EMAIL;
 ---
-<Base title="Topic curator — The Whetstone" canonicalPath="/curator/topic" isLoggedIn={true}>
+<Base title="Briefing curator — The Whetstone" canonicalPath="/curator/topic" isLoggedIn={true}>
   <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 pb-24">
     <nav class="mb-6 text-xs">
-      <a href="/topics" class="text-gray-400 hover:text-gray-600">← Topics</a>
+      <a href="/topics" class="text-gray-400 hover:text-gray-600">← Briefings</a>
     </nav>
-    <h1 class="font-serif text-2xl sm:text-3xl text-gray-900 mb-2">Topic curator</h1>
+    <h1 class="font-serif text-2xl sm:text-3xl text-gray-900 mb-2">Briefing curator</h1>
     {isAdmin ? (
       <>
         <p class="text-sm text-gray-500 mb-6 leading-relaxed">

@@ -22,17 +22,17 @@ function counts(t: StoredTopic) {
 const rows = topics.map(t => ({ topic: t, ...counts(t) }));
 ---
 <Base
-  title="Topics — The Whetstone"
+  title="Briefings — The Whetstone"
   description="Debatable questions, argued across the spectrum. Curated sources, structural audits, and the assumptions every side shares."
   canonicalPath="/topics"
 >
   <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-16 sm:pb-24">
     <header class="mb-8">
       <div class="flex items-center gap-3 mb-4">
-        <p class="text-xs font-semibold tracking-[0.3em] text-indigo-500 uppercase shrink-0">The Whetstone · Topics</p>
+        <p class="text-xs font-semibold tracking-[0.3em] text-indigo-500 uppercase shrink-0">The Whetstone · Briefings</p>
         <div class="h-px flex-1 bg-gray-200" />
       </div>
-      <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 mb-3 leading-tight">Topics, argued across the spectrum</h1>
+      <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 mb-3 leading-tight">Briefings, argued across the spectrum</h1>
       <p class="text-base text-gray-500 leading-relaxed">
         Each topic gathers a few balanced sources, audits how each one argues, and surfaces what every side
         quietly assumes. Left to right, with the structure made visible.
@@ -41,7 +41,7 @@ const rows = topics.map(t => ({ topic: t, ...counts(t) }));
 
     {rows.length === 0 ? (
       <div class="py-20 border-t border-gray-200 text-center">
-        <p class="font-serif text-2xl text-gray-300">No topics published yet.</p>
+        <p class="font-serif text-2xl text-gray-300">No briefings published yet.</p>
       </div>
     ) : (
       <ul class="divide-y divide-gray-100">
