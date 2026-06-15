@@ -72,7 +72,7 @@ function LensButton({
       type="button"
       onClick={onClick}
       disabled={isLoading || isDone}
-      class={`text-xs font-medium px-3 py-2 rounded-lg border transition-colors text-left
+      class={`text-xs font-medium px-3 py-2 rounded-lg border transition-colors text-center flex items-center justify-center min-h-[40px]
         ${isDone     ? 'bg-emerald-50 border-emerald-200 text-emerald-700 cursor-default' :
           isLoading  ? 'bg-indigo-50  border-indigo-200  text-indigo-500  cursor-wait'    :
                        'bg-white      border-gray-200    text-gray-700    hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700'}`}

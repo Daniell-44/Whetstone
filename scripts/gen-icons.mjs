@@ -15,7 +15,7 @@ const sitePub  = path.resolve(siteDir, 'public');
 const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <rect width="100" height="100" rx="22" fill="#F2EFE8"/>
   <path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z" fill="#26241F"/>
-  <rect x="14" y="65" width="72" height="10" fill="#26241F"/>
+  <rect x="7.5" y="65" width="85" height="10.5" fill="#26241F"/>
 </svg>`;
 
 async function png(size, outFile) {
