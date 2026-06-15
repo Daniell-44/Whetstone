@@ -38,6 +38,13 @@ const SEVERITY_BADGE: Record<string, string> = {
   low:    'bg-gray-100 text-gray-600',
 };
 
+// Plain-language severity: "how much this hurts the argument".
+const SEVERITY_LABEL: Record<string, string> = {
+  high:   'Critical',
+  medium: 'Worth fixing',
+  low:    'Minor',
+};
+
 // ---------------------------------------------------------------------------
 // Shared meta badges
 // ---------------------------------------------------------------------------
@@ -45,8 +52,11 @@ const SEVERITY_BADGE: Record<string, string> = {
 function SeverityBadge({ severity }: { severity: string }) {
   const cls = SEVERITY_BADGE[severity] ?? 'bg-gray-100 text-gray-600';
   return (
-    <span class={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${cls}`}>
-      {severity}
+    <span
+      class={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${cls}`}
+      title="How much this weakens the argument"
+    >
+      {SEVERITY_LABEL[severity] ?? severity}
     </span>
   );
 }
