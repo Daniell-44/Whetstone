@@ -70,10 +70,11 @@ const INFERENCE_LABELS: Record<string, string> = {
 
 type View = 'diagram' | 'inverted' | 'detailed';
 
+// Top-down is the default reading view; Visualise (diagram) is the toggle.
+// The old "Detailed" view is retired (folded into the top-down reading).
 const VIEW_OPTIONS: { id: View; label: string; hint: string }[] = [
-  { id: 'diagram',  label: 'Diagram',  hint: 'Visual flow chart of premises and conclusions' },
-  { id: 'inverted', label: 'Top-down', hint: 'Conclusion first, supporting premises nested below' },
-  { id: 'detailed', label: 'Detailed', hint: 'All premises and conclusions, numbered' },
+  { id: 'inverted', label: 'Top-down',  hint: 'Conclusion first, supporting premises nested below' },
+  { id: 'diagram',  label: 'Visualise', hint: 'Visual flow chart of premises and conclusions' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -372,7 +373,7 @@ interface Props {
 }
 
 export default function ArgumentExtraction({ result, terminologyPreference, evidenceAssessments }: Props) {
-  const [view, setView]   = useState<View>('diagram');
+  const [view, setView]   = useState<View>('inverted');
   const [expanded, setExpanded] = useState(false);
   const isEmpty = result.statements.length === 0;
 
