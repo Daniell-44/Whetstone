@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'preact/hooks';
+import { useState, useCallback, useEffect, useRef } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
@@ -270,6 +270,9 @@ export default function StudioEditor({
   const [isRunning, setIsRunning] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
   const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
+  // Transient flash on a span when the user jumps to it from a right-hand card.
+  const [flashKey, setFlashKey] = useState<string | null>(null);
+  const flashTimer = useRef<number | null>(null);
   const [draftViewMode, setDraftViewMode] = useState<'highlights' | 'heatmap'>('highlights');
   const [audience, setAudience]   = useState<Audience>('general');
   const [intent, setIntent]       = useState<Intent>('persuade');
@@ -660,6 +663,31 @@ export default function StudioEditor({
   }, []);
 
   // ---------------------------------------------------------------------------
+  // Two-way navigation between the centre draft and the right-hand finding
+  // cards. Both views key findings by the canonical match-key, so a span and
+  // its card share one id.
+  // ---------------------------------------------------------------------------
+
+  // Centre -> right: a draft highlight (or heatmap run) was clicked; select it
+  // and scroll its card into view.
+  const handleNavigateToCard = useCallback((key: string) => {
+    setActiveFindingKey(key);
+    const el = document.querySelector(`[data-finding-key="${key}"]`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, []);
+
+  // Right -> centre: a finding card was clicked; select it, scroll its quote
+  // into view in the draft, and flash it briefly.
+  const handleNavigateToSpan = useCallback((key: string) => {
+    setActiveFindingKey(key);
+    setFlashKey(key);
+    if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setFlashKey(null), 1100);
+    const el = document.querySelector(`[data-match-key="${key}"]`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, []);
+
+  // ---------------------------------------------------------------------------
   // Input section (always visible)
   // ---------------------------------------------------------------------------
 
@@ -802,21 +830,14 @@ export default function StudioEditor({
                 text={draft}
                 audit={auditState.data}
                 activeFindingKey={activeFindingKey}
-                onHighlightClick={(key) => {
-                  setActiveFindingKey(key);
-                  const el = document.querySelector(`[data-finding-key="${key}"]`);
-                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }}
+                flashKey={flashKey}
+                onHighlightClick={handleNavigateToCard}
               />
             ) : (
               <HeatmapDraft
                 text={draft}
                 audit={auditState.data}
-                onFindingClick={(key) => {
-                  setActiveFindingKey(key);
-                  const el = document.querySelector(`[data-finding-key="${key}"]`);
-                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }}
+                onFindingClick={handleNavigateToCard}
               />
             )}
           </div>
@@ -890,223 +911,262 @@ export default function StudioEditor({
     </div>
   );
 
-  // (Results are now distributed across left and right sidebars above)
+  // (Results are now distributed across left and right sidebars below)
 
   // ---------------------------------------------------------------------------
-  // Left sidebar: structure + goals + document info
+  // Result panels. The split: document-level findings + the analytical engines
+  // live on the LEFT; span-anchored specifics (things that map to a quote in
+  // the draft) live on the RIGHT. Each panel is defined once here, then
+  // composed into the desktop columns and the mobile bottom-sheet tabs below.
   // ---------------------------------------------------------------------------
 
-  const leftSidebar = showResults ? (
-    <div class="space-y-4">
-      {/* Summary stats */}
-      {auditState.status === 'done' && (
-        <div data-tour-anchor="studio-share">
-          <SummaryToolbar result={auditState.data} draftText={draft} draftTitle={title} />
-        </div>
-      )}
-
-      {/* Argument skeleton */}
-      {extractionState.status !== 'idle' && (
-        <div class="rounded-lg border border-emerald-200 bg-white p-4">
-          <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Argument Skeleton</h3>
-          {extractionState.status === 'loading' && <SectionLoading label="Mapping structure…" />}
-          {extractionState.status === 'error' && <SectionError code={extractionState.code} message={extractionState.message} />}
-          {extractionState.status === 'done' && (
-            <ArgumentExtraction
-              result={extractionState.data}
-              terminologyPreference={terminologyPreference}
-              evidenceAssessments={evidenceState.status === 'done' ? evidenceState.data.assessments : undefined}
-            />
-          )}
-        </div>
-      )}
-
-      {/* Framework Check - free tier */}
-      {commitmentsState.status !== 'idle' && (
-        <div class="rounded-lg border border-purple-200 bg-white p-4">
-          <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
-            <LabelWithTooltip label="commitments" preference={terminologyPreference} />
-          </h3>
-          {commitmentsState.status === 'loading' && <SectionLoading label="Detecting frameworks…" />}
-          {commitmentsState.status === 'error' && <SectionError code={commitmentsState.code} message={commitmentsState.message} />}
-          {commitmentsState.status === 'done' && (
-            <PhilosophicalCommitmentsDisplay result={commitmentsState.data} terminologyPreference={terminologyPreference} />
-          )}
-        </div>
-      )}
-
-      {/* Counterarguments */}
-      <div class="rounded-lg border border-violet-200 bg-white p-4">
-        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
-          <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
-        </h3>
-        {/* Counterarguments are now free - runs on every audit. */}
-        {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
-        {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
-        {counterargState.status === 'done' && (
-          <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
-        )}
-      </div>
+  // Summary score - pinned to the top of the LEFT column.
+  const summaryPanel = auditState.status === 'done' ? (
+    <div data-tour-anchor="studio-share">
+      <SummaryToolbar result={auditState.data} draftText={draft} draftTitle={title} />
     </div>
   ) : null;
 
-  // ---------------------------------------------------------------------------
-  // Right sidebar: audit findings + citation audit
-  // ---------------------------------------------------------------------------
+  // Overarching / document-level audit: central claim, structure, hidden
+  // assumptions, weakest point. (AuditResults scope="overarching".)
+  const overviewPanel = (
+    <div class="rounded-lg border border-gray-200 bg-white p-4">
+      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Overview</h3>
+      {auditState.status === 'loading' && <SectionLoading label="Running audit…" />}
+      {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
+      {auditState.status === 'done' && (
+        <AuditResults
+          result={auditState.data}
+          documentId={docId}
+          versionId={versionId}
+          initialActions={initialActions}
+          terminologyPreference={terminologyPreference}
+          scope="overarching"
+        />
+      )}
+    </div>
+  );
 
+  // Argument skeleton (numbered premises + inference rules).
+  const skeletonPanel = extractionState.status !== 'idle' ? (
+    <div class="rounded-lg border border-emerald-200 bg-white p-4">
+      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Argument Skeleton</h3>
+      {extractionState.status === 'loading' && <SectionLoading label="Mapping structure…" />}
+      {extractionState.status === 'error' && <SectionError code={extractionState.code} message={extractionState.message} />}
+      {extractionState.status === 'done' && (
+        <ArgumentExtraction
+          result={extractionState.data}
+          terminologyPreference={terminologyPreference}
+          evidenceAssessments={evidenceState.status === 'done' ? evidenceState.data.assessments : undefined}
+        />
+      )}
+    </div>
+  ) : null;
+
+  // Framework check.
+  const frameworkPanel = commitmentsState.status !== 'idle' ? (
+    <div class="rounded-lg border border-purple-200 bg-white p-4">
+      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+        <LabelWithTooltip label="commitments" preference={terminologyPreference} />
+      </h3>
+      {commitmentsState.status === 'loading' && <SectionLoading label="Detecting frameworks…" />}
+      {commitmentsState.status === 'error' && <SectionError code={commitmentsState.code} message={commitmentsState.message} />}
+      {commitmentsState.status === 'done' && (
+        <PhilosophicalCommitmentsDisplay result={commitmentsState.data} terminologyPreference={terminologyPreference} />
+      )}
+    </div>
+  ) : null;
+
+  // Counterarguments.
+  const counterargPanel = (
+    <div class="rounded-lg border border-violet-200 bg-white p-4">
+      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+        <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
+      </h3>
+      {/* Counterarguments are now free - runs on every audit. */}
+      {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
+      {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
+      {counterargState.status === 'done' && (
+        <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
+      )}
+    </div>
+  );
+
+  // Deeper lenses - on-demand, free tier. They read the whole document (not a
+  // span), so they live on the LEFT with the other document-level engines.
+  const deeperLensesPanel = auditState.status === 'done' ? (
+    <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
+        <span class="text-[10px] text-gray-400">click to run</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <LensButton
+          label="Presuppositions"
+          status={presupState.status}
+          onClick={() => void runLens('presupposition', draft, setPresupState)}
+        />
+        <LensButton
+          label="Rhetorical mode"
+          status={rhetState.status}
+          onClick={() => void runLens('rhetorical-mode', draft, setRhetState)}
+        />
+        <LensButton
+          label="Epistemic humility"
+          status={humilityState.status}
+          onClick={() => void runLens('epistemic-humility', draft, setHumilityState)}
+        />
+        <LensButton
+          label="Engagement quality"
+          status={disagreeState.status}
+          onClick={() => void runLens('disagreement-engagement', draft, setDisagreeState)}
+        />
+      </div>
+
+      {/* Cui bono - sharp-edged lens, visually separated + always-shown caveat in display */}
+      <div class="border-t border-gray-100 pt-3">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
+            Structural-incentive analysis
+          </p>
+          <p class="text-[10px] text-gray-400 italic">structural, not personal</p>
+        </div>
+        <p class="text-[11px] text-gray-500 leading-relaxed mb-2">
+          Whose positions in a political economy benefit if a reader accepts this framing.
+          Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
+        </p>
+        <LensButton
+          label="Structural incentives"
+          status={siState.status}
+          onClick={() => void runLens('structural-incentive', draft, setSiState)}
+        />
+      </div>
+
+      {presupState.status === 'loading' && <SectionLoading label="Surfacing presuppositions…" />}
+      {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
+      {presupState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Presuppositions</h4>
+          <PresuppositionDisplay result={presupState.data} />
+        </div>
+      )}
+
+      {rhetState.status === 'loading' && <SectionLoading label="Analysing rhetorical balance…" />}
+      {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
+      {rhetState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Rhetorical mode</h4>
+          <RhetoricalModeDisplay result={rhetState.data} />
+        </div>
+      )}
+
+      {humilityState.status === 'loading' && <SectionLoading label="Checking certainty calibration…" />}
+      {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
+      {humilityState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Epistemic humility</h4>
+          <EpistemicHumilityDisplay result={humilityState.data} />
+        </div>
+      )}
+
+      {disagreeState.status === 'loading' && <SectionLoading label="Evaluating engagement with opposing positions…" />}
+      {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
+      {disagreeState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Engagement quality</h4>
+          <DisagreementEngagementDisplay result={disagreeState.data} />
+        </div>
+      )}
+
+      {siState.status === 'loading' && <SectionLoading label="Mapping structural interest alignment…" />}
+      {siState.status === 'error' && <SectionError code={siState.code} message={siState.message} />}
+      {siState.status === 'done' && (
+        <div>
+          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Structural-incentive analysis</h4>
+          <StructuralIncentiveDisplay result={siState.data} />
+        </div>
+      )}
+    </div>
+  ) : null;
+
+  // Span-anchored findings (RIGHT). Clicking a card scrolls to + flashes its
+  // quote in the centre draft. (AuditResults scope="span".)
+  const spanFindingsPanel = (
+    <div data-tour-anchor="studio-findings" class="rounded-lg border border-gray-200 bg-white p-4">
+      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
+      {auditState.status === 'loading' && <SectionLoading label="Running audit…" />}
+      {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
+      {auditState.status === 'done' && (
+        <AuditResults
+          result={auditState.data}
+          documentId={docId}
+          versionId={versionId}
+          initialActions={initialActions}
+          terminologyPreference={terminologyPreference}
+          scope="span"
+          activeFindingKey={activeFindingKey}
+          onFindingNavigate={handleNavigateToSpan}
+        />
+      )}
+    </div>
+  );
+
+  // Citation audit (RIGHT).
+  const citationPanel = (
+    <div class="rounded-lg border border-sky-200 bg-white p-4">
+      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+        <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
+      </h3>
+      {!hasActiveSubscription ? <CitationUpsell /> : (
+        <>
+          {citationState.status === 'loading' && <SectionLoading label="Checking sources…" />}
+          {citationState.status === 'error' && <SectionError code={citationState.code} message={citationState.message} />}
+          {citationState.status === 'done' && (
+            <CitationAuditDisplay
+              result={citationState.data}
+              documentId={docId}
+              versionId={versionId}
+              initialActions={initialActions}
+              terminologyPreference={terminologyPreference}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+
+  // Evidence check (RIGHT, Studio Pro).
+  const evidencePanel = hasActiveSubscription && evidenceState.status !== 'idle' ? (
+    <div class="rounded-lg border border-emerald-200 bg-white p-4">
+      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+        Evidence Check
+      </h3>
+      {evidenceState.status === 'loading' && <SectionLoading label="Searching academic literature…" />}
+      {evidenceState.status === 'error' && <SectionError code={evidenceState.code} message={evidenceState.message} />}
+      {evidenceState.status === 'done' && (
+        <EvidenceWeightedDisplay result={evidenceState.data} />
+      )}
+    </div>
+  ) : null;
+
+  // LEFT column: score + overarching audit + the document-level engines.
+  const leftSidebar = showResults ? (
+    <div class="space-y-4">
+      {summaryPanel}
+      {overviewPanel}
+      {skeletonPanel}
+      {frameworkPanel}
+      {counterargPanel}
+      {deeperLensesPanel}
+    </div>
+  ) : null;
+
+  // RIGHT column: span-anchored specifics.
   const rightSidebar = showResults ? (
     <div class="space-y-4">
-      {/* Audit findings */}
-      <div data-tour-anchor="studio-findings" class="rounded-lg border border-gray-200 bg-white p-4">
-        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
-        {auditState.status === 'loading' && <SectionLoading label="Running audit…" />}
-        {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
-        {auditState.status === 'done' && (
-          <AuditResults
-            result={auditState.data}
-            documentId={docId}
-            versionId={versionId}
-            initialActions={initialActions}
-            terminologyPreference={terminologyPreference}
-          />
-        )}
-      </div>
-
-      {/* Citation Audit */}
-      <div class="rounded-lg border border-sky-200 bg-white p-4">
-        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
-          <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
-        </h3>
-        {!hasActiveSubscription ? <CitationUpsell /> : (
-          <>
-            {citationState.status === 'loading' && <SectionLoading label="Checking sources…" />}
-            {citationState.status === 'error' && <SectionError code={citationState.code} message={citationState.message} />}
-            {citationState.status === 'done' && (
-              <CitationAuditDisplay
-                result={citationState.data}
-                documentId={docId}
-                versionId={versionId}
-                initialActions={initialActions}
-                terminologyPreference={terminologyPreference}
-              />
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Evidence-Weighted Likelihood (Studio Pro) */}
-      {hasActiveSubscription && evidenceState.status !== 'idle' && (
-        <div class="rounded-lg border border-emerald-200 bg-white p-4">
-          <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
-            Evidence Check
-          </h3>
-          {evidenceState.status === 'loading' && <SectionLoading label="Searching academic literature…" />}
-          {evidenceState.status === 'error' && <SectionError code={evidenceState.code} message={evidenceState.message} />}
-          {evidenceState.status === 'done' && (
-            <EvidenceWeightedDisplay result={evidenceState.data} />
-          )}
-        </div>
-      )}
-
-      {/* ----------------------------------------------------------------- */}
-      {/* On-demand deeper lenses (free tier). Fire when the user clicks;   */}
-      {/* cached per draft via component state. All Flash-tier - cheap per  */}
-      {/* call. Free until users come online and we calibrate.              */}
-      {/* ----------------------------------------------------------------- */}
-      {auditState.status === 'done' && (
-        <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
-            <span class="text-[10px] text-gray-400">click to run</span>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <LensButton
-              label="Presuppositions"
-              status={presupState.status}
-              onClick={() => void runLens('presupposition', draft, setPresupState)}
-            />
-            <LensButton
-              label="Rhetorical mode"
-              status={rhetState.status}
-              onClick={() => void runLens('rhetorical-mode', draft, setRhetState)}
-            />
-            <LensButton
-              label="Epistemic humility"
-              status={humilityState.status}
-              onClick={() => void runLens('epistemic-humility', draft, setHumilityState)}
-            />
-            <LensButton
-              label="Engagement quality"
-              status={disagreeState.status}
-              onClick={() => void runLens('disagreement-engagement', draft, setDisagreeState)}
-            />
-          </div>
-
-          {/* Cui bono - sharp-edged lens, visually separated + always-shown caveat in display */}
-          <div class="border-t border-gray-100 pt-3">
-            <div class="flex items-center justify-between mb-2">
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
-                Structural-incentive analysis
-              </p>
-              <p class="text-[10px] text-gray-400 italic">structural, not personal</p>
-            </div>
-            <p class="text-[11px] text-gray-500 leading-relaxed mb-2">
-              Whose positions in a political economy benefit if a reader accepts this framing.
-              Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
-            </p>
-            <LensButton
-              label="Structural incentives"
-              status={siState.status}
-              onClick={() => void runLens('structural-incentive', draft, setSiState)}
-            />
-          </div>
-
-          {presupState.status === 'loading' && <SectionLoading label="Surfacing presuppositions…" />}
-          {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
-          {presupState.status === 'done' && (
-            <div>
-              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Presuppositions</h4>
-              <PresuppositionDisplay result={presupState.data} />
-            </div>
-          )}
-
-          {rhetState.status === 'loading' && <SectionLoading label="Analysing rhetorical balance…" />}
-          {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
-          {rhetState.status === 'done' && (
-            <div>
-              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Rhetorical mode</h4>
-              <RhetoricalModeDisplay result={rhetState.data} />
-            </div>
-          )}
-
-          {humilityState.status === 'loading' && <SectionLoading label="Checking certainty calibration…" />}
-          {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
-          {humilityState.status === 'done' && (
-            <div>
-              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Epistemic humility</h4>
-              <EpistemicHumilityDisplay result={humilityState.data} />
-            </div>
-          )}
-
-          {disagreeState.status === 'loading' && <SectionLoading label="Evaluating engagement with opposing positions…" />}
-          {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
-          {disagreeState.status === 'done' && (
-            <div>
-              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Engagement quality</h4>
-              <DisagreementEngagementDisplay result={disagreeState.data} />
-            </div>
-          )}
-
-          {siState.status === 'loading' && <SectionLoading label="Mapping structural interest alignment…" />}
-          {siState.status === 'error' && <SectionError code={siState.code} message={siState.message} />}
-          {siState.status === 'done' && (
-            <div>
-              <h4 class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Structural-incentive analysis</h4>
-              <StructuralIncentiveDisplay result={siState.data} />
-            </div>
-          )}
-        </div>
-      )}
+      {spanFindingsPanel}
+      {citationPanel}
+      {evidencePanel}
     </div>
   ) : null;
 
@@ -1143,10 +1203,18 @@ export default function StudioEditor({
   const findingsCount = auditState.status === 'done' ? totalFindingCount(auditState.data) : 0;
   const score = auditState.status === 'done' ? argumentScore(auditState.data) : null;
 
-  // Mobile bottom-sheet tabs
+  // Mobile bottom-sheet tabs: Specific (span findings) / Overarching
+  // (document-level + engines) / Structure (the argument skeleton).
   const mobileTabs = showResults ? [
-    { id: 'findings',  label: 'Findings',        count: findingsCount, body: rightSidebar },
-    { id: 'structure', label: 'Structure',       body: leftSidebar },
+    { id: 'specific',    label: 'Specific',    count: findingsCount, body: (
+      <div class="space-y-4">{spanFindingsPanel}{citationPanel}{evidencePanel}</div>
+    ) },
+    { id: 'overarching', label: 'Overarching', body: (
+      <div class="space-y-4">{summaryPanel}{overviewPanel}{frameworkPanel}{counterargPanel}{deeperLensesPanel}</div>
+    ) },
+    { id: 'structure',   label: 'Structure',   body: (
+      <div class="space-y-4">{skeletonPanel}</div>
+    ) },
   ] : [];
 
   const scoreBadge = score !== null ? (
