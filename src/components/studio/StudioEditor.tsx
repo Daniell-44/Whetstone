@@ -1227,17 +1227,17 @@ export default function StudioEditor({
       <div class="flex flex-col xl:flex-row gap-4 items-start" style={{ minHeight: 'calc(100vh - 6rem)' }}>
 
         {/* Left sidebar - hidden on mobile (moved to bottom sheet) */}
-        <div class="hidden xl:block w-full xl:w-[28%] xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4 xl:order-1">
+        <div class="hidden xl:block w-full xl:w-[28%] min-w-0 xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4 xl:order-1">
           {leftSidebar}
         </div>
 
         {/* Center - always visible. Full width on mobile. */}
-        <div class="w-full xl:w-[44%] xl:min-h-[calc(100vh-6rem)] xl:order-2 flex flex-col">
+        <div class="w-full xl:w-[44%] min-w-0 xl:min-h-[calc(100vh-6rem)] xl:order-2 flex flex-col">
           {inputSection}
         </div>
 
         {/* Right sidebar - hidden on mobile (moved to bottom sheet) */}
-        <div class="hidden xl:block w-full xl:w-[28%] xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4">
+        <div class="hidden xl:block w-full xl:w-[28%] min-w-0 xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4 xl:order-3">
           {rightSidebar}
         </div>
 
