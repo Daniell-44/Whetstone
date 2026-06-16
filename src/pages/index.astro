@@ -60,12 +60,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12 sm:pb-24">
 
     <!-- Hero -->
-    <header class="mb-10 sm:mb-12">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="h-px flex-1 bg-gray-200" />
-        <p class="text-xs font-semibold tracking-[0.3em] text-indigo-500 uppercase shrink-0">The Whetstone · Reader</p>
-        <div class="h-px flex-1 bg-gray-200" />
-      </div>
+    <header class="mb-10 sm:mb-12 pt-2">
       <HeroHeadline client:load />
     </header>
 
@@ -140,7 +135,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
             {scorecards.length > 0 && (
               <a
                 href={`/scorecard/${scorecards[0].slug}`}
-                class="group block border-t border-b border-gray-200 py-6 sm:py-10 mb-8"
+                class="group block border-b border-gray-200 py-6 sm:py-10 mb-8"
               >
                 <div class="max-w-4xl">
                   <div class="flex items-center gap-3 mb-4">

@@ -82,13 +82,16 @@ const currentPath = canonicalPath;
   <body class="min-h-screen text-gray-900 font-sans antialiased pb-16 sm:pb-0">
 
     <!-- Site navigation — desktop -->
-    <header class="hidden sm:block border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-      <div class="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
+    <header class="hidden sm:block border-b border-gray-200 bg-white/85 backdrop-blur-sm sticky top-0 z-10">
+      <div class="max-w-[1400px] mx-auto px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
 
-        <!-- Brand mark -->
-        <a href="/" class="flex items-center gap-2 font-serif text-base text-gray-900 hover:text-gray-700 transition-colors shrink-0">
-          <svg viewBox="4 22 92 57" fill="currentColor" class="h-5 w-auto shrink-0" aria-hidden="true"><path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z"/><rect x="7.5" y="65" width="85" height="10.5"/></svg>
-          <span>The Whetstone.</span>
+        <!-- Brand — "The Wire" nameplate: indigo mark + compact serif wordmark + sans strapline -->
+        <a href="/" class="group flex items-center gap-2.5 shrink-0">
+          <svg viewBox="4 22 92 57" fill="currentColor" class="h-6 w-auto shrink-0 text-indigo-600" aria-hidden="true"><path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z"/><rect x="7.5" y="65" width="85" height="10.5"/></svg>
+          <span class="flex flex-col leading-none">
+            <span class="font-serif text-lg text-gray-900 group-hover:text-gray-700 transition-colors">The Whetstone</span>
+            <span class="mt-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">Arguments, examined</span>
+          </span>
         </a>
 
         <!-- Nav links -->
@@ -132,11 +135,11 @@ const currentPath = canonicalPath;
     </header>
 
     <!-- Site navigation — mobile (slim top brand bar) -->
-    <header class="sm:hidden border-b border-gray-100 bg-white/95 backdrop-blur-sm sticky top-0 z-30">
+    <header class="sm:hidden border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-0 z-30">
       <div class="px-4 h-12 flex items-center justify-between">
         <a href="/" class="flex items-center gap-2 font-serif text-base text-gray-900">
-          <svg viewBox="4 22 92 57" fill="currentColor" class="h-5 w-auto shrink-0" aria-hidden="true"><path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z"/><rect x="7.5" y="65" width="85" height="10.5"/></svg>
-          <span>The Whetstone.</span>
+          <svg viewBox="4 22 92 57" fill="currentColor" class="h-[1.15rem] w-auto shrink-0 text-indigo-600" aria-hidden="true"><path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z"/><rect x="7.5" y="65" width="85" height="10.5"/></svg>
+          <span>The Whetstone</span>
         </a>
         {isLoggedIn ? (
           <a href="/account" class="text-xs text-gray-500">Account</a>
