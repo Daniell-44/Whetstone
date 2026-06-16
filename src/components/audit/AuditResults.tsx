@@ -20,6 +20,15 @@ interface Props {
   versionId?:             string | null;
   initialActions?:        Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
   terminologyPreference?: TerminologyPreference;
+  // Studio layout-resplit: render only the document-level sections
+  // ('overarching') or only the span-anchored findings ('span'). Defaults to
+  // 'all' so every other usage (Reader, audit pages, compare) is unchanged.
+  scope?:                 'all' | 'overarching' | 'span';
+  // Two-way navigation between span findings and the centre draft. When a card
+  // is clicked, scroll to + flash its quote in the draft. Active key rings the
+  // currently-selected card. Both are no-ops when omitted.
+  activeFindingKey?:      string | null;
+  onFindingNavigate?:     (matchKey: string) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -44,6 +53,20 @@ const SEVERITY_LABEL: Record<string, string> = {
   medium: 'Worth fixing',
   low:    'Minor',
 };
+
+// Ring applied to the finding whose span is currently selected in the draft.
+const ACTIVE_RING = 'ring-2 ring-indigo-400 ring-offset-1';
+
+// Build the onClick that scrolls a card's quote into view in the centre draft.
+// Guarded so clicks on the card's own buttons/links/inputs aren't hijacked.
+// Returns undefined when navigation isn't wired (e.g. public audit pages).
+function makeNavClick(matchKey: string, onFindingNavigate?: (matchKey: string) => void) {
+  if (!onFindingNavigate) return undefined;
+  return (e: MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button, a, textarea, input')) return;
+    onFindingNavigate(matchKey);
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Shared meta badges
@@ -414,15 +437,22 @@ interface FallacyCardProps {
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
+  activeFindingKey?:  string | null;
+  onFindingNavigate?: (matchKey: string) => void;
 }
 
-function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: FallacyCardProps) {
+function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: FallacyCardProps) {
   const cardCls   = SEVERITY_CARD[fallacy.severity] ?? 'bg-gray-50 border-gray-200';
   const matchKey  = fallacyMatchKey(fallacy);
   const addressed = actionRecord?.action === 'addressed';
+  const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
 
   return (
-    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+    <div
+      class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''} ${onFindingNavigate ? 'cursor-pointer' : ''} ${isActive ? ACTIVE_RING : ''}`}
+      data-finding-key={matchKey}
+      onClick={makeNavClick(matchKey, onFindingNavigate)}
+    >
       <div class="flex items-start justify-between gap-2 mb-3">
         <p class="text-sm font-semibold text-gray-900">{fallacy.name}</p>
         <div class="flex items-center gap-1.5 shrink-0">
@@ -473,14 +503,21 @@ interface LoadedLanguageRowProps {
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
+  activeFindingKey?:  string | null;
+  onFindingNavigate?: (matchKey: string) => void;
 }
 
-function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: LoadedLanguageRowProps) {
+function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: LoadedLanguageRowProps) {
   const matchKey  = loadedLanguageMatchKey(item);
   const addressed = actionRecord?.action === 'addressed';
+  const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
 
   return (
-    <div class={`px-4 py-3 ${addressed ? 'opacity-60' : ''}`}>
+    <div
+      class={`px-4 py-3 ${addressed ? 'opacity-60' : ''} ${onFindingNavigate ? 'cursor-pointer' : ''} ${isActive ? 'bg-indigo-50' : ''}`}
+      data-finding-key={matchKey}
+      onClick={makeNavClick(matchKey, onFindingNavigate)}
+    >
       <div class="flex items-start gap-2 mb-1 flex-wrap">
         <span class="text-sm font-medium text-gray-900">"{item.phrase}"</span>
         <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 shrink-0 mt-0.5">
@@ -583,15 +620,22 @@ interface KeyTermCardProps {
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
+  activeFindingKey?:  string | null;
+  onFindingNavigate?: (matchKey: string) => void;
 }
 
-function KeyTermCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: KeyTermCardProps) {
+function KeyTermCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: KeyTermCardProps) {
   const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
   const matchKey  = keyTermMatchKey(finding);
   const addressed = actionRecord?.action === 'addressed';
+  const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
 
   return (
-    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+    <div
+      class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''} ${onFindingNavigate ? 'cursor-pointer' : ''} ${isActive ? ACTIVE_RING : ''}`}
+      data-finding-key={matchKey}
+      onClick={makeNavClick(matchKey, onFindingNavigate)}
+    >
       <div class="flex items-start justify-between gap-2 mb-3">
         <p class="text-sm font-semibold text-gray-900">
           <span class="font-mono text-gray-700">"{finding.term}"</span>
@@ -645,15 +689,22 @@ interface ReferentCardProps {
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
+  activeFindingKey?:  string | null;
+  onFindingNavigate?: (matchKey: string) => void;
 }
 
-function ReferentCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: ReferentCardProps) {
+function ReferentCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: ReferentCardProps) {
   const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
   const matchKey  = referentMatchKey(finding);
   const addressed = actionRecord?.action === 'addressed';
+  const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
 
   return (
-    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+    <div
+      class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''} ${onFindingNavigate ? 'cursor-pointer' : ''} ${isActive ? ACTIVE_RING : ''}`}
+      data-finding-key={matchKey}
+      onClick={makeNavClick(matchKey, onFindingNavigate)}
+    >
       <div class="flex items-start justify-between gap-2 mb-3">
         <p class="text-sm font-semibold text-gray-900">
           <span class="font-mono text-gray-700">"{finding.phrase}"</span>
@@ -702,15 +753,22 @@ interface FalsifiabilityCardProps {
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
+  activeFindingKey?:  string | null;
+  onFindingNavigate?: (matchKey: string) => void;
 }
 
-function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: FalsifiabilityCardProps) {
+function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: FalsifiabilityCardProps) {
   const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
   const matchKey  = falsifiabilityMatchKey(finding);
   const addressed = actionRecord?.action === 'addressed';
+  const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
 
   return (
-    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+    <div
+      class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''} ${onFindingNavigate ? 'cursor-pointer' : ''} ${isActive ? ACTIVE_RING : ''}`}
+      data-finding-key={matchKey}
+      onClick={makeNavClick(matchKey, onFindingNavigate)}
+    >
       <div class="flex items-start justify-between gap-2 mb-3">
         <p class="text-sm font-semibold text-gray-900">
           {finding.claim}
@@ -759,15 +817,22 @@ interface ModalScopeCardProps {
   busy:         boolean;
   setAction:    (lens: string, matchKey: string, action: string) => void;
   removeAction: (lens: string, matchKey: string) => void;
+  activeFindingKey?:  string | null;
+  onFindingNavigate?: (matchKey: string) => void;
 }
 
-function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction }: ModalScopeCardProps) {
+function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: ModalScopeCardProps) {
   const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
   const matchKey  = modalScopeMatchKey(finding);
   const addressed = actionRecord?.action === 'addressed';
+  const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
 
   return (
-    <div class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''}`}>
+    <div
+      class={`rounded-xl border p-4 ${cardCls} ${addressed ? 'opacity-60' : ''} ${onFindingNavigate ? 'cursor-pointer' : ''} ${isActive ? ACTIVE_RING : ''}`}
+      data-finding-key={matchKey}
+      onClick={makeNavClick(matchKey, onFindingNavigate)}
+    >
       <div class="flex items-start justify-between gap-2 mb-3">
         <p class="text-sm font-semibold text-gray-900">
           {finding.claim}
@@ -834,8 +899,12 @@ function DismissedToggle({ count, expanded, onToggle }: { count: number; expande
 // Main export
 // ---------------------------------------------------------------------------
 
-export default function AuditResults({ result, documentId, versionId, initialActions, terminologyPreference }: Props) {
+export default function AuditResults({ result, documentId, versionId, initialActions, terminologyPreference, scope = 'all', activeFindingKey, onFindingNavigate }: Props) {
   const { actions, setAction, removeAction, busyKeys } = useActionState(documentId, initialActions);
+
+  // Which half of the split is this instance rendering?
+  const showOverarching = scope !== 'span';   // central claim, Toulmin, warrants, notes
+  const showSpanFindings = scope !== 'overarching'; // quote-anchored finding cards
 
   const [showDismissedFallacies,    setShowDismissedFallacies]    = useState(false);
   const [showDismissedLoadedLang,   setShowDismissedLoadedLang]   = useState(false);
@@ -932,14 +1001,17 @@ export default function AuditResults({ result, documentId, versionId, initialAct
     <div class="space-y-8 border-t border-gray-100 pt-8">
 
       {/* Central claim */}
+      {showOverarching && (
       <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-5">
         <p class="text-xs font-semibold text-indigo-500 uppercase tracking-widest mb-2">
           <LabelWithTooltip label="centralClaim" preference={terminologyPreference} />
         </p>
         <p class="text-gray-900 text-base leading-relaxed">{result.centralClaim}</p>
       </div>
+      )}
 
       {/* Toulmin breakdown */}
+      {showOverarching && (
       <section>
         <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5">
           <LabelWithTooltip label="toulmin" preference={terminologyPreference} />
@@ -1009,9 +1081,10 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           </div>
         </dl>
       </section>
+      )}
 
       {/* Findings or empty state */}
-      {!hasFindings ? (
+      {showSpanFindings && (!hasFindings ? (
         <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-5">
           <p class="text-sm text-emerald-700">
             No reasoning patterns or loaded language detected - the argument's structural integrity
@@ -1037,6 +1110,8 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                     busy={isBusy(fallacyMatchKey(f))}
                     setAction={setAction}
                     removeAction={removeAction}
+                    activeFindingKey={activeFindingKey}
+                    onFindingNavigate={onFindingNavigate}
                   />
                 ))}
                 {dismissedFallacies.length > 0 && (
@@ -1087,6 +1162,8 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                       busy={isBusy(loadedLanguageMatchKey(item))}
                       setAction={setAction}
                       removeAction={removeAction}
+                      activeFindingKey={activeFindingKey}
+                      onFindingNavigate={onFindingNavigate}
                     />
                   ))}
                 </div>
@@ -1138,6 +1215,8 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                     busy={isBusy(keyTermMatchKey(f))}
                     setAction={setAction}
                     removeAction={removeAction}
+                    activeFindingKey={activeFindingKey}
+                    onFindingNavigate={onFindingNavigate}
                   />
                 ))}
                 {dismissedKeyTerms.length > 0 && (
@@ -1188,6 +1267,8 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                     busy={isBusy(referentMatchKey(f))}
                     setAction={setAction}
                     removeAction={removeAction}
+                    activeFindingKey={activeFindingKey}
+                    onFindingNavigate={onFindingNavigate}
                   />
                 ))}
                 {dismissedReferents.length > 0 && (
@@ -1238,6 +1319,8 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                     busy={isBusy(falsifiabilityMatchKey(f))}
                     setAction={setAction}
                     removeAction={removeAction}
+                    activeFindingKey={activeFindingKey}
+                    onFindingNavigate={onFindingNavigate}
                   />
                 ))}
                 {dismissedFalsifiabil.length > 0 && (
@@ -1287,6 +1370,8 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                     busy={isBusy(modalScopeMatchKey(f))}
                     setAction={setAction}
                     removeAction={removeAction}
+                    activeFindingKey={activeFindingKey}
+                    onFindingNavigate={onFindingNavigate}
                   />
                 ))}
                 {dismissedModal.length > 0 && (
@@ -1319,9 +1404,9 @@ export default function AuditResults({ result, documentId, versionId, initialAct
             </section>
           )}
         </>
-      )}
+      ))}
 
-      {result.notes && (
+      {showOverarching && result.notes && (
         <section>
           <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
             Notes
