@@ -43,7 +43,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function AuditForm() {
+export default function AuditForm({ isPro = false }: { isPro?: boolean }) {
   const [tab, setTab]             = useState<Tab>('text');
   const [textInput, setTextInput] = useState('');
   const [urlInput, setUrlInput]   = useState('');
@@ -259,7 +259,7 @@ export default function AuditForm() {
       {/* Deeper lenses (free, on-demand) - works for both text and URL audits
          (URL audits use server-returned extracted text). */}
       {result && !loading && sourceText && (
-        <DeeperLensPanel text={sourceText} surface="reader" />
+        <DeeperLensPanel text={sourceText} surface="reader" isPro={isPro} />
       )}
 
       {/* Studio conversion panel - names the Pro features the Reader doesn't

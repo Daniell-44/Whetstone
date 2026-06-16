@@ -6,8 +6,19 @@ import Base from '../layouts/Base.astro';
 import AuditForm from '../components/audit/AuditForm';
 import HeroHeadline from '../components/reader/HeroHeadline';
 import { listScorecards } from '../../functions/_lib/scorecard/storage';
+import { makeAuthDb } from '../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
+import { makeBillingDb } from '../../functions/_lib/billing/subscription';
+import { makeWorkspaceDb } from '../../functions/_lib/workspaces/db';
+import { userHasActiveSubscriptionViaWorkspace } from '../../functions/_lib/workspaces/permissions';
 
 const scorecards = await listScorecards(env.SCORECARDS);
+
+// Deeper lenses on the Reader are Pro-gated; detect subscription for the teaser.
+const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
+const isPro = session
+  ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
+  : false;
 
 // Category tag colours
 const CATEGORY_STYLES: Record<string, { bg: string; text: string; chip: string }> = {
@@ -60,7 +71,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
     <!-- Audit form -->
     <section class="mb-12 sm:mb-16 max-w-4xl mx-auto">
-      <AuditForm client:load />
+      <AuditForm isPro={isPro} client:load />
     </section>
 
     <!-- Scorecards section with left rail -->

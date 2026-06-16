@@ -54,6 +54,16 @@ interface Props {
   surface: string;
   /** Terminology preference for lens labels (defaults to plain). */
   preference?: TerminologyPreference;
+  /** Whether the viewer has Pro. The deeper lenses are Pro-only; non-Pro sees a teaser. */
+  isPro?: boolean;
+}
+
+type LensStatus = 'idle' | 'loading' | 'done' | 'error';
+function combineStatus(...ss: LensStatus[]): LensStatus {
+  if (ss.some(s => s === 'loading')) return 'loading';
+  if (ss.every(s => s === 'done'))   return 'done';
+  if (ss.some(s => s === 'error'))   return 'error';
+  return 'idle';
 }
 
 function LensButton({
@@ -109,7 +119,7 @@ function SectionError({ code, message }: { code: string; message: string }) {
   );
 }
 
-export default function DeeperLensPanel({ text, surface, preference }: Props) {
+export default function DeeperLensPanel({ text, surface, preference, isPro = false }: Props) {
   const lensLabels = getDeeperLensLabels(preference);
   const [presupState,  setPresupState]   = useState<SectionState<PresuppositionResult>>({ status: 'idle' });
   const [rhetState,    setRhetState]     = useState<SectionState<RhetoricalModeResult>>({ status: 'idle' });
@@ -151,29 +161,42 @@ export default function DeeperLensPanel({ text, surface, preference }: Props) {
   return (
     <div class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
-        <span class="text-[10px] text-gray-400">click to run · free</span>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <LensButton label={lensLabels.presupposition}         status={presupState.status}   onClick={() => void runLens('presupposition',         setPresupState)} />
-        <LensButton label={lensLabels.rhetoricalMode}         status={rhetState.status}     onClick={() => void runLens('rhetorical-mode',        setRhetState)} />
-        <LensButton label={lensLabels.epistemicHumility}      status={humilityState.status} onClick={() => void runLens('epistemic-humility',     setHumilityState)} />
-        <LensButton label={lensLabels.disagreementEngagement} status={disagreeState.status} onClick={() => void runLens('disagreement-engagement', setDisagreeState)} />
+        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Deeper read</h3>
+        <span class="text-[10px] text-amber-600 font-medium">Pro</span>
       </div>
 
-      <div class="border-t border-gray-100 pt-3">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
-            {lensLabels.structuralIncentive}
-          </p>
-          <p class="text-[10px] text-gray-400 italic">structural, not personal</p>
+      {!isPro ? (
+        /* Pro teaser - the deeper lenses are a Creator (Pro) feature. */
+        <div class="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
+          <p class="text-xs text-amber-800 mb-2">Go past the core audit with three Pro reads:</p>
+          <ul class="text-xs text-gray-700 leading-relaxed space-y-1 mb-3">
+            <li>· <strong>How it's framed</strong> — what it assumes + how it persuades</li>
+            <li>· <strong>How honestly it argues</strong> — overclaiming + fairness to critics</li>
+            <li>· <strong>Whose interests it serves</strong> — who benefits from the framing</li>
+          </ul>
+          <a href="/creator" class="inline-block text-xs font-semibold rounded-md bg-amber-500 text-white px-3 py-1.5 hover:bg-amber-600 transition-colors">
+            Unlock with Creator Pro →
+          </a>
         </div>
-        <p class="text-[11px] text-gray-500 leading-relaxed mb-2">
-          Whose positions in a political economy benefit if a reader accepts this framing.
-          Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
-        </p>
-        <LensButton label={lensLabels.structuralIncentive} status={siState.status} onClick={() => void runLens('structural-incentive', setSiState)} />
-      </div>
+      ) : (
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <LensButton
+            label="How it's framed"
+            status={combineStatus(presupState.status, rhetState.status)}
+            onClick={() => { void runLens('presupposition', setPresupState); void runLens('rhetorical-mode', setRhetState); }}
+          />
+          <LensButton
+            label="How honestly it argues"
+            status={combineStatus(humilityState.status, disagreeState.status)}
+            onClick={() => { void runLens('epistemic-humility', setHumilityState); void runLens('disagreement-engagement', setDisagreeState); }}
+          />
+          <LensButton
+            label="Whose interests it serves"
+            status={siState.status}
+            onClick={() => void runLens('structural-incentive', setSiState)}
+          />
+        </div>
+      )}
 
       {presupState.status === 'loading' && <SectionLoading label="Surfacing presuppositions…" />}
       {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
