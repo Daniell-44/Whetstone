@@ -273,6 +273,9 @@ export default function StudioEditor({
   const [draftViewMode, setDraftViewMode] = useState<'highlights' | 'heatmap'>('highlights');
   const [audience, setAudience]   = useState<Audience>('general');
   const [intent, setIntent]       = useState<Intent>('persuade');
+  // Goals the last analysis actually ran with - used to flag when the current
+  // audience/intent differ so the user can re-analyse (we don't auto-rerun).
+  const [lastRunGoals, setLastRunGoals] = useState<{ audience: Audience; intent: Intent } | null>(null);
 
   // Sample-loading state - tracks whether the current draft was loaded from a
   // pre-cached sample and whether the user has meaningfully edited it.
@@ -467,6 +470,7 @@ export default function StudioEditor({
     // models only fire for paying users.
     setExtractionState({ status: 'loading' });
     setAuditState({ status: 'loading' });
+    setLastRunGoals({ audience, intent });  // record goals this run used
     if (hasActiveSubscription) {
       setCounterargState({ status: 'loading' });
       setCommitmentsState({ status: 'loading' });
@@ -730,6 +734,22 @@ export default function StudioEditor({
         onIntentChange={setIntent}
         disabled={isRunning}
       />
+
+      {/* Audience/intent changed since the last run - offer a re-analyse
+         (we deliberately don't auto-rerun; these change the model's judgement). */}
+      {showResults && !isRunning && lastRunGoals &&
+        (audience !== lastRunGoals.audience || intent !== lastRunGoals.intent) && (
+        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 flex items-center justify-between gap-3">
+          <p class="text-xs text-amber-800">Audience or intent changed. The analysis below still reflects the previous settings.</p>
+          <button
+            type="button"
+            onClick={handleAnalyse}
+            class="shrink-0 text-xs font-semibold rounded-md bg-amber-500 text-white px-3 py-1.5 hover:bg-amber-600 transition-colors"
+          >
+            Re-analyse
+          </button>
+        </div>
+      )}
 
       {/* Draft display - either textarea (editing) or highlighted view (reviewing) */}
       {!isEditing && showResults && auditState.status === 'done' ? (
