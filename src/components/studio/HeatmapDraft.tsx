@@ -1,5 +1,13 @@
 import { useState, useMemo, useCallback } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
+import {
+  fallacyMatchKey,
+  loadedLanguageMatchKey,
+  keyTermMatchKey,
+  referentMatchKey,
+  falsifiabilityMatchKey,
+  modalScopeMatchKey,
+} from '../../lib/audit';
 import { kindWeight, type GroundednessSignal } from '../../../functions/_lib/grounded/types';
 
 // ---------------------------------------------------------------------------
@@ -70,29 +78,29 @@ function extractContributions(text: string, audit: AuditResult): Contribution[] 
 
   for (const f of audit.namedFallacies) {
     push(f.quote, 'fallacy', f.name, f.explanation, f.severity, f.groundedness,
-      `namedFallacies:${f.name}:${f.quote.slice(0, 40)}`);
+      fallacyMatchKey(f));
   }
   for (const l of audit.loadedLanguage) {
     push(l.phrase, 'loaded', l.technique, l.explanation, l.severity, l.groundedness,
-      `loadedLanguage:${l.technique}:${l.phrase.slice(0, 40)}`);
+      loadedLanguageMatchKey(l));
   }
   for (const k of audit.keyTermScrutiny) {
     push(k.usage_a, 'keyterm', `Term shift: "${k.term}"`, k.explanation, k.severity, k.groundedness,
-      `keyTermScrutiny:${k.term}:${k.usage_a.slice(0, 40)}`);
+      keyTermMatchKey(k));
     push(k.usage_b, 'keyterm', `Term shift: "${k.term}"`, k.explanation, k.severity, k.groundedness,
-      `keyTermScrutiny:${k.term}:${k.usage_a.slice(0, 40)}`);
+      keyTermMatchKey(k));
   }
   for (const r of audit.referentChecks) {
     push(r.evidence, 'referent', `Vague reference: "${r.phrase}"`, r.explanation, r.severity, r.groundedness,
-      `referentChecks:${r.phrase}:${r.evidence.slice(0, 40)}`);
+      referentMatchKey(r));
   }
   for (const f of audit.falsifiabilityChecks) {
     push(f.evidence, 'falsifiability', `Unfalsifiable: "${f.claim.slice(0, 40)}…"`, f.explanation, f.severity, f.groundedness,
-      `falsifiabilityChecks:${f.claim.slice(0, 30)}:${f.evidence.slice(0, 40)}`);
+      falsifiabilityMatchKey(f));
   }
   for (const m of audit.modalScopeChecks) {
     push(m.evidence, 'modal', `Modal inflation: "${m.inflatedModal}"`, m.explanation, m.severity, m.groundedness,
-      `modalScopeChecks:${m.claim.slice(0, 30)}:${m.evidence.slice(0, 40)}`);
+      modalScopeMatchKey(m));
   }
 
   return out;

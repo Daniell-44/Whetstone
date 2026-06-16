@@ -1,5 +1,13 @@
 import { useState, useRef, useCallback, useMemo } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
+import {
+  fallacyMatchKey,
+  loadedLanguageMatchKey,
+  keyTermMatchKey,
+  referentMatchKey,
+  falsifiabilityMatchKey,
+  modalScopeMatchKey,
+} from '../../lib/audit';
 import type { GroundednessSignal } from '../../../functions/_lib/grounded/types';
 
 // ---------------------------------------------------------------------------
@@ -22,6 +30,7 @@ interface Props {
   text:             string;
   audit:            AuditResult;
   activeFindingKey: string | null;
+  flashKey?:        string | null;
   onHighlightClick: (matchKey: string) => void;
 }
 
@@ -61,7 +70,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       explanation: f.explanation,
       severity:    f.severity,
       groundedness: f.groundedness,
-      matchKey:    `namedFallacies:${f.name}:${f.quote.slice(0, 40)}`,
+      matchKey:    fallacyMatchKey(f),
     });
   }
 
@@ -78,7 +87,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       explanation: l.explanation,
       severity:    l.severity,
       groundedness: l.groundedness,
-      matchKey:    `loadedLanguage:${l.technique}:${l.phrase.slice(0, 40)}`,
+      matchKey:    loadedLanguageMatchKey(l),
     });
   }
 
@@ -96,7 +105,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
         explanation: k.explanation,
         severity:    k.severity,
         groundedness: k.groundedness,
-        matchKey:    `keyTermScrutiny:${k.term}:${k.usage_a.slice(0, 40)}`,
+        matchKey:    keyTermMatchKey(k),
       });
     }
   }
@@ -114,7 +123,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       explanation: r.explanation,
       severity:    r.severity,
       groundedness: r.groundedness,
-      matchKey:    `referentChecks:${r.phrase}:${r.evidence.slice(0, 40)}`,
+      matchKey:    referentMatchKey(r),
     });
   }
 
@@ -131,7 +140,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       explanation: f.explanation,
       severity:    f.severity,
       groundedness: f.groundedness,
-      matchKey:    `falsifiabilityChecks:${f.claim.slice(0, 30)}:${f.evidence.slice(0, 40)}`,
+      matchKey:    falsifiabilityMatchKey(f),
     });
   }
 
@@ -148,7 +157,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
       explanation: m.explanation,
       severity:    m.severity,
       groundedness: m.groundedness,
-      matchKey:    `modalScopeChecks:${m.claim.slice(0, 30)}:${m.evidence.slice(0, 40)}`,
+      matchKey:    modalScopeMatchKey(m),
     });
   }
 
@@ -222,7 +231,7 @@ function HoverCard({ highlight, x, y }: { highlight: Highlight; x: number; y: nu
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function HighlightedDraft({ text, audit, activeFindingKey, onHighlightClick }: Props) {
+export default function HighlightedDraft({ text, audit, activeFindingKey, flashKey, onHighlightClick }: Props) {
   const [hoveredHighlight, setHoveredHighlight] = useState<Highlight | null>(null);
   const [hoverPos, setHoverPos]                 = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -254,6 +263,7 @@ export default function HighlightedDraft({ text, audit, activeFindingKey, onHigh
     }
 
     const isActive = activeFindingKey === h.matchKey;
+    const isFlash  = flashKey === h.matchKey;
     const cls = isActive
       ? SEVERITY_ACTIVE[h.severity] ?? ''
       : SEVERITY_BG[h.severity] ?? '';
@@ -261,7 +271,7 @@ export default function HighlightedDraft({ text, audit, activeFindingKey, onHigh
     segments.push(
       <mark
         key={`h-${h.start}`}
-        class={`cursor-pointer rounded-sm px-0.5 transition-all duration-150 ${cls}`}
+        class={`cursor-pointer rounded-sm px-0.5 transition-all duration-150 ${cls} ${isFlash ? 'ring-2 ring-amber-400 ring-offset-1' : ''}`}
         data-match-key={h.matchKey}
         onClick={() => onHighlightClick(h.matchKey)}
         onMouseEnter={(e: MouseEvent) => handleMouseEnter(h, e)}
