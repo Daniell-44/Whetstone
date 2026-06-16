@@ -174,6 +174,15 @@ export const POST: APIRoute = async ({ request }) => {
 
   const req = parsed.data;
 
+  // Defence-in-depth: this relay is unauthenticated (rate-limited only) and the
+  // client controls maxTokens/thinkingBudget. Clamp both to bound per-call cost
+  // against abuse. Caps are generous so legitimate extension traffic is
+  // unaffected; the egregious case (maxTokens in the millions) is what's cut.
+  const MAX_OUTPUT_TOKENS   = 16384;
+  const MAX_THINKING_BUDGET = 32768;
+  if (req.maxTokens != null)      req.maxTokens      = Math.min(req.maxTokens, MAX_OUTPUT_TOKENS);
+  if (req.thinkingBudget != null) req.thinkingBudget = Math.min(req.thinkingBudget, MAX_THINKING_BUDGET);
+
   // ---------------------------------------------------------------------------
   // Provider selection
   // X-Cost-Test override is only honoured when the header value matches

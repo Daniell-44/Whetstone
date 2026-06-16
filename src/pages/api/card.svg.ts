@@ -58,9 +58,13 @@ function wrapText(text: string, maxCharsPerLine: number, maxLines: number): stri
 // GET - render the card
 // ---------------------------------------------------------------------------
 export const GET: APIRoute = async ({ url }) => {
-  const label    = url.searchParams.get('label')    ?? 'Logic Finding';
+  const label    = (url.searchParams.get('label')    ?? 'Logic Finding').slice(0, 80);
   const quote    = url.searchParams.get('quote')    ?? '';
-  const severity = (url.searchParams.get('severity') ?? 'medium').toLowerCase();
+  // Allowlist severity: it is interpolated into the SVG without esc(), so an
+  // arbitrary value would be a reflected-XSS / SVG-injection vector (this file
+  // is served as image/svg+xml, which executes script when opened directly).
+  const severityRaw = (url.searchParams.get('severity') ?? 'medium').toLowerCase();
+  const severity    = severityRaw === 'high' || severityRaw === 'low' ? severityRaw : 'medium';
   const source   = url.searchParams.get('source')   ?? '';
 
   const colour = SEVERITY_COLOURS[severity] ?? SEVERITY_COLOURS.medium!;
