@@ -275,7 +275,7 @@ export default function StudioEditor({
   const flashTimer = useRef<number | null>(null);
   const [draftViewMode, setDraftViewMode] = useState<'highlights' | 'heatmap'>('highlights');
   const [audience, setAudience]   = useState<Audience>('general');
-  const [intent, setIntent]       = useState<Intent>('persuade');
+  const [intent, setIntent]       = useState<Intent>('analyse');
   // Goals the last analysis actually ran with - used to flag when the current
   // audience/intent differ so the user can re-analyse (we don't auto-rerun).
   const [lastRunGoals, setLastRunGoals] = useState<{ audience: Audience; intent: Intent } | null>(null);
@@ -927,27 +927,10 @@ export default function StudioEditor({
     </div>
   ) : null;
 
-  // Overarching / document-level audit: central claim, structure, hidden
-  // assumptions, weakest point. (AuditResults scope="overarching".)
-  const overviewPanel = (
-    <div class="rounded-lg border border-gray-200 bg-white p-4">
-      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Overview</h3>
-      {auditState.status === 'loading' && <SectionLoading label="Running audit…" />}
-      {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
-      {auditState.status === 'done' && (
-        <AuditResults
-          result={auditState.data}
-          documentId={docId}
-          versionId={versionId}
-          initialActions={initialActions}
-          terminologyPreference={terminologyPreference}
-          scope="overarching"
-        />
-      )}
-    </div>
-  );
-
-  // Argument skeleton (numbered premises + inference rules).
+  // Argument skeleton (numbered premises + inference rules). The "weakest link"
+  // from the Toulmin audit is folded in here as a flagged callout — the rest of
+  // the old Overview panel duplicated the skeleton (central claim + the ★
+  // implicit premises that are the hidden assumptions), so it was retired.
   const skeletonPanel = extractionState.status !== 'idle' ? (
     <div class="rounded-lg border border-emerald-200 bg-white p-4">
       <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Argument Skeleton</h3>
@@ -959,6 +942,14 @@ export default function StudioEditor({
           terminologyPreference={terminologyPreference}
           evidenceAssessments={evidenceState.status === 'done' ? evidenceState.data.assessments : undefined}
         />
+      )}
+      {auditState.status === 'done' && auditState.data.toulmin.weakestLink && (
+        <div class="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-3">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-1">
+            <LabelWithTooltip label="weakestLink" preference={terminologyPreference} />
+          </p>
+          <p class="text-sm text-amber-900 leading-relaxed">{auditState.data.toulmin.weakestLink}</p>
+        </div>
       )}
     </div>
   ) : null;
@@ -1153,7 +1144,6 @@ export default function StudioEditor({
   const leftSidebar = showResults ? (
     <div class="space-y-4">
       {summaryPanel}
-      {overviewPanel}
       {skeletonPanel}
       {frameworkPanel}
       {counterargPanel}
@@ -1210,7 +1200,7 @@ export default function StudioEditor({
       <div class="space-y-4">{spanFindingsPanel}{citationPanel}{evidencePanel}</div>
     ) },
     { id: 'overarching', label: 'Overarching', body: (
-      <div class="space-y-4">{summaryPanel}{overviewPanel}{frameworkPanel}{counterargPanel}{deeperLensesPanel}</div>
+      <div class="space-y-4">{summaryPanel}{frameworkPanel}{counterargPanel}{deeperLensesPanel}</div>
     ) },
     { id: 'structure',   label: 'Structure',   body: (
       <div class="space-y-4">{skeletonPanel}</div>

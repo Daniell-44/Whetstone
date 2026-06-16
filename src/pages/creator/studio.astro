@@ -78,13 +78,25 @@ if (docIdParam) {
         <span class="text-gray-200">|</span>
         <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase">Studio</p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         {!hasActiveSubscription && (
-          <a href="/pricing" class="text-xs text-amber-600 hover:text-amber-700 font-medium">Subscribe →</a>
+          <a href="/pricing" class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            Subscribe
+          </a>
         )}
-        <a href="/creator/studio/transcript" class="text-xs text-gray-400 hover:text-amber-600 transition-colors">Transcript →</a>
-        <a href="/creator/studio/cross-document" class="text-xs text-gray-400 hover:text-violet-600 transition-colors">Cross-document →</a>
-        <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">My documents →</a>
+        <a href="/creator/studio/transcript" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:border-gray-300 hover:text-gray-800 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h7.5m-7.5 3h7.5m-7.5 3h4.5m-9 5.25h13.5A1.5 1.5 0 0021 18.75V5.25A1.5 1.5 0 0019.5 3.75H4.5A1.5 1.5 0 003 5.25v13.5a1.5 1.5 0 001.5 1.5z"/></svg>
+          Transcript
+        </a>
+        <a href="/creator/studio/cross-document" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:border-gray-300 hover:text-gray-800 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z"/></svg>
+          Cross-document
+        </a>
+        <a href="/creator/documents" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:border-gray-300 hover:text-gray-800 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"/></svg>
+          My documents
+        </a>
       </div>
     </nav>
 
