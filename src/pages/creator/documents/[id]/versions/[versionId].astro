@@ -35,8 +35,13 @@ if (!version || version.document_id !== docId) {
   return Astro.redirect(`/creator/documents/${docId}/versions`);
 }
 
-const auditResult:      AuditResult | null = version.audit_result      ? JSON.parse(version.audit_result)      : null;
-const counterargResult: CounterargumentResult | null = version.counterarg_result ? JSON.parse(version.counterarg_result) : null;
+function safeJsonParse<T>(s: string | null | undefined): T | null {
+  if (!s) return null;
+  try { return JSON.parse(s) as T; } catch { return null; }
+}
+
+const auditResult:      AuditResult | null = safeJsonParse<AuditResult>(version.audit_result);
+const counterargResult: CounterargumentResult | null = safeJsonParse<CounterargumentResult>(version.counterarg_result);
 const terminology                         = await authDb.getTerminologyPreference(session.user_id);
 
 function formatDate(epochMs: number): string {

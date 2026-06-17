@@ -34,6 +34,11 @@ export async function getSessionFromRequest(
   if (!session) return null;
   if (new Date(session.expires_at) < new Date()) return null;
 
-  await db.extendSession(session.id, sessionExpiresAt());
+  // Sliding expiry, throttled: only write when the session hasn't been extended
+  // in the last day, so we don't issue a D1 write on every authenticated read.
+  const EXTEND_THRESHOLD_MS = 29 * 24 * 60 * 60 * 1000;
+  if (new Date(session.expires_at).getTime() - Date.now() < EXTEND_THRESHOLD_MS) {
+    await db.extendSession(session.id, sessionExpiresAt());
+  }
   return session;
 }

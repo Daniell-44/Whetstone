@@ -110,13 +110,15 @@ interface FeedbackBtnsProps {
 }
 
 function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnapshot }: FeedbackBtnsProps) {
-  // Hidden when no document context (anonymous public audit pages)
-  if (!documentId) return null;
-
   const [vote,        setVote]        = useState<VoteState>(null);
   const [expanded,    setExpanded]    = useState(false);
   const [reason,      setReason]      = useState('');
   const [submitting,  setSubmitting]  = useState(false);
+
+  // Hidden when no document context (anonymous public audit pages). Must come
+  // AFTER the hooks above — an early return before them violates the Rules of
+  // Hooks and can corrupt state if documentId ever changes for a mounted card.
+  if (!documentId) return null;
 
   async function postVote(feedbackType: 'finding_thumbs_up' | 'finding_thumbs_down', qualitative?: string) {
     setSubmitting(true);

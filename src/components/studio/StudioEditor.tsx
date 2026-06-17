@@ -323,11 +323,11 @@ export default function StudioEditor({
       + auditState.data.toulmin.unstatedWarrants.length
     : 0;
 
-  if (typeof document !== 'undefined') {
+  useEffect(() => {
     document.title = findingCount > 0
       ? `(${findingCount}) Creator Studio - The Whetstone`
       : 'Creator Studio - The Whetstone';
-  }
+  }, [findingCount]);
 
   // Ctrl/Cmd+Enter to analyse
   useEffect(() => {
@@ -1222,7 +1222,7 @@ export default function StudioEditor({
       <div class="flex flex-col xl:flex-row gap-4 items-start" style={{ minHeight: 'calc(100vh - 6rem)' }}>
 
         {/* Left sidebar - hidden on mobile (moved to bottom sheet) */}
-        <div class="hidden xl:block w-full xl:w-[28%] min-w-0 xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4 xl:order-1">
+        <div class="hidden xl:block w-full xl:w-[28%] min-w-0 xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto xl:overflow-x-hidden space-y-4 xl:order-1">
           {leftSidebar}
         </div>
 
@@ -1232,7 +1232,7 @@ export default function StudioEditor({
         </div>
 
         {/* Right sidebar - hidden on mobile (moved to bottom sheet) */}
-        <div class="hidden xl:block w-full xl:w-[28%] min-w-0 xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto space-y-4 xl:order-3">
+        <div class="hidden xl:block w-full xl:w-[28%] min-w-0 xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto xl:overflow-x-hidden space-y-4 xl:order-3">
           {rightSidebar}
         </div>
 

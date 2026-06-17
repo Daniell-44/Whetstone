@@ -16,6 +16,12 @@ import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import type { DocumentVersion } from '../../../functions/_lib/documents/types';
 
+// Defensive: a corrupt stored JSON column shouldn't 500 the whole page.
+function safeJsonParse<T>(s: string | null | undefined): T | null {
+  if (!s) return null;
+  try { return JSON.parse(s) as T; } catch { return null; }
+}
+
 const authDb      = makeAuthDb(env.DB);
 const billingDb   = makeBillingDb(env.DB);
 const workspaceDb = makeWorkspaceDb(env.DB);
@@ -48,8 +54,8 @@ if (docIdParam) {
     initialTitle    = doc.title;
     initialContent  = latest?.content ?? '';
     initialVersionId = latest?.id ?? null;
-    initialAuditResult      = latest?.audit_result      ? JSON.parse(latest.audit_result)      : null;
-    initialCounterargResult = latest?.counterarg_result ? JSON.parse(latest.counterarg_result) : null;
+    initialAuditResult      = safeJsonParse<AuditResult>(latest?.audit_result);
+    initialCounterargResult = safeJsonParse<CounterargumentResult>(latest?.counterarg_result);
 
     const rows = await actionDb.listActionsForDocument(doc.id, session.user_id);
     for (const r of rows) {
