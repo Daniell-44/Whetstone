@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
+import { createPortal } from 'preact/compat';
 import type { ArgumentExtractionResult, ExtractionStatement } from '../../lib/extraction';
 import type { TerminologyPreference } from '../../lib/labels';
 import type { EvidenceAssessment } from '../../../functions/_lib/evidence-weighted/types';
@@ -433,9 +434,11 @@ export default function ArgumentExtraction({ result, terminologyPreference, evid
         <DetailedView result={result} terminologyPreference={terminologyPreference} evidenceAssessments={evidenceAssessments} />
       )}
 
-      {/* Full-screen modal */}
-      {expanded && (
-        <ExpandModal result={result} onClose={() => setExpanded(false)} />
+      {/* Full-screen modal — portalled to <body> so it escapes the sticky
+          sidebar's stacking context (otherwise the other panels paint over it). */}
+      {expanded && typeof document !== 'undefined' && createPortal(
+        <ExpandModal result={result} onClose={() => setExpanded(false)} />,
+        document.body,
       )}
     </div>
   );

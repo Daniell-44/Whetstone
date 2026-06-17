@@ -974,11 +974,16 @@ export default function StudioEditor({
       <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
         <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
       </h3>
-      {/* Counterarguments are now free - runs on every audit. */}
-      {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
-      {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
-      {counterargState.status === 'done' && (
-        <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
+      {/* Pro-gated (Pro-model cost). Free users see the upsell instead of an
+         empty box; subscribers get the live result. */}
+      {!hasActiveSubscription ? <CounterargUpsell /> : (
+        <>
+          {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
+          {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
+          {counterargState.status === 'done' && (
+            <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
+          )}
+        </>
       )}
     </div>
   );
