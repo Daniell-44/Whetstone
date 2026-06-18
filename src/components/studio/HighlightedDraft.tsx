@@ -57,9 +57,27 @@ const SEVERITY_ACTIVE: Record<string, string> = {
 function extractHighlights(text: string, audit: AuditResult): Highlight[] {
   const highlights: Highlight[] = [];
 
+  // Each finding claims the first occurrence of its quote that no other finding
+  // has claimed, so a phrase repeated in the draft maps successive findings to
+  // successive copies instead of stacking them all on the first occurrence.
+  const used: Array<{ start: number; end: number }> = [];
+  function claim(quote: string): number {
+    let from = 0;
+    for (;;) {
+      const idx = text.indexOf(quote, from);
+      if (idx === -1) return -1;
+      const end = idx + quote.length;
+      if (!used.some(r => idx < r.end && end > r.start)) {
+        used.push({ start: idx, end });
+        return idx;
+      }
+      from = idx + 1;
+    }
+  }
+
   // Named fallacies - have `quote` field
   for (const f of audit.namedFallacies) {
-    const idx = text.indexOf(f.quote);
+    const idx = claim(f.quote);
     if (idx === -1) continue;
     highlights.push({
       start:       idx,
@@ -76,7 +94,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
 
   // Loaded language - have `phrase` field
   for (const l of audit.loadedLanguage) {
-    const idx = text.indexOf(l.phrase);
+    const idx = claim(l.phrase);
     if (idx === -1) continue;
     highlights.push({
       start:       idx,
@@ -94,7 +112,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
   // Key-term scrutiny - have usage_a and usage_b
   for (const k of audit.keyTermScrutiny) {
     for (const usage of [k.usage_a, k.usage_b]) {
-      const idx = text.indexOf(usage);
+      const idx = claim(usage);
       if (idx === -1) continue;
       highlights.push({
         start:       idx,
@@ -112,7 +130,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
 
   // Referent checks - have `evidence` field
   for (const r of audit.referentChecks) {
-    const idx = text.indexOf(r.evidence);
+    const idx = claim(r.evidence);
     if (idx === -1) continue;
     highlights.push({
       start:       idx,
@@ -129,7 +147,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
 
   // Falsifiability checks - have `evidence` field
   for (const f of audit.falsifiabilityChecks) {
-    const idx = text.indexOf(f.evidence);
+    const idx = claim(f.evidence);
     if (idx === -1) continue;
     highlights.push({
       start:       idx,
@@ -146,7 +164,7 @@ function extractHighlights(text: string, audit: AuditResult): Highlight[] {
 
   // Modal scope checks - have `evidence` field
   for (const m of audit.modalScopeChecks) {
-    const idx = text.indexOf(m.evidence);
+    const idx = claim(m.evidence);
     if (idx === -1) continue;
     highlights.push({
       start:       idx,

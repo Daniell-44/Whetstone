@@ -68,6 +68,26 @@ function makeNavClick(matchKey: string, onFindingNavigate?: (matchKey: string) =
   };
 }
 
+// Finding explanations can run long. Clamp to two lines with a More/Less toggle
+// so the list stays scannable while the full reasoning is one tap away. Short
+// explanations render plainly (no toggle).
+function ClampText({ text, class: cls = 'text-xs text-gray-600 leading-relaxed' }: { text: string; class?: string }) {
+  const [expanded, setExpanded] = useState(false);
+  if (text.length <= 140) return <p class={cls}>{text}</p>;
+  return (
+    <div>
+      <p class={`${cls} ${expanded ? '' : 'line-clamp-2'}`}>{text}</p>
+      <button
+        type="button"
+        onClick={() => setExpanded(v => !v)}
+        class="mt-0.5 text-[11px] font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+      >
+        {expanded ? 'Less' : 'More'}
+      </button>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Shared meta badges
 // ---------------------------------------------------------------------------
@@ -466,7 +486,7 @@ function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy,
       <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
         "{fallacy.quote}"
       </blockquote>
-      <p class="text-xs text-gray-600 leading-relaxed">{fallacy.explanation}</p>
+      <ClampText text={fallacy.explanation} />
       <div class="flex items-start gap-3 flex-wrap">
         <FindingActionBtns
           lens={lens}
@@ -531,7 +551,7 @@ function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, bu
           <SeverityBadge severity={item.severity} />
         </div>
       </div>
-      <p class="text-xs text-gray-500 leading-relaxed">{item.explanation}</p>
+      <ClampText text={item.explanation} class="text-xs text-gray-500 leading-relaxed" />
       <div class="flex items-start gap-3 flex-wrap">
         <FindingActionBtns
           lens={lens}
@@ -659,7 +679,7 @@ function KeyTermCard({ finding, lens, documentId, versionId, actionRecord, busy,
           B: "{finding.usage_b}"
         </blockquote>
       </div>
-      <p class="text-xs text-gray-600 leading-relaxed">{finding.explanation}</p>
+      <ClampText text={finding.explanation} />
       <div class="flex items-start gap-3 flex-wrap">
         <FindingActionBtns
           lens={lens}
@@ -723,7 +743,7 @@ function ReferentCard({ finding, lens, documentId, versionId, actionRecord, busy
       <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
         "{finding.evidence}"
       </blockquote>
-      <p class="text-xs text-gray-600 leading-relaxed">{finding.explanation}</p>
+      <ClampText text={finding.explanation} />
       <div class="flex items-start gap-3 flex-wrap">
         <FindingActionBtns
           lens={lens}
@@ -787,7 +807,7 @@ function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord
       <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
         "{finding.evidence}"
       </blockquote>
-      <p class="text-xs text-gray-600 leading-relaxed">{finding.explanation}</p>
+      <ClampText text={finding.explanation} />
       <div class="flex items-start gap-3 flex-wrap">
         <FindingActionBtns
           lens={lens}
@@ -858,7 +878,7 @@ function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, bu
       <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
         "{finding.evidence}"
       </blockquote>
-      <p class="text-xs text-gray-600 leading-relaxed">{finding.explanation}</p>
+      <ClampText text={finding.explanation} />
       <div class="flex items-start gap-3 flex-wrap">
         <FindingActionBtns
           lens={lens}

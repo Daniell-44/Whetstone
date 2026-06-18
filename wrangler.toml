@@ -102,7 +102,10 @@ preview_id = "bcf2c52f114f4a7da0c8b087922bf0af"
 binding             = "DB"
 database_name       = "whetstone-users"
 database_id         = "1485b1e6-f72c-4561-9865-84418976136b"
-preview_database_id = "f49148ac-f43f-4e24-861f-347d00c07a59"
+# Consolidated 2026-06-17: preview points at the SAME db as production so the live
+# worker can no longer accidentally bind the old preview db (f49148ac…). One
+# canonical DB pre-launch; reintroduce a separate staging db later if needed.
+preview_database_id = "1485b1e6-f72c-4561-9865-84418976136b"
 
 # ---------------------------------------------------------------------------
 # Stripe setup checklist (do these before deploying CS-2):
@@ -124,7 +127,7 @@ preview_database_id = "f49148ac-f43f-4e24-861f-347d00c07a59"
 
 [vars]
 LLM_PROVIDER          = "gemini"
-FREE_TIER_DAILY_CAP   = "20"
+FREE_TIER_DAILY_CAP   = "10"
 AUDIT_DAILY_CAP       = "10"
 AUDIT_USER_DAILY_CAP  = "50"
 COUNTERARG_DAILY_CAP  = "20"
