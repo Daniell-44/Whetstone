@@ -1,30 +1,60 @@
 ---
 import Base from '../layouts/Base.astro';
+
+// Single icon helper kept inline (no component import needed for a static page).
+const ICONS = {
+  structure: 'M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z',
+  patterns:  'm21 21-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z',
+  counter:   'M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155',
+  citation:  'M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244',
+  framework: 'M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z',
+  evidence:  'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z',
+};
+
+const FEATURES = [
+  { icon: ICONS.structure, title: 'Argument structure', body: 'Toulmin decomposition — claim, grounds, warrant, and the weakest link. The skeleton of the argument, stripped of rhetoric.' },
+  { icon: ICONS.patterns,  title: '26 reasoning patterns', body: 'Post Hoc to Motte-and-Bailey, Selection Bias to Genetic Fallacy — each with the verbatim quote that exemplifies it and a severity.' },
+  { icon: ICONS.counter,   title: 'Counterarguments', body: "The 2–3 strongest objections a thoughtful opponent would deploy — each steelmanned, each with its own Toulmin structure." },
+  { icon: ICONS.citation,  title: 'Citation audit', body: 'Every cited URL is fetched and checked — does the source actually support the claim it is cited for?' },
+  { icon: ICONS.framework, title: 'Frameworks made visible', body: 'The ethical, epistemic, and political framework the argument operates within — surfaced so you can defend or replace it.' },
+  { icon: ICONS.evidence,  title: 'Evidence-weighted likelihood', body: 'For empirical claims, we search 200M+ academic papers and synthesise where the scientific consensus actually sits.' },
+];
+
+const STEPS = [
+  { n: '1', title: 'Paste an argument', body: 'An op-ed, a thread, a draft, a transcript, or a URL. No account needed to start.', icon: 'M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z' },
+  { n: '2', title: 'Eleven lenses run', body: 'Structure, fallacies, loaded language, hidden assumptions, key terms, testability and more — in parallel.', icon: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z' },
+  { n: '3', title: 'See the structure', body: 'A structured report — verbatim quotes, severities, and where each finding sits in the argument.', icon: 'M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178zM15 12a3 3 0 11-6 0 3 3 0 016 0z' },
+];
+
+const WONT = [
+  { h: "It won't adjudicate claims.", p: 'The tool analyses argument structure, not the factual accuracy of specific assertions — though the citation and evidence lenses help.' },
+  { h: "It's not a political moderator.", p: 'The same engine runs on a climate-policy argument and its counter. The frame is neutral; the conclusions you draw remain yours.' },
+  { h: "It's not a writing improver.", p: 'It audits but does not rewrite. Preserving your voice is deliberate — fixing flagged issues stays with you.' },
+  { h: 'It is not always right.', p: 'Findings flag structure, not verdicts. Treat them as prompts to look more carefully; calibration improves with feedback.' },
+];
 ---
 <Base
   title="About - The Whetstone"
-  description="What The Whetstone does: structural logic auditing for written arguments. 26 fallacy patterns, Toulmin decomposition, counterargument generation, citation audit, and evidence-weighted likelihood."
+  description="The Whetstone shows the structure behind any argument — claims, evidence, where the logic breaks down, and the strongest opposing case. Eleven analytical lenses, grounded in real philosophy."
   canonicalPath="/about"
 >
   <main>
 
-    <!-- Hero with side rail -->
-    <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-24 pb-16 sm:pb-20">
+    <!-- Hero -->
+    <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-20 pb-12 sm:pb-16">
       <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-
-        <!-- Main hero column -->
-        <div class="lg:col-span-8">
+        <div class="lg:col-span-7">
           <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl text-gray-900 leading-[1.1] mb-6">
             See the structure<br class="hidden sm:block" /> behind every argument.
           </h1>
-          <p class="text-lg sm:text-xl text-gray-500 leading-relaxed max-w-2xl mb-8 sm:mb-10">
-            The Whetstone analyses the reasoning in any text - what's claimed, what evidence is offered,
-            where the logic breaks down, and the strongest opposing case the writer didn't engage with.
-            Not a verdict on who's right. A structural view of how the argument works.
+          <p class="text-lg sm:text-xl text-gray-500 leading-relaxed max-w-2xl mb-8">
+            The Whetstone reads any text as an argument — what's claimed, what evidence is offered, where the logic
+            breaks down, and the strongest opposing case the writer didn't engage. Not a verdict on who's right.
+            A structural view of how the argument works.
           </p>
           <div class="flex flex-wrap gap-3 sm:gap-4">
             <a href="/reader" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors">
-              Try the audit - free
+              Try the audit — free
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </a>
             <a href="/creator/studio" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 text-sm font-semibold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -33,119 +63,137 @@ import Base from '../layouts/Base.astro';
           </div>
         </div>
 
-        <!-- Side rail with trust strip -->
-        <aside class="lg:col-span-4 space-y-4">
-          <div class="rounded-2xl border border-gray-200 bg-gray-50 p-5">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">By the numbers</p>
-            <dl class="space-y-3">
-              <div class="flex items-baseline justify-between gap-4">
-                <dt class="text-xs text-gray-500">Reasoning patterns</dt>
-                <dd class="font-serif text-xl text-gray-900">26</dd>
+        <!-- Product mockup: show, don't tell -->
+        <div class="lg:col-span-5">
+          <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <div class="flex items-center gap-1.5 px-4 py-2.5 border-b border-gray-100 bg-gray-50">
+              <span class="w-2.5 h-2.5 rounded-full bg-gray-200"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-gray-200"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-gray-200"></span>
+              <span class="ml-2 text-[10px] font-medium text-gray-400">The Whetstone — audit</span>
+            </div>
+            <div class="p-4 space-y-3">
+              <p class="text-xs text-gray-700 leading-relaxed font-serif">
+                The experts who got us here are
+                <mark class="bg-amber-200/60 border-b-2 border-amber-400 rounded-sm px-0.5">now telling us not to trust our own eyes</mark>.
+                <mark class="bg-red-200/60 border-b-2 border-red-400 rounded-sm px-0.5">At what point do reasonable people simply stop listening?</mark>
+              </p>
+              <div class="rounded-xl border border-red-200 bg-red-50 p-3">
+                <div class="flex items-center justify-between gap-2 mb-1.5">
+                  <p class="text-xs font-semibold text-gray-900">Ad Hominem</p>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-medium px-1.5 py-0.5 rounded border bg-sky-100 text-sky-800 border-sky-200">Logic</span>
+                    <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700">Critical</span>
+                  </div>
+                </div>
+                <p class="text-[11px] text-gray-600 leading-relaxed">
+                  Attacks the messenger's standing rather than engaging the claim — "the experts are compromised,
+                  therefore wrong" doesn't follow.
+                </p>
               </div>
-              <div class="flex items-baseline justify-between gap-4">
-                <dt class="text-xs text-gray-500">Analytical lenses</dt>
-                <dd class="font-serif text-xl text-gray-900">11</dd>
-              </div>
-              <div class="flex items-baseline justify-between gap-4">
-                <dt class="text-xs text-gray-500">Papers searchable</dt>
-                <dd class="font-serif text-xl text-gray-900">200M+</dd>
-              </div>
-            </dl>
+            </div>
           </div>
-          <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-            <p class="text-xs font-semibold text-emerald-800 mb-1">Privacy-first</p>
-            <p class="text-xs text-emerald-700 leading-relaxed">
-              No analytics, no tracking, no advertising. Audit text is processed and discarded - never stored.
-            </p>
-          </div>
-        </aside>
-
-      </div>
-    </section>
-
-    <!-- Feature grid - 3 columns on lg+ -->
-    <section class="border-t border-gray-200 bg-white">
-      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-8">What the engine analyses</h2>
-
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden">
-          <div class="p-6 border-b lg:border-b-0 sm:border-r border-gray-200">
-            <p class="text-2xl mb-3">🔬</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Argument structure</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              Toulmin decomposition - claim, grounds, warrant, weakest link. The skeleton of the argument, stripped of rhetoric.
-            </p>
-          </div>
-          <div class="p-6 border-b lg:border-b-0 lg:border-r border-gray-200">
-            <p class="text-2xl mb-3">⚠️</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">26 reasoning patterns</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              From Post Hoc to Motte-and-Bailey, Selection Bias to Genetic Fallacy. Verbatim quotes, severity, confidence.
-            </p>
-          </div>
-          <div class="p-6 border-b border-gray-200">
-            <p class="text-2xl mb-3">⚔️</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Counterarguments</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              The 2-3 strongest objections a thoughtful opponent would deploy - each with its own Toulmin structure.
-            </p>
-          </div>
-          <div class="p-6 sm:border-r border-b lg:border-b-0 border-gray-200">
-            <p class="text-2xl mb-3">📎</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Citation audit</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              Every cited URL fetched and checked - does the source actually support the claim it's cited for?
-            </p>
-          </div>
-          <div class="p-6 lg:border-r border-b lg:border-b-0 border-gray-200">
-            <p class="text-2xl mb-3">🧭</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Philosophical commitments</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              The ethical, epistemic, and political framework the argument operates within - made visible.
-            </p>
-          </div>
-          <div class="p-6">
-            <p class="text-2xl mb-3">📊</p>
-            <h3 class="text-sm font-semibold text-gray-900 mb-2">Evidence-weighted likelihood</h3>
-            <p class="text-sm text-gray-500 leading-relaxed">
-              For empirical claims, we search 200M+ academic papers and assess scientific consensus.
-            </p>
+          <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div class="rounded-lg border border-gray-200 bg-gray-50 py-2"><p class="font-serif text-lg text-gray-900">26</p><p class="text-[10px] text-gray-500">patterns</p></div>
+            <div class="rounded-lg border border-gray-200 bg-gray-50 py-2"><p class="font-serif text-lg text-gray-900">11</p><p class="text-[10px] text-gray-500">lenses</p></div>
+            <div class="rounded-lg border border-gray-200 bg-gray-50 py-2"><p class="font-serif text-lg text-gray-900">200M+</p><p class="text-[10px] text-gray-500">papers</p></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Two-product split -->
+    <!-- How it works -->
+    <section class="border-t border-gray-200 bg-white">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-8">How it works</h2>
+        <div class="grid sm:grid-cols-3 gap-6 lg:gap-8">
+          {STEPS.map(s => (
+            <div class="relative">
+              <div class="flex items-center gap-3 mb-3">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d={s.icon} /></svg>
+                </span>
+                <span class="font-serif text-2xl text-gray-200">{s.n}</span>
+              </div>
+              <h3 class="text-base font-semibold text-gray-900 mb-1.5">{s.title}</h3>
+              <p class="text-sm text-gray-500 leading-relaxed">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- What the engine analyses -->
     <section class="border-t border-gray-200">
-      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div class="grid md:grid-cols-2 gap-6 lg:gap-8">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">What the engine analyses</h2>
+        <p class="text-sm text-gray-500 mb-8 max-w-2xl">Eleven lenses, each from a real philosophical tradition — Toulmin, Wittgenstein, Russell, Davidson. Six of the headline outputs:</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden bg-white">
+          {FEATURES.map((f, i) => (
+            <div class={`p-6 border-gray-200 ${i % 3 !== 2 ? 'lg:border-r' : ''} ${i % 2 === 0 ? 'sm:border-r lg:border-r' : ''} ${i < FEATURES.length - 1 ? 'border-b' : ''} ${i >= FEATURES.length - (FEATURES.length % 3 || 3) ? 'lg:border-b-0' : ''}`}>
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 text-gray-700 mb-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d={f.icon} /></svg>
+              </span>
+              <h3 class="text-sm font-semibold text-gray-900 mb-2">{f.title}</h3>
+              <p class="text-sm text-gray-500 leading-relaxed">{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
 
-          <a href="/reader" class="group block rounded-xl border border-gray-200 p-6 sm:p-8 hover:border-indigo-300 hover:shadow-sm transition-all">
-            <p class="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-3">Reader</p>
-            <h3 class="font-serif text-xl sm:text-2xl text-gray-900 group-hover:text-indigo-700 transition-colors mb-3">
-              Audit any argument
-            </h3>
-            <p class="text-sm text-gray-500 leading-relaxed mb-4">
-              Paste text or a URL. The engine maps the structure, flags reasoning issues, and shows you the argument's bones. Free - no account required.
-            </p>
-            <p class="text-sm font-semibold text-indigo-600 group-hover:text-indigo-800">
-              Open the Reader →
-            </p>
+    <!-- What it won't do -->
+    <section class="border-t border-gray-200 bg-white">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-8">What it won't do</h2>
+        <div class="grid sm:grid-cols-2 gap-6 lg:gap-8 max-w-4xl">
+          {WONT.map(w => (
+            <div class="pl-4 border-l-2 border-amber-300">
+              <p class="text-sm font-semibold text-gray-900 mb-1">{w.h}</p>
+              <p class="text-sm text-gray-500 leading-relaxed">{w.p}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Three ways to use -->
+    <section class="border-t border-gray-200">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-8">Three ways to use it</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+          <a href="/reader" class="group block rounded-xl border border-gray-200 p-6 hover:border-indigo-300 hover:shadow-sm transition-all">
+            <p class="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-2">Reader · free</p>
+            <h3 class="font-serif text-xl text-gray-900 group-hover:text-indigo-700 transition-colors mb-2">Audit any argument</h3>
+            <p class="text-sm text-gray-500 leading-relaxed mb-3">Paste text or a URL. The full lens suite minus the Studio-tier engines. No account required.</p>
+            <p class="text-sm font-semibold text-indigo-600 group-hover:text-indigo-800">Open the Reader →</p>
           </a>
-
-          <a href="/creator" class="group block rounded-xl border border-gray-200 p-6 sm:p-8 hover:border-amber-300 hover:shadow-sm transition-all">
-            <p class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-3">Creator</p>
-            <h3 class="font-serif text-xl sm:text-2xl text-gray-900 group-hover:text-amber-700 transition-colors mb-3">
-              Stress-test your writing
-            </h3>
-            <p class="text-sm text-gray-500 leading-relaxed mb-4">
-              Full audit suite, counterarguments, citation checking, revision tracking, and inline highlights. For students, journalists, and professional writers.
-            </p>
-            <p class="text-sm font-semibold text-amber-600 group-hover:text-amber-800">
-              Open Creator Studio →
-            </p>
+          <a href="/creator" class="group block rounded-xl border border-gray-200 p-6 hover:border-amber-300 hover:shadow-sm transition-all">
+            <p class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">Creator Studio · $22/mo</p>
+            <h3 class="font-serif text-xl text-gray-900 group-hover:text-amber-700 transition-colors mb-2">Stress-test your writing</h3>
+            <p class="text-sm text-gray-500 leading-relaxed mb-3">Full suite, counterarguments, citation audit, evidence-weighted likelihood, revision tracking, inline highlights.</p>
+            <p class="text-sm font-semibold text-amber-600 group-hover:text-amber-800">Open Creator Studio →</p>
           </a>
+          <div class="rounded-xl border border-gray-200 p-6">
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Chrome extension</p>
+            <h3 class="font-serif text-xl text-gray-900 mb-2">Audit as you read</h3>
+            <p class="text-sm text-gray-500 leading-relaxed mb-3">Analyse any argument inline while reading on the web — highlights overlay the page itself. Coming to the Web Store.</p>
+            <p class="text-sm font-semibold text-gray-400">Coming soon</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- Open and inspectable -->
+    <section class="border-t border-gray-200 bg-white">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <div class="max-w-3xl">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Open and inspectable</h2>
+          <p class="text-base text-gray-600 leading-relaxed mb-4">
+            Every prompt, schema, and analytical framework is in the public repository. A tool that shapes how people
+            read arguments should itself be transparent — if a finding seems off, you can read the prompt that produced it.
+          </p>
+          <a href="https://github.com/Daniell-44/Whetstone" target="_blank" rel="noopener" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">View on GitHub →</a>
         </div>
       </div>
     </section>
