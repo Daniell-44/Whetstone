@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   AlternativePerspectiveSchema,
-  PhilosophicalCommitmentsResultSchema,
+  // Raw* carries `confidence` (model output); canonical carries `groundedness`.
+  RawPhilosophicalCommitmentsResultSchema as PhilosophicalCommitmentsResultSchema,
+  PhilosophicalCommitmentsResultSchema as GroundedPhilosophicalCommitmentsResultSchema,
   ETHICAL_FRAMEWORKS,
   EPISTEMIC_COMMITMENTS,
   POLITICAL_FRAMEWORKS,
@@ -172,6 +174,43 @@ describe('PhilosophicalCommitmentsResultSchema', () => {
     const result = PhilosophicalCommitmentsResultSchema.safeParse({
       ...validResult,
       ethical: { ...validDetection('consequentialist'), confidence: -1 },
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// PhilosophicalCommitmentsResultSchema (canonical) — groundedness
+// The deployed API output replaces each detection's `confidence` with a
+// `GroundednessSignal`. Commitments findings are interpretive judgements.
+// ---------------------------------------------------------------------------
+
+describe('PhilosophicalCommitmentsResultSchema (canonical) — groundedness', () => {
+  const groundedDetection = (framework: string) => ({
+    framework,
+    evidence:     'The draft appeals to welfare outcomes.',
+    explanation:  'Consequentialist framing treats aggregate welfare as the criterion.',
+    groundedness: { kind: 'interpretive', band: 'medium' } as const,
+  });
+
+  const groundedResult = {
+    ethical:        groundedDetection('consequentialist'),
+    epistemic:      null,
+    political:      null,
+    methodological: null,
+    alternativePerspectives: validResult.alternativePerspectives,
+    notes: null,
+  };
+
+  it('accepts a result whose detections carry a groundedness signal', () => {
+    expect(GroundedPhilosophicalCommitmentsResultSchema.safeParse(groundedResult).success).toBe(true);
+  });
+
+  it('rejects a detection missing groundedness', () => {
+    const { groundedness, ...withoutGroundedness } = groundedDetection('consequentialist');
+    const result = GroundedPhilosophicalCommitmentsResultSchema.safeParse({
+      ...groundedResult,
+      ethical: withoutGroundedness,
     });
     expect(result.success).toBe(false);
   });

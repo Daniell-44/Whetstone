@@ -15,7 +15,7 @@ const MINIMAL_AUDIT_JSON = JSON.stringify({
     grounds:          'Helmets reduce head injury risk by 60%.',
     statedWarrant:    null,
     unstatedWarrants: [
-      { warrant: 'Reducing injury risk is a good reason for policy.', necessity: 'Connects evidence to conclusion.', severity: 'medium', groundedness: { kind: "structural" } as const },
+      { warrant: 'Reducing injury risk is a good reason for policy.', necessity: 'Connects evidence to conclusion.', severity: 'medium', confidence: 85 },
     ],
     weakestLink: 'The grounds come from a single meta-analysis.',
   },
@@ -137,7 +137,7 @@ describe('auditText', () => {
           quote:       'This phrase does not appear in the input text at all',
           explanation: 'Example fallacy.',
           severity:    'medium',
-          groundedness: { kind: "structural" } as const,
+          confidence:  75,
         },
       ],
       loadedLanguage: [],

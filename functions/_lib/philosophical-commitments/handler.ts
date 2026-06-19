@@ -37,6 +37,13 @@ export async function handleCommitmentsRequest(
     return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
   }
 
+  // Commitments runs the Pro model. Gate on subscription like the other Pro
+  // lenses (counterargument, citation) to prevent uncapped free use.
+  const hasSubscription = await deps.checkSubscription(session.userId);
+  if (!hasSubscription) {
+    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Philosophical commitments is a Studio Pro feature.' } }, 402);
+  }
+
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,

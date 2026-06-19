@@ -108,7 +108,7 @@ describe('handleCommitmentsRequest', () => {
     const text  = 'a'.repeat(60);
     const deps  = makeDeps({
       rateLimitKv: {
-        get: async () => JSON.stringify({ count: 15, day: today }),
+        get: async () => JSON.stringify({ count: 15, period: today }),
         put: async () => {},
       } as unknown as CommitmentsHandlerDeps['rateLimitKv'],
       commitmentsDailyCap: 15,

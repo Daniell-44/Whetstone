@@ -1,12 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import {
-  NamedFallacySchema,
-  LoadedLanguageSchema,
-  UnstatedWarrantSchema,
-  KeyTermScrutinyFindingSchema,
-  ReferentCheckFindingSchema,
-  FalsifiabilityFindingSchema,
-  AuditResultSchema,
+  // Raw* schemas validate raw model output — these still carry `confidence`.
+  RawNamedFallacySchema as NamedFallacySchema,
+  RawLoadedLanguageSchema as LoadedLanguageSchema,
+  RawUnstatedWarrantSchema as UnstatedWarrantSchema,
+  RawKeyTermScrutinyFindingSchema as KeyTermScrutinyFindingSchema,
+  RawReferentCheckFindingSchema as ReferentCheckFindingSchema,
+  RawFalsifiabilityFindingSchema as FalsifiabilityFindingSchema,
+  RawAuditResultSchema as AuditResultSchema,
+  // Canonical schemas are what the API returns — these carry `groundedness`.
+  NamedFallacySchema as GroundedNamedFallacySchema,
+  AuditResultSchema as GroundedAuditResultSchema,
 } from '../../functions/_lib/audit/schemas';
 
 // ---------------------------------------------------------------------------
@@ -334,6 +338,61 @@ describe('AuditResultSchema — Phase-2 fields default to empty arrays', () => {
     const result = AuditResultSchema.safeParse({
       ...baseResult,
       keyTermScrutiny: [{ term: 'freedom', issue: 'bad-issue' }],
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Canonical (grounded) schemas — what the API returns. Findings carry a
+// `groundedness` signal instead of a numeric confidence.
+// ---------------------------------------------------------------------------
+
+describe('NamedFallacySchema (canonical) — groundedness', () => {
+  const base = { name: 'Ad Hominem', quote: 'x', explanation: 'y', severity: 'low' };
+
+  it('accepts a structural signal', () => {
+    expect(GroundedNamedFallacySchema.safeParse({ ...base, groundedness: { kind: 'structural' } }).success).toBe(true);
+  });
+
+  it('accepts an interpretive signal with a band', () => {
+    expect(GroundedNamedFallacySchema.safeParse({ ...base, groundedness: { kind: 'interpretive', band: 'high' } }).success).toBe(true);
+  });
+
+  it('rejects a missing groundedness signal', () => {
+    expect(GroundedNamedFallacySchema.safeParse(base).success).toBe(false);
+  });
+
+  it('rejects a numeric confidence in place of groundedness', () => {
+    expect(GroundedNamedFallacySchema.safeParse({ ...base, confidence: 80 }).success).toBe(false);
+  });
+});
+
+describe('AuditResultSchema (canonical) — grounded findings', () => {
+  const baseResult = {
+    centralClaim: 'Test.',
+    toulmin: { claim: 'Test.', grounds: 'Test.', statedWarrant: null, unstatedWarrants: [], weakestLink: 'Test.' },
+    namedFallacies: [],
+    loadedLanguage: [],
+    notes: null,
+  };
+
+  it('parses a result with a grounded finding', () => {
+    const result = GroundedAuditResultSchema.safeParse({
+      ...baseResult,
+      namedFallacies: [
+        { name: 'Ad Hominem', quote: 'x', explanation: 'y', severity: 'low', groundedness: { kind: 'structural' } },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a finding that still uses confidence', () => {
+    const result = GroundedAuditResultSchema.safeParse({
+      ...baseResult,
+      namedFallacies: [
+        { name: 'Ad Hominem', quote: 'x', explanation: 'y', severity: 'low', confidence: 80 },
+      ],
     });
     expect(result.success).toBe(false);
   });

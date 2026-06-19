@@ -3,6 +3,7 @@ import { handleAuditRequest } from '../../functions/_lib/audit/handler';
 import type { AuditHandlerDeps } from '../../functions/_lib/audit/handler';
 import type { LlmProvider } from '../../functions/_lib/providers/types';
 import type { ExtractResult } from '../../functions/_lib/extract/article';
+import { FREE_ANON_DAILY_AUDIT_CAP, FREE_SIGNED_DAILY_AUDIT_CAP } from '../../functions/_lib/billing/limits';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyData = any;
@@ -224,10 +225,12 @@ describe('POST /api/audit — rate limiting', () => {
 
   it('returns RATE_LIMITED with HTTP 200 after the cap is exceeded', async () => {
     const kv   = new FakeKV();
-    const deps = makeDeps({ rateLimitKv: kv, auditDailyCap: 1 });
+    const deps = makeDeps({ rateLimitKv: kv }); // anonymous → FREE_ANON_DAILY_AUDIT_CAP
 
-    // Use up the one allowed request.
-    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    // Use up the allowed anonymous requests.
+    for (let i = 0; i < FREE_ANON_DAILY_AUDIT_CAP; i++) {
+      await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    }
 
     // The next request should be blocked.
     const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
@@ -235,7 +238,7 @@ describe('POST /api/audit — rate limiting', () => {
     expect(res.status).toBe(200);
     expect(data.ok).toBe(false);
     expect(data.error.code).toBe('RATE_LIMITED');
-    expect(data.error.message).toMatch(/try again tomorrow/i);
+    expect(data.error.message).toMatch(/audits today/i);
   });
 
   it('skips rate limiting when rateLimitKv is undefined', async () => {
@@ -268,13 +271,14 @@ describe('POST /api/audit — session-aware rate limiting', () => {
   it('returns RATE_LIMITED when authenticated user hits their per-user cap', async () => {
     const kv   = new FakeKV();
     const deps = makeDeps({
-      rateLimitKv:       kv,
-      auditUserDailyCap: 1,
-      getSession: async () => ({ userId: 'user-xyz' }),
+      rateLimitKv: kv,
+      getSession: async () => ({ userId: 'user-xyz' }), // signed-in → FREE_SIGNED_DAILY_AUDIT_CAP
     });
 
-    // Use up the one allowed request.
-    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    // Use up the allowed per-user requests.
+    for (let i = 0; i < FREE_SIGNED_DAILY_AUDIT_CAP; i++) {
+      await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    }
 
     const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
     const data = await rj(res);
@@ -285,16 +289,13 @@ describe('POST /api/audit — session-aware rate limiting', () => {
 
   it('falls back to IP rate limit when getSession returns null', async () => {
     const kv   = new FakeKV();
-    const deps = makeDeps({
-      rateLimitKv:    kv,
-      auditDailyCap:  1,
-      getSession:     async () => null,
-    });
+    const deps = makeDeps({ rateLimitKv: kv, getSession: async () => null }); // anon IP cap
 
-    // First request succeeds.
-    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    for (let i = 0; i < FREE_ANON_DAILY_AUDIT_CAP; i++) {
+      await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    }
 
-    // Second is blocked by IP limit.
+    // Blocked by IP limit.
     const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
     const data = await rj(res);
     expect(data.ok).toBe(false);
@@ -303,9 +304,11 @@ describe('POST /api/audit — session-aware rate limiting', () => {
 
   it('anonymous behaviour is unchanged when getSession is not provided', async () => {
     const kv   = new FakeKV();
-    const deps = makeDeps({ rateLimitKv: kv, auditDailyCap: 1 }); // no getSession
+    const deps = makeDeps({ rateLimitKv: kv }); // no getSession → anon IP cap
 
-    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    for (let i = 0; i < FREE_ANON_DAILY_AUDIT_CAP; i++) {
+      await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    }
 
     const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
     const data = await rj(res);

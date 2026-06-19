@@ -109,7 +109,7 @@ describe('POST /api/counterargument — subscription gate', () => {
     expect(res.status).toBe(402);
     expect(data.ok).toBe(false);
     expect(data.error.code).toBe('SUBSCRIPTION_REQUIRED');
-    expect(data.error.message).toMatch(/subscription required/i);
+    expect(data.error.message).toMatch(/studio pro feature/i);
   });
 
   it('passes subscription check when checkSubscription returns true', async () => {

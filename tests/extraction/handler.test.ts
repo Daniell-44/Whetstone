@@ -86,7 +86,7 @@ describe('handleExtractionRequest', () => {
     const text  = 'a'.repeat(60);
     const deps  = makeDeps({
       rateLimitKv: {
-        get: async () => JSON.stringify({ count: 50, day: today }),
+        get: async () => JSON.stringify({ count: 50, period: today }),
         put: async () => {},
       } as unknown as ExtractionHandlerDeps['rateLimitKv'],
       extractionUserDailyCap: 50,

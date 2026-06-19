@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { ExtractionStatementSchema, ArgumentExtractionResultSchema, INFERENCE_RULES } from '../../functions/_lib/argument-extraction/schemas';
+import {
+  ExtractionStatementSchema,
+  // Raw* carries `confidence` (model output); canonical carries `groundedness`.
+  RawArgumentExtractionResultSchema as ArgumentExtractionResultSchema,
+  ArgumentExtractionResultSchema as GroundedExtractionResultSchema,
+  INFERENCE_RULES,
+} from '../../functions/_lib/argument-extraction/schemas';
 
 // ---------------------------------------------------------------------------
 // ExtractionStatementSchema
@@ -107,5 +113,21 @@ describe('ArgumentExtractionResultSchema', () => {
 
   it('accepts string notes', () => {
     expect(ArgumentExtractionResultSchema.safeParse({ ...valid, notes: 'P2 is implicit.' }).success).toBe(true);
+  });
+});
+
+describe('ArgumentExtractionResultSchema (canonical) — groundedness', () => {
+  const base = {
+    centralClaim: 'Regulatory intervention is justified.',
+    statements:   [{ id: 'P1', type: 'premise', text: 'Social media optimises for engagement.' }],
+    notes:        null,
+  };
+
+  it('accepts a result with a groundedness signal', () => {
+    expect(GroundedExtractionResultSchema.safeParse({ ...base, groundedness: { kind: 'interpretive', band: 'medium' } }).success).toBe(true);
+  });
+
+  it('rejects a result missing groundedness', () => {
+    expect(GroundedExtractionResultSchema.safeParse(base).success).toBe(false);
   });
 });
