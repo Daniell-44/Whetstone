@@ -149,8 +149,9 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
         )}
       </div>
 
-      {/* Text stats + export */}
-      <div class="flex items-center gap-3 text-gray-400 text-[10px] shrink-0">
+      {/* Text stats + export — wraps so it never forces horizontal overflow in
+         the narrow sidebar column (the "Share audit" pill used to push it wide). */}
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-gray-400 text-[10px] min-w-0">
         <span>{words.toLocaleString()} words</span>
         <span>·</span>
         <span>~{avgLen} w/s</span>
