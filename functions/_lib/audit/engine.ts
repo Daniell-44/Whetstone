@@ -3,7 +3,7 @@ import { callWithRetry } from '../llm/retry';
 import { RawAuditResultSchema, AuditInputSchema } from './schemas';
 import { buildSystemPrompt, buildAuditPrompt } from './prompts';
 import { buildGoalsPreamble } from './goals';
-import { AUDIT_MODEL, AUDIT_THINKING_BUDGET, AUDIT_TEMPERATURE, AUDIT_MAX_TOKENS } from './constants';
+import { AUDIT_MODEL, AUDIT_THINKING_BUDGET, AUDIT_READER_THINKING_BUDGET, AUDIT_TEMPERATURE, AUDIT_MAX_TOKENS } from './constants';
 import type { AuditResult, AuditDeps } from './types';
 import { structural, bandFromLegacyConfidence, interpretive } from '../grounded/types';
 import type { GroundednessSignal } from '../grounded/types';
@@ -159,7 +159,7 @@ export async function auditText(
           responseFormat:    'json',
           temperature:       AUDIT_TEMPERATURE,
           maxTokens:         AUDIT_MAX_TOKENS,
-          thinkingBudget:    AUDIT_THINKING_BUDGET,
+          thinkingBudget:    includePhase2 ? AUDIT_THINKING_BUDGET : AUDIT_READER_THINKING_BUDGET,
         },
         deps.apiKey,
       ),
