@@ -192,56 +192,53 @@ const presentCategories = Object.keys(categoryCounts).sort();
             )}
 
             <!--
-              Single-column feed for the rest — one briefing at a time. Content
-              is width-capped (max-w-3xl) so the audit-found line and position
-              labels stay at a readable line length on wide screens. Hairline
-              dividers between items; survives any count.
+              Single-column feed of white cards — one briefing at a time, each in
+              its own bordered card for clear separation, capped at max-w-3xl so
+              lines stay readable. Spacing (gap) does the separating, not dividers.
             -->
             {scorecards.length > 1 && (
-              <div class="border-t border-gray-200">
+              <div class="flex flex-col gap-4">
                 {scorecards.slice(1).map((sc) => (
                   <a
                     href={`/scorecard/${sc.slug}`}
-                    class="group block py-6 border-b border-gray-200 hover:bg-gray-50/40 transition-colors"
+                    class="group block max-w-3xl bg-white border border-gray-200 rounded-lg p-5 sm:p-6 hover:border-gray-300 hover:shadow-sm transition-all"
                   >
-                    <div class="max-w-3xl">
-                      <div class="flex items-center gap-2 mb-2.5 flex-wrap">
-                        {sc.category && CATEGORY_STYLES[sc.category] ? (
-                          <span class={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[sc.category!].bg} ${CATEGORY_STYLES[sc.category!].text}`}>
-                            {sc.category}
-                          </span>
-                        ) : (
-                          <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-700 text-white">
-                            Scorecard
-                          </span>
-                        )}
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{sc.positions?.length ?? 0} positions</span>
-                        {cardMeta(sc).sourceCount > 0 && (
-                          <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{cardMeta(sc).sourceCount} sources</span>
-                        )}
-                      </div>
-                      <h3 class="font-serif text-lg sm:text-xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-2.5">
-                        {sc.question}
-                      </h3>
-                      <p class="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">
-                        <span class="font-medium text-gray-400">Audit found</span> — {cardMeta(sc).auditFound}
-                      </p>
-                      {sc.positions && sc.positions.length > 0 && (
-                        <div class="flex flex-col gap-1.5 mb-3">
-                          {sc.positions.map((p, i) => (
-                            <div class="flex items-start gap-2">
-                              <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
-                              <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
-                            </div>
-                          ))}
-                        </div>
+                    <div class="flex items-center gap-2 mb-2.5 flex-wrap">
+                      {sc.category && CATEGORY_STYLES[sc.category] ? (
+                        <span class={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[sc.category!].bg} ${CATEGORY_STYLES[sc.category!].text}`}>
+                          {sc.category}
+                        </span>
+                      ) : (
+                        <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-700 text-white">
+                          Scorecard
+                        </span>
                       )}
-                      <p class="text-[11px] text-gray-400 tabular-nums">
-                        {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
-                          day: 'numeric', month: 'short', year: 'numeric',
-                        })}
-                      </p>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{sc.positions?.length ?? 0} positions</span>
+                      {cardMeta(sc).sourceCount > 0 && (
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{cardMeta(sc).sourceCount} sources</span>
+                      )}
                     </div>
+                    <h3 class="font-serif text-lg sm:text-xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-2.5">
+                      {sc.question}
+                    </h3>
+                    <p class="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">
+                      <span class="font-medium text-gray-400">Audit found</span> — {cardMeta(sc).auditFound}
+                    </p>
+                    {sc.positions && sc.positions.length > 0 && (
+                      <div class="flex flex-col gap-1.5 mb-3">
+                        {sc.positions.map((p, i) => (
+                          <div class="flex items-start gap-2">
+                            <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
+                            <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <p class="text-[11px] text-gray-400 tabular-nums">
+                      {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                      })}
+                    </p>
                   </a>
                 ))}
               </div>
