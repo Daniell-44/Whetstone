@@ -43,7 +43,9 @@ export interface EvidenceAssessment {
   claim:             string;
   claimType:         ClaimType;
   consensusLevel:    ConsensusLevel;
-  confidencePercent: number | null;  // domain-specific — assessed strength of consensus
+  // Share of assessed evidence supporting the claim (quality-weighted), 0–100 or
+  // null. A descriptive fact about the literature — NEVER a probability of truth.
+  literatureSupport: number | null;
   paperCount:        number;
   topPapers:         EvidencePaper[];
   explanation:       string;

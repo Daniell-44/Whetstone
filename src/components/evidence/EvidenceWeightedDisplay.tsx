@@ -80,21 +80,29 @@ function ConsensusBar({ papers }: { papers: EvidencePaper[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// Confidence ring (small, 28px)
+// Literature-support ring (small, 28px). Shows the share of assessed papers
+// that support the claim — explicitly NOT a probability the claim is true.
 // ---------------------------------------------------------------------------
 
-function ConfidenceRing({ pct }: { pct: number }) {
+function SupportRing({ pct }: { pct: number }) {
   const radius = 10;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (pct / 100) * circumference;
   const colour = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : pct >= 25 ? '#f97316' : '#ef4444';
   return (
-    <div class="relative inline-flex items-center justify-center shrink-0" style="width:28px;height:28px;">
-      <svg width="28" height="28" class="-rotate-90">
-        <circle cx="14" cy="14" r={radius} fill="none" stroke="#f3f4f6" stroke-width="3" />
-        <circle cx="14" cy="14" r={radius} fill="none" stroke={colour} stroke-width="3" stroke-linecap="round" stroke-dasharray={circumference} stroke-dashoffset={offset} />
-      </svg>
-      <span class="absolute text-[9px] font-bold" style={`color:${colour}`}>{pct}</span>
+    <div class="flex flex-col items-center shrink-0">
+      <div
+        class="relative inline-flex items-center justify-center"
+        style="width:28px;height:28px;"
+        title="Share of the assessed papers that support this claim — not a probability it is true"
+      >
+        <svg width="28" height="28" class="-rotate-90">
+          <circle cx="14" cy="14" r={radius} fill="none" stroke="#f3f4f6" stroke-width="3" />
+          <circle cx="14" cy="14" r={radius} fill="none" stroke={colour} stroke-width="3" stroke-linecap="round" stroke-dasharray={circumference} stroke-dashoffset={offset} />
+        </svg>
+        <span class="absolute text-[9px] font-bold" style={`color:${colour}`}>{pct}</span>
+      </div>
+      <span class="text-[8px] uppercase tracking-wide text-gray-400 mt-0.5">support</span>
     </div>
   );
 }
@@ -113,8 +121,8 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
     <div class="rounded-lg border border-gray-200 bg-white p-3 space-y-2.5">
       {/* Claim */}
       <div class="flex items-start gap-2.5">
-        {isEmpirical && a.confidencePercent !== null && (
-          <ConfidenceRing pct={a.confidencePercent} />
+        {isEmpirical && a.literatureSupport !== null && (
+          <SupportRing pct={a.literatureSupport} />
         )}
         <div class="flex-1 min-w-0">
           <p class="text-xs leading-snug text-gray-800">{a.claim}</p>
@@ -133,6 +141,13 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
       {/* Consensus bar (only when we have papers) */}
       {a.topPapers.length > 0 && (
         <ConsensusBar papers={a.topPapers} />
+      )}
+
+      {/* Precise framing: this is a fact about the literature, not a truth verdict */}
+      {isEmpirical && a.literatureSupport !== null && a.paperCount > 0 && (
+        <p class="text-[10px] text-gray-400 leading-snug">
+          {a.literatureSupport}% of the {a.paperCount} paper{a.paperCount !== 1 ? 's' : ''} found support this claim — a measure of the evidence, not a probability it is true.
+        </p>
       )}
 
       {/* Explanation */}

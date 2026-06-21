@@ -23,7 +23,9 @@ const EvidencePaperSchema = z.object({
 
 export const EvidenceSynthesisResultSchema = z.object({
   consensusLevel:    z.enum(CONSENSUS_LEVELS),
-  confidencePercent: z.number().int().min(0).max(100).nullable(),
+  // Share of the assessed evidence that supports the claim (quality-weighted) —
+  // NOT a probability the claim is true. Display must never frame it as truth.
+  literatureSupport: z.number().int().min(0).max(100).nullable(),
   topPapers:         z.array(EvidencePaperSchema),
   explanation:       z.string().min(1),
   caveats:           z.string().nullable(),
