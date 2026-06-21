@@ -6,6 +6,7 @@ import Base from '../layouts/Base.astro';
 import AuditForm from '../components/audit/AuditForm';
 import HeroHeadline from '../components/reader/HeroHeadline';
 import { listScorecards } from '../../functions/_lib/scorecard/storage';
+import type { Scorecard } from '../../functions/_lib/scorecard/types';
 import { makeAuthDb } from '../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
 import { makeBillingDb } from '../../functions/_lib/billing/subscription';
@@ -40,10 +41,20 @@ const TAG_COLOURS = [
   { bg: 'bg-emerald-600', text: 'text-white' },
 ];
 
-function readTime(dek: string): string {
-  const words = dek.split(/\s+/).length;
-  const mins = Math.max(3, Math.ceil(words / 40) + 2);
-  return `${mins} min read`;
+// Per-card audit metadata, derived from the scorecard itself (no new fields).
+const POSITION_CHIP = [
+  'bg-sky-50 text-sky-700',
+  'bg-rose-50 text-rose-700',
+  'bg-amber-50 text-amber-700',
+  'bg-emerald-50 text-emerald-700',
+];
+
+function cardMeta(sc: Scorecard) {
+  const positionCount = sc.positions?.length ?? 0;
+  const sourceCount   = (sc.positions ?? []).reduce((n, p) => n + (p.sources?.length ?? 0), 0);
+  // The cross-cutting finding makes the best "Audit found —" line; dek is the fallback.
+  const auditFound    = (sc.metaAnalysis?.bridgingWarrant ?? sc.dek ?? '').trim();
+  return { positionCount, sourceCount, auditFound };
 }
 
 const categoryCounts: Record<string, number> = {};
@@ -148,14 +159,29 @@ const presentCategories = Object.keys(categoryCounts).sort();
                         Featured
                       </span>
                     )}
-                    <span class="text-xs text-gray-400">{readTime(scorecards[0].dek)}</span>
+                    <div class="flex items-center gap-1.5">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{scorecards[0].positions?.length ?? 0} positions</span>
+                      {cardMeta(scorecards[0]).sourceCount > 0 && (
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{cardMeta(scorecards[0]).sourceCount} sources</span>
+                      )}
+                    </div>
                   </div>
                   <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-tight mb-4">
                     {scorecards[0].question}
                   </h3>
                   <p class="text-base sm:text-lg text-gray-500 leading-relaxed mb-4">
-                    {scorecards[0].dek}
+                    <span class="font-medium text-gray-400">Audit found</span> — {cardMeta(scorecards[0]).auditFound}
                   </p>
+                  {scorecards[0].positions && scorecards[0].positions.length > 0 && (
+                    <div class="flex flex-col gap-1.5 mb-4 max-w-2xl">
+                      {scorecards[0].positions.map((p, i) => (
+                        <div class="flex items-start gap-2">
+                          <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
+                          <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <p class="text-xs text-gray-400 tabular-nums">
                     {new Date(scorecards[0].publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
                       day: 'numeric', month: 'long', year: 'numeric',
@@ -192,12 +218,24 @@ const presentCategories = Object.keys(categoryCounts).sort();
                           Scorecard
                         </span>
                       )}
-                      <span class="text-[10px] text-gray-400">{readTime(sc.dek)}</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-medium">{sc.positions?.length ?? 0} positions</span>
                     </div>
                     <h3 class="font-serif text-base sm:text-lg text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-2">
                       {sc.question}
                     </h3>
-                    <p class="text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-2 mb-2">{sc.dek}</p>
+                    <p class="text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-2 mb-2">
+                      <span class="font-medium text-gray-400">Audit found</span> — {cardMeta(sc).auditFound}
+                    </p>
+                    {sc.positions && sc.positions.length > 0 && (
+                      <div class="flex flex-col gap-1 mb-2">
+                        {sc.positions.map((p, i) => (
+                          <div class="flex items-start gap-1.5">
+                            <span class={`inline-flex items-center justify-center shrink-0 w-4 h-4 rounded text-[9px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
+                            <span class="text-xs text-gray-500 leading-snug line-clamp-1">{p.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <p class="text-[10px] text-gray-400 tabular-nums">
                       {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
                         day: 'numeric', month: 'short', year: 'numeric',
