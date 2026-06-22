@@ -12,45 +12,10 @@ import { auditToMarkdown, downloadMarkdown } from '../../lib/export-audit';
 import { track } from '../../lib/analytics/track';
 
 // ---------------------------------------------------------------------------
-// Score ring - circular progress indicator (SVG)
-// ---------------------------------------------------------------------------
-
-function ScoreRing({ score }: { score: number }) {
-  const radius = 20;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-
-  const colour = score >= 80 ? '#22c55e'   // green
-    : score >= 60 ? '#f59e0b'              // amber
-    : score >= 40 ? '#f97316'              // orange
-    : '#ef4444';                           // red
-
-  return (
-    <div class="relative inline-flex items-center justify-center" style={{ width: '52px', height: '52px' }}>
-      <svg width="52" height="52" class="-rotate-90">
-        {/* Background circle */}
-        <circle cx="26" cy="26" r={radius} fill="none" stroke="#f3f4f6" strokeWidth="4" />
-        {/* Progress arc */}
-        <circle
-          cx="26" cy="26" r={radius}
-          fill="none"
-          stroke={colour}
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 0.6s ease-out' }}
-        />
-      </svg>
-      <span class="absolute text-sm font-bold" style={{ color: colour }}>
-        {score}
-      </span>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Score label
+// Overall assessment band — a categorical label, NOT a 0–100 score. A precise
+// "20/100" implies a calibrated metric the audit doesn't actually have and
+// reads as misleading; the honest signal is the severity breakdown below. The
+// band just buckets it into plain language.
 // ---------------------------------------------------------------------------
 
 function scoreLabel(score: number): string {
@@ -59,6 +24,13 @@ function scoreLabel(score: number): string {
   if (score >= 60) return 'Moderate';
   if (score >= 40) return 'Needs work';
   return 'Significant issues';
+}
+
+function bandStyle(score: number): string {
+  if (score >= 75) return 'bg-emerald-100 text-emerald-700';
+  if (score >= 60) return 'bg-amber-100 text-amber-700';
+  if (score >= 40) return 'bg-orange-100 text-orange-700';
+  return 'bg-red-100 text-red-700';
 }
 
 // ---------------------------------------------------------------------------
@@ -113,13 +85,9 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
 
   return (
     <div class="rounded-lg border border-gray-200 bg-white px-3 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      {/* Score ring */}
-      <div class="flex items-center gap-3 shrink-0">
-        <ScoreRing score={score} />
-        <div>
-          <p class="text-xs font-semibold text-gray-700">{scoreLabel(score)}</p>
-          <p class="text-[10px] text-gray-400">Argument quality</p>
-        </div>
+      {/* Overall assessment — categorical band, not a misleading 0–100 number */}
+      <div class="flex items-center shrink-0">
+        <span class={`px-2.5 py-1 rounded-full text-xs font-semibold ${bandStyle(score)}`}>{scoreLabel(score)}</span>
       </div>
 
       <div class="h-8 w-px bg-gray-200 shrink-0" />
@@ -149,17 +117,18 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
         )}
       </div>
 
-      {/* Text stats + export — wraps so it never forces horizontal overflow in
-         the narrow sidebar column (the "Share audit" pill used to push it wide). */}
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-gray-400 text-[10px] min-w-0">
+      {/* Text stats */}
+      <div class="flex items-center gap-x-2 gap-y-1 text-gray-400 text-[10px] min-w-0 flex-wrap">
         <span>{words.toLocaleString()} words</span>
         <span>·</span>
         <span>~{avgLen} w/s</span>
         <span>·</span>
         <span>Grade {grade.toFixed(1)}</span>
+      </div>
 
-        <div class="h-4 w-px bg-gray-200 mx-1" />
-
+      {/* Export actions — kept together in one group so "Share audit" never
+         wraps onto its own orphaned line. */}
+      <div class="flex items-center gap-1 ml-auto shrink-0">
         <button
           onClick={() => {
             const md = auditToMarkdown(result, draftTitle);
