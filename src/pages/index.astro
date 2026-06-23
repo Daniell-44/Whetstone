@@ -108,10 +108,9 @@ const presentCategories = Object.keys(categoryCounts).sort();
               {presentCategories.map(cat => (
                 <a
                   href={`#${cat}`}
-                  class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+                  class="block px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors capitalize"
                 >
-                  <span class="capitalize">{cat}</span>
-                  <span class="text-[10px] text-gray-400">{categoryCounts[cat]}</span>
+                  {cat}
                 </a>
               ))}
             </nav>
@@ -139,8 +138,9 @@ const presentCategories = Object.keys(categoryCounts).sort();
             ))}
           </div>
 
-          <!-- Main feed -->
-          <div class="flex-1 min-w-0">
+          <!-- Main feed — width-capped and centred in the remaining space so the
+               page doesn't read as half-empty on wide screens. -->
+          <div class="min-w-0 w-full max-w-3xl mx-auto">
 
             <!-- Lead story -->
             {scorecards.length > 0 && (
