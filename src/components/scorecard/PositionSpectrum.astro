@@ -1,0 +1,37 @@
+---
+// Plots each position on the debate's primary axis using its `leaning`
+// (-100..+100). Renders nothing unless an axis is present and at least one
+// position has a leaning — so legacy scorecards degrade gracefully.
+interface Pos { label: string; leaning?: number }
+interface Props {
+  positions: Pos[];
+  axis?: { left: string; right: string };
+  compact?: boolean;
+}
+const { positions, axis, compact = false } = Astro.props;
+
+const placed = positions
+  .map((p, i) => ({ ...p, index: i }))
+  .filter((p): p is Pos & { leaning: number; index: number } => typeof p.leaning === 'number');
+
+const hasData = !!axis && placed.length > 0;
+
+const DOT = ['bg-sky-600', 'bg-rose-600', 'bg-amber-600', 'bg-emerald-600', 'bg-violet-600'];
+const toPct = (leaning: number) => ((leaning + 100) / 200) * 100;
+---
+{hasData && (
+  <div class={`relative ${compact ? 'h-10' : 'h-12'} mx-2`}>
+    <div class="absolute left-0 right-0 top-3 h-0.5 bg-gray-200 rounded-full" />
+    {placed.map((p) => (
+      <span
+        class={`absolute top-3 -translate-y-1/2 -translate-x-1/2 ${compact ? 'w-4 h-4' : 'w-[18px] h-[18px]'} rounded-full ${DOT[p.index % DOT.length]} text-white text-[9px] font-semibold flex items-center justify-center`}
+        style={`left:${toPct(p.leaning)}%`}
+        title={p.label}
+      >
+        {p.index + 1}
+      </span>
+    ))}
+    <span class="absolute top-6 left-0 text-[9px] text-gray-400">{axis!.left}</span>
+    <span class="absolute top-6 right-0 text-[9px] text-gray-400">{axis!.right}</span>
+  </div>
+)}

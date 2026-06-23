@@ -30,6 +30,7 @@ export const ScorecardSchema = z.object({
   dek:           z.string().min(1),
   positions:     z.array(ScorecardPositionSchema).min(2).max(5),
   metaAnalysis:  z.object({ bridgingWarrant: z.string().min(1), explanation: z.string().min(1) }),
+  spectrumAxis:  z.object({ left: z.string().min(1), right: z.string().min(1) }).optional(),
   publishedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
@@ -87,6 +88,11 @@ export const Stage2OutputSchema = z.object({
   dek:             z.string().min(1),
   bridgingWarrant: z.string().min(1),
   explanation:     z.string().min(1),
+  // The debate's primary axis + each position's placement on it (-100..+100),
+  // in the same order the positions were supplied. Optional so older fixtures
+  // and any model omission degrade gracefully (the spectrum just won't render).
+  spectrumAxis:    z.object({ left: z.string().min(1), right: z.string().min(1) }).optional(),
+  leanings:        z.array(z.number().min(-100).max(100)).optional(),
 });
 
 export type Stage2Output = z.infer<typeof Stage2OutputSchema>;

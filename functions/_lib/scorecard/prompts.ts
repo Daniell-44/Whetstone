@@ -70,6 +70,13 @@ export const META_ANALYSIS_SYSTEM_PROMPT =
   'rejection would reframe the question itself, not a peripheral commonality.\n' +
   '- The dek is one sentence summarising what this scorecard audits and why the ' +
   'debate matters. It must not editorialise or declare a winner.\n' +
+  '- The spectrum axis names the single dimension that best separates these ' +
+  'positions (e.g. { "left": "individual responsibility", "right": "structural ' +
+  'cause" }). Use short, descriptive, non-pejorative poles — NOT a political ' +
+  'left/right label unless the debate is genuinely partisan. Then place each ' +
+  'position on that axis from -100 (fully the left pole) to +100 (fully the right ' +
+  'pole), one number per position IN THE ORDER LISTED. Spread the positions out to ' +
+  'reflect real differences; do not cluster them all near 0.\n' +
   '- Respond only with the specified JSON object — no preamble, no commentary outside ' +
   'the JSON.';
 
@@ -92,11 +99,14 @@ export function buildMetaAnalysisPrompt(
     `Debate question: ${question}\n\n` +
     `Positions and their synthesised arguments:\n\n` +
     `${positionBlocks}\n\n` +
-    `Return a JSON object with exactly this structure:\n` +
+    `Return a JSON object with exactly this structure (leanings must have exactly ` +
+    `one number per position, in the order the positions appear above):\n` +
     `{\n` +
     `  "dek": "one sentence describing what this scorecard audits and why the debate matters",\n` +
     `  "bridgingWarrant": "the unstated assumption all positions share but none examines",\n` +
-    `  "explanation": "two to four sentences explaining the shared assumption, why it matters, and what would change if it were questioned"\n` +
+    `  "explanation": "two to four sentences explaining the shared assumption, why it matters, and what would change if it were questioned",\n` +
+    `  "spectrumAxis": { "left": "short label for the left pole", "right": "short label for the right pole" },\n` +
+    `  "leanings": [/* one integer from -100 to +100 per position, in order */]\n` +
     `}`
   );
 }

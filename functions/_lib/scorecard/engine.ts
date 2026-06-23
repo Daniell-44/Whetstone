@@ -7,6 +7,7 @@ import {
   Stage2OutputSchema,
   type DebateInput,
   type Stage1Output,
+  type Stage2Output,
 } from './schemas';
 import {
   POSITION_SYNTHESIS_SYSTEM_PROMPT,
@@ -97,7 +98,7 @@ async function synthesisePosition(
 // ---------------------------------------------------------------------------
 
 interface MetaAnalysisResult {
-  output:       { dek: string; bridgingWarrant: string; explanation: string };
+  output:       Stage2Output;
   inputTokens:  number;
   outputTokens: number;
 }
@@ -178,12 +179,14 @@ export async function generateScorecard(
         publication: a.publication,
         url:         a.url,
       })),
-      leaning:   pos.leaning,
+      // Stage 2 places each position on the axis; fall back to any curator-set value.
+      leaning:   stage2Result.output.leanings?.[i] ?? pos.leaning,
     })),
     metaAnalysis: {
       bridgingWarrant: stage2Result.output.bridgingWarrant,
       explanation:     stage2Result.output.explanation,
     },
+    spectrumAxis: stage2Result.output.spectrumAxis,
   };
 
   const usage = {

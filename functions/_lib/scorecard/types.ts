@@ -42,5 +42,9 @@ export interface Scorecard {
   category?:     ScorecardCategory;
   positions:     ScorecardPosition[];
   metaAnalysis:  { bridgingWarrant: string; explanation: string };
+  /** The two poles of the debate's primary axis, e.g. { left: 'displacement',
+   *  right: 'augmentation' }. Drives the position spectrum. Optional — legacy
+   *  scorecards without it (or without per-position `leaning`) render flat. */
+  spectrumAxis?: { left: string; right: string };
   publishedDate: string;
 }

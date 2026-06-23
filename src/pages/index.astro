@@ -5,6 +5,7 @@ import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
 import AuditForm from '../components/audit/AuditForm';
 import HeroHeadline from '../components/reader/HeroHeadline';
+import PositionSpectrum from '../components/scorecard/PositionSpectrum.astro';
 import { listScorecards } from '../../functions/_lib/scorecard/storage';
 import type { Scorecard } from '../../functions/_lib/scorecard/types';
 import { makeAuthDb } from '../../functions/_lib/auth/db';
@@ -48,6 +49,9 @@ const POSITION_CHIP = [
   'bg-amber-50 text-amber-700',
   'bg-emerald-50 text-emerald-700',
 ];
+
+// Solid dot palette for the position spectrum — must match PositionSpectrum.astro.
+const SPECTRUM_DOT = ['bg-sky-600', 'bg-rose-600', 'bg-amber-600', 'bg-emerald-600', 'bg-violet-600'];
 
 function cardMeta(sc: Scorecard) {
   const positionCount = sc.positions?.length ?? 0;
@@ -173,14 +177,28 @@ const presentCategories = Object.keys(categoryCounts).sort();
                     <span class="font-medium text-gray-400">Audit found</span> — {cardMeta(scorecards[0]).auditFound}
                   </p>
                   {scorecards[0].positions && scorecards[0].positions.length > 0 && (
-                    <div class="flex flex-col gap-1.5 mb-4 max-w-2xl">
-                      {scorecards[0].positions.map((p, i) => (
-                        <div class="flex items-start gap-2">
-                          <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
-                          <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
+                    scorecards[0].spectrumAxis ? (
+                      <div class="mb-4 max-w-2xl">
+                        <PositionSpectrum positions={scorecards[0].positions} axis={scorecards[0].spectrumAxis} />
+                        <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                          {scorecards[0].positions.map((p, i) => (
+                            <span class="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                              <span class={`inline-flex items-center justify-center w-4 h-4 rounded-full text-white text-[9px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
+                              {p.label}
+                            </span>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ) : (
+                      <div class="flex flex-col gap-1.5 mb-4 max-w-2xl">
+                        {scorecards[0].positions.map((p, i) => (
+                          <div class="flex items-start gap-2">
+                            <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
+                            <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )
                   )}
                   <p class="text-xs text-gray-400 tabular-nums">
                     {new Date(scorecards[0].publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
@@ -225,14 +243,28 @@ const presentCategories = Object.keys(categoryCounts).sort();
                       <span class="font-medium text-gray-400">Audit found</span> — {cardMeta(sc).auditFound}
                     </p>
                     {sc.positions && sc.positions.length > 0 && (
-                      <div class="flex flex-col gap-1.5 mb-3">
-                        {sc.positions.map((p, i) => (
-                          <div class="flex items-start gap-2">
-                            <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
-                            <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
+                      sc.spectrumAxis ? (
+                        <div class="mb-3">
+                          <PositionSpectrum positions={sc.positions} axis={sc.spectrumAxis} compact />
+                          <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+                            {sc.positions.map((p, i) => (
+                              <span class="inline-flex items-center gap-1 text-[11px] text-gray-500">
+                                <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
+                                {p.label}
+                              </span>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ) : (
+                        <div class="flex flex-col gap-1.5 mb-3">
+                          {sc.positions.map((p, i) => (
+                            <div class="flex items-start gap-2">
+                              <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
+                              <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )
                     )}
                     <p class="text-[11px] text-gray-400 tabular-nums">
                       {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
