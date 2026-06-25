@@ -1,0 +1,49 @@
+---
+// The "map": all sources plotted on the axis (Consensus-style distribution).
+// Assessed/quoted sources are labelled markers with a default speech bubble;
+// the rest are faint dots with a hover tooltip.
+import type { BriefingSource } from '../../../functions/_lib/briefing/types';
+
+interface Props { sources: BriefingSource[]; axis: { left: string; right: string } }
+const { sources, axis } = Astro.props;
+
+const SIDE: Record<string, { dot: string; tint: string; text: string }> = {
+  left:  { dot: '#185FA5', tint: '#E6F1FB', text: '#0C447C' },
+  mid:   { dot: '#888780', tint: '#F1EFE8', text: '#444441' },
+  right: { dot: '#993C1D', tint: '#FAECE7', text: '#712B13' },
+};
+const toPct = (leaning: number) => ((leaning + 100) / 200) * 100;
+const assessed = sources.filter((s) => s.assessed);
+const faint    = sources.filter((s) => !s.assessed);
+const JITTER = [0, -6, 6, -3, 4, -5, 5, -4, 3];
+---
+{sources.length > 0 && (
+  <div>
+    <p class="text-[10px] font-semibold uppercase tracking-[0.06em] text-gray-400 mb-1">The map · N = {sources.length}</p>
+    <div class="relative" style="height:108px;">
+      {/* default bubbles for the quoted sources */}
+      {assessed.map((s, i) => (
+        <div class="absolute" style={`left:${toPct(s.leaning)}%;top:0;transform:translateX(-50%);width:150px;`}>
+          <a href={s.url} target="_blank" rel="noopener noreferrer" class="block rounded-lg px-2 py-1.5 transition-opacity hover:opacity-90" style={`background:${SIDE[s.side].tint};border:0.5px solid ${SIDE[s.side].dot};`}>
+            <p class="text-[9px] font-semibold uppercase tracking-wide m-0" style={`color:${SIDE[s.side].dot}`}>{s.publication ?? s.label} · quoted</p>
+            <p class="text-[10px] leading-snug m-0" style={`color:${SIDE[s.side].text}`}>{s.label}</p>
+          </a>
+          <div class="mx-auto" style={`width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid ${SIDE[s.side].dot};`}></div>
+        </div>
+      ))}
+      {/* track */}
+      <div class="absolute" style="top:76px;left:0;right:0;height:2px;background:#d1d5db;border-radius:2px;"></div>
+      {/* faint dots — hover for source */}
+      {faint.map((s, i) => (
+        <div class="absolute rounded-full" title={`${s.label}${s.publication ? ' · ' + s.publication : ''}`} style={`left:${toPct(s.leaning)}%;top:${76 + JITTER[i % JITTER.length]}px;width:6px;height:6px;background:${SIDE[s.side].dot};opacity:.5;transform:translate(-50%,-50%);`}></div>
+      ))}
+      {/* assessed markers */}
+      {assessed.map((s, i) => (
+        <span class="absolute rounded-full text-white text-[10px] font-semibold flex items-center justify-center" style={`left:${toPct(s.leaning)}%;top:76px;width:18px;height:18px;background:${SIDE[s.side].dot};transform:translate(-50%,-50%);box-shadow:0 0 0 3px #f9fafb;`}>{i + 1}</span>
+      ))}
+      <span class="absolute text-[9px] text-gray-400" style="top:90px;left:0;">{axis.left}</span>
+      <span class="absolute text-[9px] text-gray-400" style="top:90px;right:0;">{axis.right}</span>
+    </div>
+    <p class="text-[10px] text-gray-400 mt-1 leading-snug">The sources quoted in the piece show by default; hover any other dot for its source.</p>
+  </div>
+)}

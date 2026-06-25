@@ -1,5 +1,5 @@
 ---
-import PositionSpectrum from '../scorecard/PositionSpectrum.astro';
+import PopulatedSpectrum from './PopulatedSpectrum.astro';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 
 interface Props { briefing: BriefingArticle }
@@ -15,7 +15,6 @@ const COLOURS = [
 ];
 const KIND_LABEL: Record<string, string> = { structural: 'Logic', interpretive: 'Judgment call', empirical: 'Factual' };
 
-const markerPositions = briefing.sources.filter((s) => s.assessed).map((s) => ({ label: s.label, leaning: s.leaning }));
 const leftSources  = briefing.sources.filter((s) => s.side === 'left');
 const rightSources = briefing.sources.filter((s) => s.side === 'right');
 const fmtDate = new Date(briefing.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -25,8 +24,8 @@ const fmtDate = new Date(briefing.publishedDate + 'T00:00:00').toLocaleDateStrin
   <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mt-2 mb-2">{briefing.question}</h1>
   <p class="text-xs text-gray-400 mb-6 tabular-nums">{fmtDate}</p>
 
-  <div class="mb-1">
-    <PositionSpectrum positions={markerPositions} axis={briefing.spectrumAxis} />
+  <div class="mb-4">
+    <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />
   </div>
   <div class="border-b border-gray-100 mb-7"></div>
 

@@ -58,6 +58,53 @@ export const briefings: BriefingArticle[] = [
       },
     ],
   },
+
+  {
+    slug: 'ai-creative-jobs',
+    question: 'Will generative AI eliminate creative jobs?',
+    category: 'technology',
+    publishedDate: '2026-06-24',
+    spectrumAxis: { left: 'mass displacement', right: 'pure augmentation' },
+    sources: [
+      { id: 'goldman',  label: 'Goldman Sachs (300M exposed)',    publication: 'Goldman Sachs Research',     url: 'https://www.goldmansachs.com/',          leaning: -80, side: 'left',  assessed: true  },
+      { id: 'gpts',     label: 'Eloundou et al., "GPTs are GPTs"', publication: 'arXiv',                     url: 'https://arxiv.org/abs/2303.10130',       leaning: -62, side: 'left',  assessed: false },
+      { id: 'frey',     label: 'Frey & Osborne lineage',          publication: 'Oxford Martin',              url: 'https://www.oxfordmartin.ox.ac.uk/',     leaning: -70, side: 'left',  assessed: false },
+      { id: 'acemoglu', label: 'Acemoglu, the "task" view',       publication: 'NBER',                       url: 'https://www.nber.org/',                  leaning: -10, side: 'mid',   assessed: false },
+      { id: 'brookings',label: 'Brookings, creative labour',      publication: 'Brookings Institution',      url: 'https://www.brookings.edu/',             leaning:   6, side: 'mid',   assessed: true  },
+      { id: 'nberwork', label: 'Generative AI at Work',           publication: 'NBER',                       url: 'https://www.nber.org/papers/w31161',     leaning:  45, side: 'right', assessed: false },
+      { id: 'mckinsey', label: 'McKinsey, 800 agencies',          publication: 'McKinsey Digital',           url: 'https://www.mckinsey.com/',              leaning:  72, side: 'right', assessed: true  },
+      { id: 'hbr',      label: 'HBR, augmentation',               publication: 'Harvard Business Review',    url: 'https://hbr.org/',                       leaning:  80, side: 'right', assessed: false },
+    ],
+    blocks: [
+      { type: 'landscape', text: 'The fight over whether generative AI ends creative work has narrowed from "can the machine do it?" to a quieter question: when production gets cheap, does the market for creative work shrink, hold, or grow?' },
+      {
+        type: 'position', colourIndex: 0, sourceId: 'goldman',
+        quote: '300 million jobs globally exposed',
+        paragraph: 'The displacement case reaches for scale. Goldman Sachs put "300 million jobs globally exposed" to automation by generative models, and labour-economics models project a 40–60% cut in routine copywriting, illustration, and short-form editorial work by 2030. The logic is the long arc of automation: once the capability exists, affected sectors eventually shed most of their workers.',
+        audit: { name: 'Texas Sharpshooter', kind: 'structural', explanation: 'The headline figure is drawn around the narrow sub-tasks where AI already matches median output, then generalised to whole occupations the studies never measured.' },
+      },
+      { type: 'prose', text: 'The optimists answer from the other end of the same data.' },
+      {
+        type: 'position', colourIndex: 1, sourceId: 'mckinsey',
+        quote: 'no net headcount reduction',
+        paragraph: 'Surveying 800 agencies through the first adoption wave, McKinsey reported "no net headcount reduction" — junior roles shifted toward oversight and editing, while output per worker and client demand rose together. The historical pattern, they argue, is that tools which raise output expand markets faster than they shrink employment.',
+        audit: { name: 'Hasty Generalisation', kind: 'structural', explanation: 'The reassuring numbers come only from agencies that survived the transition; the ones that closed are absent from the sample, so survivorship bias understates displacement.' },
+      },
+      { type: 'prose', text: 'A third camp says both are right about different halves of the work.' },
+      {
+        type: 'position', colourIndex: 2, sourceId: 'brookings',
+        quote: 'commoditised production and distinctive authorship part ways',
+        paragraph: 'Brookings draws the line down the middle: "commoditised production and distinctive authorship part ways." Stock-photography revenue collapsed while gallery and signature-artist markets grew in parallel — AI substitutes for the replicable and complements the distinctive. The boundary moves, but it doesn\'t close.',
+        audit: { name: 'Unstated Power Assumption', kind: 'structural', explanation: 'It assumes markets can reliably tell "human" authorship from AI output — but that legibility depends on platform rules, copyright, and credentialing systems that are themselves in flux.' },
+      },
+      { type: 'shared', text: 'All three treat market demand as exogenous — a fixed object the technology displaces, augments, or splits. None defends a demand-elasticity assumption, yet that parameter is doing the real work: high elasticity makes augmentation true, low elasticity makes displacement true. Argue the elasticity and you would actually be arguing the question.' },
+      {
+        type: 'editorView',
+        text: 'My read: the bifurcation case is the most honest, but it understates how quickly the "distinctive" tier can itself be commoditised once the tools learn a signature style.',
+        whyWrong: 'If demand for creative work is genuinely elastic, cheaper production could expand the whole market enough that even the displaced find new seats.',
+      },
+    ],
+  },
 ];
 
 export function getBriefing(slug: string): BriefingArticle | null {
