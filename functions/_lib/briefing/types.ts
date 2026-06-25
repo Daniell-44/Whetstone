@@ -35,9 +35,11 @@ export type BriefingBlock =
 
 export interface BriefingArticle {
   slug:          string;
-  question:      string;
+  question:      string;         // canonical, evergreen — the SEO/URL anchor
+  hook?:         string;         // optional timely "why now" headline (current-affairs overlay)
   category?:     string;
   publishedDate: string;         // YYYY-MM-DD
+  image?:        string;         // optional hero/thumbnail URL (curated; lead + feature cards)
   spectrumAxis:  { left: string; right: string };
   sources:       BriefingSource[];
   blocks:        BriefingBlock[];
