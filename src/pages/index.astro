@@ -19,13 +19,18 @@ function briefingDek(b: BriefingArticle): string {
 }
 
 function briefingCard(b: BriefingArticle) {
+  const isExplainer = b.kind === 'explainer';
   const leaningById: Record<string, number> = Object.fromEntries(b.sources.map((s) => [s.id, s.leaning]));
   const positions = b.blocks.flatMap((bl) =>
     bl.type === 'position' ? [{ label: bl.label, leaning: leaningById[bl.sourceId] ?? 0 }] : [],
   );
   const shared = b.blocks.find((bl) => bl.type === 'shared');
-  const auditFound = shared && 'text' in shared ? shared.text : briefingDek(b);
-  return { positions, auditFound, axis: b.spectrumAxis };
+  const firstProse = b.blocks.find((bl) => bl.type === 'prose');
+  // Explainers have no audit verdict — lead with the opening line instead.
+  const dek = isExplainer
+    ? (firstProse && 'text' in firstProse ? firstProse.text : briefingDek(b))
+    : (shared && 'text' in shared ? shared.text : briefingDek(b));
+  return { isExplainer, positions, dek, axis: b.spectrumAxis };
 }
 import { makeAuthDb } from '../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
@@ -182,21 +187,26 @@ const presentCategories = Object.keys(categoryCounts).sort();
                         <img src={b.image} alt="" loading="lazy" class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} object-cover rounded-md mb-4`} />
                       )}
                       <div class="flex items-center gap-2 mb-2.5 flex-wrap">
-                        {b.category && CATEGORY_STYLES[b.category] ? (
-                          <span class={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[b.category!].bg} ${CATEGORY_STYLES[b.category!].text}`}>
+                        <span class={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${card.isExplainer ? 'bg-slate-700 text-white' : 'bg-indigo-600 text-white'}`}>
+                          {card.isExplainer ? 'Explainer' : 'Briefing'}
+                        </span>
+                        {b.category && CATEGORY_STYLES[b.category] && (
+                          <span class={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[b.category!].chip}`}>
                             {b.category}
                           </span>
-                        ) : (
-                          <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-600 text-white">Briefing</span>
                         )}
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{card.positions.length} positions</span>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{b.sources.length} sources</span>
+                        {!card.isExplainer && (
+                          <>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{card.positions.length} positions</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{b.sources.length} sources</span>
+                          </>
+                        )}
                       </div>
                       <h3 class="font-serif text-lg sm:text-xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-2">
                         {b.question}
                       </h3>
                       <p class="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">
-                        <span class="font-medium text-gray-400">Audit found</span> — {card.auditFound}
+                        {card.isExplainer ? card.dek : (<><span class="font-medium text-gray-400">Audit found</span> — {card.dek}</>)}
                       </p>
                       {card.positions.length > 0 && (
                         <div>

@@ -31,11 +31,13 @@ export type BriefingBlock =
       audit:       PositionAudit;
     }
   | { type: 'shared';     text: string }                                   // the shared assumption (bottom line)
-  | { type: 'editorView'; text: string; whyWrong?: string };               // opinion, walled off
+  | { type: 'editorView'; text: string; whyWrong?: string }                // opinion, walled off
+  | { type: 'takes';      items: { source: string; url?: string; quote: string; audit: string }[] }; // curated external takes, audited
 
 export interface BriefingArticle {
   slug:          string;
-  question:      string;         // canonical, evergreen — the SEO/URL anchor
+  kind?:         'briefing' | 'explainer';   // explainer = essay, no spectrum/sources
+  question:      string;         // canonical, evergreen — the SEO/URL anchor (or the explainer title)
   hook?:         string;         // optional timely "why now" headline (current-affairs overlay)
   category?:     string;
   publishedDate: string;         // YYYY-MM-DD

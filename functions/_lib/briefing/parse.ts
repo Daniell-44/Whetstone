@@ -107,8 +107,19 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       let whyWrong: string | undefined;
       if (i < lines.length && /^::why-wrong/.test(lines[i])) { i += 1; whyWrong = readUntilMarker(); }
       blocks.push({ type: 'editorView', text, ...(whyWrong ? { whyWrong } : {}) });
+    } else if (name === 'takes') {
+      // source | url | quote | audit   (one curated external take per line)
+      const items = readUntilMarker()
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const p = line.split('|').map((x) => x.trim());
+          return { source: p[0] ?? '', url: p[1] || undefined, quote: p[2] ?? '', audit: p[3] ?? '' };
+        });
+      if (items.length) blocks.push({ type: 'takes', items });
     } else {
-      // unknown marker (e.g. ::takes — Piece 3 renders it later) — skip its body
+      // unknown marker — skip its body
       readUntilMarker();
     }
   }
@@ -116,6 +127,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
 
   return {
     slug,
+    ...(fm.type === 'explainer' ? { kind: 'explainer' as const } : {}),
     question:      fm.question ?? slug,
     ...(fm.hook ? { hook: fm.hook } : {}),
     ...(fm.category ? { category: fm.category } : {}),

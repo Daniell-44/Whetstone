@@ -40,3 +40,7 @@ Both sides, though, stand on the same floor. Each treats today's labour market a
 If forced to bet, the monopsony read is stronger at the wage levels actually proposed — but I hold it loosely, because those proposals keep drifting past the range we've studied.
 ::why-wrong
 A large enough jump leaves that studied range, and the textbook result could reassert itself.
+
+::takes
+Cato Institute commentary | https://www.cato.org/ | Every dollar above the market wage is a job the market won't create. | A clean syllogism — but its hidden premise, that the low-wage market clears competitively, is the very point in dispute.
+A New York Times opinion column | https://www.nytimes.com/ | The old textbook fear simply hasn't shown up in the data. | True of the rises we've actually measured; it quietly generalises to rises of any size — the same scope slip as the monopsony case.
