@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import BriefingArticle from '../../components/briefing/BriefingArticle.astro';
+import { briefings } from '../../data/briefings';
+
+export function getStaticPaths() {
+  return briefings.map((b) => ({ params: { slug: b.slug }, props: { briefing: b } }));
+}
+
+const { briefing } = Astro.props;
+---
+<Base
+  title={`${briefing.question} — The Whetstone`}
+  description={`A briefing on: ${briefing.question}`}
+  canonicalPath={`/briefing/${briefing.slug}`}
+>
+  <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24">
+    <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Briefings</a>
+    <div class="mt-5">
+      <BriefingArticle briefing={briefing} />
+    </div>
+  </main>
+</Base>
