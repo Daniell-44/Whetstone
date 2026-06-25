@@ -31,7 +31,10 @@ import { makeBillingDb } from '../../functions/_lib/billing/subscription';
 import { makeWorkspaceDb } from '../../functions/_lib/workspaces/db';
 import { userHasActiveSubscriptionViaWorkspace } from '../../functions/_lib/workspaces/permissions';
 
-const scorecards = await listScorecards(env.SCORECARDS);
+// Scorecards superseded by an article-format briefing — hidden from the feed so
+// they don't double-appear. (Remove the scorecard data entirely once migrated.)
+const SUPERSEDED_SCORECARDS = new Set(['minimum-wage-employment', 'ai-creative-jobs']);
+const scorecards = (await listScorecards(env.SCORECARDS)).filter((sc) => !SUPERSEDED_SCORECARDS.has(sc.slug));
 
 // Deeper lenses on the Reader are Pro-gated; detect subscription for the teaser.
 const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
