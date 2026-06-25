@@ -16,6 +16,12 @@ const toPct = (leaning: number) => ((leaning + 100) / 200) * 100;
 const assessed = sources.filter((s) => s.assessed);
 const faint    = sources.filter((s) => !s.assessed);
 const JITTER = [0, -6, 6, -3, 4, -5, 5, -4, 3];
+
+const total      = sources.length || 1;
+const leftCount  = sources.filter((s) => s.side === 'left').length;
+const midCount   = sources.filter((s) => s.side === 'mid').length;
+const rightCount = sources.filter((s) => s.side === 'right').length;
+const NEUTRAL    = '#C7C3B6';
 ---
 {sources.length > 0 && (
   <div>
@@ -31,8 +37,15 @@ const JITTER = [0, -6, 6, -3, 4, -5, 5, -4, 3];
           <div class="mx-auto" style={`width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid ${SIDE[s.side].dot};`}></div>
         </div>
       ))}
-      {/* track */}
-      <div class="absolute" style="top:76px;left:0;right:0;height:2px;background:#d1d5db;border-radius:2px;"></div>
+      {/* track — coloured in the exact split (left / mixed / right) */}
+      <div class="absolute flex" style="top:75px;left:0;right:0;height:4px;border-radius:2px;overflow:hidden;">
+        <div style={`width:${(leftCount / total) * 100}%;background:#185FA5;`}></div>
+        <div style={`width:${(midCount / total) * 100}%;background:${NEUTRAL};`}></div>
+        <div style={`width:${(rightCount / total) * 100}%;background:#993C1D;`}></div>
+      </div>
+      {/* count chips */}
+      <span class="absolute text-[9px] font-semibold rounded-full px-1.5" style="left:0;top:58px;background:#E6F1FB;color:#185FA5;">{leftCount}</span>
+      <span class="absolute text-[9px] font-semibold rounded-full px-1.5" style="right:0;top:58px;background:#FAECE7;color:#993C1D;">{rightCount}</span>
       {/* faint dots — hover for source */}
       {faint.map((s, i) => (
         <div class="absolute rounded-full" title={`${s.label}${s.publication ? ' · ' + s.publication : ''}`} style={`left:${toPct(s.leaning)}%;top:${76 + JITTER[i % JITTER.length]}px;width:6px;height:6px;background:${SIDE[s.side].dot};opacity:.5;transform:translate(-50%,-50%);`}></div>
@@ -44,6 +57,11 @@ const JITTER = [0, -6, 6, -3, 4, -5, 5, -4, 3];
       <span class="absolute text-[9px] text-gray-400" style="top:90px;left:0;">{axis.left}</span>
       <span class="absolute text-[9px] text-gray-400" style="top:90px;right:0;">{axis.right}</span>
     </div>
-    <p class="text-[10px] text-gray-400 mt-1 leading-snug">The sources quoted in the piece show by default; hover any other dot for its source.</p>
+    <div class="flex items-center gap-3 mt-1.5 text-[10px] text-gray-500 flex-wrap">
+      <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#185FA5;"></span>{axis.left}</span>
+      <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style={`background:${NEUTRAL};`}></span>mixed / unclear</span>
+      <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#993C1D;"></span>{axis.right}</span>
+    </div>
+    <p class="text-[10px] text-gray-400 mt-1 leading-snug">Quoted sources show by default; hover any dot for its source.</p>
   </div>
 )}
