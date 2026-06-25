@@ -22,7 +22,7 @@ const BASE_OUTPUT_FORMAT = `{
   },
   "namedFallacies": [
     {
-      "name":        "<one of the 23 allowed fallacy names>",
+      "name":        "<one of the allowed fallacy names listed below>",
       "quote":       "<verbatim substring from the input that exemplifies this fallacy>",
       "explanation": "<why this passage commits the fallacy>",
       "severity":    "high" | "medium" | "low",
@@ -32,7 +32,7 @@ const BASE_OUTPUT_FORMAT = `{
   "loadedLanguage": [
     {
       "phrase":      "<verbatim word or phrase from the input>",
-      "technique":   "<one of the 5 allowed technique names>",
+      "technique":   "<one of the allowed technique names listed below>",
       "explanation": "<how this phrase manipulates rather than informs>",
       "severity":    "high" | "medium" | "low",
       "confidence":  <integer 50–100>
