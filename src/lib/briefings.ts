@@ -1,5 +1,4 @@
-import { briefings as dataBriefings } from '../data/briefings';
-import { parseBriefingFile } from '../../functions/_lib/briefing/parse';
+import { parseBriefingFile, validateBriefing } from '../../functions/_lib/briefing/parse';
 import type { BriefingArticle } from '../../functions/_lib/briefing/types';
 
 // Markdown-authored briefings (src/content/briefings/*.md) parsed at build.
@@ -9,14 +8,21 @@ function slugFromPath(p: string): string {
   return (p.split('/').pop() ?? '').replace(/\.md$/, '');
 }
 
-const mdBriefings: BriefingArticle[] = Object.entries(files).map(([path, raw]) =>
-  parseBriefingFile(raw as string, slugFromPath(path)),
-);
+// Parse every file defensively: a malformed .md logs and is skipped rather than
+// crashing the whole build (which would blank the entire feed). Authoring
+// mistakes that still parse are surfaced as warnings via validateBriefing.
+const mdBriefings: BriefingArticle[] = Object.entries(files).flatMap(([path, raw]) => {
+  const slug = slugFromPath(path);
+  try {
+    const b = parseBriefingFile(raw as string, slug);
+    for (const w of validateBriefing(b)) console.warn(`[briefing:${slug}] ${w}`);
+    return [b];
+  } catch (err) {
+    console.error(`[briefing:${slug}] failed to parse — skipped. Fix the file and rebuild.\n`, err);
+    return [];
+  }
+});
 
-// Markdown wins on slug collision; legacy TS-object briefings fill in the rest.
-// Migrate each to markdown over time, then delete it from src/data/briefings.ts.
 export function getAllBriefings(): BriefingArticle[] {
-  const mdSlugs = new Set(mdBriefings.map((b) => b.slug));
-  return [...mdBriefings, ...dataBriefings.filter((b) => !mdSlugs.has(b.slug))]
-    .sort((a, b) => b.publishedDate.localeCompare(a.publishedDate));
+  return [...mdBriefings].sort((a, b) => b.publishedDate.localeCompare(a.publishedDate));
 }

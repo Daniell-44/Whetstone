@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
 import { totalFindingCount } from '../../lib/audit';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
@@ -95,7 +95,7 @@ function AuditLoading() {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function AuditForm({ isPro = false }: { isPro?: boolean }) {
+export default function AuditForm({ isPro = false, initialText = '' }: { isPro?: boolean; initialText?: string }) {
   const [tab, setTab]             = useState<Tab>('text');
   const [textInput, setTextInput] = useState('');
   const [urlInput, setUrlInput]   = useState('');
@@ -103,9 +103,23 @@ export default function AuditForm({ isPro = false }: { isPro?: boolean }) {
   const [error, setError]         = useState<string | null>(null);
   const [result, setResult]       = useState<AuditResult | null>(null);
   const [extraction, setExtraction] = useState<ArgumentExtractionResult | null>(null);
+  const [loadedFromLink, setLoadedFromLink] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
   // The text the audit ran against - used to drive the deeper-lens panel.
   // For text-tab audits it equals textInput; for URL audits it's the extracted article body.
   const [sourceText, setSourceText] = useState<string>('');
+
+  // /?audit=<slug> deep-link from a briefing: pre-load the text and bring the
+  // reader into view. We deliberately don't auto-run — the reader presses Audit
+  // — so a crawler or accidental prefetch of the link can't burn audit quota.
+  useEffect(() => {
+    if (initialText && initialText.length >= MIN_CHARS) {
+      setTab('text');
+      setTextInput(initialText);
+      setLoadedFromLink(true);
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
 
   const charCount = textInput.length;
   const textValid = charCount >= MIN_CHARS && charCount <= MAX_CHARS;
@@ -184,7 +198,15 @@ export default function AuditForm({ isPro = false }: { isPro?: boolean }) {
   }
 
   return (
-    <div class="space-y-5">
+    <div class="space-y-5" ref={formRef}>
+
+      {loadedFromLink && (
+        <div class="rounded-lg border border-indigo-200 bg-indigo-50/70 px-4 py-2.5">
+          <p class="text-xs text-indigo-700">
+            Loaded from a briefing — press <span class="font-semibold">Audit this argument</span> to run the full structural audit on it.
+          </p>
+        </div>
+      )}
 
       {/* Tab switcher */}
       <div class="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
@@ -213,7 +235,7 @@ export default function AuditForm({ isPro = false }: { isPro?: boolean }) {
               placeholder="Paste an article, speech, or any argumentative text…"
               rows={1}
               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
-              style="min-height: 44px;"
+              style={`min-height: ${loadedFromLink ? 180 : 44}px;`}
             />
             <div class="flex justify-between mt-1.5 text-xs">
               <span class={charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600' : charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>

@@ -13,6 +13,20 @@ import type { BriefingArticle } from '../../functions/_lib/briefing/types';
 
 const briefings = getAllBriefings();
 
+// "Audit the full article" deep-link: /?audit=<slug> pre-loads the reader with
+// the briefing's argumentative prose so a reader can run the engine on it.
+function briefingPlainText(b: BriefingArticle): string {
+  const parts: string[] = [];
+  for (const bl of b.blocks) {
+    if (bl.type === 'position') parts.push(bl.paragraph);
+    else if (bl.type === 'landscape' || bl.type === 'prose' || bl.type === 'shared' || bl.type === 'editorView') parts.push(bl.text);
+  }
+  return parts.join('\n\n').slice(0, 10_000);
+}
+const auditSlug    = Astro.url.searchParams.get('audit');
+const auditTarget  = auditSlug ? briefings.find((b) => b.slug === auditSlug) : undefined;
+const auditPrefill = auditTarget ? briefingPlainText(auditTarget) : '';
+
 function briefingDek(b: BriefingArticle): string {
   const l = b.blocks.find((bl) => bl.type === 'landscape');
   return l && 'text' in l ? l.text : '';
@@ -108,7 +122,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
     <!-- Audit form -->
     <section class="mb-12 sm:mb-16 max-w-4xl mx-auto">
-      <AuditForm isPro={isPro} client:load />
+      <AuditForm isPro={isPro} initialText={auditPrefill} client:load />
     </section>
 
     <!-- Scorecards section with left rail -->
