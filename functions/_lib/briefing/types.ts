@@ -24,6 +24,7 @@ export type BriefingBlock =
   | {
       type:        'position';
       colourIndex: number;       // index into the shared spectrum palette
+      label:       string;       // short stance label, e.g. "Mass displacement" (feed card + legend)
       sourceId:    string;       // → a BriefingSource with assessed:true
       quote:       string;       // the verbatim extract (rendered inline, tinted)
       paragraph:   string;       // the whole indented paragraph (contains the quote)

@@ -28,6 +28,7 @@ export const briefings: BriefingArticle[] = [
       {
         type: 'position',
         colourIndex: 0,
+        label: 'Price floors cut jobs',
         sourceId: 'wsj',
         quote: 'labour is no exception',
         paragraph: 'The traditional case is almost reflexively simple. As one Wall Street Journal columnist puts it, "raise the price of anything and people buy less of it — labour is no exception," and the people who lose their jobs are "the youngest and least-skilled, the very workers the policy claims to help." On its own terms it isn\'t wrong. But the whole case rests on two words — no exception — and that is precisely the claim in dispute.',
@@ -41,6 +42,7 @@ export const briefings: BriefingArticle[] = [
       {
         type: 'position',
         colourIndex: 1,
+        label: 'Monopsony absorbs it',
         sourceId: 'atlantic',
         quote: 'the job losses the theory predicts simply don’t show up',
         paragraph: 'A labour economist writing in The Atlantic answers directly: "we\'ve run this experiment dozens of times across dozens of states, and the job losses the theory predicts simply don\'t show up — what shows up is higher pay and lower turnover." Empirically it\'s the stronger hand. Yet it makes a quiet move of its own, sliding from the increases we\'ve actually measured to increases of any size — which proves that modest rises did little harm, not that no rise ever could.',
@@ -78,21 +80,21 @@ export const briefings: BriefingArticle[] = [
     blocks: [
       { type: 'landscape', text: 'The fight over whether generative AI ends creative work has narrowed from "can the machine do it?" to a quieter question: when production gets cheap, does the market for creative work shrink, hold, or grow?' },
       {
-        type: 'position', colourIndex: 0, sourceId: 'goldman',
+        type: 'position', colourIndex: 0, label: 'Mass displacement', sourceId: 'goldman',
         quote: '300 million jobs globally exposed',
         paragraph: 'The displacement case reaches for scale. Goldman Sachs put "300 million jobs globally exposed" to automation by generative models, and labour-economics models project a 40–60% cut in routine copywriting, illustration, and short-form editorial work by 2030. The logic is the long arc of automation: once the capability exists, affected sectors eventually shed most of their workers.',
         audit: { name: 'Texas Sharpshooter', kind: 'structural', explanation: 'The headline figure is drawn around the narrow sub-tasks where AI already matches median output, then generalised to whole occupations the studies never measured.' },
       },
       { type: 'prose', text: 'The optimists answer from the other end of the same data.' },
       {
-        type: 'position', colourIndex: 1, sourceId: 'mckinsey',
+        type: 'position', colourIndex: 1, label: 'Augmentation', sourceId: 'mckinsey',
         quote: 'no net headcount reduction',
         paragraph: 'Surveying 800 agencies through the first adoption wave, McKinsey reported "no net headcount reduction" — junior roles shifted toward oversight and editing, while output per worker and client demand rose together. The historical pattern, they argue, is that tools which raise output expand markets faster than they shrink employment.',
         audit: { name: 'Hasty Generalisation', kind: 'structural', explanation: 'The reassuring numbers come only from agencies that survived the transition; the ones that closed are absent from the sample, so survivorship bias understates displacement.' },
       },
       { type: 'prose', text: 'A third camp says both are right about different halves of the work.' },
       {
-        type: 'position', colourIndex: 2, sourceId: 'brookings',
+        type: 'position', colourIndex: 2, label: 'Bifurcation', sourceId: 'brookings',
         quote: 'commoditised production and distinctive authorship part ways',
         paragraph: 'Brookings draws the line down the middle: "commoditised production and distinctive authorship part ways." Stock-photography revenue collapsed while gallery and signature-artist markets grew in parallel — AI substitutes for the replicable and complements the distinctive. The boundary moves, but it doesn\'t close.',
         audit: { name: 'Unstated Power Assumption', kind: 'structural', explanation: 'It assumes markets can reliably tell "human" authorship from AI output — but that legibility depends on platform rules, copyright, and credentialing systems that are themselves in flux.' },
