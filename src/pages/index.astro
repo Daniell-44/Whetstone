@@ -8,8 +8,10 @@ import HeroHeadline from '../components/reader/HeroHeadline';
 import PositionSpectrum from '../components/scorecard/PositionSpectrum.astro';
 import { listScorecards } from '../../functions/_lib/scorecard/storage';
 import type { Scorecard } from '../../functions/_lib/scorecard/types';
-import { briefings } from '../data/briefings';
+import { getAllBriefings } from '../lib/briefings';
 import type { BriefingArticle } from '../../functions/_lib/briefing/types';
+
+const briefings = getAllBriefings();
 
 function briefingDek(b: BriefingArticle): string {
   const l = b.blocks.find((bl) => bl.type === 'landscape');

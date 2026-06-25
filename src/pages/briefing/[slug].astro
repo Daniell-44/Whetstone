@@ -1,10 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
 import BriefingArticle from '../../components/briefing/BriefingArticle.astro';
-import { briefings } from '../../data/briefings';
+import { getAllBriefings } from '../../lib/briefings';
 
 export function getStaticPaths() {
-  return briefings.map((b) => ({ params: { slug: b.slug }, props: { briefing: b } }));
+  return getAllBriefings().map((b) => ({ params: { slug: b.slug }, props: { briefing: b } }));
 }
 
 const { briefing } = Astro.props;
