@@ -21,6 +21,7 @@
     "extraction:demo": "tsx scripts/run-extraction.ts",
     "commitments:demo": "tsx scripts/run-commitments.ts",
     "citation:demo": "tsx scripts/run-citation-audit.ts",
+    "verify:quotes": "tsx scripts/verify-quotes.ts",
     "regen:samples": "tsx scripts/regen-samples.ts",
     "eval:grounded": "tsx evals/grounded/runner.ts"
   },
