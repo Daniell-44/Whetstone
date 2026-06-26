@@ -146,7 +146,9 @@ export async function auditText(
 
   const includePhase2     = deps.includePhase2 ?? false;
   const goalsPreamble     = deps.goals ? buildGoalsPreamble(deps.goals) : undefined;
-  const systemInstruction = buildSystemPrompt(includePhase2, goalsPreamble);
+  const systemInstruction = buildSystemPrompt(includePhase2, goalsPreamble, {
+    impartiality: deps.promptVariant === 'impartial',
+  });
 
   const { output: rawOutput, inputTokens, outputTokens } = await callWithRetry(
     () =>

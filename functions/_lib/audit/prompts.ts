@@ -206,12 +206,21 @@ The same verbatim-substring rule applies to every "evidence" and "quote" field e
 // Public API
 // ---------------------------------------------------------------------------
 
-export function buildSystemPrompt(includePhase2: boolean, goalsPreamble?: string): string {
+// Negative-prompting impartiality clause (experiment variant 'impartial').
+// Targets the documented sycophancy / agreement-bias / verbosity-bias failure
+// modes: the model should judge logic, not eloquence or agreement.
+const IMPARTIALITY_CLAUSE = ` Assess the argument strictly on its internal logic. Judge it the same way regardless of who wrote it, how persuasive or eloquent it reads, which side it argues, or whether you happen to agree with its conclusion. A fluent, well-written argument for a conclusion you favour can still be fallacious; a clumsy argument for a conclusion you dislike can still be sound. Do not let agreement, tone, or eloquence raise or lower a finding.`;
+
+export function buildSystemPrompt(
+  includePhase2: boolean,
+  goalsPreamble?: string,
+  opts?: { impartiality?: boolean },
+): string {
   const outputFormat = includePhase2
     ? `${BASE_OUTPUT_FORMAT}${PHASE2_OUTPUT_FORMAT}\n}`
     : `${BASE_OUTPUT_FORMAT}\n}`;
 
-  return `You are a rigorous argument analyst trained in informal logic, rhetoric, and critical thinking. Your task is to audit a piece of argumentative text and return a structured JSON object. Be precise, cite only verbatim text, and do not invent findings that are not present.
+  return `You are a rigorous argument analyst trained in informal logic, rhetoric, and critical thinking. Your task is to audit a piece of argumentative text and return a structured JSON object. Be precise, cite only verbatim text, and do not invent findings that are not present.${opts?.impartiality ? IMPARTIALITY_CLAUSE : ''}
 ${goalsPreamble ?? ''}
 ## Output format
 

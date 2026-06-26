@@ -145,4 +145,11 @@ export interface AuditDeps {
   backoffDelaysMs?: readonly number[];
   includePhase2?:   boolean;
   goals?:           import('./goals').DraftGoals;
+  /** Prompt experiment variant. 'control' (default) = the current production
+   *  prompt. 'impartial' adds a negative-prompting impartiality clause that
+   *  tells the model to judge the argument regardless of who wrote it, its
+   *  eloquence, or whether it agrees with the conclusion — a research-backed
+   *  sycophancy/verbosity-bias mitigation. A/B'd via the detection eval before
+   *  it ever becomes the default. */
+  promptVariant?:   'control' | 'impartial';
 }

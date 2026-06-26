@@ -23,15 +23,19 @@ if (!apiKey) {
 
 const provider = new GeminiProvider();
 
+// A/B the prompt: `pnpm eval:detection` (control) vs
+// `PROMPT_VARIANT=impartial pnpm eval:detection` (negative-prompting variant).
+const variant: 'control' | 'impartial' = process.env.PROMPT_VARIANT === 'impartial' ? 'impartial' : 'control';
+
 async function main(): Promise<void> {
-  console.log(`Running ${DETECTION_FIXTURES.length} detection fixtures...\n`);
+  console.log(`Running ${DETECTION_FIXTURES.length} detection fixtures  [variant: ${variant}]\n`);
   let TP = 0;
   let FP = 0;
   let FN = 0;
   const calSamples: Array<{ confidence: number; correct: boolean }> = [];
 
   for (const f of DETECTION_FIXTURES) {
-    const { audit } = await auditText(f.text, { provider, apiKey: apiKey! });
+    const { audit } = await auditText(f.text, { provider, apiKey: apiKey!, promptVariant: variant });
     const actualNames = audit.namedFallacies.map((x) => x.name);
     const m = matchFindings(f.expectedFallacies, actualNames);
     TP += m.tp; FP += m.fp; FN += m.fn;
