@@ -62,41 +62,57 @@ export interface ValidationReport {
   dropped:  string[];
 }
 
+// Verbatim modulo typography: unify smart quotes/dashes and collapse
+// whitespace (preserve case) so a finding isn't dropped merely because the
+// model emitted a straight apostrophe where the source has a curly one, or
+// normalised a line break to a space. A genuine paraphrase (different words)
+// still fails — this only tolerates typographic drift, not rewording.
+function normVerbatim(s: string): string {
+  return s
+    .replace(/[‘’ʼ]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—−]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function filterValidQuotes(audit: AuditResult, inputText: string): ValidationReport {
   const dropped: string[] = [];
+  const ni = normVerbatim(inputText);
+  const has = (s: string): boolean => ni.includes(normVerbatim(s));
 
   const namedFallacies = audit.namedFallacies.filter((f) => {
-    if (inputText.includes(f.quote)) return true;
+    if (has(f.quote)) return true;
     dropped.push(`namedFallacies[${f.name}]`);
     return false;
   });
 
   const loadedLanguage = audit.loadedLanguage.filter((l) => {
-    if (inputText.includes(l.phrase)) return true;
+    if (has(l.phrase)) return true;
     dropped.push(`loadedLanguage[${l.technique}]`);
     return false;
   });
 
   const keyTermScrutiny = audit.keyTermScrutiny.filter((k) => {
-    if (inputText.includes(k.usage_a) && inputText.includes(k.usage_b)) return true;
+    if (has(k.usage_a) && has(k.usage_b)) return true;
     dropped.push(`keyTermScrutiny[${k.term}]`);
     return false;
   });
 
   const referentChecks = audit.referentChecks.filter((r) => {
-    if (inputText.includes(r.evidence)) return true;
+    if (has(r.evidence)) return true;
     dropped.push(`referentChecks[${r.phrase}]`);
     return false;
   });
 
   const falsifiabilityChecks = audit.falsifiabilityChecks.filter((f) => {
-    if (inputText.includes(f.evidence)) return true;
+    if (has(f.evidence)) return true;
     dropped.push(`falsifiabilityChecks[${f.claim.slice(0, 30)}]`);
     return false;
   });
 
   const modalScopeChecks = audit.modalScopeChecks.filter((m) => {
-    if (inputText.includes(m.evidence)) return true;
+    if (has(m.evidence)) return true;
     dropped.push(`modalScopeChecks[${m.claim.slice(0, 30)}]`);
     return false;
   });
@@ -147,7 +163,8 @@ export async function auditText(
   const includePhase2     = deps.includePhase2 ?? false;
   const goalsPreamble     = deps.goals ? buildGoalsPreamble(deps.goals) : undefined;
   const systemInstruction = buildSystemPrompt(includePhase2, goalsPreamble, {
-    impartiality: deps.promptVariant === 'impartial',
+    impartiality:   deps.promptVariant?.impartiality ?? false,
+    reasoningFirst: deps.promptVariant?.reasoningFirst ?? false,
   });
 
   const { output: rawOutput, inputTokens, outputTokens } = await callWithRetry(

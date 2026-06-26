@@ -211,14 +211,22 @@ The same verbatim-substring rule applies to every "evidence" and "quote" field e
 // modes: the model should judge logic, not eloquence or agreement.
 const IMPARTIALITY_CLAUSE = ` Assess the argument strictly on its internal logic. Judge it the same way regardless of who wrote it, how persuasive or eloquent it reads, which side it argues, or whether you happen to agree with its conclusion. A fluent, well-written argument for a conclusion you favour can still be fallacious; a clumsy argument for a conclusion you dislike can still be sound. Do not let agreement, tone, or eloquence raise or lower a finding.`;
 
+// Reasoning-first scratchpad field (experiment variant 'reasoningFirst').
+// Stripped downstream by the (non-strict) Zod schema. NOTE: the engine already
+// runs with a thinking budget, so this may be redundant — it's an experiment.
+const REASONING_FIELD = `  "_reasoning": "<Before filling any field below, reason here first: reconstruct the argument (claim, grounds, warrant), then for each candidate finding check that it is genuinely present and anchored to a verbatim quote. This field is ignored downstream.>",\n`;
+
 export function buildSystemPrompt(
   includePhase2: boolean,
   goalsPreamble?: string,
-  opts?: { impartiality?: boolean },
+  opts?: { impartiality?: boolean; reasoningFirst?: boolean },
 ): string {
-  const outputFormat = includePhase2
+  let outputFormat = includePhase2
     ? `${BASE_OUTPUT_FORMAT}${PHASE2_OUTPUT_FORMAT}\n}`
     : `${BASE_OUTPUT_FORMAT}\n}`;
+  if (opts?.reasoningFirst) {
+    outputFormat = outputFormat.replace('{\n', `{\n${REASONING_FIELD}`);
+  }
 
   return `You are a rigorous argument analyst trained in informal logic, rhetoric, and critical thinking. Your task is to audit a piece of argumentative text and return a structured JSON object. Be precise, cite only verbatim text, and do not invent findings that are not present.${opts?.impartiality ? IMPARTIALITY_CLAUSE : ''}
 ${goalsPreamble ?? ''}

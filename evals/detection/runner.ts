@@ -23,19 +23,26 @@ if (!apiKey) {
 
 const provider = new GeminiProvider();
 
-// A/B the prompt: `pnpm eval:detection` (control) vs
-// `PROMPT_VARIANT=impartial pnpm eval:detection` (negative-prompting variant).
-const variant: 'control' | 'impartial' = process.env.PROMPT_VARIANT === 'impartial' ? 'impartial' : 'control';
+// A/B the prompt: PROMPT_VARIANT = control | impartial | reasoning | both.
+//   pnpm eval:detection                              (control baseline)
+//   PROMPT_VARIANT=impartial pnpm eval:detection     (negative-prompting)
+//   PROMPT_VARIANT=reasoning pnpm eval:detection     (reasoning-first scratchpad)
+//   PROMPT_VARIANT=both pnpm eval:detection          (both)
+const ENV = (process.env.PROMPT_VARIANT ?? 'control').toLowerCase();
+const promptVariant = {
+  impartiality:   ENV === 'impartial' || ENV === 'both',
+  reasoningFirst: ENV === 'reasoning' || ENV === 'both',
+};
 
 async function main(): Promise<void> {
-  console.log(`Running ${DETECTION_FIXTURES.length} detection fixtures  [variant: ${variant}]\n`);
+  console.log(`Running ${DETECTION_FIXTURES.length} detection fixtures  [variant: ${ENV}]\n`);
   let TP = 0;
   let FP = 0;
   let FN = 0;
   const calSamples: Array<{ confidence: number; correct: boolean }> = [];
 
   for (const f of DETECTION_FIXTURES) {
-    const { audit } = await auditText(f.text, { provider, apiKey: apiKey!, promptVariant: variant });
+    const { audit } = await auditText(f.text, { provider, apiKey: apiKey!, promptVariant });
     const actualNames = audit.namedFallacies.map((x) => x.name);
     const m = matchFindings(f.expectedFallacies, actualNames);
     TP += m.tp; FP += m.fp; FN += m.fn;

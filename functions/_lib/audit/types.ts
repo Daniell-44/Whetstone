@@ -145,11 +145,14 @@ export interface AuditDeps {
   backoffDelaysMs?: readonly number[];
   includePhase2?:   boolean;
   goals?:           import('./goals').DraftGoals;
-  /** Prompt experiment variant. 'control' (default) = the current production
-   *  prompt. 'impartial' adds a negative-prompting impartiality clause that
-   *  tells the model to judge the argument regardless of who wrote it, its
-   *  eloquence, or whether it agrees with the conclusion — a research-backed
-   *  sycophancy/verbosity-bias mitigation. A/B'd via the detection eval before
-   *  it ever becomes the default. */
-  promptVariant?:   'control' | 'impartial';
+  /** Prompt experiment flags. All default off = the current production prompt.
+   *  Each is A/B'd via the detection eval before it ever becomes a default.
+   *   - impartiality:   negative-prompting clause — judge the argument on its
+   *     logic regardless of who wrote it, its eloquence, or whether you agree
+   *     (sycophancy / verbosity-bias mitigation).
+   *   - reasoningFirst: ask the model to emit a stripped `_reasoning` field
+   *     before the scored fields. NOTE the engine already runs with a thinking
+   *     budget, so this may be redundant — kept off-by-default for the eval to
+   *     settle whether it adds anything. */
+  promptVariant?:   { impartiality?: boolean; reasoningFirst?: boolean };
 }

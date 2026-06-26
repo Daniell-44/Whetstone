@@ -22,3 +22,21 @@ describe('buildSystemPrompt impartiality variant', () => {
     expect(impartial.length).toBeGreaterThan(control.length);
   });
 });
+
+describe('buildSystemPrompt reasoningFirst variant', () => {
+  it('control (default) omits the _reasoning field — production is unchanged', () => {
+    expect(buildSystemPrompt(false)).not.toContain('"_reasoning"');
+  });
+
+  it('reasoningFirst injects a _reasoning field before centralClaim', () => {
+    const p = buildSystemPrompt(false, undefined, { reasoningFirst: true });
+    expect(p).toContain('"_reasoning"');
+    expect(p.indexOf('"_reasoning"')).toBeLessThan(p.indexOf('"centralClaim"'));
+  });
+
+  it('flags compose independently', () => {
+    const both = buildSystemPrompt(false, undefined, { impartiality: true, reasoningFirst: true });
+    expect(both).toContain(MARKER);
+    expect(both).toContain('"_reasoning"');
+  });
+});
