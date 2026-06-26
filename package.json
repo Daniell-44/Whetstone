@@ -23,7 +23,8 @@
     "citation:demo": "tsx scripts/run-citation-audit.ts",
     "verify:quotes": "tsx scripts/verify-quotes.ts",
     "regen:samples": "tsx scripts/regen-samples.ts",
-    "eval:grounded": "tsx evals/grounded/runner.ts"
+    "eval:grounded": "tsx evals/grounded/runner.ts",
+    "eval:detection": "tsx evals/detection/runner.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.3",
