@@ -220,7 +220,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                         {b.question}
                       </h3>
                       <p class="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">
-                        {card.isExplainer ? card.dek : (<><span class="font-medium text-gray-400">Audit found</span> — {card.dek}</>)}
+                        {card.isExplainer ? card.dek : (<><span class="font-medium text-gray-400">Audit found</span>: {card.dek}</>)}
                       </p>
                       {card.positions.length > 0 && (
                         <div>
@@ -269,7 +269,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                     {scorecards[0].question}
                   </h3>
                   <p class="text-base sm:text-lg text-gray-500 leading-relaxed mb-4">
-                    <span class="font-medium text-gray-400">Audit found</span> — {cardMeta(scorecards[0]).auditFound}
+                    <span class="font-medium text-gray-400">Audit found</span>: {cardMeta(scorecards[0]).auditFound}
                   </p>
                   {scorecards[0].positions && scorecards[0].positions.length > 0 && (
                     scorecards[0].spectrumAxis ? (
@@ -335,7 +335,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                       {sc.question}
                     </h3>
                     <p class="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">
-                      <span class="font-medium text-gray-400">Audit found</span> — {cardMeta(sc).auditFound}
+                      <span class="font-medium text-gray-400">Audit found</span>: {cardMeta(sc).auditFound}
                     </p>
                     {sc.positions && sc.positions.length > 0 && (
                       sc.spectrumAxis ? (

@@ -12,30 +12,30 @@ const ICONS = {
 };
 
 const FEATURES = [
-  { icon: ICONS.structure, title: 'Argument structure', body: 'Toulmin decomposition — claim, grounds, warrant, and the weakest link. The skeleton of the argument, stripped of rhetoric.' },
-  { icon: ICONS.patterns,  title: '26 reasoning patterns', body: 'Post Hoc to Motte-and-Bailey, Selection Bias to Genetic Fallacy — each with the verbatim quote that exemplifies it and a severity.' },
-  { icon: ICONS.counter,   title: 'Counterarguments', body: "The 2–3 strongest objections a thoughtful opponent would deploy — each steelmanned, each with its own Toulmin structure." },
-  { icon: ICONS.citation,  title: 'Citation audit', body: 'Every cited URL is fetched and checked — does the source actually support the claim it is cited for?' },
-  { icon: ICONS.framework, title: 'Frameworks made visible', body: 'The ethical, epistemic, and political framework the argument operates within — surfaced so you can defend or replace it.' },
+  { icon: ICONS.structure, title: 'Argument structure', body: 'Toulmin decomposition: claim, grounds, warrant, and the weakest link. The skeleton of the argument, stripped of rhetoric.' },
+  { icon: ICONS.patterns,  title: '26 reasoning patterns', body: 'Post Hoc to Motte-and-Bailey, Selection Bias to Genetic Fallacy, each with the verbatim quote that exemplifies it and a severity.' },
+  { icon: ICONS.counter,   title: 'Counterarguments', body: "The two or three strongest objections a thoughtful opponent would deploy, each steelmanned, each with its own Toulmin structure." },
+  { icon: ICONS.citation,  title: 'Citation audit', body: 'Every cited URL is fetched and checked: does the source actually support the claim it is cited for?' },
+  { icon: ICONS.framework, title: 'Frameworks made visible', body: 'The ethical, epistemic, and political framework the argument operates within, surfaced so you can defend or replace it.' },
   { icon: ICONS.evidence,  title: 'Evidence-weighted likelihood', body: 'For empirical claims, we search 200M+ academic papers and synthesise where the scientific consensus actually sits.' },
 ];
 
 const STEPS = [
   { n: '1', title: 'Paste an argument', body: 'An op-ed, a thread, a draft, a transcript, or a URL. No account needed to start.', icon: 'M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z' },
-  { n: '2', title: 'Eleven lenses run', body: 'Structure, fallacies, loaded language, hidden assumptions, key terms, testability and more — in parallel.', icon: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z' },
-  { n: '3', title: 'See the structure', body: 'A structured report — verbatim quotes, severities, and where each finding sits in the argument.', icon: 'M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178zM15 12a3 3 0 11-6 0 3 3 0 016 0z' },
+  { n: '2', title: 'Eleven lenses run', body: 'Structure, fallacies, loaded language, hidden assumptions, key terms, testability and more, all in parallel.', icon: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z' },
+  { n: '3', title: 'See the structure', body: 'A structured report: verbatim quotes, severities, and where each finding sits in the argument.', icon: 'M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178zM15 12a3 3 0 11-6 0 3 3 0 016 0z' },
 ];
 
 const WONT = [
-  { h: "It won't adjudicate claims.", p: 'The tool analyses argument structure, not the factual accuracy of specific assertions — though the citation and evidence lenses help.' },
+  { h: "It won't adjudicate claims.", p: 'The tool analyses argument structure, not the factual accuracy of specific assertions, though the citation and evidence lenses help.' },
   { h: "It's not a political moderator.", p: 'The same engine runs on a climate-policy argument and its counter. The frame is neutral; the conclusions you draw remain yours.' },
-  { h: "It's not a writing improver.", p: 'It audits but does not rewrite. Preserving your voice is deliberate — fixing flagged issues stays with you.' },
+  { h: "It's not a writing improver.", p: 'It audits but does not rewrite. Preserving your voice is deliberate. Fixing flagged issues stays with you.' },
   { h: 'It is not always right.', p: 'Findings flag structure, not verdicts. Treat them as prompts to look more carefully; calibration improves with feedback.' },
 ];
 ---
 <Base
   title="About - The Whetstone"
-  description="The Whetstone shows the structure behind any argument — claims, evidence, where the logic breaks down, and the strongest opposing case. Eleven analytical lenses, grounded in real philosophy."
+  description="The Whetstone shows the structure behind any argument: claims, evidence, where the logic breaks down, and the strongest opposing case. Eleven analytical lenses, grounded in real philosophy."
   canonicalPath="/about"
 >
   <main>
@@ -48,13 +48,13 @@ const WONT = [
             See the structure<br class="hidden sm:block" /> behind every argument.
           </h1>
           <p class="text-lg sm:text-xl text-gray-500 leading-relaxed max-w-2xl mb-8">
-            The Whetstone reads any text as an argument — what's claimed, what evidence is offered, where the logic
+            The Whetstone reads any text as an argument: what's claimed, what evidence is offered, where the logic
             breaks down, and the strongest opposing case the writer didn't engage. Not a verdict on who's right.
             A structural view of how the argument works.
           </p>
           <div class="flex flex-wrap gap-3 sm:gap-4">
             <a href="/reader" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors">
-              Try the audit — free
+              Try the audit, free
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
             </a>
             <a href="/creator/studio" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 text-sm font-semibold text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -70,7 +70,7 @@ const WONT = [
               <span class="w-2.5 h-2.5 rounded-full bg-gray-200"></span>
               <span class="w-2.5 h-2.5 rounded-full bg-gray-200"></span>
               <span class="w-2.5 h-2.5 rounded-full bg-gray-200"></span>
-              <span class="ml-2 text-[10px] font-medium text-gray-400">The Whetstone — audit</span>
+              <span class="ml-2 text-[10px] font-medium text-gray-400">The Whetstone audit</span>
             </div>
             <div class="p-4 space-y-3">
               <p class="text-xs text-gray-700 leading-relaxed font-serif">
@@ -87,7 +87,7 @@ const WONT = [
                   </div>
                 </div>
                 <p class="text-[11px] text-gray-600 leading-relaxed">
-                  Attacks the messenger's standing rather than engaging the claim — "the experts are compromised,
+                  Attacks the messenger's standing rather than engaging the claim: "the experts are compromised,
                   therefore wrong" doesn't follow.
                 </p>
               </div>
@@ -127,7 +127,7 @@ const WONT = [
     <section class="border-t border-gray-200">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
         <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">What the engine analyses</h2>
-        <p class="text-sm text-gray-500 mb-8 max-w-2xl">Eleven lenses, each grounded in a real tradition of logic and argument analysis — from Toulmin's argument model to key-term, referential, and testability scrutiny. Six of the headline outputs:</p>
+        <p class="text-sm text-gray-500 mb-8 max-w-2xl">Eleven lenses, each grounded in a real tradition of logic and argument analysis: from Toulmin's argument model to key-term, referential, and testability scrutiny. Six of the headline outputs:</p>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden bg-white">
           {FEATURES.map((f) => (
             <div class="p-6 border-b border-r border-gray-200">
@@ -177,7 +177,7 @@ const WONT = [
           <div class="rounded-xl border border-gray-200 p-6">
             <p class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Chrome extension</p>
             <h3 class="font-serif text-xl text-gray-900 mb-2">Audit as you read</h3>
-            <p class="text-sm text-gray-500 leading-relaxed mb-3">Analyse any argument inline while reading on the web — highlights overlay the page itself. Coming to the Web Store.</p>
+            <p class="text-sm text-gray-500 leading-relaxed mb-3">Analyse any argument inline while reading on the web. Highlights overlay the page itself. Coming to the Web Store.</p>
             <p class="text-sm font-semibold text-gray-400">Coming soon</p>
           </div>
         </div>
@@ -191,7 +191,7 @@ const WONT = [
           <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Open and inspectable</h2>
           <p class="text-base text-gray-600 leading-relaxed mb-4">
             Every prompt, schema, and analytical framework is in the public repository. A tool that shapes how people
-            read arguments should itself be transparent — if a finding seems off, you can read the prompt that produced it.
+            read arguments should itself be transparent: if a finding seems off, you can read the prompt that produced it.
           </p>
           <a href="https://github.com/Daniell-44/Whetstone" target="_blank" rel="noopener" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">View on GitHub →</a>
         </div>

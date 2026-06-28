@@ -65,7 +65,7 @@ function AuditLoading() {
         <div class="h-1.5 w-full rounded-full bg-indigo-100 overflow-hidden">
           <div class="h-full rounded-full bg-indigo-500 transition-[width] duration-500 ease-out" style={`width:${pct}%`} />
         </div>
-        <p class="text-xs text-indigo-400 mt-2">Mapping the structure and checking for logical issues — usually 10–20 seconds.</p>
+        <p class="text-xs text-indigo-400 mt-2">Mapping the structure and checking for logical issues, usually 10–20 seconds.</p>
       </div>
 
       <div class="flex flex-col xl:flex-row gap-4 items-start">
@@ -203,7 +203,7 @@ export default function AuditForm({ isPro = false, initialText = '' }: { isPro?:
       {loadedFromLink && (
         <div class="rounded-lg border border-indigo-200 bg-indigo-50/70 px-4 py-2.5">
           <p class="text-xs text-indigo-700">
-            Loaded from a briefing — press <span class="font-semibold">Audit this argument</span> to run the full structural audit on it.
+            Loaded from a briefing. Press <span class="font-semibold">Audit this argument</span> to run the full structural audit on it.
           </p>
         </div>
       )}
