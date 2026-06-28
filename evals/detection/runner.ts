@@ -23,15 +23,19 @@ if (!apiKey) {
 
 const provider = new GeminiProvider();
 
-// A/B the prompt: PROMPT_VARIANT = control | impartial | reasoning | both.
-//   pnpm eval:detection                              (control baseline)
-//   PROMPT_VARIANT=impartial pnpm eval:detection     (negative-prompting)
-//   PROMPT_VARIANT=reasoning pnpm eval:detection     (reasoning-first scratchpad)
-//   PROMPT_VARIANT=both pnpm eval:detection          (both)
+// A/B the prompt. PROMPT_VARIANT = a comma/plus list of flags, or a preset:
+//   control | impartial | reasoning | soundness | criticalq | precision | all
+//   precision = impartial + soundness + criticalq (the over-detection package)
+//   e.g.  PROMPT_VARIANT=soundness,criticalq pnpm eval:detection
 const ENV = (process.env.PROMPT_VARIANT ?? 'control').toLowerCase();
+const tokens = ENV.split(/[,+\s]+/).filter(Boolean);
+const has = (t: string) => tokens.includes(t) || tokens.includes('all');
+const precision = tokens.includes('precision');
 const promptVariant = {
-  impartiality:   ENV === 'impartial' || ENV === 'both',
-  reasoningFirst: ENV === 'reasoning' || ENV === 'both',
+  impartiality:      precision || has('impartial'),
+  reasoningFirst:    has('reasoning'),
+  soundnessGate:     precision || has('soundness'),
+  criticalQuestions: precision || has('criticalq'),
 };
 
 async function main(): Promise<void> {

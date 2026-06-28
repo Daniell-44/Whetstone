@@ -40,3 +40,32 @@ describe('buildSystemPrompt reasoningFirst variant', () => {
     expect(both).toContain('"_reasoning"');
   });
 });
+
+describe('buildSystemPrompt precision variants', () => {
+  it('control omits both precision blocks — production unchanged', () => {
+    const p = buildSystemPrompt(false);
+    expect(p).not.toContain('Soundness gate');
+    expect(p).not.toContain('most charitable VALID reading');
+  });
+
+  it('soundnessGate injects the detect-then-classify block', () => {
+    const p = buildSystemPrompt(false, undefined, { soundnessGate: true });
+    expect(p).toContain('Soundness gate');
+    expect(p).toContain('Default to SOUND');
+  });
+
+  it('criticalQuestions injects the charitable-reading block', () => {
+    const p = buildSystemPrompt(false, undefined, { criticalQuestions: true });
+    expect(p).toContain('most charitable VALID reading');
+  });
+
+  it('all four flags compose', () => {
+    const p = buildSystemPrompt(false, undefined, {
+      impartiality: true, reasoningFirst: true, soundnessGate: true, criticalQuestions: true,
+    });
+    expect(p).toContain(MARKER);
+    expect(p).toContain('"_reasoning"');
+    expect(p).toContain('Soundness gate');
+    expect(p).toContain('most charitable VALID reading');
+  });
+});

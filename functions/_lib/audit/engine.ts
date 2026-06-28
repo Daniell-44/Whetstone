@@ -163,8 +163,10 @@ export async function auditText(
   const includePhase2     = deps.includePhase2 ?? false;
   const goalsPreamble     = deps.goals ? buildGoalsPreamble(deps.goals) : undefined;
   const systemInstruction = buildSystemPrompt(includePhase2, goalsPreamble, {
-    impartiality:   deps.promptVariant?.impartiality ?? false,
-    reasoningFirst: deps.promptVariant?.reasoningFirst ?? false,
+    impartiality:      deps.promptVariant?.impartiality ?? false,
+    reasoningFirst:    deps.promptVariant?.reasoningFirst ?? false,
+    soundnessGate:     deps.promptVariant?.soundnessGate ?? false,
+    criticalQuestions: deps.promptVariant?.criticalQuestions ?? false,
   });
 
   const { output: rawOutput, inputTokens, outputTokens } = await callWithRetry(

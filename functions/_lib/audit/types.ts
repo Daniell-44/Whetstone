@@ -147,12 +147,23 @@ export interface AuditDeps {
   goals?:           import('./goals').DraftGoals;
   /** Prompt experiment flags. All default off = the current production prompt.
    *  Each is A/B'd via the detection eval before it ever becomes a default.
-   *   - impartiality:   negative-prompting clause — judge the argument on its
+   *   - impartiality:    negative-prompting clause — judge the argument on its
    *     logic regardless of who wrote it, its eloquence, or whether you agree
    *     (sycophancy / verbosity-bias mitigation).
-   *   - reasoningFirst: ask the model to emit a stripped `_reasoning` field
-   *     before the scored fields. NOTE the engine already runs with a thinking
-   *     budget, so this may be redundant — kept off-by-default for the eval to
-   *     settle whether it adds anything. */
-  promptVariant?:   { impartiality?: boolean; reasoningFirst?: boolean };
+   *   - reasoningFirst:  emit a stripped `_reasoning` field before the scored
+   *     fields. The engine already runs with a thinking budget, so possibly
+   *     redundant — off by default for the eval to settle.
+   *   - soundnessGate:   detect-then-classify (research Flow 2) — decide the
+   *     reasoning is sound by default, only flag on a specific structural flaw.
+   *     Precision-oriented; targets over-detection.
+   *   - criticalQuestions: charitable reading + Walton critical-questions guard
+   *     (research Flow 1) — before flagging, take the most charitable valid
+   *     reading and check the scheme's critical questions; a legitimate move
+   *     that answers them is not a fallacy. Precision-oriented. */
+  promptVariant?:   {
+    impartiality?:      boolean;
+    reasoningFirst?:    boolean;
+    soundnessGate?:     boolean;
+    criticalQuestions?: boolean;
+  };
 }

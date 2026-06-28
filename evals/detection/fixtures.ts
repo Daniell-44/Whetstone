@@ -64,4 +64,92 @@ export const DETECTION_FIXTURES: DetectionFixture[] = [
     expectedFallacies: [],
     notes: 'A balanced normative trade-off that acknowledges the downside; nothing fallacious.',
   },
+
+  // --- Clear fallacies, batch 2 (recall; gold labels need Daniel's review) ---
+  {
+    id: 'det-straw-man',
+    text: 'Those who want any gun regulation at all are really arguing that families should not be allowed to defend themselves — a position almost no one actually holds.',
+    expectedFallacies: ['Straw Man'],
+    notes: 'Recasts "any regulation" as "no self-defence", attacking a position no one took.',
+  },
+  {
+    id: 'det-hasty-generalisation',
+    text: 'I have met three rude people from that city, so the people there are rude.',
+    expectedFallacies: ['Hasty Generalisation'],
+    notes: 'Sweeping conclusion from a tiny sample.',
+  },
+  {
+    id: 'det-circular',
+    text: 'The president is trustworthy because he says he is, and an honest man would never lie about being trustworthy.',
+    expectedFallacies: ['Circular Reasoning'],
+    notes: 'The conclusion (trustworthy) is assumed in the premise.',
+  },
+  {
+    id: 'det-no-true-scotsman',
+    text: 'No genuine socialist would support that policy. The party leader supports it — so he is not a genuine socialist.',
+    expectedFallacies: ['No True Scotsman'],
+    notes: 'Redefines the category to exclude the counter-example.',
+  },
+  {
+    id: 'det-cherry-picking',
+    text: 'Of the ten trials on the drug, the brochure cites only the two that found a benefit and omits the rest.',
+    expectedFallacies: ['Cherry-Picking'],
+    notes: 'Selects only the favourable items from an available evidence base.',
+  },
+  {
+    id: 'det-tu-quoque',
+    text: 'The doctor told me to lose weight, but she is overweight herself, so I will ignore the advice.',
+    expectedFallacies: ['Tu Quoque'],
+    notes: 'Deflects the advice by pointing at the adviser.',
+  },
+  {
+    id: 'det-equivocation',
+    text: 'The sign said it is fine to park here, and a fine is a punishment, so parking here gets you punished.',
+    expectedFallacies: ['Equivocation'],
+    notes: 'Slides between two senses of "fine".',
+  },
+
+  // --- Adversarial clean, batch 2 (precision / over-detection baits) ---
+  {
+    id: 'det-clean-grounded-slippery',
+    text: 'If we miss this payment the account goes to collections, which lowers our credit score, which raises our borrowing costs next quarter — each step is spelled out in the contract.',
+    expectedFallacies: [],
+    notes: 'A supported causal chain with a stated mechanism — NOT a slippery slope. Baits over-detection.',
+  },
+  {
+    id: 'det-clean-valid-disjunction',
+    text: 'The package is either still at the depot or already out for delivery. It is not at the depot, so it is out for delivery.',
+    expectedFallacies: [],
+    notes: 'Valid disjunctive syllogism — no fallacy.',
+  },
+  {
+    id: 'det-clean-normative',
+    text: 'We ought to treat the patients in the most pain first, because relieving severe suffering matters more than easing minor discomfort.',
+    expectedFallacies: [],
+    notes: 'A value argument; normative, not fallacious. Should not be flagged.',
+  },
+  {
+    id: 'det-clean-qualified-generalisation',
+    text: 'In our three trials, and consistent with the larger published studies we cite, the treatment reduced symptoms; we therefore expect a modest benefit, pending the ongoing trial.',
+    expectedFallacies: [],
+    notes: 'Properly qualified and cites larger evidence — not a hasty generalisation. Baits over-detection.',
+  },
+  {
+    id: 'det-clean-bias-flag',
+    text: 'Before trusting the safety report, note it was written by the manufacturer\'s own lab — a reason to seek independent verification, not to dismiss it outright.',
+    expectedFallacies: [],
+    notes: 'Legitimate conflict-of-interest flagging that explicitly does NOT dismiss the claim — NOT ad hominem. Baits over-detection.',
+  },
+  {
+    id: 'det-clean-concession',
+    text: 'The policy has real costs for small firms, and I do not dismiss that. But the targeted relief offsets most of it, so on balance it is worth doing.',
+    expectedFallacies: [],
+    notes: 'Acknowledges the downside; balanced reasoning, nothing fallacious.',
+  },
+  {
+    id: 'det-clean-good-analogy',
+    text: 'The accounts were checked line by line by an independent auditor and passed every test, so we can rely on them for the forecast.',
+    expectedFallacies: [],
+    notes: 'Support is the audit itself, not rhetoric — should not be flagged.',
+  },
 ];

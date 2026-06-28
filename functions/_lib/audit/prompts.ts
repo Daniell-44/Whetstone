@@ -216,10 +216,29 @@ const IMPARTIALITY_CLAUSE = ` Assess the argument strictly on its internal logic
 // runs with a thinking budget, so this may be redundant — it's an experiment.
 const REASONING_FIELD = `  "_reasoning": "<Before filling any field below, reason here first: reconstruct the argument (claim, grounds, warrant), then for each candidate finding check that it is genuinely present and anchored to a verbatim quote. This field is ignored downstream.>",\n`;
 
+// Detect-then-classify (experiment variant 'soundnessGate', research Flow 2).
+// Precision-oriented: default to sound, only flag on a specific structural flaw.
+const SOUNDNESS_GATE = `
+
+## Soundness gate (apply before flagging any fallacy)
+First decide whether the argument's reasoning is structurally sound — does the conclusion genuinely fail to follow from the premises? Default to SOUND. Only flag a named fallacy when you can point to a specific structural flaw in the inference. Do NOT flag on the basis of rhetorical style, confident or emotional tone, or the mere presence of an expert citation, a statistic, or an analogy — none of those is a fallacy in itself. A sound argument yields an empty namedFallacies array.`;
+
+// Charitable reading + Walton critical questions (variant 'criticalQuestions',
+// research Flow 1). Precision-oriented: many "fallacies" are legitimate when
+// their critical questions are satisfied.
+const CRITICAL_QUESTIONS = `
+
+## Charitable reading + critical questions (apply before flagging)
+Before naming a fallacy: (1) state to yourself the most charitable VALID reading of the passage; (2) for the candidate pattern, ask the critical questions that decide whether the move is legitimate here, and flag only if the argument fails them. Many patterns are legitimate defeasible moves when their critical questions are met:
+- Appeal to authority: is the source a genuine expert in THIS domain, free of disqualifying conflict, and consistent with expert consensus? A qualified expert citation that meets these is NOT a fallacy.
+- Slippery slope: is a causal mechanism actually given for each step? A supported causal chain is NOT a fallacy.
+- Ad hominem: does the passage dismiss the claim because of the person, or merely flag a bias and call for scrutiny? Noting a conflict of interest without dismissing the claim is NOT a fallacy.
+If the charitable reading survives the critical questions, do not flag.`;
+
 export function buildSystemPrompt(
   includePhase2: boolean,
   goalsPreamble?: string,
-  opts?: { impartiality?: boolean; reasoningFirst?: boolean },
+  opts?: { impartiality?: boolean; reasoningFirst?: boolean; soundnessGate?: boolean; criticalQuestions?: boolean },
 ): string {
   let outputFormat = includePhase2
     ? `${BASE_OUTPUT_FORMAT}${PHASE2_OUTPUT_FORMAT}\n}`
@@ -228,7 +247,7 @@ export function buildSystemPrompt(
     outputFormat = outputFormat.replace('{\n', `{\n${REASONING_FIELD}`);
   }
 
-  return `You are a rigorous argument analyst trained in informal logic, rhetoric, and critical thinking. Your task is to audit a piece of argumentative text and return a structured JSON object. Be precise, cite only verbatim text, and do not invent findings that are not present.${opts?.impartiality ? IMPARTIALITY_CLAUSE : ''}
+  return `You are a rigorous argument analyst trained in informal logic, rhetoric, and critical thinking. Your task is to audit a piece of argumentative text and return a structured JSON object. Be precise, cite only verbatim text, and do not invent findings that are not present.${opts?.impartiality ? IMPARTIALITY_CLAUSE : ''}${opts?.soundnessGate ? SOUNDNESS_GATE : ''}${opts?.criticalQuestions ? CRITICAL_QUESTIONS : ''}
 ${goalsPreamble ?? ''}
 ## Output format
 
