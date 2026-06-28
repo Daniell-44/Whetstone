@@ -44,8 +44,8 @@ describe('LABELS_FORMAL', () => {
   it('uses technical terminology for key labels', () => {
     expect(LABELS_FORMAL.unstatedWarrants).toBe('Unstated Warrants');
     expect(LABELS_FORMAL.commitments).toBe('Philosophical Commitments');
-    expect(LABELS_FORMAL.keyTermScrutiny).toBe('Wittgensteinian Key-Term Scrutiny');
-    expect(LABELS_FORMAL.referentChecks).toBe('Russellian Referent Check');
+    expect(LABELS_FORMAL.keyTermScrutiny).toBe('Key-Term Consistency');
+    expect(LABELS_FORMAL.referentChecks).toBe('Referential Clarity');
   });
 
   it('differs from plain for most keys', () => {

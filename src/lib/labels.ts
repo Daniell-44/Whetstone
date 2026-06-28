@@ -134,9 +134,9 @@ export const LABELS_FORMAL = {
   centralClaim:          'Central Claim',
   weakestLink:           'Weakest Link',
 
-  keyTermScrutiny:       'Wittgensteinian Key-Term Scrutiny',
-  referentChecks:        'Russellian Referent Check',
-  falsifiabilityChecks:  'Davidsonian Falsifiability Check',
+  keyTermScrutiny:       'Key-Term Consistency',
+  referentChecks:        'Referential Clarity',
+  falsifiabilityChecks:  'Empirical Testability',
 
   extraction:              'Argument Extraction',
   extractionPremise:       'Premise',
