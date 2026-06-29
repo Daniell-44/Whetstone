@@ -30,7 +30,7 @@ const NEUTRAL    = '#C7C3B6';
       <div class="relative" style="height:108px;">
       {/* default bubbles for the quoted sources */}
       {assessed.map((s, i) => (
-        <div class="absolute" style={`left:${toPct(s.leaning)}%;top:0;transform:translateX(-50%);width:150px;`}>
+        <div class="absolute" style={`left:clamp(75px, ${toPct(s.leaning)}%, calc(100% - 75px));top:0;transform:translateX(-50%);width:150px;`}>
           <a href={s.url} target="_blank" rel="noopener noreferrer" class="block rounded-lg px-2 py-1.5 transition-opacity hover:opacity-90" style={`background:${SIDE[s.side].tint};border:0.5px solid ${SIDE[s.side].dot};`}>
             <p class="text-[9px] font-semibold uppercase tracking-wide m-0" style={`color:${SIDE[s.side].dot}`}>{s.publication ?? s.label} · quoted</p>
             <p class="text-xs leading-snug m-0" style={`color:${SIDE[s.side].text}`}>{s.label}</p>
