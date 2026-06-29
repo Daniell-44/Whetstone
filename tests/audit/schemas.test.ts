@@ -281,6 +281,34 @@ describe('FalsifiabilityFindingSchema', () => {
 // AuditResultSchema — Phase-2 arrays default to []
 // ---------------------------------------------------------------------------
 
+describe('Toulmin grounds — null/empty coerced (regression: intermittent AUDIT_FAILED 500)', () => {
+  const base = {
+    centralClaim:   'Test.',
+    toulmin:        { claim: 'Test.', grounds: 'Test.', statedWarrant: null, unstatedWarrants: [], weakestLink: 'Test.' },
+    namedFallacies: [],
+    loadedLanguage: [],
+    notes:          null,
+  };
+
+  it('coerces a null grounds to a non-empty placeholder instead of throwing', () => {
+    const r = AuditResultSchema.safeParse({ ...base, toulmin: { ...base.toulmin, grounds: null } });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.toulmin.grounds.length).toBeGreaterThan(0);
+  });
+
+  it('coerces a whitespace-only grounds to a placeholder', () => {
+    const r = AuditResultSchema.safeParse({ ...base, toulmin: { ...base.toulmin, grounds: '   ' } });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.toulmin.grounds.length).toBeGreaterThan(0);
+  });
+
+  it('leaves a real grounds value untouched', () => {
+    const r = AuditResultSchema.safeParse({ ...base, toulmin: { ...base.toulmin, grounds: 'Real evidence.' } });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data.toulmin.grounds).toBe('Real evidence.');
+  });
+});
+
 describe('AuditResultSchema — Phase-2 fields default to empty arrays', () => {
   const baseResult = {
     centralClaim:   'Test.',

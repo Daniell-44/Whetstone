@@ -7,9 +7,11 @@ test('briefing page renders question, audit link, and takes', async ({ page }) =
 
   await expect(page.getByRole('heading', { name: /minimum wage/i })).toBeVisible();
 
-  // "Audit the full article →" links back to the reader with the slug.
-  const auditLink = page.locator('a[href="/?audit=minimum-wage-jobs"]').first();
+  // "Audit the full article →" deep-links back to the reader — to the position's
+  // real source URL via /?url= when it has one, or /?audit=<slug> as a fallback.
+  const auditLink = page.getByRole('link', { name: /audit the full article/i }).first();
   await expect(auditLink).toBeVisible();
+  await expect(auditLink).toHaveAttribute('href', /^\/\?(url|audit)=/);
 
   // The audited external takes (Piece 3) render.
   await expect(page.getByText('Other takes')).toBeVisible();

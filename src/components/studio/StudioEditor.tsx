@@ -196,8 +196,11 @@ function SectionLoading({ label }: { label: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// LensButton - for on-demand deeper lenses. Compact pill that shows running
-// state. Disabled while loading; tappable again after error.
+// LensButton - for on-demand deeper lenses. A clearly-pressable trigger: a
+// leading ▸ run-glyph (→ spinner while running → ✓ when done) plus border,
+// pointer cursor, hover fill and a focus ring so it reads unmistakably as a
+// button, not a label. Disabled while loading and once done (result shows
+// below); tappable again after error.
 // ---------------------------------------------------------------------------
 
 function LensButton({
@@ -216,12 +219,24 @@ function LensButton({
       type="button"
       onClick={onClick}
       disabled={isLoading || isDone}
-      class={`text-xs font-medium px-3 py-2 rounded-lg border transition-colors text-left
-        ${isDone     ? 'bg-emerald-50 border-emerald-200 text-emerald-700 cursor-default' :
-          isLoading  ? 'bg-indigo-50  border-indigo-200  text-indigo-500  cursor-wait'    :
-                       'bg-white      border-gray-200    text-gray-700    hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700'}`}
+      aria-label={isDone ? `${label} — done` : isLoading ? `Running ${label}…` : `Run ${label}`}
+      class={`group flex items-center gap-2 w-full text-xs font-medium px-3 py-2.5 rounded-lg border transition-colors text-left
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300
+        ${isDone     ? 'bg-emerald-50 border-emerald-300 text-emerald-800 cursor-default' :
+          isLoading  ? 'bg-indigo-50  border-indigo-300  text-indigo-600  cursor-wait'    :
+                       'bg-white      border-gray-300    text-gray-700    cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700'}`}
     >
-      {isLoading ? `${label}…` : isDone ? `✓ ${label}` : label}
+      {isLoading ? (
+        <svg class="shrink-0 w-3.5 h-3.5 animate-spin text-indigo-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      ) : (
+        <span class={`shrink-0 text-[13px] leading-none ${isDone ? 'text-emerald-600' : 'text-indigo-400 group-hover:text-indigo-600'}`} aria-hidden="true">
+          {isDone ? '✓' : '▸'}
+        </span>
+      )}
+      <span class="flex-1">{label}</span>
     </button>
   );
 }
@@ -981,7 +996,18 @@ export default function StudioEditor({
           {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
           {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
           {counterargState.status === 'done' && (
-            <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
+            counterargState.data.counterarguments.length === 0 ? (
+              /* Affirmative null state. A clean "nothing found" is a quality
+                 signal the draft earned, not an empty card - so we drop the
+                 central-claim "(?)" card and show one neutral-toned line (no
+                 alarm colour). */
+              <p class="text-xs text-gray-500 leading-relaxed">
+                <span class="font-medium text-gray-700">No strong counterarguments surfaced.</span>{' '}
+                The draft does not appear to leave an obvious opposing case unaddressed.
+              </p>
+            ) : (
+              <CounterargumentResultDisplay result={counterargState.data} terminologyPreference={terminologyPreference} />
+            )
           )}
         </>
       )}
@@ -992,11 +1018,11 @@ export default function StudioEditor({
   // span), so they live on the LEFT with the other document-level engines.
   const deeperLensesPanel = auditState.status === 'done' ? (
     <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
-        <span class="text-[10px] text-gray-400">click to run</span>
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="text-[11px] font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
+        <span class="text-[11px] text-gray-400">click any to run</span>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div class="grid grid-cols-2 gap-2.5">
         <LensButton
           label="Presuppositions"
           status={presupState.status}

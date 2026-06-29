@@ -147,11 +147,11 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
           <!-- Left filter rail (desktop only) -->
           <aside class="hidden lg:block w-56 shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Browse</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Browse</p>
             <nav class="space-y-1">
               <a href="#all" class="flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
                 <span>All</span>
-                <span class="text-[10px] text-gray-500">{scorecards.length}</span>
+                <span class="text-xs text-gray-500">{scorecards.length}</span>
               </a>
               {presentCategories.map(cat => (
                 <a
@@ -164,7 +164,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
             </nav>
 
             <div class="mt-6 pt-6 border-t border-gray-200">
-              <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">About</p>
+              <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">About</p>
               <p class="text-xs text-gray-500 leading-relaxed">
                 Each scorecard is an audited argument - claim, evidence, reasoning, and where it breaks down.
               </p>
@@ -204,18 +204,18 @@ const presentCategories = Object.keys(categoryCounts).sort();
                         <img src={b.image} alt="" loading="lazy" class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} object-cover rounded-md mb-4`} />
                       )}
                       <div class="flex items-center gap-2 mb-2.5 flex-wrap">
-                        <span class={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${card.isExplainer ? 'bg-slate-700 text-white' : 'bg-indigo-600 text-white'}`}>
+                        <span class={`inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${card.isExplainer ? 'bg-slate-700 text-white' : 'bg-indigo-600 text-white'}`}>
                           {card.isExplainer ? 'Explainer' : 'Briefing'}
                         </span>
                         {b.category && CATEGORY_STYLES[b.category] && (
-                          <span class={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[b.category!].chip}`}>
+                          <span class={`inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${CATEGORY_STYLES[b.category!].chip}`}>
                             {b.category}
                           </span>
                         )}
                         {!card.isExplainer && (
                           <>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{card.positions.length} positions</span>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{b.sources.length} sources</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{card.positions.length} positions</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{b.sources.length} sources</span>
                           </>
                         )}
                       </div>
@@ -230,7 +230,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                           <PositionSpectrum positions={card.positions} axis={card.axis} compact />
                           <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
                             {card.positions.map((p, i) => (
-                              <span class="inline-flex items-center gap-1 text-[11px] text-gray-500">
+                              <span class="inline-flex items-center gap-1 text-xs text-gray-500">
                                 <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
                                 {p.label}
                               </span>
@@ -253,18 +253,18 @@ const presentCategories = Object.keys(categoryCounts).sort();
                 <div class="max-w-4xl">
                   <div class="flex items-center gap-3 mb-4">
                     {scorecards[0].category && CATEGORY_STYLES[scorecards[0].category] ? (
-                      <span class={`inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[scorecards[0].category!].bg} ${CATEGORY_STYLES[scorecards[0].category!].text}`}>
+                      <span class={`inline-block px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${CATEGORY_STYLES[scorecards[0].category!].bg} ${CATEGORY_STYLES[scorecards[0].category!].text}`}>
                         {scorecards[0].category}
                       </span>
                     ) : (
-                      <span class={`inline-block px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${TAG_COLOURS[0].bg} ${TAG_COLOURS[0].text}`}>
+                      <span class={`inline-block px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${TAG_COLOURS[0].bg} ${TAG_COLOURS[0].text}`}>
                         Featured
                       </span>
                     )}
                     <div class="flex items-center gap-1.5">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{scorecards[0].positions?.length ?? 0} positions</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{scorecards[0].positions?.length ?? 0} positions</span>
                       {cardMeta(scorecards[0]).sourceCount > 0 && (
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{cardMeta(scorecards[0]).sourceCount} sources</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{cardMeta(scorecards[0]).sourceCount} sources</span>
                       )}
                     </div>
                   </div>
@@ -291,7 +291,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                       <div class="flex flex-col gap-1.5 mb-4 max-w-2xl">
                         {scorecards[0].positions.map((p, i) => (
                           <div class="flex items-start gap-2">
-                            <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
+                            <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-xs font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
                             <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
                           </div>
                         ))}
@@ -321,17 +321,17 @@ const presentCategories = Object.keys(categoryCounts).sort();
                   >
                     <div class="flex items-center gap-2 mb-2.5 flex-wrap">
                       {sc.category && CATEGORY_STYLES[sc.category] ? (
-                        <span class={`inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${CATEGORY_STYLES[sc.category!].bg} ${CATEGORY_STYLES[sc.category!].text}`}>
+                        <span class={`inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${CATEGORY_STYLES[sc.category!].bg} ${CATEGORY_STYLES[sc.category!].text}`}>
                           {sc.category}
                         </span>
                       ) : (
-                        <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-700 text-white">
+                        <span class="inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-gray-700 text-white">
                           Scorecard
                         </span>
                       )}
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{sc.positions?.length ?? 0} positions</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{sc.positions?.length ?? 0} positions</span>
                       {cardMeta(sc).sourceCount > 0 && (
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[11px] font-medium">{cardMeta(sc).sourceCount} sources</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{cardMeta(sc).sourceCount} sources</span>
                       )}
                     </div>
                     <h3 class="font-serif text-lg sm:text-xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-2.5">
@@ -346,7 +346,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                           <PositionSpectrum positions={sc.positions} axis={sc.spectrumAxis} compact />
                           <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
                             {sc.positions.map((p, i) => (
-                              <span class="inline-flex items-center gap-1 text-[11px] text-gray-500">
+                              <span class="inline-flex items-center gap-1 text-xs text-gray-500">
                                 <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
                                 {p.label}
                               </span>
@@ -357,14 +357,14 @@ const presentCategories = Object.keys(categoryCounts).sort();
                         <div class="flex flex-col gap-1.5 mb-3">
                           {sc.positions.map((p, i) => (
                             <div class="flex items-start gap-2">
-                              <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-[10px] font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
+                              <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-xs font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
                               <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
                             </div>
                           ))}
                         </div>
                       )
                     )}
-                    <p class="text-[11px] text-gray-400 tabular-nums">
+                    <p class="text-xs text-gray-400 tabular-nums">
                       {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
                         day: 'numeric', month: 'short', year: 'numeric',
                       })}

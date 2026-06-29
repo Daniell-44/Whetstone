@@ -20,9 +20,9 @@ export default function PositionSpectrum({ positions }: { positions: { label: st
 
   return (
     <div class="rounded-lg border border-gray-200 bg-white p-4 sm:p-5 mb-8">
-      <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Where the positions sit</p>
+      <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Where the positions sit</p>
 
-      <div class="flex items-center justify-between text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">
+      <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
         <span>Left</span><span>Center</span><span>Right</span>
       </div>
       <div class="relative h-2 rounded-full bg-gradient-to-r from-red-200 via-gray-200 to-blue-200">

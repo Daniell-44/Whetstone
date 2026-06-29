@@ -185,12 +185,14 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
         <button
           type="button"
           title={vote === 'up' ? 'Remove vote' : 'This finding is helpful'}
+          aria-label={vote === 'up' ? 'Remove helpful vote' : 'Mark finding helpful'}
+          aria-pressed={vote === 'up'}
           onClick={handleUp}
           disabled={submitting}
           class={`p-1 rounded transition-colors disabled:opacity-40 ${
             vote === 'up'
               ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'
-              : 'text-gray-300 hover:text-gray-500 hover:bg-gray-50'
+              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
           }`}
         >
           <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -202,12 +204,14 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
         <button
           type="button"
           title={vote === 'down' ? 'Remove vote' : 'This finding seems off'}
+          aria-label={vote === 'down' ? 'Remove vote' : 'Flag finding as off'}
+          aria-pressed={vote === 'down'}
           onClick={handleDown}
           disabled={submitting}
           class={`p-1 rounded transition-colors disabled:opacity-40 ${
             vote === 'down'
               ? 'text-rose-500 bg-rose-50 hover:bg-rose-100'
-              : 'text-gray-300 hover:text-gray-500 hover:bg-gray-50'
+              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
           }`}
         >
           <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

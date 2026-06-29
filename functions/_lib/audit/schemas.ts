@@ -86,9 +86,18 @@ export const RawModalScopeCheckFindingSchema = z.object({
   confidence:    confidenceField,
 });
 
+// The model occasionally returns null/empty for `grounds` when an argument
+// states no explicit evidence. Coerce that to a neutral placeholder so a
+// missing grounds can never fail validation — previously this threw after
+// retries and surfaced as an intermittent AUDIT_FAILED 500 in production.
+const groundsField = z.preprocess(
+  (v) => (typeof v === 'string' && v.trim().length > 0 ? v : 'Not explicitly stated.'),
+  z.string().min(1),
+);
+
 export const RawToulminAnalysisSchema = z.object({
   claim:            z.string().min(1),
-  grounds:          z.string().min(1),
+  grounds:          groundsField,
   statedWarrant:    z.string().nullable(),
   unstatedWarrants: z.array(RawUnstatedWarrantSchema),
   weakestLink:      z.string().min(1),
@@ -118,7 +127,7 @@ export const UnstatedWarrantSchema = z.object({
 
 export const ToulminAnalysisSchema = z.object({
   claim:            z.string().min(1),
-  grounds:          z.string().min(1),
+  grounds:          groundsField,
   statedWarrant:    z.string().nullable(),
   unstatedWarrants: z.array(UnstatedWarrantSchema),
   weakestLink:      z.string().min(1),

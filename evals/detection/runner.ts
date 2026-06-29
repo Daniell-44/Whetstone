@@ -43,10 +43,21 @@ async function main(): Promise<void> {
   let TP = 0;
   let FP = 0;
   let FN = 0;
+  let skipped = 0;
   const calSamples: Array<{ confidence: number; correct: boolean }> = [];
 
   for (const f of DETECTION_FIXTURES) {
-    const { audit } = await auditText(f.text, { provider, apiKey: apiKey!, promptVariant });
+    // One fixture's audit failure (e.g. an intermittent schema-validation
+    // error from the engine) must not abort the whole run - skip and continue
+    // so the metrics still report over the fixtures that succeeded.
+    let audit: Awaited<ReturnType<typeof auditText>>['audit'];
+    try {
+      ({ audit } = await auditText(f.text, { provider, apiKey: apiKey!, promptVariant }));
+    } catch (err) {
+      skipped++;
+      console.log(`  [${f.id}] SKIPPED — audit error: ${(err as Error).message.split('\n')[0]}`);
+      continue;
+    }
     const actualNames = audit.namedFallacies.map((x) => x.name);
     const m = matchFindings(f.expectedFallacies, actualNames);
     TP += m.tp; FP += m.fp; FN += m.fn;
@@ -66,7 +77,7 @@ async function main(): Promise<void> {
   const cal = calibration(calSamples);
 
   console.log('\n=== Detection summary ===');
-  console.log(`TP=${TP}  FP=${FP}  FN=${FN}`);
+  console.log(`TP=${TP}  FP=${FP}  FN=${FN}${skipped ? `  skipped=${skipped}` : ''}`);
   console.log(`precision=${overall.precision.toFixed(2)}  recall=${overall.recall.toFixed(2)}  F1=${overall.f1.toFixed(2)}`);
   console.log(`calibration ECE=${cal.ece.toFixed(3)}${cal.ece > 0.15 ? '  (OVERCONFIDENT — >0.15)' : ''}`);
   for (const b of cal.buckets) {

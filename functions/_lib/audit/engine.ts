@@ -162,11 +162,19 @@ export async function auditText(
 
   const includePhase2     = deps.includePhase2 ?? false;
   const goalsPreamble     = deps.goals ? buildGoalsPreamble(deps.goals) : undefined;
+  // Production default: the `precision` package (impartiality + soundness gate +
+  // critical-questions). The 2026-06-29 decomposed eval (3 rounds x 22 fixtures)
+  // showed this combination — and ONLY this combination — eliminates
+  // over-detection: P/R/F1 = 1.00, 0 false positives, ECE ~= 0.046, with zero
+  // round-to-round variance. No single flag holds the gain alone (each ~= control
+  // and wobbles). reasoningFirst stays off (the model already has a thinking
+  // budget). All three are pure prompt instructions — no extra API pass. Callers
+  // (e.g. the detection eval) may still override any flag explicitly.
   const systemInstruction = buildSystemPrompt(includePhase2, goalsPreamble, {
-    impartiality:      deps.promptVariant?.impartiality ?? false,
+    impartiality:      deps.promptVariant?.impartiality ?? true,
     reasoningFirst:    deps.promptVariant?.reasoningFirst ?? false,
-    soundnessGate:     deps.promptVariant?.soundnessGate ?? false,
-    criticalQuestions: deps.promptVariant?.criticalQuestions ?? false,
+    soundnessGate:     deps.promptVariant?.soundnessGate ?? true,
+    criticalQuestions: deps.promptVariant?.criticalQuestions ?? true,
   });
 
   const { output: rawOutput, inputTokens, outputTokens } = await callWithRetry(

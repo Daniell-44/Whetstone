@@ -241,6 +241,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               value={textInput}
               onInput={e => setTextInput((e.target as HTMLTextAreaElement).value)}
               placeholder="Paste an article, speech, or any argumentative text…"
+              aria-label="Text to audit"
               rows={1}
               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
               style={`min-height: ${loadedFromLink ? 180 : 44}px;`}
@@ -265,6 +266,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               value={urlInput}
               onInput={e => setUrlInput((e.target as HTMLInputElement).value)}
               placeholder="https://example.com/article"
+              aria-label="Article URL to audit"
               class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
             />
             <p class="mt-1.5 text-xs text-gray-400">

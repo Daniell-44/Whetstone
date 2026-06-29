@@ -25,8 +25,9 @@ const NEUTRAL    = '#C7C3B6';
 ---
 {sources.length > 0 && (
   <div>
-    <p class="text-[10px] font-semibold uppercase tracking-[0.06em] text-gray-400 mb-1">The map · N = {sources.length}</p>
-    <div class="relative" style="height:108px;">
+    <p class="text-xs font-semibold uppercase tracking-[0.06em] text-gray-400 mb-1">The map · N = {sources.length}</p>
+    <div class="overflow-x-auto scrollbar-thin">
+      <div class="relative" style="height:108px;">
       {/* default bubbles for the quoted sources */}
       {assessed.map((s, i) => (
         <div class="absolute" style={`left:${toPct(s.leaning)}%;top:0;transform:translateX(-50%);width:150px;`}>
@@ -56,12 +57,13 @@ const NEUTRAL    = '#C7C3B6';
       ))}
       <span class="absolute text-[9px] text-gray-400" style="top:90px;left:0;">{axis.left}</span>
       <span class="absolute text-[9px] text-gray-400" style="top:90px;right:0;">{axis.right}</span>
+      </div>
     </div>
-    <div class="flex items-center gap-3 mt-1.5 text-[10px] text-gray-500 flex-wrap">
+    <div class="flex items-center gap-3 mt-1.5 text-xs text-gray-500 flex-wrap">
       <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#185FA5;"></span>{axis.left}</span>
       <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style={`background:${NEUTRAL};`}></span>mixed / unclear</span>
       <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#993C1D;"></span>{axis.right}</span>
     </div>
-    <p class="text-[10px] text-gray-400 mt-1 leading-snug">Quoted sources show by default; hover any dot for its source.</p>
+    <p class="text-xs text-gray-400 mt-1 leading-snug">Quoted sources show by default; hover any dot for its source.</p>
   </div>
 )}

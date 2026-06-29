@@ -37,6 +37,15 @@
   }
 }
 
+/* Visible keyboard-focus indicator, applied site-wide at zero specificity
+   (:where) so component-level focus styles still override it. Scoped to
+   :focus-visible so mouse clicks don't draw a ring — keyboard users only. */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid #6366f1; /* indigo-500 */
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Thin scrollbar utility used by horizontal-scroll pill rows */
 .scrollbar-thin {
   scrollbar-width: thin;
