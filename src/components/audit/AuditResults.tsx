@@ -392,7 +392,7 @@ function FindingActionBtns({
           type="button"
           disabled={busy}
           onClick={() => setAction(lens, matchKey, 'addressed')}
-          class="text-xs px-2 py-1 rounded border border-emerald-300 text-emerald-700 hover:bg-emerald-50 transition-colors disabled:opacity-40"
+          class="text-xs px-2.5 py-1 rounded-md border border-emerald-600 bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors disabled:opacity-40"
         >
           ✓ Mark addressed
         </button>
@@ -400,7 +400,7 @@ function FindingActionBtns({
           type="button"
           disabled={busy}
           onClick={() => setAction(lens, matchKey, 'dismissed')}
-          class="text-xs px-2 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-40"
+          class="text-xs px-2.5 py-1 rounded-md border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-40"
         >
           Dismiss
         </button>
