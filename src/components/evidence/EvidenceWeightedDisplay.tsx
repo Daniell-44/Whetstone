@@ -94,7 +94,7 @@ function SupportRing({ pct }: { pct: number }) {
       <div
         class="relative inline-flex items-center justify-center"
         style="width:28px;height:28px;"
-        title="Share of the assessed papers that support this claim — not a probability it is true"
+        title="Share of the assessed papers that support this claim, not a probability it is true"
       >
         <svg width="28" height="28" class="-rotate-90">
           <circle cx="14" cy="14" r={radius} fill="none" stroke="#f3f4f6" stroke-width="3" />
@@ -146,7 +146,7 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
       {/* Precise framing: this is a fact about the literature, not a truth verdict */}
       {isEmpirical && a.literatureSupport !== null && a.paperCount > 0 && (
         <p class="text-[10px] text-gray-400 leading-snug">
-          {a.literatureSupport}% of the {a.paperCount} paper{a.paperCount !== 1 ? 's' : ''} found support this claim — a measure of the evidence, not a probability it is true.
+          {a.literatureSupport}% of the {a.paperCount} paper{a.paperCount !== 1 ? 's' : ''} found support this claim, a measure of the evidence, not a probability it is true.
         </p>
       )}
 

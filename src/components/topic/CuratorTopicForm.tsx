@@ -113,12 +113,12 @@ export default function CuratorTopicForm() {
               <div class="sm:col-span-2"><label class={label}>URL</label><input class={input} value={s.url} onInput={e => setSrc(i, { url: (e.target as HTMLInputElement).value })} /></div>
               <div class="sm:col-span-2"><label class={label}>Title</label><input class={input} value={s.title} onInput={e => setSrc(i, { title: (e.target as HTMLInputElement).value })} /></div>
             </div>
-            <div><label class={label}>Article text / excerpt (for analysis — not published)</label><textarea class={input} rows={4} value={s.text} placeholder="Paste the article body or a substantial excerpt…" onInput={e => setSrc(i, { text: (e.target as HTMLTextAreaElement).value })} /></div>
+            <div><label class={label}>Article text / excerpt (for analysis, not published)</label><textarea class={input} rows={4} value={s.text} placeholder="Paste the article body or a substantial excerpt…" onInput={e => setSrc(i, { text: (e.target as HTMLTextAreaElement).value })} /></div>
 
             {/* AI-filled fields, editable */}
             <div class="grid sm:grid-cols-2 gap-3 border-t border-gray-100 pt-3">
               <div>
-                <label class={label}>Leaning (-100 left … +100 right) — AI suggests, you override</label>
+                <label class={label}>Leaning (-100 left … +100 right): AI suggests, you override</label>
                 <input type="number" min={-100} max={100} class={input} value={s.leaning} onInput={e => setSrc(i, { leaning: parseInt((e.target as HTMLInputElement).value || '0', 10) })} />
               </div>
               <div><label class={label}>Main point (shown collapsed)</label><input class={input} value={s.mainPoint} onInput={e => setSrc(i, { mainPoint: (e.target as HTMLInputElement).value })} /></div>

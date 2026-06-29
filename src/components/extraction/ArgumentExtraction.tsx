@@ -31,7 +31,7 @@ function ConsensusChip({ assessment }: { assessment: EvidenceAssessment }) {
     >
       {chip.label}
       {assessment.literatureSupport !== null && (
-        <span class="opacity-70 ml-1" title="Share of assessed papers supporting this claim — not a probability it is true">{assessment.literatureSupport}% support</span>
+        <span class="opacity-70 ml-1" title="Share of assessed papers supporting this claim, not a probability it is true">{assessment.literatureSupport}% support</span>
       )}
     </span>
   );

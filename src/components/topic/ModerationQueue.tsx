@@ -14,7 +14,7 @@ interface AdminTake {
 type Tab = 'pending' | 'approved' | 'rejected';
 
 const TABS: { id: Tab; label: string; hint: string }[] = [
-  { id: 'pending',  label: 'Pending',  hint: 'Reported or queued — hidden from readers until you act' },
+  { id: 'pending',  label: 'Pending',  hint: 'Reported or queued, hidden from readers until you act' },
   { id: 'approved', label: 'Approved', hint: 'Live and visible. Remove anything that should not be.' },
   { id: 'rejected', label: 'Rejected', hint: 'Hidden permanently. Restore if reported in error.' },
 ];

@@ -170,9 +170,9 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
         <div class="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
           <p class="text-xs text-amber-800 mb-2">Go past the core audit with three Pro reads:</p>
           <ul class="text-xs text-gray-700 leading-relaxed space-y-1 mb-3">
-            <li>· <strong>How it's framed</strong> — what it assumes + how it persuades</li>
-            <li>· <strong>How honestly it argues</strong> — overclaiming + fairness to critics</li>
-            <li>· <strong>Whose interests it serves</strong> — who benefits from the framing</li>
+            <li>· <strong>How it's framed</strong>: what it assumes + how it persuades</li>
+            <li>· <strong>How honestly it argues</strong>: overclaiming + fairness to critics</li>
+            <li>· <strong>Whose interests it serves</strong>: who benefits from the framing</li>
           </ul>
           <a href="/creator" class="inline-block text-xs font-semibold rounded-md bg-amber-500 text-white px-3 py-1.5 hover:bg-amber-600 transition-colors">
             Unlock with Creator Pro →

@@ -33,7 +33,7 @@ export default function PositionSpectrum({ positions }: { positions: { label: st
               key={i}
               class={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 border-white ${st.dot}`}
               style={`left: ${spectrumPosition(p.leaning)}%`}
-              title={`${p.label} — ${st.label}`}
+              title={`${p.label}: ${st.label}`}
             />
           );
         })}
