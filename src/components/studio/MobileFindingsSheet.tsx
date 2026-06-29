@@ -135,7 +135,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
               >
                 {tab.label}
                 {tab.count !== undefined && tab.count > 0 && (
-                  <span class={`ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full ${
+                  <span class={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
                     tab.id === active.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'
                   }`}>{tab.count}</span>
                 )}

@@ -198,7 +198,7 @@ function HeatTooltip({ run, x, y }: { run: Run; x: number; y: number }) {
             }`} />
             <div class="flex-1 min-w-0">
               <p class="font-medium text-gray-800">{c.label}</p>
-              <p class="text-[10px] text-gray-500">{c.severity} · structural</p>
+              <p class="text-xs text-gray-500">{c.severity} · structural</p>
             </div>
           </li>
         ))}
@@ -215,7 +215,7 @@ function HeatLegend({ max }: { max: number }) {
   if (max === 0) return null;
   const stops = [0.1, 0.3, 0.5, 0.75, 1.0];
   return (
-    <div class="flex items-center gap-2 text-[10px] text-gray-500">
+    <div class="flex items-center gap-2 text-xs text-gray-500">
       <span>cool</span>
       <div class="flex h-2.5 rounded-full overflow-hidden border border-gray-200">
         {stops.map((s, i) => (

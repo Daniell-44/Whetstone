@@ -26,7 +26,7 @@ function ConsensusChip({ assessment }: { assessment: EvidenceAssessment }) {
   if (!chip) return null;
   return (
     <span
-      class={`inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded ${chip.cls}`}
+      class={`inline-block text-xs font-semibold px-1.5 py-0.5 rounded ${chip.cls}`}
       title={assessment.explanation}
     >
       {chip.label}
@@ -199,12 +199,12 @@ function InvertedNode({
               </div>
             )}
             {stmt.inferenceRule && (
-              <p class="mt-1 text-[10px] text-blue-500 uppercase tracking-wide">
+              <p class="mt-1 text-xs text-blue-500 uppercase tracking-wide">
                 via {INFERENCE_LABELS[stmt.inferenceRule] ?? stmt.inferenceRule}
               </p>
             )}
             {stmt.inferenceRuleExplanation && (
-              <p class="mt-0.5 text-[11px] text-gray-500 italic">{stmt.inferenceRuleExplanation}</p>
+              <p class="mt-0.5 text-xs text-gray-500 italic">{stmt.inferenceRuleExplanation}</p>
             )}
           </div>
         </div>
@@ -213,7 +213,7 @@ function InvertedNode({
       {/* Recurse into the premises supporting this statement */}
       {sources.length > 0 && (
         <div class="mt-2 space-y-2">
-          <p class="text-[10px] text-gray-400 uppercase tracking-wider pl-2">supported by</p>
+          <p class="text-xs text-gray-400 uppercase tracking-wider pl-2">supported by</p>
           {sources.map(src => (
             <InvertedNode
               key={`${stmt.id}-${src.id}`}
@@ -265,7 +265,7 @@ function InvertedView({ result, evidenceAssessments }: {
       ))}
       {orphans.length > 0 && (
         <div class="pt-2 border-t border-gray-100">
-          <p class="text-[10px] text-gray-400 uppercase tracking-wider mb-2">Standalone premises (not used in derivations)</p>
+          <p class="text-xs text-gray-400 uppercase tracking-wider mb-2">Standalone premises (not used in derivations)</p>
           <div class="space-y-2">
             {orphans.map(s => (
               <StatementCard key={s.id} stmt={s} assessment={matchAssessment(s, evidenceAssessments)} />
@@ -344,7 +344,7 @@ function ExpandModal({
     <div class="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col">
       <div class="border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between">
         <div>
-          <p class="text-[10px] font-semibold tracking-widest text-emerald-600 uppercase">Argument Skeleton</p>
+          <p class="text-xs font-semibold tracking-widest text-emerald-600 uppercase">Argument Skeleton</p>
           <p class="text-sm font-medium text-gray-900 truncate max-w-2xl">{result.centralClaim}</p>
         </div>
         <button

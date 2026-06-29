@@ -55,7 +55,7 @@ function ConsensusBar({ papers }: { papers: EvidencePaper[] }) {
           <div class="bg-red-500 transition-all" style={`width: ${opposePct}%`} title={`${counts.opposes} oppose`} />
         )}
       </div>
-      <div class="flex items-center gap-3 text-[10px] text-gray-500">
+      <div class="flex items-center gap-3 text-xs text-gray-500">
         {counts.supports > 0 && (
           <span class="flex items-center gap-1">
             <span class="w-2 h-2 rounded-full bg-emerald-500" />
@@ -145,17 +145,17 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
 
       {/* Precise framing: this is a fact about the literature, not a truth verdict */}
       {isEmpirical && a.literatureSupport !== null && a.paperCount > 0 && (
-        <p class="text-[10px] text-gray-400 leading-snug">
+        <p class="text-xs text-gray-400 leading-snug">
           {a.literatureSupport}% of the {a.paperCount} paper{a.paperCount !== 1 ? 's' : ''} found support this claim, a measure of the evidence, not a probability it is true.
         </p>
       )}
 
       {/* Explanation */}
-      <p class="text-[11px] text-gray-600 leading-relaxed">{a.explanation}</p>
+      <p class="text-xs text-gray-600 leading-relaxed">{a.explanation}</p>
 
       {/* Caveats */}
       {a.caveats && (
-        <p class="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 leading-snug">
+        <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 leading-snug">
           <strong class="font-semibold">Caveat:</strong> {a.caveats}
         </p>
       )}
@@ -166,7 +166,7 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            class="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 uppercase tracking-wider"
+            class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 uppercase tracking-wider"
           >
             {expanded ? 'Hide papers ↑' : `View ${a.topPapers.length} paper${a.topPapers.length !== 1 ? 's' : ''} ↓`}
           </button>
@@ -199,14 +199,14 @@ function PaperRow({ p }: { p: EvidencePaper }) {
           href={p.url}
           target="_blank"
           rel="noopener noreferrer"
-          class="text-[11px] text-blue-600 hover:underline font-medium leading-snug block"
+          class="text-xs text-blue-600 hover:underline font-medium leading-snug block"
         >
           {p.title}
         </a>
-        <p class="text-[10px] text-gray-400 mt-0.5">
+        <p class="text-xs text-gray-400 mt-0.5">
           {p.year ?? 'n.d.'} · {p.citationCount.toLocaleString()} citation{p.citationCount !== 1 ? 's' : ''}
         </p>
-        <p class="text-[10px] text-gray-500 mt-0.5 leading-snug italic">{p.relevance}</p>
+        <p class="text-xs text-gray-500 mt-0.5 leading-snug italic">{p.relevance}</p>
       </div>
     </div>
   );
@@ -226,7 +226,7 @@ export default function EvidenceWeightedDisplay({ result }: { result: EvidenceWe
         <AssessmentCard key={i} a={a} />
       ))}
       {result.notes && (
-        <p class="text-[10px] text-gray-400 italic border-t border-gray-100 pt-2">{result.notes}</p>
+        <p class="text-xs text-gray-400 italic border-t border-gray-100 pt-2">{result.notes}</p>
       )}
     </div>
   );

@@ -22,15 +22,15 @@ function FindingCard({ f, labelById }: { f: CrossDocumentFinding; labelById: Map
   return (
     <div class={`rounded-lg border p-4 ${SEV_CLS[f.severity] ?? SEV_CLS.low}`}>
       <div class="flex items-center gap-2 mb-2 flex-wrap">
-        <span class={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${meta.cls}`}>{meta.label}</span>
-        <span class="text-[10px] text-gray-400">{f.severity}</span>
-        <span class="text-[10px] text-gray-400 ml-auto">{f.confidence}% conf.</span>
+        <span class={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${meta.cls}`}>{meta.label}</span>
+        <span class="text-xs text-gray-400">{f.severity}</span>
+        <span class="text-xs text-gray-400 ml-auto">{f.confidence}% conf.</span>
       </div>
       <p class="text-sm text-gray-800 leading-relaxed mb-3">{f.description}</p>
       <div class="space-y-2">
         {f.evidence.map((ev, i) => (
           <div key={i} class="rounded bg-white border border-gray-200 px-3 py-2">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1">
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">
               {labelById.get(ev.documentId) ?? ev.documentId}
             </p>
             <blockquote class="text-xs text-gray-600 italic leading-relaxed">"{ev.quote}"</blockquote>
@@ -54,12 +54,12 @@ export default function CrossDocumentDisplay({ result }: { result: CrossDocument
           return (
             <div key={da.documentId} class="rounded-lg border border-gray-200 bg-white p-3">
               <p class="text-xs font-semibold text-gray-800 truncate mb-1.5" title={da.label}>{da.label}</p>
-              <div class="flex items-center gap-3 text-[11px] text-gray-500">
+              <div class="flex items-center gap-3 text-xs text-gray-500">
                 <span>Score <strong class="text-gray-800">{score}</strong></span>
                 <span>·</span>
                 <span>{findings} finding{findings === 1 ? '' : 's'}</span>
               </div>
-              <p class="text-[11px] text-gray-500 leading-snug mt-1.5 line-clamp-2" title={da.extraction.centralClaim}>
+              <p class="text-xs text-gray-500 leading-snug mt-1.5 line-clamp-2" title={da.extraction.centralClaim}>
                 {da.extraction.centralClaim}
               </p>
             </div>
@@ -71,7 +71,7 @@ export default function CrossDocumentDisplay({ result }: { result: CrossDocument
       {result.synthesis ? (
         <div class="space-y-4">
           <div class="rounded-lg border border-indigo-200 bg-indigo-50/50 p-4">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-1.5">Overall pattern</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-1.5">Overall pattern</p>
             <p class="text-sm text-gray-800 leading-relaxed">{result.synthesis.overallPattern}</p>
           </div>
 
@@ -79,7 +79,7 @@ export default function CrossDocumentDisplay({ result }: { result: CrossDocument
             <p class="text-sm text-gray-500">No significant cross-document patterns found - the documents are internally consistent.</p>
           ) : (
             <div class="space-y-3">
-              <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+              <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
                 Cross-document findings ({result.synthesis.findings.length})
               </h3>
               {result.synthesis.findings.map((f, i) => (

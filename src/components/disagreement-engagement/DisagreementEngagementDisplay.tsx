@@ -22,7 +22,7 @@ function EngagementCard({ e }: { e: OpposingPositionEngagement }) {
   return (
     <div class="rounded-lg border border-gray-200 bg-white p-4">
       <div class="flex items-center gap-2 mb-2 flex-wrap">
-        <span class={`text-[10px] font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
+        <span class={`text-xs font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
         <span class="ml-auto"><GroundednessChip groundedness={e.groundedness} compact /></span>
       </div>
       <p class="text-sm text-gray-900 font-medium leading-snug mb-1.5">"{e.position}"</p>
@@ -37,7 +37,7 @@ function EngagementCard({ e }: { e: OpposingPositionEngagement }) {
       <p class="text-xs text-gray-700 leading-relaxed mb-2">{e.whyThisQuality}</p>
       {e.strongerVersion && (
         <div class="rounded bg-amber-50 border border-amber-200 px-3 py-2 mb-2">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-1">Stronger version to engage with</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-1">Stronger version to engage with</p>
           <p class="text-xs text-gray-800 leading-relaxed">"{e.strongerVersion}"</p>
         </div>
       )}
@@ -54,7 +54,7 @@ export default function DisagreementEngagementDisplay({ result }: { result: Disa
     <div class="space-y-4">
       <div class="rounded-lg border border-gray-200 bg-white p-4">
         <div class="flex items-center gap-2 mb-2">
-          <span class={`text-[10px] font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
+          <span class={`text-xs font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
         </div>
         <p class="text-sm text-gray-800 leading-relaxed">{result.summary}</p>
       </div>

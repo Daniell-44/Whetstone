@@ -143,7 +143,7 @@ export default function ArgumentFlowChart({ result }: Props) {
           actually decodable. */}
       <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3 space-y-2.5">
         {/* Node shapes */}
-        <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-gray-500">
+        <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-500">
           <span class="flex items-center gap-1.5">
             <span class="w-3 h-3 rounded bg-gray-100 border border-gray-300" />
             Premise (a stated reason)
@@ -160,10 +160,10 @@ export default function ArgumentFlowChart({ result }: Props) {
 
         {/* Inference-rule codes - the labels on the arrows */}
         <div class="border-t border-gray-200 pt-2">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5">
+          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">
             Arrow codes (how each step is reasoned)
           </p>
-          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-[11px] text-gray-600">
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600">
             <div><dt class="inline font-semibold">MP</dt> = Modus ponens <span class="text-gray-400">(if P then Q; P; so Q)</span></div>
             <div><dt class="inline font-semibold">MT</dt> = Modus tollens <span class="text-gray-400">(if P then Q; not Q; so not P)</span></div>
             <div><dt class="inline font-semibold">HS</dt> = Hypothetical syllogism <span class="text-gray-400">(chained if-thens)</span></div>

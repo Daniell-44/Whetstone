@@ -60,7 +60,7 @@ function SummaryPill({ count, label, colour }: { count: number; label: string; c
   return (
     <div class={`flex flex-col items-center rounded-xl border px-3 py-2 min-w-[4rem] ${colour}`}>
       <span class="text-lg font-bold leading-none">{count}</span>
-      <span class="text-[10px] mt-0.5 font-medium leading-tight text-center">{label}</span>
+      <span class="text-xs mt-0.5 font-medium leading-tight text-center">{label}</span>
     </div>
   );
 }
@@ -144,7 +144,7 @@ function ClaimCard({
               key={act}
               type="button"
               onClick={() => onAction(matchKey, act)}
-              class={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
+              class={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
                 action?.action === act
                   ? 'bg-gray-700 text-white border-gray-700'
                   : 'border-gray-300 text-gray-500 hover:border-gray-400'

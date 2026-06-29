@@ -162,13 +162,13 @@ export default function OnboardingTour() {
         aria-labelledby="tour-title"
       >
         <div class="flex items-center justify-between mb-3">
-          <span class="text-[10px] font-semibold uppercase tracking-widest text-amber-600">
+          <span class="text-xs font-semibold uppercase tracking-widest text-amber-600">
             Tour · {stepIdx + 1} of {STEPS.length}
           </span>
           <button
             type="button"
             onClick={skip}
-            class="text-[11px] text-gray-400 hover:text-gray-600 underline underline-offset-2"
+            class="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2"
           >
             Skip
           </button>

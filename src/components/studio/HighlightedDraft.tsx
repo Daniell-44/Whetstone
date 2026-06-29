@@ -234,7 +234,7 @@ function HoverCard({ highlight, x, y }: { highlight: Highlight; x: number; y: nu
       <p class="font-semibold text-gray-900 mb-1">{highlight.label}</p>
       <p class="text-gray-600">{highlight.explanation}</p>
       <div class="flex items-center gap-2 mt-2">
-        <span class={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+        <span class={`px-1.5 py-0.5 rounded-full text-xs font-medium ${
           highlight.severity === 'high' ? 'bg-red-100 text-red-700' :
           highlight.severity === 'medium' ? 'bg-amber-100 text-amber-700' :
           'bg-gray-100 text-gray-600'

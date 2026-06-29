@@ -48,7 +48,7 @@ const rows = topics.map(t => ({ topic: t, ...counts(t) }));
         {rows.map(({ topic: t, left, center, right }) => (
           <li>
             <a href={`/topic/${t.slug}`} class="group block py-5 sm:py-6">
-              <div class="flex items-center gap-2 mb-1.5 text-[11px] text-gray-400">
+              <div class="flex items-center gap-2 mb-1.5 text-xs text-gray-400">
                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500" />{left}</span>
                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-500" />{center}</span>
                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500" />{right}</span>

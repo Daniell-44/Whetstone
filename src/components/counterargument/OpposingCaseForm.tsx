@@ -109,7 +109,7 @@ export default function OpposingCaseForm() {
           )}
         </div>
         {canSubmit && (
-          <p class="text-[10px] text-gray-300 text-center">⌘/Ctrl + Enter</p>
+          <p class="text-xs text-gray-300 text-center">⌘/Ctrl + Enter</p>
         )}
       </div>
 

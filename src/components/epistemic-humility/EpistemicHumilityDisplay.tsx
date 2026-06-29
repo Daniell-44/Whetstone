@@ -35,7 +35,7 @@ function FindingCard({ f }: { f: HumilityFinding }) {
   return (
     <div class={`rounded-lg border p-4 ${SEV_CLS[f.severity]}`}>
       <div class="flex items-center gap-2 mb-2 flex-wrap">
-        <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-700">
+        <span class="text-xs font-medium px-2 py-0.5 rounded bg-white border border-gray-200 text-gray-700">
           {CERTAINTY_LABEL[f.certainty]} → {EVIDENCE_LABEL[f.evidenceState]}
         </span>
         <span class="ml-auto"><GroundednessChip groundedness={f.groundedness} compact /></span>
@@ -45,7 +45,7 @@ function FindingCard({ f }: { f: HumilityFinding }) {
       </blockquote>
       <p class="text-xs text-gray-700 leading-relaxed mb-2">{f.gap}</p>
       <div class="rounded bg-white border border-gray-200 px-3 py-2">
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">Suggested framing</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-1">Suggested framing</p>
         <p class="text-xs text-gray-800 leading-relaxed">"{f.suggestedFraming}"</p>
       </div>
     </div>
@@ -58,7 +58,7 @@ export default function EpistemicHumilityDisplay({ result }: { result: Epistemic
     <div class="space-y-4">
       <div class="rounded-lg border border-gray-200 bg-white p-4">
         <div class="flex items-center gap-2 mb-2">
-          <span class={`text-[10px] font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
+          <span class={`text-xs font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
         </div>
         <p class="text-sm text-gray-800 leading-relaxed">{result.summary}</p>
       </div>

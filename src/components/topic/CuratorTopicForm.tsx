@@ -133,7 +133,7 @@ export default function CuratorTopicForm() {
 
       {/* Takeaways */}
       <div class="rounded-lg border border-indigo-100 bg-indigo-50/40 p-4 space-y-3">
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600">Takeaways (auto-filled; editable)</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-indigo-600">Takeaways (auto-filled; editable)</p>
         {(['agree', 'realDisagreement', 'sharedAssumption', 'talkingPast'] as const).map(k => (
           <div key={k}><label class={label}>{k}</label><textarea class={input} rows={2} value={topic.takeaways[k]} onInput={e => setTopic({ ...topic, takeaways: { ...topic.takeaways, [k]: (e.target as HTMLTextAreaElement).value } })} /></div>
         ))}

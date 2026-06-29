@@ -118,7 +118,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
       </div>
 
       {/* Text stats */}
-      <div class="flex items-center gap-x-2 gap-y-1 text-gray-400 text-[10px] min-w-0 flex-wrap">
+      <div class="flex items-center gap-x-2 gap-y-1 text-gray-400 text-xs min-w-0 flex-wrap">
         <span>{words.toLocaleString()} words</span>
         <span>·</span>
         <span>~{avgLen} w/s</span>
@@ -137,7 +137,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
               setTimeout(() => setCopied(false), 2000);
             });
           }}
-          class="px-2 py-1 rounded text-[10px] font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          class="px-2 py-1 rounded text-xs font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           title="Copy audit report as markdown"
         >
           {copied ? '✓ Copied' : 'Copy report'}
@@ -148,7 +148,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
             const safeName = (draftTitle ?? 'audit').replace(/[^a-zA-Z0-9-_ ]/g, '').trim().replace(/\s+/g, '-').toLowerCase();
             downloadMarkdown(md, `whetstone-${safeName}.md`);
           }}
-          class="px-2 py-1 rounded text-[10px] font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          class="px-2 py-1 rounded text-xs font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           title="Download audit report as .md file"
         >
           ↓ Download
@@ -156,7 +156,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
         <button
           onClick={() => void handleShare()}
           disabled={share.status === 'sharing'}
-          class={`px-2 py-1 rounded text-[10px] font-medium transition-colors ${
+          class={`px-2 py-1 rounded text-xs font-medium transition-colors ${
             share.status === 'shared'
               ? 'text-emerald-600 bg-emerald-50'
               : share.status === 'error'

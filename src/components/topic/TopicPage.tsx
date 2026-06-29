@@ -23,7 +23,7 @@ const TYPE_LABEL: Record<ArticleType, string> = {
 function OverviewSpectrum({ sources }: { sources: TopicSource[] }) {
   return (
     <div class="hidden sm:block">
-      <div class="flex items-center justify-between text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">
+      <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
         <span>Left</span><span>Center</span><span>Right</span>
       </div>
       <div class="relative h-2 rounded-full bg-gradient-to-r from-red-200 via-gray-200 to-blue-200">
@@ -72,10 +72,10 @@ function SourceCard({ s }: { s: TopicSource }) {
         {/* Header row: outlet · writer · date · type · leaning */}
         <div class="flex items-center gap-2 flex-wrap mb-1.5">
           <span class="text-xs font-semibold text-gray-800">{s.outlet}</span>
-          {s.writer && <span class="text-[11px] text-gray-400">· {s.writer}</span>}
-          <span class="text-[11px] text-gray-400">· {s.date}</span>
-          <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{TYPE_LABEL[s.type]}</span>
-          <span class={`text-[10px] font-medium px-1.5 py-0.5 rounded ml-auto ${st.pill}`}>{st.label}</span>
+          {s.writer && <span class="text-xs text-gray-400">· {s.writer}</span>}
+          <span class="text-xs text-gray-400">· {s.date}</span>
+          <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{TYPE_LABEL[s.type]}</span>
+          <span class={`text-xs font-medium px-1.5 py-0.5 rounded ml-auto ${st.pill}`}>{st.label}</span>
         </div>
 
         {/* Mini-spectrum bar - intrinsic to the card, survives expansion */}
@@ -89,7 +89,7 @@ function SourceCard({ s }: { s: TopicSource }) {
         <h3 class="font-serif text-base sm:text-lg text-gray-900 leading-snug mb-1">{s.title}</h3>
         <p class="text-xs sm:text-sm text-gray-500 leading-relaxed">{s.mainPoint}</p>
 
-        <span class="inline-block mt-2 text-[11px] text-indigo-600 font-medium">
+        <span class="inline-block mt-2 text-xs text-indigo-600 font-medium">
           {open ? 'Hide structure ↑' : 'See the structure ↓'}
         </span>
       </button>
@@ -97,15 +97,15 @@ function SourceCard({ s }: { s: TopicSource }) {
       {open && (
         <div class="border-t border-gray-100 px-4 py-3 sm:px-5 sm:py-4 space-y-3 bg-gray-50/50">
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">Central claim</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-0.5">Central claim</p>
             <p class="text-sm text-gray-800 leading-relaxed">{s.centralClaim}</p>
           </div>
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">Load-bearing assumption</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-0.5">Load-bearing assumption</p>
             <p class="text-sm text-gray-700 leading-relaxed">{s.keyWarrant}</p>
           </div>
           <div>
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-0.5">Strongest version of this position</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-0.5">Strongest version of this position</p>
             <p class="text-sm text-gray-700 leading-relaxed italic">{s.steelman}</p>
           </div>
           <a href={s.url} target="_blank" rel="noopener noreferrer" class="inline-block text-xs text-indigo-600 hover:text-indigo-800 font-medium">
@@ -135,7 +135,7 @@ export default function TopicPage({ data }: { data: TopicData }) {
 
       {/* Takeaways */}
       <section class="rounded-lg border border-indigo-100 bg-indigo-50/50 p-4 sm:p-5 space-y-3">
-        <h2 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600">Main takeaways</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-indigo-600">Main takeaways</h2>
         <dl class="space-y-2.5">
           {([
             ['Where all sides agree', data.takeaways.agree],
@@ -153,7 +153,7 @@ export default function TopicPage({ data }: { data: TopicData }) {
 
       {/* Sources */}
       <section class="space-y-3">
-        <h2 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
           The sources ({ordered.length}) - centre-first
         </h2>
         {ordered.map((s) => <SourceCard key={s.id} s={s} />)}

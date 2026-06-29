@@ -76,7 +76,7 @@ export default function ModerationQueue() {
         <ul class="space-y-3">
           {takes.map(t => (
             <li key={t.id} class="rounded-lg border border-gray-200 bg-white p-4">
-              <div class="flex items-center gap-2 mb-1.5 text-[11px] text-gray-400 flex-wrap">
+              <div class="flex items-center gap-2 mb-1.5 text-xs text-gray-400 flex-wrap">
                 <a href={`/topic/${t.topic_slug}`} class="text-indigo-500 hover:text-indigo-700 underline">{t.topic_slug}</a>
                 <span>· {t.kind}</span>
                 <span>· {t.display_name ?? 'anon'}</span>

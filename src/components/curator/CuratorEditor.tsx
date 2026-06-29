@@ -443,7 +443,7 @@ export default function CuratorEditor({
               </div>
 
               <div class="flex items-center gap-2 mt-2">
-                <label class="text-[11px] text-gray-400 shrink-0">Leaning (-100 left … +100 right)</label>
+                <label class="text-xs text-gray-400 shrink-0">Leaning (-100 left … +100 right)</label>
                 <input
                   type="number" min={-100} max={100}
                   class={inputCls + ' w-24'}
@@ -457,7 +457,7 @@ export default function CuratorEditor({
                     });
                   }}
                 />
-                <span class="text-[11px] text-gray-400">drives the Briefing spectrum</span>
+                <span class="text-xs text-gray-400">drives the Briefing spectrum</span>
               </div>
 
               {/* Articles */}

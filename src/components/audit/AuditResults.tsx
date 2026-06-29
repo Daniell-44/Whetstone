@@ -80,7 +80,7 @@ function ClampText({ text, class: cls = 'text-xs text-gray-600 leading-relaxed' 
       <button
         type="button"
         onClick={() => setExpanded(v => !v)}
-        class="mt-0.5 text-[11px] font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+        class="mt-0.5 text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
       >
         {expanded ? 'Less' : 'More'}
       </button>

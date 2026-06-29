@@ -53,7 +53,7 @@ export default function GroundednessChip({
   const desc = GROUNDEDNESS_DESCRIPTION[groundedness.kind];
   return (
     <span
-      class={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-medium ${cls}`}
+      class={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-xs font-medium ${cls}`}
       title={desc}
     >
       {compact ? GROUNDEDNESS_LABEL[groundedness.kind] : signalText(groundedness)}

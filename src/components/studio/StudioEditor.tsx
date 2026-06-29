@@ -748,14 +748,14 @@ export default function StudioEditor({
             <p class="text-xs font-semibold text-amber-800">
               Pre-cached sample · {loadedSample.shortLabel}
             </p>
-            <p class="text-[11px] text-amber-700 leading-snug mt-0.5">
+            <p class="text-xs text-amber-700 leading-snug mt-0.5">
               This argument contains: {loadedSample.failureModes.join(', ')}. Edit the text or pick a new example to dismiss.
             </p>
           </div>
           <button
             type="button"
             onClick={handleNewDraft}
-            class="shrink-0 text-[11px] text-amber-700 hover:text-amber-900 font-medium underline"
+            class="shrink-0 text-xs text-amber-700 hover:text-amber-900 font-medium underline"
           >
             Clear
           </button>
@@ -810,7 +810,7 @@ export default function StudioEditor({
                 <button
                   type="button"
                   onClick={() => setDraftViewMode('highlights')}
-                  class={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
+                  class={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                     draftViewMode === 'highlights'
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-500 hover:text-gray-800'
@@ -821,7 +821,7 @@ export default function StudioEditor({
                 <button
                   type="button"
                   onClick={() => setDraftViewMode('heatmap')}
-                  class={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
+                  class={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                     draftViewMode === 'heatmap'
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-500 hover:text-gray-800'
@@ -914,7 +914,7 @@ export default function StudioEditor({
             )}
           </div>
           {canSubmit && !isRunning && (
-            <p class="text-[10px] text-gray-300 text-center">⌘/Ctrl + Enter</p>
+            <p class="text-xs text-gray-300 text-center">⌘/Ctrl + Enter</p>
           )}
           {isRunning && hasActiveSubscription && (
             <p class="text-xs text-center text-gray-400">
@@ -948,7 +948,7 @@ export default function StudioEditor({
   // implicit premises that are the hidden assumptions), so it was retired.
   const skeletonPanel = extractionState.status !== 'idle' ? (
     <div class="rounded-lg border border-emerald-200 bg-white p-4">
-      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Argument Skeleton</h3>
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Argument Skeleton</h3>
       {extractionState.status === 'loading' && <SectionLoading label="Mapping structure…" />}
       {extractionState.status === 'error' && <SectionError code={extractionState.code} message={extractionState.message} />}
       {extractionState.status === 'done' && (
@@ -960,7 +960,7 @@ export default function StudioEditor({
       )}
       {auditState.status === 'done' && auditState.data.toulmin.weakestLink && (
         <div class="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-3">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-1">
+          <p class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-1">
             <LabelWithTooltip label="weakestLink" preference={terminologyPreference} />
           </p>
           <p class="text-sm text-amber-900 leading-relaxed">{auditState.data.toulmin.weakestLink}</p>
@@ -972,7 +972,7 @@ export default function StudioEditor({
   // Framework check.
   const frameworkPanel = commitmentsState.status !== 'idle' ? (
     <div class="rounded-lg border border-purple-200 bg-white p-4">
-      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
         <LabelWithTooltip label="commitments" preference={terminologyPreference} />
       </h3>
       {commitmentsState.status === 'loading' && <SectionLoading label="Detecting frameworks…" />}
@@ -986,7 +986,7 @@ export default function StudioEditor({
   // Counterarguments.
   const counterargPanel = (
     <div class="rounded-lg border border-violet-200 bg-white p-4">
-      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
         <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
       </h3>
       {/* Pro-gated (Pro-model cost). Free users see the upsell instead of an
@@ -1019,8 +1019,8 @@ export default function StudioEditor({
   const deeperLensesPanel = auditState.status === 'done' ? (
     <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
       <div class="flex items-center justify-between gap-2">
-        <h3 class="text-[11px] font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
-        <span class="text-[11px] text-gray-400">click any to run</span>
+        <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
+        <span class="text-xs text-gray-400">click any to run</span>
       </div>
       <div class="grid grid-cols-2 gap-2.5">
         <LensButton
@@ -1048,12 +1048,12 @@ export default function StudioEditor({
       {/* Cui bono - sharp-edged lens, visually separated + always-shown caveat in display */}
       <div class="border-t border-gray-100 pt-3">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700">
+          <p class="text-xs font-semibold uppercase tracking-widest text-amber-700">
             Structural-incentive analysis
           </p>
-          <p class="text-[10px] text-gray-400 italic">structural, not personal</p>
+          <p class="text-xs text-gray-400 italic">structural, not personal</p>
         </div>
-        <p class="text-[11px] text-gray-500 leading-relaxed mb-2">
+        <p class="text-xs text-gray-500 leading-relaxed mb-2">
           Whose positions in a political economy benefit if a reader accepts this framing.
           Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
         </p>
@@ -1068,7 +1068,7 @@ export default function StudioEditor({
       {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
       {presupState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Presuppositions</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Presuppositions</h4>
           <PresuppositionDisplay result={presupState.data} />
         </div>
       )}
@@ -1077,7 +1077,7 @@ export default function StudioEditor({
       {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
       {rhetState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Rhetorical mode</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Rhetorical mode</h4>
           <RhetoricalModeDisplay result={rhetState.data} />
         </div>
       )}
@@ -1086,7 +1086,7 @@ export default function StudioEditor({
       {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
       {humilityState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Epistemic humility</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Epistemic humility</h4>
           <EpistemicHumilityDisplay result={humilityState.data} />
         </div>
       )}
@@ -1095,7 +1095,7 @@ export default function StudioEditor({
       {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
       {disagreeState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-2">Engagement quality</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Engagement quality</h4>
           <DisagreementEngagementDisplay result={disagreeState.data} />
         </div>
       )}
@@ -1104,7 +1104,7 @@ export default function StudioEditor({
       {siState.status === 'error' && <SectionError code={siState.code} message={siState.message} />}
       {siState.status === 'done' && (
         <div>
-          <h4 class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Structural-incentive analysis</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">Structural-incentive analysis</h4>
           <StructuralIncentiveDisplay result={siState.data} />
         </div>
       )}
@@ -1115,7 +1115,7 @@ export default function StudioEditor({
   // quote in the centre draft. (AuditResults scope="span".)
   const spanFindingsPanel = (
     <div data-tour-anchor="studio-findings" class="rounded-lg border border-gray-200 bg-white p-4">
-      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
       {auditState.status === 'loading' && <SectionLoading label="Running audit…" />}
       {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
       {auditState.status === 'done' && (
@@ -1136,7 +1136,7 @@ export default function StudioEditor({
   // Citation audit (RIGHT).
   const citationPanel = (
     <div class="rounded-lg border border-sky-200 bg-white p-4">
-      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
         <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
       </h3>
       {!hasActiveSubscription ? <CitationUpsell /> : (
@@ -1160,7 +1160,7 @@ export default function StudioEditor({
   // Evidence check (RIGHT, Studio Pro).
   const evidencePanel = hasActiveSubscription && evidenceState.status !== 'idle' ? (
     <div class="rounded-lg border border-emerald-200 bg-white p-4">
-      <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
         Evidence Check
       </h3>
       {evidenceState.status === 'loading' && <SectionLoading label="Searching academic literature…" />}
@@ -1203,13 +1203,13 @@ export default function StudioEditor({
         {!hasActiveSubscription && (
           <div class="grid sm:grid-cols-2 gap-4">
             <div class="rounded-lg border border-violet-200 bg-white p-4">
-              <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+              <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
                 <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
               </h3>
               <CounterargUpsell />
             </div>
             <div class="rounded-lg border border-sky-200 bg-white p-4">
-              <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+              <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
                 <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
               </h3>
               <CitationUpsell />
@@ -1239,7 +1239,7 @@ export default function StudioEditor({
   ] : [];
 
   const scoreBadge = score !== null ? (
-    <span class="text-[10px] font-bold rounded-full px-1.5 py-0.5 bg-white/20">{score}</span>
+    <span class="text-xs font-bold rounded-full px-1.5 py-0.5 bg-white/20">{score}</span>
   ) : null;
 
   // Three-panel Grammarly-style layout on desktop; single-column + bottom sheet on mobile

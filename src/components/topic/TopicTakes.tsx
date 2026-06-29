@@ -68,12 +68,12 @@ export default function TopicTakes({ slug, signedIn, returnTo }: { slug: string;
 
   return (
     <section class="mt-8 space-y-4">
-      <h2 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Takes</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">Takes</h2>
 
       <div class="grid md:grid-cols-2 gap-4">
         {/* Editor takes */}
         <div class="rounded-lg border border-violet-200 bg-violet-50/40 p-4">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-violet-600 mb-3">From the editor</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-violet-600 mb-3">From the editor</p>
           {editor.length === 0 ? (
             <p class="text-xs text-gray-400">No editor note yet.</p>
           ) : (
@@ -81,7 +81,7 @@ export default function TopicTakes({ slug, signedIn, returnTo }: { slug: string;
               {editor.map(t => (
                 <li key={t.id} class="text-sm text-gray-700 leading-relaxed">
                   "{t.body}"
-                  {t.displayName && <span class="block text-[11px] text-violet-500 mt-0.5">- {t.displayName}</span>}
+                  {t.displayName && <span class="block text-xs text-violet-500 mt-0.5">- {t.displayName}</span>}
                 </li>
               ))}
             </ul>
@@ -90,7 +90,7 @@ export default function TopicTakes({ slug, signedIn, returnTo }: { slug: string;
 
         {/* Community takes */}
         <div class="rounded-lg border border-gray-200 bg-white p-4">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-3">From readers</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">From readers</p>
           {!loaded ? (
             <p class="text-xs text-gray-400">Loading…</p>
           ) : community.length === 0 ? (
@@ -101,12 +101,12 @@ export default function TopicTakes({ slug, signedIn, returnTo }: { slug: string;
                 <li key={t.id} class="group text-sm text-gray-700 leading-relaxed flex items-start gap-2">
                   <div class="flex-1">
                     "{t.body}"
-                    {t.displayName && <span class="block text-[11px] text-gray-400 mt-0.5">- {t.displayName}</span>}
+                    {t.displayName && <span class="block text-xs text-gray-400 mt-0.5">- {t.displayName}</span>}
                   </div>
                   <button
                     type="button"
                     onClick={() => void report(t.id)}
-                    class="opacity-0 group-hover:opacity-100 text-[10px] text-gray-300 hover:text-red-500 transition"
+                    class="opacity-0 group-hover:opacity-100 text-xs text-gray-300 hover:text-red-500 transition"
                     title="Report"
                   >
                     flag

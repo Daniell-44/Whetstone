@@ -28,7 +28,7 @@ export default function GoalSelector({ audience, intent, onAudienceChange, onInt
     <div class="flex flex-col sm:flex-row gap-4">
       {/* Audience */}
       <div class="flex-1">
-        <label class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
+        <label class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
           Audience
         </label>
         <div class="flex sm:flex-wrap gap-1.5 overflow-x-auto sm:overflow-x-visible -mx-1 px-1 pb-1 sm:pb-0 scrollbar-thin">
@@ -53,7 +53,7 @@ export default function GoalSelector({ audience, intent, onAudienceChange, onInt
 
       {/* Intent */}
       <div class="flex-1">
-        <label class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
+        <label class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
           Intent
         </label>
         <div class="flex sm:flex-wrap gap-1.5 overflow-x-auto sm:overflow-x-visible -mx-1 px-1 pb-1 sm:pb-0 scrollbar-thin">

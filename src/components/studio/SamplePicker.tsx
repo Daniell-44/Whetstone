@@ -38,8 +38,8 @@ export default function SamplePicker({ onPick, disabled }: Props) {
       {open && (
         <div class="absolute z-30 right-0 sm:right-auto sm:left-0 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
           <div class="px-4 py-2.5 border-b border-gray-100 bg-gray-50">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Pre-cached examples</p>
-            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Pick a sample to see the analysis instantly - no API call.</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Pre-cached examples</p>
+            <p class="text-xs text-gray-500 mt-0.5 leading-snug">Pick a sample to see the analysis instantly - no API call.</p>
           </div>
           <ul class="divide-y divide-gray-100">
             {SAMPLES.map((s) => (
@@ -51,17 +51,17 @@ export default function SamplePicker({ onPick, disabled }: Props) {
                 >
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-sm font-semibold text-gray-900">{s.shortLabel}</p>
-                    <p class="text-[10px] uppercase tracking-wider text-gray-400 shrink-0">{s.category}</p>
+                    <p class="text-xs uppercase tracking-wider text-gray-400 shrink-0">{s.category}</p>
                   </div>
                   <p class="text-xs text-gray-500 mt-1 leading-snug">{s.title}</p>
                   <div class="flex flex-wrap gap-1 mt-2">
                     {s.failureModes.slice(0, 3).map((mode) => (
-                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
+                      <span class="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
                         {mode}
                       </span>
                     ))}
                     {s.failureModes.length > 3 && (
-                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">
+                      <span class="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">
                         +{s.failureModes.length - 3} more
                       </span>
                     )}

@@ -33,7 +33,7 @@ const NEUTRAL    = '#C7C3B6';
         <div class="absolute" style={`left:${toPct(s.leaning)}%;top:0;transform:translateX(-50%);width:150px;`}>
           <a href={s.url} target="_blank" rel="noopener noreferrer" class="block rounded-lg px-2 py-1.5 transition-opacity hover:opacity-90" style={`background:${SIDE[s.side].tint};border:0.5px solid ${SIDE[s.side].dot};`}>
             <p class="text-[9px] font-semibold uppercase tracking-wide m-0" style={`color:${SIDE[s.side].dot}`}>{s.publication ?? s.label} · quoted</p>
-            <p class="text-[10px] leading-snug m-0" style={`color:${SIDE[s.side].text}`}>{s.label}</p>
+            <p class="text-xs leading-snug m-0" style={`color:${SIDE[s.side].text}`}>{s.label}</p>
           </a>
           <div class="mx-auto" style={`width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid ${SIDE[s.side].dot};`}></div>
         </div>
@@ -53,7 +53,7 @@ const NEUTRAL    = '#C7C3B6';
       ))}
       {/* assessed markers */}
       {assessed.map((s, i) => (
-        <span class="absolute rounded-full text-white text-[10px] font-semibold flex items-center justify-center" style={`left:${toPct(s.leaning)}%;top:76px;width:18px;height:18px;background:${SIDE[s.side].dot};transform:translate(-50%,-50%);box-shadow:0 0 0 3px #f9fafb;`}>{i + 1}</span>
+        <span class="absolute rounded-full text-white text-xs font-semibold flex items-center justify-center" style={`left:${toPct(s.leaning)}%;top:76px;width:18px;height:18px;background:${SIDE[s.side].dot};transform:translate(-50%,-50%);box-shadow:0 0 0 3px #f9fafb;`}>{i + 1}</span>
       ))}
       <span class="absolute text-[9px] text-gray-400" style="top:90px;left:0;">{axis.left}</span>
       <span class="absolute text-[9px] text-gray-400" style="top:90px;right:0;">{axis.right}</span>

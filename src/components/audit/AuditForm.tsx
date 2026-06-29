@@ -313,7 +313,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               )}
               {extraction && (
                 <div class="rounded-lg border border-emerald-200 bg-white p-4">
-                  <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+                  <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
                     Argument Skeleton
                   </h3>
                   <ArgumentExtraction result={extraction} />
@@ -325,7 +325,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           {/* Right: findings — full width when there's no left panel (e.g. URL audits) */}
           <div class={`w-full ${hasLeftContent ? 'xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto' : ''}`}>
             <div class="rounded-lg border border-gray-200 bg-white p-4">
-              <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
+              <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
               <AuditResults result={result} />
             </div>
           </div>
@@ -343,7 +343,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
          include. Naming the locked features is the upsell. */}
       {result && !loading && (
         <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-5">
-          <p class="text-[10px] font-semibold uppercase tracking-widest text-amber-700 mb-2">Go deeper in Studio</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">Go deeper in Studio</p>
           <p class="text-sm text-gray-700 leading-relaxed mb-3">
             The Reader gives you the full structural audit free. Studio adds the tools for working on your own writing:
           </p>

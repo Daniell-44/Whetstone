@@ -24,8 +24,8 @@ function PresupCard({ p }: { p: Presupposition }) {
   return (
     <div class="rounded-lg border border-gray-200 bg-white p-4">
       <div class="flex items-center gap-2 mb-2 flex-wrap">
-        <span class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600">{DOMAIN_LABEL[p.domain] ?? p.domain}</span>
-        <span class={`text-[10px] font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
+        <span class="text-xs font-semibold uppercase tracking-widest text-indigo-600">{DOMAIN_LABEL[p.domain] ?? p.domain}</span>
+        <span class={`text-xs font-medium px-2 py-0.5 rounded ${badge.cls}`}>{badge.label}</span>
         <span class="ml-auto"><GroundednessChip groundedness={p.groundedness} compact /></span>
       </div>
       <p class="text-sm text-gray-900 font-medium leading-snug mb-2">"{p.statement}"</p>
@@ -34,7 +34,7 @@ function PresupCard({ p }: { p: Presupposition }) {
       </blockquote>
       <p class="text-xs text-gray-600 leading-relaxed mb-2">{p.whyItMatters}</p>
       {p.alternatives.length > 0 && (
-        <div class="text-[11px] text-gray-500">
+        <div class="text-xs text-gray-500">
           <span class="font-semibold text-gray-600">Alternative frames:</span>{' '}
           {p.alternatives.join(' · ')}
         </div>
@@ -47,7 +47,7 @@ export default function PresuppositionDisplay({ result }: { result: Presuppositi
   return (
     <div class="space-y-4">
       <div class="rounded-lg border border-indigo-100 bg-indigo-50/60 p-4">
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-indigo-600 mb-1.5">Implied audience</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-1.5">Implied audience</p>
         <p class="text-sm text-gray-800 leading-relaxed">{result.audienceProfile}</p>
       </div>
 

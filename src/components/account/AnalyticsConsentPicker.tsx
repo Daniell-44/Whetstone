@@ -36,7 +36,7 @@ export default function AnalyticsConsentPicker() {
         </div>
       </label>
       {on && (
-        <p class="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-3 py-2 leading-relaxed">
+        <p class="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-3 py-2 leading-relaxed">
           Tracking on. Events like <code class="font-mono">audit_completed</code> and <code class="font-mono">sample_picked</code>
           are sent so we can see what's used and what isn't.{' '}
           <a href="/privacy" class="underline font-medium">Privacy policy →</a>

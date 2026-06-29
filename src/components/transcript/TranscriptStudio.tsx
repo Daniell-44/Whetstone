@@ -94,7 +94,7 @@ export default function TranscriptStudio() {
 
         {/* Optional title */}
         <div>
-          <label class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
+          <label class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
             Title (optional)
           </label>
           <input
@@ -109,7 +109,7 @@ export default function TranscriptStudio() {
         {/* Input based on tab */}
         {tab === 'youtube' && (
           <div>
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
+            <label class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
               YouTube URL
             </label>
             <input
@@ -119,7 +119,7 @@ export default function TranscriptStudio() {
               placeholder="https://www.youtube.com/watch?v=..."
               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
             />
-            <p class="text-[11px] text-gray-400 mt-1.5">
+            <p class="text-xs text-gray-400 mt-1.5">
               We'll fetch the public caption track. Doesn't work for private, age-restricted, or captions-off videos. Paste the transcript instead in that case.
             </p>
           </div>
@@ -127,7 +127,7 @@ export default function TranscriptStudio() {
 
         {tab === 'text' && (
           <div>
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
+            <label class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
               Transcript text
             </label>
             <textarea
@@ -137,7 +137,7 @@ export default function TranscriptStudio() {
               rows={10}
               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-300"
             />
-            <div class="flex items-center justify-between mt-1.5 text-[11px]">
+            <div class="flex items-center justify-between mt-1.5 text-xs">
               <button
                 type="button"
                 onClick={() => setText(SAMPLE_TEXT)}
@@ -152,7 +152,7 @@ export default function TranscriptStudio() {
 
         {tab === 'srt' && (
           <div>
-            <label class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
+            <label class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5 block">
               SRT / VTT captions
             </label>
             <textarea
@@ -162,7 +162,7 @@ export default function TranscriptStudio() {
               rows={10}
               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-300"
             />
-            <p class="text-[11px] text-gray-400 mt-1.5">
+            <p class="text-xs text-gray-400 mt-1.5">
               Preserves timestamps so cross-segment analysis can reference times.
             </p>
           </div>
@@ -237,7 +237,7 @@ function CrossSegmentSection({ findings, summary }: { findings: CrossSegmentFind
   return (
     <div class="rounded-xl border border-violet-200 bg-white p-5 sm:p-6 space-y-4">
       <div>
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-violet-600 mb-2">Cross-segment synthesis</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-violet-600 mb-2">Cross-segment synthesis</p>
         <p class="text-sm text-gray-700 leading-relaxed italic">"{summary}"</p>
       </div>
       {findings.length > 0 && (
@@ -251,7 +251,7 @@ function CrossSegmentSection({ findings, summary }: { findings: CrossSegmentFind
                   f.severity === 'medium' ? 'bg-amber-100 text-amber-700' :
                                             'bg-gray-100 text-gray-600'
                 }`}>{f.severity}</span>
-                <span class="text-[10px] text-gray-400 ml-auto">spans {f.segmentIds.join(', ')} · {f.confidence}%</span>
+                <span class="text-xs text-gray-400 ml-auto">spans {f.segmentIds.join(', ')} · {f.confidence}%</span>
               </div>
               <p class="text-xs text-gray-700 leading-relaxed">{f.description}</p>
             </div>
@@ -276,8 +276,8 @@ function SegmentCard({ segment, audit }: { segment: ArgumentSegment; audit: Segm
         <span class="font-mono text-xs font-semibold text-gray-500 shrink-0 mt-0.5">{segment.id}</span>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
-            {timeRange && <span class="text-[10px] text-gray-400 font-mono tabular-nums">{timeRange}</span>}
-            <span class="text-[10px] text-gray-400">{segment.confidence}% confidence</span>
+            {timeRange && <span class="text-xs text-gray-400 font-mono tabular-nums">{timeRange}</span>}
+            <span class="text-xs text-gray-400">{segment.confidence}% confidence</span>
           </div>
           <p class="text-sm font-medium text-gray-900 leading-snug">{segment.claimSummary}</p>
         </div>
