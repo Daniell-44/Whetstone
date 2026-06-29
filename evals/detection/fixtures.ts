@@ -155,7 +155,9 @@ export const DETECTION_FIXTURES: DetectionFixture[] = [
 
   // ===========================================================================
   // Batch 3 (2026-06-29) — research-grounded expansion toward ~50.
-  // *** GOLD LABELS PENDING DANIEL'S RATIFICATION. ***
+  // *** GOLD LABELS RATIFIED 2026-06-29 (Daniel delegated the ratification call). ***
+  // All 15 dirty labels and 13 clean negatives reviewed; the two
+  // single-vs-alternate-label cases resolved to their clear primary (below).
   // Design (from the fallacy-eval literature: MAFALDA, Missci, "models learn
   // datasets not arguments" 2505.22137, Gardner contrast-sets, Walton/Boudry):
   //   • 10 MINIMAL PAIRS — each clean+dirty share topic/length/wording and
@@ -199,7 +201,7 @@ export const DETECTION_FIXTURES: DetectionFixture[] = [
     id: 'det-auth-maverick',
     text: "One contrarian professor emeritus disputes the climate consensus, and that one expert's say-so is good enough for me to dismiss the whole field.",
     expectedFallacies: ['Appeal to Authority'],
-    notes: '[reddit-cmv · hard] Argument from expert opinion, CQ fails: leans on a lone dissenting authority against the consensus, with the say-so doing the evidentiary work. Acceptable alt: Cherry-Picking. Minimal-pair twin of det-clean-auth-consensus.',
+    notes: '[reddit-cmv · hard] Argument from expert opinion, CQ fails: leans on a lone dissenting authority against the consensus, with the say-so doing the evidentiary work. Ratified Appeal to Authority (the pronouncement of a single authority does the work, not selected data — so not Cherry-Picking). Minimal-pair twin of det-clean-auth-consensus.',
   },
 
   // --- Pair 3 · Slippery Slope · op-ed ---
@@ -339,7 +341,7 @@ export const DETECTION_FIXTURES: DetectionFixture[] = [
     id: 'det-appeal-emotion',
     text: 'Picture the terrified families lying awake tonight — how dare anyone quibble over statistics when children\'s lives hang in the balance? Pass the law now.',
     expectedFallacies: ['Appeal to Emotion'],
-    notes: '[political-speech · easy] Fear and indignation are made to stand in for the evidentiary question of whether the law works. Acceptable alt: Red Herring.',
+    notes: '[political-speech · easy] Fear and indignation are made to stand in for the evidentiary question of whether the law works. Ratified Appeal to Emotion (emotional manipulation is the core move; the salary digression in det-red-herring is the distinct Red Herring case).',
   },
   {
     id: 'det-red-herring',
