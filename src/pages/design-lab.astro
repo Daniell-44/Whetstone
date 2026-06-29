@@ -1,0 +1,182 @@
+---
+// design-lab.astro — INTERNAL design preview, not linked from anywhere, noindexed.
+// Compares the current look (baseline) against the three researched palette
+// directions, each shown with the proposed reading-layout fixes applied to a
+// real sample briefing + a mini-feed. Purely a sandbox: it sets palette values
+// as scoped CSS variables inline and does NOT touch the global theme.
+import '../styles/global.css';
+
+// Shared semantic colours (stay fixed whichever palette wins).
+const GROUNDED = { label: 'Logic', color: '#3B5566', bg: '#EaEef1' };
+
+type Dir = {
+  id: string; name: string; note: string;
+  ink: string; inkStrong: string; muted: string;
+  paper: string; surface: string; hairline: string;
+  accent: string; support: string;
+};
+
+// The new directions (reading-layout applied).
+const DIRECTIONS: Dir[] = [
+  { id: 'A', name: 'Ink & Ledger', note: 'Warm paper + near-black ink + rationed brick-red as the audit spine. Most editorial, most ownable.',
+    ink: '#2B2722', inkStrong: '#16130E', muted: '#6B6359', paper: '#FBF7F0', surface: '#FFFFFF', hairline: '#E0D8CA', accent: '#9A2B1F', support: '#1E5C5A' },
+  { id: 'B', name: 'Slate & Signal', note: 'Keeps the cool family (cheapest migration) but darkens body ink and swaps indigo for a committed red.',
+    ink: '#1E293B', inkStrong: '#0F172A', muted: '#64748B', paper: '#F8FAFC', surface: '#FFFFFF', hairline: '#E2E8F0', accent: '#B91C1C', support: '#0E7490' },
+  { id: 'C', name: 'Paper & Oxblood', note: 'Near-monochrome long-read; accent reserved almost entirely for the audit.',
+    ink: '#333333', inkStrong: '#1A1A1A', muted: '#717171', paper: '#FFFFFF', surface: '#FAF8F4', hairline: '#D9D9D9', accent: '#7C1D2B', support: '#33566F' },
+];
+
+// The current look, for a baseline comparison (today's colours + boxier layout).
+const CURRENT: Dir = {
+  id: '0', name: 'Current (baseline)', note: "Today's look: mid-slate body on white, indigo accent, boxed audit cards.",
+  ink: '#4B5563', inkStrong: '#111827', muted: '#9CA3AF', paper: '#F9FAFB', surface: '#FFFFFF', hairline: '#E5E7EB', accent: '#6366F1', support: '#6366F1',
+};
+---
+<!doctype html>
+<html lang="en" class="bg-gray-100">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Design Lab — The Whetstone (internal)</title>
+  </head>
+  <body class="font-sans text-gray-900 py-8 px-4">
+    <div class="max-w-5xl mx-auto mb-8">
+      <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">Internal · not linked publicly</p>
+      <h1 class="font-serif text-3xl text-gray-900 mt-1">Design Lab — palette + reading directions</h1>
+      <p class="text-sm text-gray-600 mt-2 max-w-2xl leading-relaxed">
+        The same sample feed + briefing excerpt rendered four ways. <strong>Current</strong> is today's look;
+        <strong>A/B/C</strong> apply the proposed reading-layout (near-black body, tighter measure, rules instead of boxes,
+        sharp 2–4px radius, accent "audit spine") each in a different researched palette. Pick a direction and I'll
+        implement it as real theme tokens.
+      </p>
+    </div>
+
+    {[CURRENT, ...DIRECTIONS].map((d) => {
+      const isCurrent = d.id === '0';
+      const radius = isCurrent ? '12px' : '3px';
+      const vars = `--ink:${d.ink};--ink-strong:${d.inkStrong};--muted:${d.muted};--paper:${d.paper};--surface:${d.surface};--hairline:${d.hairline};--accent:${d.accent};--support:${d.support};--radius:${radius};`;
+      return (
+        <section class="max-w-5xl mx-auto mb-10 rounded-xl overflow-hidden shadow-sm border border-gray-200">
+          {/* Label bar */}
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-5 py-3 bg-gray-900 text-white">
+            <span class="font-serif text-lg">{d.id === '0' ? 'Current' : `Direction ${d.id}`}</span>
+            <span class="text-sm font-medium">{d.name}</span>
+            <span class="text-xs text-gray-300">{d.note}</span>
+            <span class="ml-auto flex items-center gap-1.5">
+              {[d.paper, d.ink, d.accent, d.support].map((c) => (
+                <span class="inline-block w-4 h-4 rounded-full border border-white/30" style={`background:${c}`} title={c}></span>
+              ))}
+            </span>
+          </div>
+
+          {/* Rendered sample in this direction */}
+          <div style={`${vars}background:var(--paper);`} class="p-6 sm:p-8">
+
+            {/* Back-affordance + breadcrumb (shape language) */}
+            <div class="mb-6" style="font-size:12px;">
+              {isCurrent
+                ? <a href="#" style="color:var(--accent);text-decoration:none;">← Briefings</a>
+                : <a href="#" style="color:var(--accent);text-decoration:underline;text-underline-offset:2px;">← Briefings</a>}
+              {!isCurrent && <span style="color:var(--muted);"> &nbsp;·&nbsp; Briefings › Economics › Minimum wage</span>}
+            </div>
+
+            {/* Mini-feed: two cards */}
+            <p class="uppercase mb-2" style="font-size:11px;font-weight:600;letter-spacing:0.12em;color:var(--muted);">The feed</p>
+            <div class="grid sm:grid-cols-2 gap-4 mb-8">
+              {[
+                { kind: 'Briefing', cat: 'Economics', q: 'Does raising the minimum wage cost jobs?', dek: 'Both sides stand on the same floor: each treats today’s labour market as the fixed backdrop.' },
+                { kind: 'Explainer', cat: 'Philosophy', q: 'What “begging the question” actually means', dek: 'The most misused phrase in logic. It is not “raising the question.”' },
+              ].map((c) => (
+                <div style={`background:var(--surface);border:1px solid var(--hairline);border-radius:var(--radius);overflow:hidden;`}>
+                  <div style="height:84px;background:var(--accent);opacity:0.92;display:flex;align-items:center;justify-content:center;">
+                    <span class="font-serif" style="color:var(--paper);opacity:0.85;font-size:15px;">{c.cat}</span>
+                  </div>
+                  <div class="p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="uppercase" style={`font-size:10px;font-weight:700;letter-spacing:0.08em;color:var(--accent);`}>{c.kind}</span>
+                      <span class="uppercase" style={`font-size:10px;font-weight:600;letter-spacing:0.08em;color:var(--muted);`}>{c.cat}</span>
+                    </div>
+                    <h3 class="font-serif" style={`font-size:18px;line-height:1.25;color:var(--ink-strong);margin:0 0 6px;`}>{c.q}</h3>
+                    <p style={`font-size:13px;line-height:1.55;color:${isCurrent ? 'var(--muted)' : 'var(--ink)'};margin:0;`}>{c.dek}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Briefing excerpt */}
+            <p class="uppercase mb-3" style="font-size:11px;font-weight:600;letter-spacing:0.12em;color:var(--muted);">A briefing, reading</p>
+            <article style={`max-width:${isCurrent ? '42rem' : '38rem'};`}>
+              <p class="uppercase" style={`font-size:11px;font-weight:600;letter-spacing:0.1em;color:var(--accent);margin:0 0 6px;`}>Briefing · Economics</p>
+              <h2 class="font-serif" style={`font-size:30px;line-height:1.15;color:var(--ink-strong);margin:0 0 8px;`}>Does raising the minimum wage cost jobs?</h2>
+              <p style={`font-size:12px;color:var(--muted);margin:0 0 ${isCurrent ? '16px' : '20px'};`}>3 June 2026 · 6 min read · 4 audited positions</p>
+
+              <p style={`font-size:${isCurrent ? '15px' : '17px'};line-height:1.75;color:${isCurrent ? 'var(--muted)' : 'var(--ink)'};margin:0 0 ${isCurrent ? '16px' : '22px'};`}>
+                The standard model says a binding price floor above the market-clearing wage must reduce employment.
+                But the labour market is not a textbook auction: search frictions, monopsony power, and efficiency-wage
+                effects all bend the curve, and the empirical record is far messier than either camp admits.
+              </p>
+
+              {/* A position with its audit — boxed (current) vs rule-based spine (new) */}
+              {isCurrent ? (
+                <div style="border:1px solid var(--hairline);border-left:3px solid var(--accent);border-radius:8px;padding:14px;background:var(--surface);">
+                  <p style="font-size:15px;line-height:1.6;color:var(--ink);margin:0 0 10px;">
+                    <strong style="color:var(--ink-strong);">Price floors cut jobs.</strong> Set the wage above what a worker
+                    adds and employers hire fewer of them — the textbook result.
+                  </p>
+                  <div style="border:1px solid var(--hairline);border-radius:6px;padding:10px;background:var(--paper);">
+                    <p class="uppercase" style="font-size:10px;font-weight:600;letter-spacing:0.06em;color:var(--muted);margin:0 0 4px;">Audit · this claim</p>
+                    <p style="font-size:13px;line-height:1.5;color:var(--muted);margin:0;"><strong style="color:var(--ink);">Abductive Closure.</strong> Treats one model as the whole story, ruling out monopsony without argument.</p>
+                  </div>
+                </div>
+              ) : (
+                <div style="padding-left:16px;border-left:3px solid var(--accent);">
+                  <p style="font-size:17px;line-height:1.75;color:var(--ink);margin:0 0 14px;">
+                    <strong style="color:var(--ink-strong);">Price floors cut jobs.</strong> Set the wage above what a worker
+                    adds and employers hire fewer of them — the textbook result.
+                  </p>
+                  <div style="border-top:1px solid var(--hairline);padding-top:12px;">
+                    <div class="flex items-center gap-2" style="margin-bottom:5px;">
+                      <span style="font-size:14px;font-weight:600;color:var(--ink-strong);">Abductive Closure</span>
+                      <span class="uppercase" style={`font-size:10px;font-weight:600;letter-spacing:0.04em;padding:2px 7px;border-radius:3px;background:${GROUNDED.bg};color:${GROUNDED.color};`}>{GROUNDED.label}</span>
+                    </div>
+                    <p style="font-size:14px;line-height:1.6;color:var(--ink);margin:0 0 8px;opacity:0.85;">Treats one model as the whole story, ruling out monopsony and search frictions without argument.</p>
+                    <a href="#" style="font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;">Audit the full article →</a>
+                  </div>
+                </div>
+              )}
+            </article>
+
+            {/* Shape language row: tabs, buttons */}
+            <div class="mt-8 pt-5" style="border-top:1px solid var(--hairline);">
+              <p class="uppercase mb-3" style="font-size:11px;font-weight:600;letter-spacing:0.12em;color:var(--muted);">Controls</p>
+              {/* tabs */}
+              <div class="flex gap-5 mb-4" style="font-size:13px;">
+                {isCurrent ? (
+                  <>
+                    <span style="background:var(--accent);color:#fff;padding:5px 12px;border-radius:6px;font-weight:500;">Paste text</span>
+                    <span style="color:var(--muted);padding:5px 12px;">Paste URL</span>
+                  </>
+                ) : (
+                  <>
+                    <span style="color:var(--ink-strong);font-weight:600;padding-bottom:5px;border-bottom:2px solid var(--accent);">Paste text</span>
+                    <span style="color:var(--muted);padding-bottom:5px;">Paste URL</span>
+                  </>
+                )}
+              </div>
+              {/* buttons */}
+              <div class="flex flex-wrap gap-3 items-center" style="font-size:13px;">
+                <span style={`background:var(--accent);color:var(--paper);padding:8px 18px;border-radius:var(--radius);font-weight:600;`}>Audit this argument</span>
+                <span style={`border:1px solid var(--accent);color:var(--accent);padding:8px 18px;border-radius:var(--radius);font-weight:500;`}>Open the Reader</span>
+                <span style={`color:var(--support);text-decoration:underline;text-underline-offset:2px;`}>Steelman this →</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      );
+    })}
+
+    <div class="max-w-5xl mx-auto text-center text-xs text-gray-400 py-6">End of preview · /design-lab</div>
+  </body>
+</html>
