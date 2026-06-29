@@ -26,6 +26,9 @@ function briefingPlainText(b: BriefingArticle): string {
 const auditSlug    = Astro.url.searchParams.get('audit');
 const auditTarget  = auditSlug ? briefings.find((b) => b.slug === auditSlug) : undefined;
 const auditPrefill = auditTarget ? briefingPlainText(auditTarget) : '';
+// /?url=<source> deep-link: audit the source article a briefing position quotes.
+const auditUrlParam = Astro.url.searchParams.get('url') ?? '';
+const auditUrl      = auditUrlParam.startsWith('http') ? auditUrlParam : '';
 
 function briefingDek(b: BriefingArticle): string {
   const l = b.blocks.find((bl) => bl.type === 'landscape');
@@ -122,7 +125,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
     <!-- Audit form -->
     <section class="mb-12 sm:mb-16 max-w-4xl mx-auto">
-      <AuditForm isPro={isPro} initialText={auditPrefill} client:load />
+      <AuditForm isPro={isPro} initialText={auditPrefill} initialUrl={auditUrl} client:load />
     </section>
 
     <!-- Scorecards section with left rail -->

@@ -95,7 +95,7 @@ function AuditLoading() {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function AuditForm({ isPro = false, initialText = '' }: { isPro?: boolean; initialText?: string }) {
+export default function AuditForm({ isPro = false, initialText = '', initialUrl = '' }: { isPro?: boolean; initialText?: string; initialUrl?: string }) {
   const [tab, setTab]             = useState<Tab>('text');
   const [textInput, setTextInput] = useState('');
   const [urlInput, setUrlInput]   = useState('');
@@ -113,7 +113,12 @@ export default function AuditForm({ isPro = false, initialText = '' }: { isPro?:
   // reader into view. We deliberately don't auto-run — the reader presses Audit
   // — so a crawler or accidental prefetch of the link can't burn audit quota.
   useEffect(() => {
-    if (initialText && initialText.length >= MIN_CHARS) {
+    if (initialUrl && initialUrl.startsWith('http')) {
+      setTab('url');
+      setUrlInput(initialUrl);
+      setLoadedFromLink(true);
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (initialText && initialText.length >= MIN_CHARS) {
       setTab('text');
       setTextInput(initialText);
       setLoadedFromLink(true);
@@ -125,6 +130,9 @@ export default function AuditForm({ isPro = false, initialText = '' }: { isPro?:
   const textValid = charCount >= MIN_CHARS && charCount <= MAX_CHARS;
   const urlValid  = urlInput.trim().startsWith('http');
   const canSubmit = !loading && (tab === 'text' ? textValid : urlValid);
+  // The left panel only has content for text audits (highlighted draft / skeleton).
+  // For URL audits it's empty, so findings take the full width instead of a 45% column.
+  const hasLeftContent = (tab === 'text' && !!textInput) || !!extraction;
 
   function switchTab(t: Tab) {
     setTab(t);
@@ -290,28 +298,30 @@ export default function AuditForm({ isPro = false, initialText = '' }: { isPro?:
       {result && !loading && (
         <div class="flex flex-col xl:flex-row gap-4 items-start">
 
-          {/* Left: highlighted text + extraction */}
-          <div class="w-full xl:w-[55%] space-y-4">
-            {tab === 'text' && textInput && (
-              <HighlightedDraft
-                text={textInput}
-                audit={result}
-                activeFindingKey={null}
-                onHighlightClick={() => {}}
-              />
-            )}
-            {extraction && (
-              <div class="rounded-lg border border-emerald-200 bg-white p-4">
-                <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
-                  Argument Skeleton
-                </h3>
-                <ArgumentExtraction result={extraction} />
-              </div>
-            )}
-          </div>
+          {/* Left: highlighted text + extraction (only when there's something to show) */}
+          {hasLeftContent && (
+            <div class="w-full xl:w-[55%] space-y-4">
+              {tab === 'text' && textInput && (
+                <HighlightedDraft
+                  text={textInput}
+                  audit={result}
+                  activeFindingKey={null}
+                  onHighlightClick={() => {}}
+                />
+              )}
+              {extraction && (
+                <div class="rounded-lg border border-emerald-200 bg-white p-4">
+                  <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">
+                    Argument Skeleton
+                  </h3>
+                  <ArgumentExtraction result={extraction} />
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Right: findings */}
-          <div class="w-full xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto">
+          {/* Right: findings — full width when there's no left panel (e.g. URL audits) */}
+          <div class={`w-full ${hasLeftContent ? 'xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto' : ''}`}>
             <div class="rounded-lg border border-gray-200 bg-white p-4">
               <h3 class="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
               <AuditResults result={result} />

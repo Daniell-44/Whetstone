@@ -20,6 +20,7 @@ const rightSources = briefing.sources.filter((s) => s.side === 'right');
 const isExplainer  = briefing.kind === 'explainer';
 const fmtDate = new Date(briefing.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 const firstPositionIdx = briefing.blocks.findIndex((b) => b.type === 'position');
+const urlBySourceId = new Map(briefing.sources.map((s) => [s.id, s.url]));
 ---
 <article class="max-w-2xl mx-auto">
   <span class="text-[10px] font-semibold uppercase tracking-[0.08em] text-indigo-600">{isExplainer ? 'Explainer' : 'Briefing'}{briefing.category ? ` · ${briefing.category}` : ''}</span>
@@ -50,6 +51,7 @@ const firstPositionIdx = briefing.blocks.findIndex((b) => b.type === 'position')
       }
       if (block.type === 'position') {
         const c = COLOURS[((block.colourIndex % COLOURS.length) + COLOURS.length) % COLOURS.length];
+        const srcUrl = urlBySourceId.get(block.sourceId);
         return (
           <div id={idx === firstPositionIdx ? 'positions' : undefined} class="scroll-mt-24">
             <div class="pl-4" style={`border-left:3px solid ${c.rule}`}>
@@ -68,7 +70,7 @@ const firstPositionIdx = briefing.blocks.findIndex((b) => b.type === 'position')
                       <span class="text-[10px] px-1.5 py-0.5 rounded" style={`background:${c.chipBg};color:${c.chipText}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
                     </div>
                     <p class="text-xs text-gray-600 leading-snug mb-2">{block.audit.explanation}</p>
-                    <a href={`/?audit=${briefing.slug}`} class="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800">Audit the full article →</a>
+                    <a href={srcUrl ? `/?url=${encodeURIComponent(srcUrl)}` : `/?audit=${briefing.slug}`} class="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-800">Audit the full article →</a>
                   </div>
                 </div>
               </div>
