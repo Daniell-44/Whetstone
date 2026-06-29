@@ -186,9 +186,9 @@ const presentCategories = Object.keys(categoryCounts).sort();
             ))}
           </div>
 
-          <!-- Main feed — width-capped and centred in the remaining space so the
-               page doesn't read as half-empty on wide screens. -->
-          <div class="min-w-0 w-full max-w-3xl mx-auto">
+          <!-- Main feed — fills the remaining column beside the rail (no centred
+               width-cap), so the grid spans to the section header on wide screens. -->
+          <div class="min-w-0 w-full">
 
             <!-- Article-format briefings (new) — lead the feed -->
             {briefings.length > 0 && (
@@ -200,8 +200,14 @@ const presentCategories = Object.keys(categoryCounts).sort();
                       href={`/briefing/${b.slug}`}
                       class={`group block bg-white border border-gray-200 rounded-lg p-5 sm:p-6 hover:border-gray-300 hover:shadow-sm transition-all ${idx === 0 ? 'sm:col-span-2' : ''}`}
                     >
-                      {b.image && (
+                      {b.image ? (
                         <img src={b.image} alt="" loading="lazy" class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} object-cover rounded-md mb-4`} />
+                      ) : (
+                        /* Placeholder banner for sizing until real images land —
+                           a solid category colour also gives the feed real contrast. */
+                        <div class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} rounded-md mb-4 flex items-center justify-center ${b.category && CATEGORY_STYLES[b.category] ? CATEGORY_STYLES[b.category].bg : 'bg-slate-700'}`}>
+                          <span class="font-serif text-white/70 text-base sm:text-lg capitalize">{b.category ?? (card.isExplainer ? 'Explainer' : 'Briefing')}</span>
+                        </div>
                       )}
                       <div class="flex items-center gap-2 mb-2.5 flex-wrap">
                         <span class={`inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${card.isExplainer ? 'bg-slate-700 text-white' : 'bg-indigo-600 text-white'}`}>
