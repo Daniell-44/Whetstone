@@ -28,6 +28,7 @@ const CitationVerdictEnum = z.enum([
   'weakly_cited',
   'mismatched',
   'uncited',
+  'academic_reference',
   'unfetchable',
   'non_factual',
 ]);
@@ -63,9 +64,10 @@ export const CitationAuditSummarySchema = z.object({
   total:       z.number().int().min(0),
   wellCited:   z.number().int().min(0),
   weaklyCited: z.number().int().min(0),
-  mismatched:  z.number().int().min(0),
-  uncited:     z.number().int().min(0),
-  unfetchable: z.number().int().min(0),
+  mismatched:        z.number().int().min(0),
+  uncited:           z.number().int().min(0),
+  academicReference: z.number().int().min(0),
+  unfetchable:       z.number().int().min(0),
 });
 
 export const CitationAuditResultSchema = z.object({
@@ -77,12 +79,13 @@ export const CitationAuditResultSchema = z.object({
   { message: 'summary.total must equal factualClaims.length' },
 ).refine(
   (data) => {
-    const { wellCited, weaklyCited, mismatched, uncited, unfetchable } = data.summary;
+    const { wellCited, weaklyCited, mismatched, uncited, academicReference, unfetchable } = data.summary;
     const counted = data.factualClaims.filter(
       c => c.verdict === 'well_cited' || c.verdict === 'weakly_cited' ||
-           c.verdict === 'mismatched' || c.verdict === 'uncited' || c.verdict === 'unfetchable',
+           c.verdict === 'mismatched' || c.verdict === 'uncited' ||
+           c.verdict === 'academic_reference' || c.verdict === 'unfetchable',
     ).length;
-    const sumCounts = wellCited + weaklyCited + mismatched + uncited + unfetchable;
+    const sumCounts = wellCited + weaklyCited + mismatched + uncited + academicReference + unfetchable;
     return sumCounts === counted;
   },
   { message: 'Summary counts must add up to the non-non_factual claims' },

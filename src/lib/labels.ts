@@ -354,7 +354,7 @@ export const TOOLTIPS_PLAIN: Record<keyof typeof LABELS_PLAIN, { plain: string; 
   },
 
   citationAudit: {
-    plain:    'For each factual claim in your draft that\'s backed by a cited source, we fetch the source and check whether it actually supports the claim. Mismatches and uncited claims are flagged so you can address them before publishing.',
+    plain:    'For each factual claim backed by a linked source URL, we fetch the page and check whether it actually supports the claim. Academic-style "(Author, Year)" references with no link are flagged as references to verify manually — not as failures. Mismatches and uncited claims are flagged so you can address them before publishing.',
     pedigree: 'Operationalises a core editorial discipline — verifying that citations actually establish what they\'re cited for — at the speed of LLM inference.',
   },
   citationVerdictWell: {

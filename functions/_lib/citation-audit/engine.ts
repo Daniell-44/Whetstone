@@ -21,9 +21,35 @@ function verdictGroundedness(verdict: CitationVerdict): GroundednessSignal {
     case 'weakly_cited': return empirical(1, 0, 'moderate_support');
     case 'mismatched':   return empirical(0, 1, 'strong_opposition');
     case 'uncited':      return empirical(0, 0, 'insufficient_data');
+    case 'academic_reference': return empirical(0, 0, 'insufficient_data');
     case 'unfetchable':  return empirical(0, 0, 'insufficient_data');
     case 'non_factual':  return empirical(0, 0, 'not_applicable');
   }
+}
+
+// Academic-style "(Author, Year)" references have no linkable URL, so they
+// can't be fetched and checked — but they are NOT "uncited" either: the writer
+// did reference a source. Flagging them as failures misreads well-sourced
+// prose, so we surface them as a distinct, non-failing "reference" bucket.
+// Requires a capitalised name (author/org) followed by a 4-digit year inside
+// one parenthetical, e.g. "(Goldberg & Pavcnik, 2007)", "(Smith et al., 2010)".
+const ACADEMIC_REF_RE = /\([^)]*\b[A-Z][A-Za-z.'-]+[^)]*\b(?:1[89]|20)\d{2}[a-z]?\b[^)]*\)|\b[A-Z][A-Za-z.'-]+\s+\((?:1[89]|20)\d{2}[a-z]?\)/;
+export function looksLikeAcademicReference(text: string): boolean {
+  return ACADEMIC_REF_RE.test(text);
+}
+
+function academicReferenceClaim(raw: { claim: string; evidenceQuote: string; citationUrl: null; citationContext?: string | null }): CitedClaim {
+  return {
+    ...raw,
+    citationContext:    raw.citationContext ?? undefined,
+    verdict:            'academic_reference',
+    verdictExplanation: 'Cites an academic-style reference (author, year) with no linkable source, so it can\'t be auto-checked — verify it manually against the work cited.',
+    sourceExcerpt:      null,
+    sourceTitle:        null,
+    sourcePublication:  null,
+    groundedness:       verdictGroundedness('academic_reference'),
+    _debugConfidence:   90,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -160,9 +186,14 @@ export async function auditCitations(
   // -------------------------------------------------------------------------
 
   const verdictPromises = rawClaims.map(async (raw): Promise<CitedClaim> => {
-    // Uncited — no LLM call needed
+    // No URL — distinguish an academic "(Author, Year)" reference (not
+    // auto-checkable, but the writer DID cite a source) from a truly uncited
+    // claim. Neither needs an LLM call.
     if (!raw.citationUrl) {
-      return uncitedClaim({ ...raw, citationUrl: null });
+      const refText = `${raw.evidenceQuote} ${raw.citationContext ?? ''}`;
+      return looksLikeAcademicReference(refText)
+        ? academicReferenceClaim({ ...raw, citationUrl: null })
+        : uncitedClaim({ ...raw, citationUrl: null });
     }
 
     const fetchResult = fetchMap.get(raw.citationUrl);
@@ -229,10 +260,11 @@ export async function auditCitations(
   const VERDICT_ORDER: Record<string, number> = {
     mismatched:  0,
     uncited:     1,
-    unfetchable: 2,
-    weakly_cited: 3,
-    well_cited:  4,
-    non_factual: 5,
+    academic_reference: 2,
+    unfetchable: 3,
+    weakly_cited: 4,
+    well_cited:  5,
+    non_factual: 6,
   };
 
   factualClaims.sort((a, b) => {
@@ -252,6 +284,7 @@ export async function auditCitations(
     weaklyCited: factualClaims.filter(c => c.verdict === 'weakly_cited').length,
     mismatched:  factualClaims.filter(c => c.verdict === 'mismatched').length,
     uncited:     factualClaims.filter(c => c.verdict === 'uncited').length,
+    academicReference: factualClaims.filter(c => c.verdict === 'academic_reference').length,
     unfetchable: factualClaims.filter(c => c.verdict === 'unfetchable').length,
   };
 

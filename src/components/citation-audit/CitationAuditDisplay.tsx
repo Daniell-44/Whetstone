@@ -29,6 +29,7 @@ const VERDICT_COLOURS: Record<CitationVerdict, string> = {
   weakly_cited: 'bg-amber-100  text-amber-800  border-amber-200',
   mismatched:   'bg-red-100    text-red-800    border-red-200',
   uncited:      'bg-hairline/40   text-ink   border-hairline',
+  academic_reference: 'bg-teal-50 text-teal-800 border-teal-200',
   unfetchable:  'bg-hairline/40   text-muted   border-dashed border-hairline',
   non_factual:  'bg-purple-50  text-purple-700 border-purple-200',
 };
@@ -38,6 +39,7 @@ const VERDICT_CARD: Record<CitationVerdict, string> = {
   weakly_cited: 'border-amber-200  bg-amber-50',
   mismatched:   'border-red-200    bg-red-50',
   uncited:      'border-hairline   bg-paper',
+  academic_reference: 'border-teal-200 bg-teal-50',
   unfetchable:  'border-dashed border-hairline bg-paper',
   non_factual:  'border-purple-200 bg-purple-50',
 };
@@ -47,6 +49,7 @@ const VERDICT_LABEL: Record<CitationVerdict, string> = {
   weakly_cited: 'Weakly cited',
   mismatched:   'Mismatched',
   uncited:      'No source',
+  academic_reference: 'Reference',
   unfetchable:  'Unreachable',
   non_factual:  'Not factual',
 };
@@ -228,6 +231,7 @@ export default function CitationAuditDisplay({
         <div class="flex flex-wrap gap-2">
           <SummaryPill count={summary.mismatched}  label="Mismatched"   colour="bg-red-50    border-red-200    text-red-800" />
           <SummaryPill count={summary.uncited}     label="Uncited"      colour="bg-hairline/40  border-hairline   text-ink" />
+          <SummaryPill count={summary.academicReference} label="References" colour="bg-teal-50 border-teal-200 text-teal-800" />
           <SummaryPill count={summary.unfetchable} label="Unreachable"  colour="bg-paper   border-dashed border-hairline text-muted" />
           <SummaryPill count={summary.weaklyCited} label="Weak"         colour="bg-amber-50  border-amber-200  text-amber-800" />
           <SummaryPill count={summary.wellCited}   label="Well cited"   colour="bg-emerald-50 border-emerald-200 text-emerald-800" />

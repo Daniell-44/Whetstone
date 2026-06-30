@@ -3,6 +3,7 @@ export type CitationVerdict =
   | 'weakly_cited'    // source is related but doesn't fully back the claim
   | 'mismatched'      // source contradicts or doesn't say what the draft claims
   | 'uncited'         // factual claim with no associated citation
+  | 'academic_reference' // cites an "(Author, Year)"-style reference with no linkable URL — not auto-checkable
   | 'unfetchable'     // citation URL exists but couldn't be retrieved
   | 'non_factual';    // not actually a factual claim (analyst feedback only, not user-shown by default)
 
@@ -29,8 +30,9 @@ export interface CitationAuditResult {
     total:        number;
     wellCited:    number;
     weaklyCited:  number;
-    mismatched:   number;
-    uncited:      number;
-    unfetchable:  number;
+    mismatched:        number;
+    uncited:           number;
+    academicReference: number;
+    unfetchable:       number;
   };
 }

@@ -156,12 +156,13 @@ function validResult() {
     ],
     notes: null,
     summary: {
-      total:       2,
-      wellCited:   0,
-      weaklyCited: 0,
-      mismatched:  0,
-      uncited:     1,
-      unfetchable: 1,
+      total:             2,
+      wellCited:         0,
+      weaklyCited:       0,
+      mismatched:        0,
+      uncited:           1,
+      academicReference: 0,
+      unfetchable:       1,
     },
   };
 }
@@ -190,7 +191,7 @@ describe('CitationAuditResultSchema', () => {
     const empty = {
       factualClaims: [],
       notes:         null,
-      summary:       { total: 0, wellCited: 0, weaklyCited: 0, mismatched: 0, uncited: 0, unfetchable: 0 },
+      summary:       { total: 0, wellCited: 0, weaklyCited: 0, mismatched: 0, uncited: 0, academicReference: 0, unfetchable: 0 },
     };
     expect(CitationAuditResultSchema.safeParse(empty).success).toBe(true);
   });
@@ -211,8 +212,29 @@ describe('CitationAuditResultSchema', () => {
         },
       ],
       notes: null,
-      summary: { total: 1, wellCited: 0, weaklyCited: 0, mismatched: 0, uncited: 0, unfetchable: 0 },
+      summary: { total: 1, wellCited: 0, weaklyCited: 0, mismatched: 0, uncited: 0, academicReference: 0, unfetchable: 0 },
     };
     expect(CitationAuditResultSchema.safeParse(withNonFactual).success).toBe(true);
+  });
+
+  it('accepts an academic_reference claim counted in the summary', () => {
+    const withRef = {
+      factualClaims: [
+        {
+          claim:              'The premium climbed in Mexico, Brazil and India',
+          evidenceQuote:      'the premium climbed (Goldberg & Pavcnik, 2007)',
+          citationUrl:        null,
+          verdict:            'academic_reference',
+          verdictExplanation: 'Cites an academic-style reference with no linkable source.',
+          sourceExcerpt:      null,
+          sourceTitle:        null,
+          sourcePublication:  null,
+          groundedness:       { kind: 'empirical', supportingCount: 0, opposingCount: 0, consensus: 'insufficient_data' },
+        },
+      ],
+      notes: null,
+      summary: { total: 1, wellCited: 0, weaklyCited: 0, mismatched: 0, uncited: 0, academicReference: 1, unfetchable: 0 },
+    };
+    expect(CitationAuditResultSchema.safeParse(withRef).success).toBe(true);
   });
 });
