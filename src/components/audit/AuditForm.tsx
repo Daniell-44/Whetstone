@@ -57,32 +57,32 @@ function AuditLoading() {
 
   return (
     <div class="space-y-4">
-      <div class="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4">
+      <div class="rounded-xl border border-accent/20 bg-accent/5 p-4">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-sm font-medium text-indigo-700">Reading and analysing the argument…</p>
-          <span class="text-xs text-indigo-400 tabular-nums">{Math.round(pct)}%</span>
+          <p class="text-sm font-medium text-accent">Reading and analysing the argument…</p>
+          <span class="text-xs text-accent/70 tabular-nums">{Math.round(pct)}%</span>
         </div>
-        <div class="h-1.5 w-full rounded-full bg-indigo-100 overflow-hidden">
-          <div class="h-full rounded-full bg-indigo-500 transition-[width] duration-500 ease-out" style={`width:${pct}%`} />
+        <div class="h-1.5 w-full rounded-full bg-accent/10 overflow-hidden">
+          <div class="h-full rounded-full bg-accent transition-[width] duration-500 ease-out" style={`width:${pct}%`} />
         </div>
-        <p class="text-xs text-indigo-400 mt-2">Mapping the structure and checking for logical issues, usually 10–20 seconds.</p>
+        <p class="text-xs text-accent/70 mt-2">Mapping the structure and checking for logical issues, usually 10–20 seconds.</p>
       </div>
 
       <div class="flex flex-col xl:flex-row gap-4 items-start">
-        <div class="w-full xl:w-[55%] rounded-lg border border-gray-200 bg-white p-4 space-y-2.5">
-          <div class="h-2.5 w-1/3 rounded bg-gray-200 animate-pulse" />
-          <div class="h-2 w-full rounded bg-gray-100 animate-pulse" />
-          <div class="h-2 w-11/12 rounded bg-gray-100 animate-pulse" />
-          <div class="h-2 w-5/6 rounded bg-gray-100 animate-pulse" />
-          <div class="h-2 w-full rounded bg-gray-100 animate-pulse" />
-          <div class="h-2 w-2/3 rounded bg-gray-100 animate-pulse" />
+        <div class="w-full xl:w-[55%] rounded-lg border border-hairline bg-surface p-4 space-y-2.5">
+          <div class="h-2.5 w-1/3 rounded bg-hairline animate-pulse" />
+          <div class="h-2 w-full rounded bg-hairline/40 animate-pulse" />
+          <div class="h-2 w-11/12 rounded bg-hairline/40 animate-pulse" />
+          <div class="h-2 w-5/6 rounded bg-hairline/40 animate-pulse" />
+          <div class="h-2 w-full rounded bg-hairline/40 animate-pulse" />
+          <div class="h-2 w-2/3 rounded bg-hairline/40 animate-pulse" />
         </div>
-        <div class="w-full xl:w-[45%] rounded-lg border border-gray-200 bg-white p-4 space-y-3">
-          <div class="h-2.5 w-1/4 rounded bg-gray-200 animate-pulse" />
+        <div class="w-full xl:w-[45%] rounded-lg border border-hairline bg-surface p-4 space-y-3">
+          <div class="h-2.5 w-1/4 rounded bg-hairline animate-pulse" />
           {[0, 1, 2].map(i => (
             <div key={i} class="rounded-md border border-gray-100 p-2.5 space-y-1.5">
-              <div class="h-2 w-1/2 rounded bg-gray-200 animate-pulse" />
-              <div class="h-2 w-full rounded bg-gray-100 animate-pulse" />
+              <div class="h-2 w-1/2 rounded bg-hairline animate-pulse" />
+              <div class="h-2 w-full rounded bg-hairline/40 animate-pulse" />
             </div>
           ))}
         </div>
@@ -209,15 +209,15 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     <div class="space-y-5" ref={formRef}>
 
       {loadedFromLink && (
-        <div class="rounded-lg border border-indigo-200 bg-indigo-50/70 px-4 py-2.5">
-          <p class="text-xs text-indigo-700">
+        <div class="rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5">
+          <p class="text-xs text-accent">
             Loaded from a briefing. Press <span class="font-semibold">Audit this argument</span> to run the full structural audit on it.
           </p>
         </div>
       )}
 
       {/* Tab switcher */}
-      <div class="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
+      <div class="flex gap-1 p-1 bg-hairline/40 rounded-lg w-fit">
         {(['text', 'url'] as Tab[]).map(t => (
           <button
             key={t}
@@ -225,8 +225,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             onClick={() => switchTab(t)}
             class={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
               tab === t
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-surface text-ink-strong shadow-sm'
+                : 'text-muted hover:text-ink'
             }`}
           >
             {t === 'text' ? 'Paste text' : 'Paste URL'}
@@ -243,18 +243,18 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               placeholder="Paste an article, speech, or any argumentative text…"
               aria-label="Text to audit"
               rows={1}
-              class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
+              class="w-full rounded-xl border border-hairline bg-surface px-4 py-3 text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
               style={`min-height: ${loadedFromLink ? 180 : 44}px;`}
             />
             <div class="flex justify-between mt-1.5 text-xs">
-              <span class={charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600' : charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
+              <span class={charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600' : charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
                 {charCount > 0 && charCount < MIN_CHARS
                   ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
                   : charCount > MAX_CHARS
                   ? 'Too long - please trim to 10,000 characters'
                   : ''}
               </span>
-              <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
+              <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
                 {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
               </span>
             </div>
@@ -267,9 +267,9 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               onInput={e => setUrlInput((e.target as HTMLInputElement).value)}
               placeholder="https://example.com/article"
               aria-label="Article URL to audit"
-              class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
+              class="w-full rounded-xl border border-hairline bg-surface px-4 py-3 text-sm text-ink placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
             />
-            <p class="mt-1.5 text-xs text-gray-400">
+            <p class="mt-1.5 text-xs text-muted">
               The page must be publicly accessible. Paywalled articles can't be extracted - paste the text directly instead.
             </p>
           </div>
@@ -280,8 +280,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           disabled={!canSubmit}
           class={`w-full py-3 px-6 rounded-xl text-sm font-semibold transition-colors ${
             canSubmit
-              ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'bg-accent text-paper hover:bg-accent/90'
+              : 'bg-hairline/40 text-muted cursor-not-allowed'
           }`}
         >
           {loading ? 'Analysing…' : 'Audit this argument'}
@@ -312,8 +312,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                 />
               )}
               {extraction && (
-                <div class="rounded-lg border border-emerald-200 bg-white p-4">
-                  <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+                <div class="rounded-lg border border-emerald-200 bg-surface p-4">
+                  <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
                     Argument Skeleton
                   </h3>
                   <ArgumentExtraction result={extraction} />
@@ -324,8 +324,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
 
           {/* Right: findings — full width when there's no left panel (e.g. URL audits) */}
           <div class={`w-full ${hasLeftContent ? 'xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto' : ''}`}>
-            <div class="rounded-lg border border-gray-200 bg-white p-4">
-              <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
+            <div class="rounded-lg border border-hairline bg-surface p-4">
+              <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Findings</h3>
               <AuditResults result={result} />
             </div>
           </div>
@@ -344,10 +344,10 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       {result && !loading && (
         <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-5">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">Go deeper in Studio</p>
-          <p class="text-sm text-gray-700 leading-relaxed mb-3">
+          <p class="text-sm text-ink leading-relaxed mb-3">
             The Reader gives you the full structural audit free. Studio adds the tools for working on your own writing:
           </p>
-          <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-gray-600 mb-4">
+          <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-ink mb-4">
             <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Counterargument (steelman the other side)</li>
             <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Citation audit - checks your sources</li>
             <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Evidence-weighted likelihood</li>
@@ -359,7 +359,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             <a href="/creator/studio" class="inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors">
               Open Studio →
             </a>
-            <a href="/pricing" class="text-xs text-gray-500 hover:text-gray-700 underline">See plans</a>
+            <a href="/pricing" class="text-xs text-muted hover:text-ink underline">See plans</a>
           </div>
         </div>
       )}

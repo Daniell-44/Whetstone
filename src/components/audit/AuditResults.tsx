@@ -38,13 +38,13 @@ interface Props {
 const SEVERITY_CARD: Record<string, string> = {
   high:   'bg-red-50 border-red-200',
   medium: 'bg-amber-50 border-amber-200',
-  low:    'bg-gray-50 border-gray-200',
+  low:    'bg-paper border-hairline',
 };
 
 const SEVERITY_BADGE: Record<string, string> = {
   high:   'bg-red-100 text-red-700',
   medium: 'bg-amber-100 text-amber-700',
-  low:    'bg-gray-100 text-gray-600',
+  low:    'bg-paper text-ink',
 };
 
 // Plain-language severity: "how much this hurts the argument".
@@ -55,7 +55,7 @@ const SEVERITY_LABEL: Record<string, string> = {
 };
 
 // Ring applied to the finding whose span is currently selected in the draft.
-const ACTIVE_RING = 'ring-2 ring-indigo-400 ring-offset-1';
+const ACTIVE_RING = 'ring-2 ring-accent ring-offset-1';
 
 // Build the onClick that scrolls a card's quote into view in the centre draft.
 // Guarded so clicks on the card's own buttons/links/inputs aren't hijacked.
@@ -71,7 +71,7 @@ function makeNavClick(matchKey: string, onFindingNavigate?: (matchKey: string) =
 // Finding explanations can run long. Clamp to two lines with a More/Less toggle
 // so the list stays scannable while the full reasoning is one tap away. Short
 // explanations render plainly (no toggle).
-function ClampText({ text, class: cls = 'text-xs text-gray-600 leading-relaxed' }: { text: string; class?: string }) {
+function ClampText({ text, class: cls = 'text-xs text-ink leading-relaxed' }: { text: string; class?: string }) {
   const [expanded, setExpanded] = useState(false);
   if (text.length <= 140) return <p class={cls}>{text}</p>;
   return (
@@ -80,7 +80,7 @@ function ClampText({ text, class: cls = 'text-xs text-gray-600 leading-relaxed' 
       <button
         type="button"
         onClick={() => setExpanded(v => !v)}
-        class="mt-0.5 text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+        class="mt-0.5 text-xs font-medium text-accent hover:text-accent-support transition-colors"
       >
         {expanded ? 'Less' : 'More'}
       </button>
@@ -93,7 +93,7 @@ function ClampText({ text, class: cls = 'text-xs text-gray-600 leading-relaxed' 
 // ---------------------------------------------------------------------------
 
 function SeverityBadge({ severity }: { severity: string }) {
-  const cls = SEVERITY_BADGE[severity] ?? 'bg-gray-100 text-gray-600';
+  const cls = SEVERITY_BADGE[severity] ?? 'bg-paper text-ink';
   return (
     <span
       class={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${cls}`}
@@ -192,7 +192,7 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
           class={`p-1 rounded transition-colors disabled:opacity-40 ${
             vote === 'up'
               ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'
-              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+              : 'text-muted hover:text-ink hover:bg-paper'
           }`}
         >
           <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -211,7 +211,7 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
           class={`p-1 rounded transition-colors disabled:opacity-40 ${
             vote === 'down'
               ? 'text-rose-500 bg-rose-50 hover:bg-rose-100'
-              : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+              : 'text-muted hover:text-ink hover:bg-paper'
           }`}
         >
           <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -223,14 +223,14 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
       {/* Thumbs-down expander */}
       {expanded && (
         <div class="mt-2 space-y-2">
-          <p class="text-xs text-gray-500">What did the engine get wrong? <span class="text-gray-400">(optional)</span></p>
+          <p class="text-xs text-muted">What did the engine get wrong? <span class="text-muted">(optional)</span></p>
           <textarea
             value={reason}
             onInput={(e) => setReason((e.target as HTMLTextAreaElement).value)}
             maxLength={500}
             rows={2}
             placeholder="e.g. The quote is taken out of context…"
-            class="w-full text-xs border border-gray-200 rounded-lg px-3 py-2 text-gray-700 resize-none focus:outline-none focus:ring-1 focus:ring-rose-300"
+            class="w-full text-xs border border-hairline rounded-lg px-3 py-2 text-ink resize-none focus:outline-none focus:ring-1 focus:ring-rose-300"
           />
           <div class="flex items-center gap-2">
             <button
@@ -245,7 +245,7 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
               type="button"
               disabled={submitting}
               onClick={() => submitDown('')}
-              class="text-xs px-2.5 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-40"
+              class="text-xs px-2.5 py-1 rounded border border-hairline text-muted hover:bg-paper transition-colors disabled:opacity-40"
             >
               Just downvote
             </button>
@@ -404,7 +404,7 @@ function FindingActionBtns({
           type="button"
           disabled={busy}
           onClick={() => setAction(lens, matchKey, 'dismissed')}
-          class="text-xs px-2.5 py-1 rounded-md border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-40"
+          class="text-xs px-2.5 py-1 rounded-md border border-hairline text-ink font-medium hover:bg-paper transition-colors disabled:opacity-40"
         >
           Dismiss
         </button>
@@ -420,7 +420,7 @@ function FindingActionBtns({
           type="button"
           disabled={busy}
           onClick={() => removeAction(lens, matchKey)}
-          class="text-xs px-2 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-40"
+          class="text-xs px-2 py-1 rounded border border-hairline text-muted hover:bg-paper transition-colors disabled:opacity-40"
         >
           Re-flag
         </button>
@@ -434,7 +434,7 @@ function FindingActionBtns({
       type="button"
       disabled={busy}
       onClick={() => removeAction(lens, matchKey)}
-      class="text-xs px-2 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors disabled:opacity-40 mt-2"
+      class="text-xs px-2 py-1 rounded border border-hairline text-muted hover:bg-paper transition-colors disabled:opacity-40 mt-2"
     >
       Re-flag
     </button>
@@ -447,9 +447,9 @@ function FindingActionBtns({
 
 function ToulminRow({ label, text }: { label: ComponentChildren; text: string }) {
   return (
-    <div class="pl-4 border-l-2 border-indigo-200">
-      <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{label}</dt>
-      <dd class="text-sm text-gray-700 leading-relaxed">{text}</dd>
+    <div class="pl-4 border-l-2 border-accent/30">
+      <dt class="text-xs font-semibold text-muted uppercase tracking-wide mb-1">{label}</dt>
+      <dd class="text-sm text-ink leading-relaxed">{text}</dd>
     </div>
   );
 }
@@ -468,7 +468,7 @@ interface FallacyCardProps {
 }
 
 function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: FallacyCardProps) {
-  const cardCls   = SEVERITY_CARD[fallacy.severity] ?? 'bg-gray-50 border-gray-200';
+  const cardCls   = SEVERITY_CARD[fallacy.severity] ?? 'bg-paper border-hairline';
   const matchKey  = fallacyMatchKey(fallacy);
   const addressed = actionRecord?.action === 'addressed';
   const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
@@ -480,14 +480,14 @@ function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy,
       onClick={makeNavClick(matchKey, onFindingNavigate)}
     >
       <div class="flex items-start justify-between gap-2 mb-3">
-        <p class="text-sm font-semibold text-gray-900">{fallacy.name}</p>
+        <p class="text-sm font-semibold text-ink-strong">{fallacy.name}</p>
         <div class="flex items-center gap-1.5 shrink-0">
           {addressed && <AddressedBadge />}
           <GroundednessChip groundedness={fallacy.groundedness} compact />
           <SeverityBadge severity={fallacy.severity} />
         </div>
       </div>
-      <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
+      <blockquote class="text-xs italic text-ink border-l-2 border-hairline pl-3 mb-2 leading-relaxed">
         "{fallacy.quote}"
       </blockquote>
       <ClampText text={fallacy.explanation} />
@@ -540,13 +540,13 @@ function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, bu
 
   return (
     <div
-      class={`px-4 py-3 ${addressed ? 'opacity-60' : ''} ${onFindingNavigate ? 'cursor-pointer' : ''} ${isActive ? 'bg-indigo-50' : ''}`}
+      class={`px-4 py-3 ${addressed ? 'opacity-60' : ''} ${onFindingNavigate ? 'cursor-pointer' : ''} ${isActive ? 'bg-accent/5' : ''}`}
       data-finding-key={matchKey}
       onClick={makeNavClick(matchKey, onFindingNavigate)}
     >
       <div class="flex items-start gap-2 mb-1 flex-wrap">
-        <span class="text-sm font-medium text-gray-900">"{item.phrase}"</span>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 shrink-0 mt-0.5">
+        <span class="text-sm font-medium text-ink-strong">"{item.phrase}"</span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-paper text-ink shrink-0 mt-0.5">
           {item.technique}
         </span>
         <div class="flex items-center gap-1 shrink-0 mt-0.5">
@@ -555,7 +555,7 @@ function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, bu
           <SeverityBadge severity={item.severity} />
         </div>
       </div>
-      <ClampText text={item.explanation} class="text-xs text-gray-500 leading-relaxed" />
+      <ClampText text={item.explanation} class="text-xs text-muted leading-relaxed" />
       <div class="flex items-start gap-3 flex-wrap">
         <FindingActionBtns
           lens={lens}
@@ -601,16 +601,16 @@ function WarrantRow({ w, lens, documentId, versionId, actionRecord, busy, setAct
   const addressed = actionRecord?.action === 'addressed';
 
   return (
-    <div class={`pl-4 border-l-2 border-indigo-200 ${addressed ? 'opacity-60' : ''}`}>
+    <div class={`pl-4 border-l-2 border-accent/30 ${addressed ? 'opacity-60' : ''}`}>
       <div class="flex items-start justify-between gap-2 mb-0.5">
-        <p class="text-sm text-gray-700 leading-relaxed">{w.warrant}</p>
+        <p class="text-sm text-ink leading-relaxed">{w.warrant}</p>
         <div class="flex items-center gap-1.5 shrink-0 mt-0.5">
           {addressed && <AddressedBadge />}
           <GroundednessChip groundedness={w.groundedness} compact />
           <SeverityBadge severity={w.severity} />
         </div>
       </div>
-      <p class="text-xs text-gray-400 leading-snug italic">{w.necessity}</p>
+      <p class="text-xs text-muted leading-snug italic">{w.necessity}</p>
       <div class="flex items-start gap-3 flex-wrap">
         <FindingActionBtns
           lens={lens}
@@ -651,7 +651,7 @@ interface KeyTermCardProps {
 }
 
 function KeyTermCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: KeyTermCardProps) {
-  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
+  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-paper border-hairline';
   const matchKey  = keyTermMatchKey(finding);
   const addressed = actionRecord?.action === 'addressed';
   const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
@@ -663,9 +663,9 @@ function KeyTermCard({ finding, lens, documentId, versionId, actionRecord, busy,
       onClick={makeNavClick(matchKey, onFindingNavigate)}
     >
       <div class="flex items-start justify-between gap-2 mb-3">
-        <p class="text-sm font-semibold text-gray-900">
-          <span class="font-mono text-gray-700">"{finding.term}"</span>
-          <span class="ml-2 text-xs font-normal text-gray-500 normal-case tracking-normal">
+        <p class="text-sm font-semibold text-ink-strong">
+          <span class="font-mono text-ink">"{finding.term}"</span>
+          <span class="ml-2 text-xs font-normal text-muted normal-case tracking-normal">
             {finding.issue.replace(/-/g, ' ')}
           </span>
         </p>
@@ -676,10 +676,10 @@ function KeyTermCard({ finding, lens, documentId, versionId, actionRecord, busy,
         </div>
       </div>
       <div class="space-y-1.5 mb-2">
-        <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 leading-relaxed">
+        <blockquote class="text-xs italic text-ink border-l-2 border-hairline pl-3 leading-relaxed">
           A: "{finding.usage_a}"
         </blockquote>
-        <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 leading-relaxed">
+        <blockquote class="text-xs italic text-ink border-l-2 border-hairline pl-3 leading-relaxed">
           B: "{finding.usage_b}"
         </blockquote>
       </div>
@@ -720,7 +720,7 @@ interface ReferentCardProps {
 }
 
 function ReferentCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: ReferentCardProps) {
-  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
+  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-paper border-hairline';
   const matchKey  = referentMatchKey(finding);
   const addressed = actionRecord?.action === 'addressed';
   const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
@@ -732,9 +732,9 @@ function ReferentCard({ finding, lens, documentId, versionId, actionRecord, busy
       onClick={makeNavClick(matchKey, onFindingNavigate)}
     >
       <div class="flex items-start justify-between gap-2 mb-3">
-        <p class="text-sm font-semibold text-gray-900">
-          <span class="font-mono text-gray-700">"{finding.phrase}"</span>
-          <span class="ml-2 text-xs font-normal text-gray-500 normal-case tracking-normal">
+        <p class="text-sm font-semibold text-ink-strong">
+          <span class="font-mono text-ink">"{finding.phrase}"</span>
+          <span class="ml-2 text-xs font-normal text-muted normal-case tracking-normal">
             {finding.issue.replace(/-/g, ' ')}
           </span>
         </p>
@@ -744,7 +744,7 @@ function ReferentCard({ finding, lens, documentId, versionId, actionRecord, busy
           <SeverityBadge severity={finding.severity} />
         </div>
       </div>
-      <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
+      <blockquote class="text-xs italic text-ink border-l-2 border-hairline pl-3 mb-2 leading-relaxed">
         "{finding.evidence}"
       </blockquote>
       <ClampText text={finding.explanation} />
@@ -784,7 +784,7 @@ interface FalsifiabilityCardProps {
 }
 
 function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: FalsifiabilityCardProps) {
-  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
+  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-paper border-hairline';
   const matchKey  = falsifiabilityMatchKey(finding);
   const addressed = actionRecord?.action === 'addressed';
   const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
@@ -796,9 +796,9 @@ function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord
       onClick={makeNavClick(matchKey, onFindingNavigate)}
     >
       <div class="flex items-start justify-between gap-2 mb-3">
-        <p class="text-sm font-semibold text-gray-900">
+        <p class="text-sm font-semibold text-ink-strong">
           {finding.claim}
-          <span class="ml-2 text-xs font-normal text-gray-500 normal-case tracking-normal">
+          <span class="ml-2 text-xs font-normal text-muted normal-case tracking-normal">
             {finding.issue.replace(/-/g, ' ')}
           </span>
         </p>
@@ -808,7 +808,7 @@ function FalsifiabilityCard({ finding, lens, documentId, versionId, actionRecord
           <SeverityBadge severity={finding.severity} />
         </div>
       </div>
-      <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
+      <blockquote class="text-xs italic text-ink border-l-2 border-hairline pl-3 mb-2 leading-relaxed">
         "{finding.evidence}"
       </blockquote>
       <ClampText text={finding.explanation} />
@@ -848,7 +848,7 @@ interface ModalScopeCardProps {
 }
 
 function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, busy, setAction, removeAction, activeFindingKey, onFindingNavigate }: ModalScopeCardProps) {
-  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-gray-50 border-gray-200';
+  const cardCls   = SEVERITY_CARD[finding.severity] ?? 'bg-paper border-hairline';
   const matchKey  = modalScopeMatchKey(finding);
   const addressed = actionRecord?.action === 'addressed';
   const isActive  = activeFindingKey != null && activeFindingKey === matchKey;
@@ -860,9 +860,9 @@ function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, bu
       onClick={makeNavClick(matchKey, onFindingNavigate)}
     >
       <div class="flex items-start justify-between gap-2 mb-3">
-        <p class="text-sm font-semibold text-gray-900">
+        <p class="text-sm font-semibold text-ink-strong">
           {finding.claim}
-          <span class="ml-2 text-xs font-normal text-gray-500 normal-case tracking-normal">
+          <span class="ml-2 text-xs font-normal text-muted normal-case tracking-normal">
             {finding.issue.replace(/-/g, ' ')}
           </span>
         </p>
@@ -875,11 +875,11 @@ function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, bu
       {/* Show the modal inflation inline */}
       <div class="mb-2 flex items-baseline gap-2 flex-wrap">
         <span class="text-xs font-semibold text-red-600 shrink-0">As stated:</span>
-        <span class="text-xs italic text-gray-700">"{finding.inflatedModal}"</span>
+        <span class="text-xs italic text-ink">"{finding.inflatedModal}"</span>
         <span class="text-xs font-semibold text-emerald-600 shrink-0 ml-1">More accurate:</span>
-        <span class="text-xs italic text-gray-700">"{finding.impliedModal}"</span>
+        <span class="text-xs italic text-ink">"{finding.impliedModal}"</span>
       </div>
-      <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
+      <blockquote class="text-xs italic text-ink border-l-2 border-hairline pl-3 mb-2 leading-relaxed">
         "{finding.evidence}"
       </blockquote>
       <ClampText text={finding.explanation} />
@@ -914,7 +914,7 @@ function DismissedToggle({ count, expanded, onToggle }: { count: number; expande
     <button
       type="button"
       onClick={onToggle}
-      class="mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors underline"
+      class="mt-3 text-xs text-muted hover:text-ink transition-colors underline"
     >
       {expanded ? `Hide dismissed (${count})` : `Show dismissed (${count})`}
     </button>
@@ -1024,22 +1024,22 @@ export default function AuditResults({ result, documentId, versionId, initialAct
     dismissedModal.length > 0;
 
   return (
-    <div class="space-y-8 border-t border-gray-100 pt-8">
+    <div class="space-y-8 border-t border-hairline pt-8">
 
       {/* Central claim */}
       {showOverarching && (
-      <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-5">
-        <p class="text-xs font-semibold text-indigo-500 uppercase tracking-widest mb-2">
+      <div class="bg-accent/5 border border-accent/30 rounded-xl p-5">
+        <p class="text-xs font-semibold text-accent uppercase tracking-widest mb-2">
           <LabelWithTooltip label="centralClaim" preference={terminologyPreference} />
         </p>
-        <p class="text-gray-900 text-base leading-relaxed">{result.centralClaim}</p>
+        <p class="text-ink-strong text-base leading-relaxed">{result.centralClaim}</p>
       </div>
       )}
 
       {/* Toulmin breakdown */}
       {showOverarching && (
       <section>
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-5">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-5">
           <LabelWithTooltip label="toulmin" preference={terminologyPreference} />
         </h2>
 
@@ -1052,7 +1052,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
           {(activeWarrants.length > 0 || dismissedWarrants.length > 0) && (
             <div>
-              <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <dt class="text-xs font-semibold text-muted uppercase tracking-wide mb-3">
                 <LabelWithTooltip label="unstatedWarrants" preference={terminologyPreference} />
               </dt>
               <dd class="space-y-3">
@@ -1121,7 +1121,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
         <>
           {(activeFallacies.length > 0 || dismissedFallacies.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="namedFallacies" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1172,11 +1172,11 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
           {(activeLoadedLang.length > 0 || dismissedLoadedLang.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="loadedLanguage" preference={terminologyPreference} />
               </h2>
-              <div class="rounded-xl border border-gray-200 bg-white overflow-hidden">
-                <div class="divide-y divide-gray-100">
+              <div class="rounded-xl border border-hairline bg-white overflow-hidden">
+                <div class="divide-y divide-hairline">
                   {activeLoadedLang.map((item, i) => (
                     <LoadedLanguageRow
                       key={i}
@@ -1201,7 +1201,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
                       onToggle={() => setShowDismissedLoadedLang(v => !v)}
                     />
                     {showDismissedLoadedLang && (
-                      <div class="mt-2 opacity-50 divide-y divide-gray-100">
+                      <div class="mt-2 opacity-50 divide-y divide-hairline">
                         {dismissedLoadedLang.map((item, i) => (
                           <LoadedLanguageRow
                             key={i}
@@ -1226,7 +1226,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {/* Phase-2: Key-Term Scrutiny */}
           {(activeKeyTerms.length > 0 || dismissedKeyTerms.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="keyTermScrutiny" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1278,7 +1278,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {/* Phase-2: Referent Checks */}
           {(activeReferents.length > 0 || dismissedReferents.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="referentChecks" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1330,7 +1330,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {/* Phase-2: Falsifiability Checks */}
           {(activeFalsifiabil.length > 0 || dismissedFalsifiabil.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="falsifiabilityChecks" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1381,7 +1381,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {/* Phase-2: Modal Scope Checks */}
           {(activeModal.length > 0 || dismissedModal.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-4">
+              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="modalScopeChecks" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1434,10 +1434,10 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
       {showOverarching && result.notes && (
         <section>
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
             Notes
           </h2>
-          <p class="text-sm text-gray-600 leading-relaxed">{result.notes}</p>
+          <p class="text-sm text-ink leading-relaxed">{result.notes}</p>
         </section>
       )}
 
