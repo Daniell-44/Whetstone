@@ -75,17 +75,17 @@ function DimensionCard({
       </p>
 
       {detection === null ? (
-        <p class="text-sm text-gray-400 italic">No clear framework signal</p>
+        <p class="text-sm text-muted italic">No clear framework signal</p>
       ) : (
         <div class="space-y-2">
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-sm font-semibold text-gray-800">
+            <span class="text-sm font-semibold text-ink">
               {FRAMEWORK_LABELS[detection.framework] ?? detection.framework}
             </span>
             <GroundednessChip groundedness={detection.groundedness} compact />
           </div>
-          <p class="text-sm text-gray-700">{detection.explanation}</p>
-          <p class="text-xs text-gray-500 italic border-l-2 border-purple-200 pl-2">
+          <p class="text-sm text-ink">{detection.explanation}</p>
+          <p class="text-xs text-muted italic border-l-2 border-purple-200 pl-2">
             {detection.evidence}
           </p>
         </div>
@@ -102,13 +102,13 @@ function AlternativeCard({ alt }: { alt: AlternativePerspective }) {
   return (
     <div class="rounded-lg border border-amber-100 bg-amber-50 p-4">
       <div class="flex items-center gap-2 flex-wrap mb-2">
-        <span class="text-sm font-semibold text-gray-800">{alt.framework}</span>
+        <span class="text-sm font-semibold text-ink">{alt.framework}</span>
         <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
           {FRAMEWORK_TYPE_LABELS[alt.frameworkType] ?? alt.frameworkType}
         </span>
       </div>
-      <p class="text-sm text-gray-700 mb-1.5">{alt.objection}</p>
-      <p class="text-xs text-gray-500 italic">{alt.specificity}</p>
+      <p class="text-sm text-ink mb-1.5">{alt.objection}</p>
+      <p class="text-xs text-muted italic">{alt.specificity}</p>
     </div>
   );
 }
@@ -136,7 +136,7 @@ export default function PhilosophicalCommitmentsDisplay({ result, terminologyPre
       {/* Alternative perspectives */}
       {result.alternativePerspectives.length > 0 && (
         <div>
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <p class="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
             <LabelWithTooltip label="commitmentsAlternatives" preference={terminologyPreference} />
           </p>
           <div class="space-y-2">
@@ -149,7 +149,7 @@ export default function PhilosophicalCommitmentsDisplay({ result, terminologyPre
 
       {/* Notes */}
       {result.notes && (
-        <p class="text-xs text-gray-500 italic border-t border-gray-100 pt-3">{result.notes}</p>
+        <p class="text-xs text-muted italic border-t border-hairline pt-3">{result.notes}</p>
       )}
     </div>
   );

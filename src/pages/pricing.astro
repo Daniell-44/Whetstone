@@ -31,10 +31,10 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
   <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 sm:pt-20 pb-16 sm:pb-24">
 
     <header class="mb-12 text-center">
-      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-4">
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-strong leading-tight mb-4">
         Pricing
       </h1>
-      <p class="text-lg text-gray-500 max-w-xl mx-auto">
+      <p class="text-lg text-muted max-w-xl mx-auto">
         The audit engine is free for readers. Creators pay for the tools that make arguments stronger.
       </p>
     </header>
@@ -46,11 +46,11 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
     )}
 
     <!-- Three-tier grid - collapsible feature lists on mobile -->
-    <div class="grid md:grid-cols-3 gap-0 border border-gray-200 rounded-xl overflow-hidden bg-white divide-y md:divide-y-0 md:divide-x divide-gray-200">
+    <div class="grid md:grid-cols-3 gap-0 border border-hairline rounded-xl overflow-hidden bg-surface divide-y md:divide-y-0 md:divide-x divide-hairline">
 
       <PricingTier
         label="Free"
-        labelColour="text-gray-400"
+        labelColour="text-muted"
         price="$0"
         subtext="Sign-up required for Studio"
         features={[
@@ -61,9 +61,9 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
           'Disagreement quality, structural incentive',
           '5 audits per day (3 without an account)',
         ]}
-        featureColour="text-gray-500"
+        featureColour="text-muted"
       >
-        <a slot="cta" href="/reader" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors">
+        <a slot="cta" href="/reader" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-ink border border-hairline hover:bg-paper transition-colors">
           Use the Reader
         </a>
       </PricingTier>
@@ -101,7 +101,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
               <div class="rounded-lg bg-green-50 border border-green-200 px-4 py-2.5 text-center">
                 <p class="text-sm font-medium text-green-800">Subscribed</p>
               </div>
-              <button id="pricing-portal-btn" type="button" class="w-full py-2 px-6 rounded-lg text-sm text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors">
+              <button id="pricing-portal-btn" type="button" class="w-full py-2 px-6 rounded-lg text-sm text-ink border border-hairline hover:bg-paper transition-colors">
                 Manage →
               </button>
             </div>
@@ -135,9 +135,9 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 
     <!-- Newsroom callout -->
     <div class="mt-8 text-center">
-      <p class="text-sm text-gray-400">
+      <p class="text-sm text-muted">
         Need 10+ seats, admin dashboard, or CMS integration?{' '}
-        <a href="mailto:daniel.livingstone44@gmail.com?subject=Whetstone Newsroom tier" class="text-indigo-600 hover:text-indigo-800 font-medium">
+        <a href="mailto:daniel.livingstone44@gmail.com?subject=Whetstone Newsroom tier" class="text-accent hover:text-accent-support font-medium">
           Talk to us about Newsroom pricing →
         </a>
       </p>

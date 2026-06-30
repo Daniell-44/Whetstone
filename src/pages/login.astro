@@ -28,27 +28,27 @@ const error = Astro.url.searchParams.get('error');
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h1 class="text-2xl font-semibold text-gray-900">Extension connected</h1>
-        <p class="text-sm text-gray-500 leading-relaxed">
+        <h1 class="text-2xl font-semibold text-ink-strong">Extension connected</h1>
+        <p class="text-sm text-muted leading-relaxed">
           Your Whetstone account is now linked to the Devil's Advocate extension. You can close this tab and return to the extension's side panel.
         </p>
-        <p class="text-xs text-gray-400">
+        <p class="text-xs text-muted">
           Signed in as {(await db.findUserById(session.user_id))?.email ?? 'your account'}.
         </p>
         <button
           id="close-tab-btn"
           type="button"
-          class="text-xs text-indigo-600 hover:text-indigo-800 underline"
+          class="text-xs text-accent hover:text-accent-support underline"
         >
           Close this tab
         </button>
       </div>
     ) : (
       <>
-        <h1 class="text-2xl font-semibold text-gray-900 mb-2">
+        <h1 class="text-2xl font-semibold text-ink-strong mb-2">
           {fromExtension ? 'Connect the extension' : 'Sign in'}
         </h1>
-        <p class="text-sm text-gray-500 mb-8">
+        <p class="text-sm text-muted mb-8">
           {fromExtension
             ? 'Sign in to your Whetstone account to connect it to the extension. The link comes by email.'
             : 'Enter your email and we\'ll send you a one-time sign-in link.'}

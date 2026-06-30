@@ -17,7 +17,7 @@ const CONSENSUS_CHIP: Record<string, { label: string; cls: string }> = {
   contested:           { label: '⇄ Contested',           cls: 'bg-amber-100 text-amber-700' },
   moderate_opposition: { label: '⤬ Moderate opposition', cls: 'bg-orange-100 text-orange-700' },
   strong_opposition:   { label: '⤬ Strong opposition',   cls: 'bg-red-100 text-red-700' },
-  insufficient_data:   { label: '? Insufficient data',   cls: 'bg-gray-100 text-gray-600' },
+  insufficient_data:   { label: '? Insufficient data',   cls: 'bg-hairline/40 text-ink' },
   not_applicable:      { label: 'Not empirical',          cls: 'bg-violet-100 text-violet-700' },
 };
 
@@ -90,13 +90,13 @@ function StatementCard({ stmt, assessment }: {
   const isImplicit = stmt.text.startsWith('★') || stmt.id.startsWith('★');
 
   return (
-    <div class={`rounded-lg border p-4 ${isPremise ? 'bg-gray-50 border-gray-200' : 'bg-blue-50 border-blue-200'}`}>
+    <div class={`rounded-lg border p-4 ${isPremise ? 'bg-paper border-hairline' : 'bg-blue-50 border-blue-200'}`}>
       <div class="flex items-start gap-3">
-        <span class={`font-mono text-sm font-semibold shrink-0 mt-0.5 ${isPremise ? 'text-gray-500' : 'text-blue-600'}`}>
+        <span class={`font-mono text-sm font-semibold shrink-0 mt-0.5 ${isPremise ? 'text-muted' : 'text-blue-600'}`}>
           {stmt.id}
         </span>
         <div class="flex-1 min-w-0">
-          <p class={`text-sm ${isImplicit ? 'italic text-gray-600' : 'text-gray-800'}`}>
+          <p class={`text-sm ${isImplicit ? 'italic text-ink' : 'text-ink'}`}>
             {stmt.text}
           </p>
           {assessment && (
@@ -115,7 +115,7 @@ function StatementCard({ stmt, assessment }: {
                 {INFERENCE_LABELS[stmt.inferenceRule] ?? stmt.inferenceRule}
               </span>
               {stmt.inferenceRuleExplanation && (
-                <span class="text-xs text-gray-500">{stmt.inferenceRuleExplanation}</span>
+                <span class="text-xs text-muted">{stmt.inferenceRuleExplanation}</span>
               )}
             </div>
           )}
@@ -173,23 +173,23 @@ function InvertedNode({
   const assessment = matchAssessment(stmt, evidenceAssessments);
 
   return (
-    <div class={depth === 0 ? '' : 'pl-4 sm:pl-5 border-l-2 border-gray-200 ml-2'}>
+    <div class={depth === 0 ? '' : 'pl-4 sm:pl-5 border-l-2 border-hairline ml-2'}>
       <div class={`rounded-lg p-3 sm:p-4 ${
         depth === 0
           ? 'bg-blue-50 border-2 border-blue-300 shadow-sm'
           : isConclusion
             ? 'bg-blue-50 border border-blue-200'
-            : 'bg-gray-50 border border-gray-200'
+            : 'bg-paper border border-hairline'
       }`}>
         <div class="flex items-start gap-2 sm:gap-3">
           <span class={`font-mono text-xs font-semibold shrink-0 mt-0.5 ${
-            depth === 0 ? 'text-blue-700' : isConclusion ? 'text-blue-600' : 'text-gray-500'
+            depth === 0 ? 'text-blue-700' : isConclusion ? 'text-blue-600' : 'text-muted'
           }`}>
             {stmt.id}
           </span>
           <div class="flex-1 min-w-0">
             <p class={`${depth === 0 ? 'text-base font-semibold' : 'text-sm'} ${
-              isImplicit ? 'italic text-gray-600' : 'text-gray-800'
+              isImplicit ? 'italic text-ink' : 'text-ink'
             }`}>
               {stmt.text}
             </p>
@@ -204,7 +204,7 @@ function InvertedNode({
               </p>
             )}
             {stmt.inferenceRuleExplanation && (
-              <p class="mt-0.5 text-xs text-gray-500 italic">{stmt.inferenceRuleExplanation}</p>
+              <p class="mt-0.5 text-xs text-muted italic">{stmt.inferenceRuleExplanation}</p>
             )}
           </div>
         </div>
@@ -213,7 +213,7 @@ function InvertedNode({
       {/* Recurse into the premises supporting this statement */}
       {sources.length > 0 && (
         <div class="mt-2 space-y-2">
-          <p class="text-xs text-gray-400 uppercase tracking-wider pl-2">supported by</p>
+          <p class="text-xs text-muted uppercase tracking-wider pl-2">supported by</p>
           {sources.map(src => (
             <InvertedNode
               key={`${stmt.id}-${src.id}`}
@@ -243,7 +243,7 @@ function InvertedView({ result, evidenceAssessments }: {
   if (terminalConclusions.length === 0) {
     return (
       <div class="space-y-2">
-        <p class="text-xs text-gray-400 italic">No terminal conclusion identified - listing all statements:</p>
+        <p class="text-xs text-muted italic">No terminal conclusion identified - listing all statements:</p>
         {result.statements.map(s => (
           <StatementCard key={s.id} stmt={s} assessment={matchAssessment(s, evidenceAssessments)} />
         ))}
@@ -264,8 +264,8 @@ function InvertedView({ result, evidenceAssessments }: {
         />
       ))}
       {orphans.length > 0 && (
-        <div class="pt-2 border-t border-gray-100">
-          <p class="text-xs text-gray-400 uppercase tracking-wider mb-2">Standalone premises (not used in derivations)</p>
+        <div class="pt-2 border-t border-hairline">
+          <p class="text-xs text-muted uppercase tracking-wider mb-2">Standalone premises (not used in derivations)</p>
           <div class="space-y-2">
             {orphans.map(s => (
               <StatementCard key={s.id} stmt={s} assessment={matchAssessment(s, evidenceAssessments)} />
@@ -292,7 +292,7 @@ function DetailedView({ result, terminologyPreference, evidenceAssessments }: {
     <div class="space-y-6">
       {premises.length > 0 && (
         <div>
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <p class="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
             <LabelWithTooltip label="extractionPremise" preference={terminologyPreference} />
           </p>
           <div class="space-y-2">
@@ -302,7 +302,7 @@ function DetailedView({ result, terminologyPreference, evidenceAssessments }: {
       )}
       {conclusions.length > 0 && (
         <div>
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <p class="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
             <LabelWithTooltip label="extractionConclusion" preference={terminologyPreference} />
           </p>
           <div class="space-y-2">
@@ -311,7 +311,7 @@ function DetailedView({ result, terminologyPreference, evidenceAssessments }: {
         </div>
       )}
       {result.notes && (
-        <p class="text-xs text-gray-500 italic border-t border-gray-100 pt-3">{result.notes}</p>
+        <p class="text-xs text-muted italic border-t border-hairline pt-3">{result.notes}</p>
       )}
     </div>
   );
@@ -341,16 +341,16 @@ function ExpandModal({
   }, [onClose]);
 
   return (
-    <div class="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col">
-      <div class="border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between">
+    <div class="fixed inset-0 z-50 bg-surface/95 backdrop-blur-sm flex flex-col">
+      <div class="border-b border-hairline px-4 sm:px-6 py-3 flex items-center justify-between">
         <div>
           <p class="text-xs font-semibold tracking-widest text-emerald-600 uppercase">Argument Skeleton</p>
-          <p class="text-sm font-medium text-gray-900 truncate max-w-2xl">{result.centralClaim}</p>
+          <p class="text-sm font-medium text-ink-strong truncate max-w-2xl">{result.centralClaim}</p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          class="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-2"
+          class="rounded-lg px-3 py-2 text-sm font-medium text-ink hover:bg-hairline/40 transition-colors flex items-center gap-2"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
           Close
@@ -382,16 +382,16 @@ export default function ArgumentExtraction({ result, terminologyPreference, evid
     <div class="space-y-4">
       {/* Central claim */}
       <div>
-        <p class="text-sm font-semibold text-gray-700 mb-1">
+        <p class="text-sm font-semibold text-ink mb-1">
           <LabelWithTooltip label="extraction" preference={terminologyPreference} />
         </p>
-        <p class="text-base text-gray-900 font-medium leading-snug">{result.centralClaim}</p>
+        <p class="text-base text-ink-strong font-medium leading-snug">{result.centralClaim}</p>
         <span class="inline-block mt-1"><GroundednessChip groundedness={result.groundedness} compact /></span>
       </div>
 
       {/* View toggle + expand */}
       {!isEmpty && (
-        <div class="flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
+        <div class="flex items-center justify-between gap-2 border-b border-hairline pb-2">
           <div class="flex gap-0.5 overflow-x-auto -mx-1 px-1 scrollbar-thin">
             {VIEW_OPTIONS.map(opt => (
               <button
@@ -401,8 +401,8 @@ export default function ArgumentExtraction({ result, terminologyPreference, evid
                 title={opt.hint}
                 class={`shrink-0 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                   view === opt.id
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
+                    ? 'bg-ink-strong text-white'
+                    : 'text-muted hover:text-ink hover:bg-hairline/40'
                 }`}
               >
                 {opt.label}
@@ -413,7 +413,7 @@ export default function ArgumentExtraction({ result, terminologyPreference, evid
             <button
               type="button"
               onClick={() => setExpanded(true)}
-              class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+              class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium text-muted hover:text-ink hover:bg-hairline/40 transition-colors"
               title="Open the diagram in a full-screen view"
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
@@ -425,7 +425,7 @@ export default function ArgumentExtraction({ result, terminologyPreference, evid
 
       {/* Body */}
       {isEmpty ? (
-        <p class="text-sm text-gray-500 italic">{result.notes ?? 'No argument structure identified.'}</p>
+        <p class="text-sm text-muted italic">{result.notes ?? 'No argument structure identified.'}</p>
       ) : view === 'diagram' ? (
         <ArgumentFlowChart result={result} />
       ) : view === 'inverted' ? (

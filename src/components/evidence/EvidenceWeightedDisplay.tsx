@@ -11,7 +11,7 @@ const CONSENSUS_BADGE: Record<string, { label: string; cls: string }> = {
   contested:           { label: 'Contested',           cls: 'bg-amber-100 text-amber-700' },
   moderate_opposition: { label: 'Moderate opposition', cls: 'bg-orange-100 text-orange-700' },
   strong_opposition:   { label: 'Strong opposition',   cls: 'bg-red-100 text-red-700' },
-  insufficient_data:   { label: 'Not enough data',     cls: 'bg-gray-100 text-gray-600' },
+  insufficient_data:   { label: 'Not enough data',     cls: 'bg-hairline/40 text-ink' },
   not_applicable:      { label: 'Not empirical',       cls: 'bg-violet-100 text-violet-700' },
 };
 
@@ -44,7 +44,7 @@ function ConsensusBar({ papers }: { papers: EvidencePaper[] }) {
 
   return (
     <div class="space-y-1.5">
-      <div class="flex h-2 rounded-full overflow-hidden bg-gray-100">
+      <div class="flex h-2 rounded-full overflow-hidden bg-hairline/40">
         {counts.supports > 0 && (
           <div class="bg-emerald-500 transition-all" style={`width: ${supportPct}%`} title={`${counts.supports} supports`} />
         )}
@@ -55,7 +55,7 @@ function ConsensusBar({ papers }: { papers: EvidencePaper[] }) {
           <div class="bg-red-500 transition-all" style={`width: ${opposePct}%`} title={`${counts.opposes} oppose`} />
         )}
       </div>
-      <div class="flex items-center gap-3 text-xs text-gray-500">
+      <div class="flex items-center gap-3 text-xs text-muted">
         {counts.supports > 0 && (
           <span class="flex items-center gap-1">
             <span class="w-2 h-2 rounded-full bg-emerald-500" />
@@ -102,7 +102,7 @@ function SupportRing({ pct }: { pct: number }) {
         </svg>
         <span class="absolute text-[9px] font-bold" style={`color:${colour}`}>{pct}</span>
       </div>
-      <span class="text-[8px] uppercase tracking-wide text-gray-400 mt-0.5">support</span>
+      <span class="text-[8px] uppercase tracking-wide text-muted mt-0.5">support</span>
     </div>
   );
 }
@@ -118,21 +118,21 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
   const isEmpirical = a.claimType === 'empirical_contested' || a.claimType === 'empirical_uncontested';
 
   return (
-    <div class="rounded-lg border border-gray-200 bg-white p-3 space-y-2.5">
+    <div class="rounded-lg border border-hairline bg-surface p-3 space-y-2.5">
       {/* Claim */}
       <div class="flex items-start gap-2.5">
         {isEmpirical && a.literatureSupport !== null && (
           <SupportRing pct={a.literatureSupport} />
         )}
         <div class="flex-1 min-w-0">
-          <p class="text-xs leading-snug text-gray-800">{a.claim}</p>
+          <p class="text-xs leading-snug text-ink">{a.claim}</p>
           <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-            <span class={`text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded ${badge?.cls ?? 'bg-gray-100 text-gray-500'}`}>
+            <span class={`text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded ${badge?.cls ?? 'bg-hairline/40 text-muted'}`}>
               {badge?.label ?? a.consensusLevel}
             </span>
-            <span class="text-[9px] text-gray-400">{claimTypeLabel}</span>
+            <span class="text-[9px] text-muted">{claimTypeLabel}</span>
             {a.paperCount > 0 && (
-              <span class="text-[9px] text-gray-400">· {a.paperCount} paper{a.paperCount !== 1 ? 's' : ''}</span>
+              <span class="text-[9px] text-muted">· {a.paperCount} paper{a.paperCount !== 1 ? 's' : ''}</span>
             )}
           </div>
         </div>
@@ -145,13 +145,13 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
 
       {/* Precise framing: this is a fact about the literature, not a truth verdict */}
       {isEmpirical && a.literatureSupport !== null && a.paperCount > 0 && (
-        <p class="text-xs text-gray-400 leading-snug">
+        <p class="text-xs text-muted leading-snug">
           {a.literatureSupport}% of the {a.paperCount} paper{a.paperCount !== 1 ? 's' : ''} found support this claim, a measure of the evidence, not a probability it is true.
         </p>
       )}
 
       {/* Explanation */}
-      <p class="text-xs text-gray-600 leading-relaxed">{a.explanation}</p>
+      <p class="text-xs text-ink leading-relaxed">{a.explanation}</p>
 
       {/* Caveats */}
       {a.caveats && (
@@ -166,12 +166,12 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 uppercase tracking-wider"
+            class="text-xs font-semibold text-accent hover:text-accent-support uppercase tracking-wider"
           >
             {expanded ? 'Hide papers ↑' : `View ${a.topPapers.length} paper${a.topPapers.length !== 1 ? 's' : ''} ↓`}
           </button>
           {expanded && (
-            <div class="space-y-1.5 pt-1 border-t border-gray-100">
+            <div class="space-y-1.5 pt-1 border-t border-hairline">
               {a.topPapers.map((p, i) => <PaperRow key={i} p={p} />)}
             </div>
           )}
@@ -185,7 +185,7 @@ const STANCE_BADGE: Record<string, string> = {
   supports: 'bg-emerald-100 text-emerald-700',
   opposes:  'bg-red-100 text-red-700',
   mixed:    'bg-amber-100 text-amber-700',
-  neutral:  'bg-gray-100 text-gray-500',
+  neutral:  'bg-hairline/40 text-muted',
 };
 
 function PaperRow({ p }: { p: EvidencePaper }) {
@@ -203,10 +203,10 @@ function PaperRow({ p }: { p: EvidencePaper }) {
         >
           {p.title}
         </a>
-        <p class="text-xs text-gray-400 mt-0.5">
+        <p class="text-xs text-muted mt-0.5">
           {p.year ?? 'n.d.'} · {p.citationCount.toLocaleString()} citation{p.citationCount !== 1 ? 's' : ''}
         </p>
-        <p class="text-xs text-gray-500 mt-0.5 leading-snug italic">{p.relevance}</p>
+        <p class="text-xs text-muted mt-0.5 leading-snug italic">{p.relevance}</p>
       </div>
     </div>
   );
@@ -218,7 +218,7 @@ function PaperRow({ p }: { p: EvidencePaper }) {
 
 export default function EvidenceWeightedDisplay({ result }: { result: EvidenceWeightedResult }) {
   if (result.assessments.length === 0) {
-    return <p class="text-xs text-gray-400 italic">No empirical claims to assess.</p>;
+    return <p class="text-xs text-muted italic">No empirical claims to assess.</p>;
   }
   return (
     <div class="space-y-3">
@@ -226,7 +226,7 @@ export default function EvidenceWeightedDisplay({ result }: { result: EvidenceWe
         <AssessmentCard key={i} a={a} />
       ))}
       {result.notes && (
-        <p class="text-xs text-gray-400 italic border-t border-gray-100 pt-2">{result.notes}</p>
+        <p class="text-xs text-muted italic border-t border-hairline pt-2">{result.notes}</p>
       )}
     </div>
   );

@@ -84,8 +84,8 @@ function LensButton({
       disabled={isLoading || isDone}
       class={`text-xs font-medium px-3 py-2 rounded-lg border transition-colors text-center flex items-center justify-center min-h-[40px]
         ${isDone     ? 'bg-emerald-50 border-emerald-200 text-emerald-700 cursor-default' :
-          isLoading  ? 'bg-indigo-50  border-indigo-200  text-indigo-500  cursor-wait'    :
-                       'bg-white      border-gray-200    text-gray-700    hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700'}`}
+          isLoading  ? 'bg-accent/5  border-accent/30  text-accent  cursor-wait'    :
+                       'bg-surface      border-hairline    text-ink    hover:bg-accent/5 hover:border-accent/30 hover:text-accent'}`}
     >
       {isLoading ? `${label}…` : isDone ? `✓ ${label}` : label}
     </button>
@@ -94,8 +94,8 @@ function LensButton({
 
 function SectionLoading({ label }: { label: string }) {
   return (
-    <div class="rounded-lg bg-indigo-50 border border-indigo-100 p-4 text-center">
-      <p class="text-sm text-indigo-700 font-medium">{label}</p>
+    <div class="rounded-lg bg-accent/5 border border-accent/20 p-4 text-center">
+      <p class="text-sm text-accent font-medium">{label}</p>
     </div>
   );
 }
@@ -159,9 +159,9 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
   }, [text, surface]);
 
   return (
-    <div class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
+    <div class="rounded-lg border border-hairline bg-surface p-4 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400">Deeper read</h3>
+        <h3 class="text-xs font-semibold uppercase tracking-widest text-muted">Deeper read</h3>
         <span class="text-xs text-amber-600 font-medium">Pro</span>
       </div>
 
@@ -169,7 +169,7 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
         /* Pro teaser - the deeper lenses are a Creator (Pro) feature. */
         <div class="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
           <p class="text-xs text-amber-800 mb-2">Go past the core audit with three Pro reads:</p>
-          <ul class="text-xs text-gray-700 leading-relaxed space-y-1 mb-3">
+          <ul class="text-xs text-ink leading-relaxed space-y-1 mb-3">
             <li>· <strong>How it's framed</strong>: what it assumes + how it persuades</li>
             <li>· <strong>How honestly it argues</strong>: overclaiming + fairness to critics</li>
             <li>· <strong>Whose interests it serves</strong>: who benefits from the framing</li>
@@ -202,7 +202,7 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
       {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
       {presupState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">{lensLabels.presupposition}</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">{lensLabels.presupposition}</h4>
           <PresuppositionDisplay result={presupState.data} />
         </div>
       )}
@@ -211,7 +211,7 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
       {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
       {rhetState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">{lensLabels.rhetoricalMode}</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">{lensLabels.rhetoricalMode}</h4>
           <RhetoricalModeDisplay result={rhetState.data} />
         </div>
       )}
@@ -220,7 +220,7 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
       {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
       {humilityState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">{lensLabels.epistemicHumility}</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">{lensLabels.epistemicHumility}</h4>
           <EpistemicHumilityDisplay result={humilityState.data} />
         </div>
       )}
@@ -229,7 +229,7 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
       {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
       {disagreeState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">{lensLabels.disagreementEngagement}</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">{lensLabels.disagreementEngagement}</h4>
           <DisagreementEngagementDisplay result={disagreeState.data} />
         </div>
       )}

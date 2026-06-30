@@ -12,19 +12,19 @@ const KIND_LABEL: Record<string, string> = {
 
 function AlignmentCard({ a }: { a: InterestAlignment }) {
   return (
-    <div class="rounded-lg border border-gray-200 bg-white p-4">
+    <div class="rounded-lg border border-hairline bg-surface p-4">
       <div class="flex items-center gap-2 mb-2">
         <span class="text-xs font-semibold uppercase tracking-widest text-amber-700 bg-amber-50 px-2 py-0.5 rounded">{KIND_LABEL[a.stakeholderKind] ?? a.stakeholderKind}</span>
         <span class="ml-auto"><GroundednessChip groundedness={a.groundedness} compact /></span>
       </div>
-      <p class="text-sm text-gray-900 font-medium leading-snug mb-1.5">{a.whoseInterest}</p>
-      <p class="text-xs text-gray-700 leading-relaxed mb-2">{a.howFramingServes}</p>
-      <blockquote class="text-xs text-gray-500 border-l-2 border-gray-200 pl-2.5 italic mb-2 leading-relaxed">
+      <p class="text-sm text-ink-strong font-medium leading-snug mb-1.5">{a.whoseInterest}</p>
+      <p class="text-xs text-ink leading-relaxed mb-2">{a.howFramingServes}</p>
+      <blockquote class="text-xs text-muted border-l-2 border-hairline pl-2.5 italic mb-2 leading-relaxed">
         {a.triggerPassage}
       </blockquote>
       {a.counterStakeholder && (
-        <p class="text-xs text-gray-500">
-          <span class="font-semibold text-gray-600">Counter-stakeholder:</span> {a.counterStakeholder}
+        <p class="text-xs text-muted">
+          <span class="font-semibold text-ink">Counter-stakeholder:</span> {a.counterStakeholder}
         </p>
       )}
     </div>
@@ -36,11 +36,11 @@ export default function StructuralIncentiveDisplay({ result }: { result: Structu
     <div class="space-y-4">
       <div class="rounded-lg border border-amber-200 bg-amber-50/40 p-4">
         <p class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-1.5">Framing summary</p>
-        <p class="text-sm text-gray-800 leading-relaxed">{result.framingSummary}</p>
+        <p class="text-sm text-ink leading-relaxed">{result.framingSummary}</p>
       </div>
 
       {result.alignments.length === 0 ? (
-        <p class="text-sm text-gray-500">No clear structural interest alignment identified for this piece.</p>
+        <p class="text-sm text-muted">No clear structural interest alignment identified for this piece.</p>
       ) : (
         <div class="space-y-3">
           {result.alignments.map((a, i) => <AlignmentCard key={i} a={a} />)}
@@ -48,12 +48,12 @@ export default function StructuralIncentiveDisplay({ result }: { result: Structu
       )}
 
       {/* Caveat ALWAYS shown - non-optional UI element. The lens is dangerous without it. */}
-      <div class="rounded-lg border border-gray-300 bg-gray-50 px-4 py-3">
-        <p class="text-xs font-semibold uppercase tracking-widest text-gray-600 mb-1">Important</p>
-        <p class="text-xs text-gray-700 leading-relaxed">{result.importantCaveat}</p>
+      <div class="rounded-lg border border-hairline bg-paper px-4 py-3">
+        <p class="text-xs font-semibold uppercase tracking-widest text-ink mb-1">Important</p>
+        <p class="text-xs text-ink leading-relaxed">{result.importantCaveat}</p>
       </div>
 
-      {result.notes && <p class="text-xs text-gray-400 italic">{result.notes}</p>}
+      {result.notes && <p class="text-xs text-muted italic">{result.notes}</p>}
     </div>
   );
 }

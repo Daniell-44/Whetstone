@@ -28,8 +28,8 @@ const VERDICT_COLOURS: Record<CitationVerdict, string> = {
   well_cited:   'bg-emerald-100 text-emerald-800 border-emerald-200',
   weakly_cited: 'bg-amber-100  text-amber-800  border-amber-200',
   mismatched:   'bg-red-100    text-red-800    border-red-200',
-  uncited:      'bg-gray-100   text-gray-700   border-gray-200',
-  unfetchable:  'bg-gray-100   text-gray-500   border-dashed border-gray-300',
+  uncited:      'bg-hairline/40   text-ink   border-hairline',
+  unfetchable:  'bg-hairline/40   text-muted   border-dashed border-hairline',
   non_factual:  'bg-purple-50  text-purple-700 border-purple-200',
 };
 
@@ -37,8 +37,8 @@ const VERDICT_CARD: Record<CitationVerdict, string> = {
   well_cited:   'border-emerald-200 bg-emerald-50',
   weakly_cited: 'border-amber-200  bg-amber-50',
   mismatched:   'border-red-200    bg-red-50',
-  uncited:      'border-gray-200   bg-gray-50',
-  unfetchable:  'border-dashed border-gray-200 bg-gray-50',
+  uncited:      'border-hairline   bg-paper',
+  unfetchable:  'border-dashed border-hairline bg-paper',
   non_factual:  'border-purple-200 bg-purple-50',
 };
 
@@ -87,8 +87,8 @@ function ClaimCard({
   const [excerptOpen, setExcerptOpen] = useState(false);
   const action = actionsMap.get(matchKey);
 
-  const cardCls = VERDICT_CARD[claim.verdict] ?? 'border-gray-200 bg-gray-50';
-  const badgeCls = VERDICT_COLOURS[claim.verdict] ?? 'bg-gray-100 text-gray-600 border-gray-200';
+  const cardCls = VERDICT_CARD[claim.verdict] ?? 'border-hairline bg-paper';
+  const badgeCls = VERDICT_COLOURS[claim.verdict] ?? 'bg-hairline/40 text-ink border-hairline';
 
   return (
     <div class={`rounded-xl border p-4 space-y-2 ${cardCls} ${action?.action === 'addressed' || action?.action === 'dismissed' ? 'opacity-50' : ''}`}>
@@ -101,10 +101,10 @@ function ClaimCard({
       </div>
 
       {/* Claim text */}
-      <p class="text-sm font-medium text-gray-800 leading-snug">{claim.claim}</p>
+      <p class="text-sm font-medium text-ink leading-snug">{claim.claim}</p>
 
       {/* Verdict explanation */}
-      <p class="text-xs text-gray-600 leading-relaxed">{claim.verdictExplanation}</p>
+      <p class="text-xs text-ink leading-relaxed">{claim.verdictExplanation}</p>
 
       {/* Citation URL */}
       {claim.citationUrl && (
@@ -112,7 +112,7 @@ function ClaimCard({
           href={claim.citationUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="block text-xs text-indigo-600 hover:underline truncate"
+          class="block text-xs text-accent hover:underline truncate"
         >
           {claim.citationUrl}
         </a>
@@ -124,12 +124,12 @@ function ClaimCard({
           <button
             type="button"
             onClick={() => setExcerptOpen(o => !o)}
-            class="text-xs text-gray-500 underline decoration-dotted hover:text-gray-700"
+            class="text-xs text-muted underline decoration-dotted hover:text-ink"
           >
             {excerptOpen ? 'Hide source excerpt' : 'View source excerpt'}
           </button>
           {excerptOpen && (
-            <blockquote class="mt-1.5 border-l-2 border-gray-300 pl-3 text-xs text-gray-600 italic leading-relaxed">
+            <blockquote class="mt-1.5 border-l-2 border-hairline pl-3 text-xs text-ink italic leading-relaxed">
               {claim.sourceExcerpt}
             </blockquote>
           )}
@@ -146,8 +146,8 @@ function ClaimCard({
               onClick={() => onAction(matchKey, act)}
               class={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
                 action?.action === act
-                  ? 'bg-gray-700 text-white border-gray-700'
-                  : 'border-gray-300 text-gray-500 hover:border-gray-400'
+                  ? 'bg-ink text-white border-hairline'
+                  : 'border-hairline text-muted hover:border-muted'
               }`}
             >
               {act === 'addressed' ? 'Addressed' : 'Dismiss'}
@@ -161,8 +161,8 @@ function ClaimCard({
                 onClick={() => onAction(matchKey, vote)}
                 class={`text-xs px-1.5 py-0.5 rounded border transition-colors ${
                   action?.action === vote
-                    ? 'bg-gray-700 text-white border-gray-700'
-                    : 'border-gray-200 text-gray-400 hover:border-gray-400'
+                    ? 'bg-ink text-white border-hairline'
+                    : 'border-hairline text-muted hover:border-muted'
                 }`}
               >
                 {vote === 'accept' ? '👍' : '👎'}
@@ -216,19 +216,19 @@ export default function CitationAuditDisplay({
   return (
     <div class="space-y-5">
       {/* Section header */}
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted">
         <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
       </h3>
 
       {/* Summary card */}
-      <div class="rounded-xl border border-gray-200 bg-white p-4">
-        <p class="text-xs text-gray-400 font-medium mb-3">
+      <div class="rounded-xl border border-hairline bg-surface p-4">
+        <p class="text-xs text-muted font-medium mb-3">
           {summary.total} factual claim{summary.total !== 1 ? 's' : ''} found
         </p>
         <div class="flex flex-wrap gap-2">
           <SummaryPill count={summary.mismatched}  label="Mismatched"   colour="bg-red-50    border-red-200    text-red-800" />
-          <SummaryPill count={summary.uncited}     label="Uncited"      colour="bg-gray-100  border-gray-200   text-gray-700" />
-          <SummaryPill count={summary.unfetchable} label="Unreachable"  colour="bg-gray-50   border-dashed border-gray-300 text-gray-500" />
+          <SummaryPill count={summary.uncited}     label="Uncited"      colour="bg-hairline/40  border-hairline   text-ink" />
+          <SummaryPill count={summary.unfetchable} label="Unreachable"  colour="bg-paper   border-dashed border-hairline text-muted" />
           <SummaryPill count={summary.weaklyCited} label="Weak"         colour="bg-amber-50  border-amber-200  text-amber-800" />
           <SummaryPill count={summary.wellCited}   label="Well cited"   colour="bg-emerald-50 border-emerald-200 text-emerald-800" />
         </div>
@@ -236,12 +236,12 @@ export default function CitationAuditDisplay({
 
       {/* Analyst notes */}
       {notes && (
-        <p class="text-xs text-gray-500 italic leading-relaxed">{notes}</p>
+        <p class="text-xs text-muted italic leading-relaxed">{notes}</p>
       )}
 
       {/* Per-claim cards */}
       {userFacingClaims.length === 0 ? (
-        <p class="text-sm text-gray-500 italic">No factual claims were identified in this draft.</p>
+        <p class="text-sm text-muted italic">No factual claims were identified in this draft.</p>
       ) : (
         <div class="space-y-3">
           {userFacingClaims.map(claim => {

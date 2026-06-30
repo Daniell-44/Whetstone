@@ -9,16 +9,16 @@ import Base from '../layouts/Base.astro';
   <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-16">
 
     <nav class="mb-10">
-      <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← The Whetstone</a>
+      <a href="/" class="text-xs text-muted hover:text-ink transition-colors">← The Whetstone</a>
     </nav>
 
     <!-- Hero -->
     <header class="mb-14">
-      <p class="text-xs font-semibold tracking-[0.3em] text-indigo-500 uppercase mb-4">Devil's Advocate · Chrome Extension</p>
-      <h1 class="font-serif text-3xl sm:text-5xl text-gray-900 leading-tight mb-5">
+      <p class="text-xs font-semibold tracking-[0.3em] text-accent uppercase mb-4">Devil's Advocate · Chrome Extension</p>
+      <h1 class="font-serif text-3xl sm:text-5xl text-ink-strong leading-tight mb-5">
         Audit any argument while you read.
       </h1>
-      <p class="text-lg text-gray-500 leading-relaxed max-w-2xl">
+      <p class="text-lg text-muted leading-relaxed max-w-2xl">
         The Whetstone's analytical engine, mounted in Chrome's side panel. Highlight a passage or
         scan the whole article - get the Toulmin structure, the fallacy patterns, the hidden warrants,
         without leaving the page.
@@ -28,15 +28,15 @@ import Base from '../layouts/Base.astro';
     <!-- Side-panel mockup + pitch -->
     <section class="grid lg:grid-cols-[1fr_360px] gap-10 mb-16 items-start">
       <div>
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-indigo-500 mb-4">What it does</h2>
-        <p class="text-base text-gray-700 leading-relaxed mb-4">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-accent mb-4">What it does</h2>
+        <p class="text-base text-ink leading-relaxed mb-4">
           Open the side panel on any web page. Run the audit against the article you're reading, or
           select a passage and audit just that. The same eleven-lens engine that powers
-          <a href="/reader" class="text-indigo-600 underline">/reader</a> and
-          <a href="/creator/studio" class="text-indigo-600 underline">Creator Studio</a> - running
+          <a href="/reader" class="text-accent underline">/reader</a> and
+          <a href="/creator/studio" class="text-accent underline">Creator Studio</a> - running
           against the page in front of you.
         </p>
-        <p class="text-base text-gray-700 leading-relaxed">
+        <p class="text-base text-ink leading-relaxed">
           Built for the moment you're already in: reading an op-ed, a thread, a press release, a
           policy brief. You don't have to copy text into another tab. The argument is there; the
           audit comes to it.
@@ -44,37 +44,37 @@ import Base from '../layouts/Base.astro';
       </div>
 
       <!-- Side-panel UI mockup -->
-      <div class="rounded-2xl border border-gray-200 shadow-lg bg-white overflow-hidden">
-        <div class="bg-gray-100 px-3 py-2 border-b border-gray-200 flex items-center gap-1.5">
+      <div class="rounded-2xl border border-hairline shadow-lg bg-surface overflow-hidden">
+        <div class="bg-hairline/40 px-3 py-2 border-b border-hairline flex items-center gap-1.5">
           <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
           <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
           <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
-          <span class="ml-2 text-xs text-gray-400 uppercase tracking-wider">Side panel</span>
+          <span class="ml-2 text-xs text-muted uppercase tracking-wider">Side panel</span>
         </div>
         <div class="p-4">
-          <p class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-2">Devil's Advocate</p>
-          <p class="font-serif text-sm text-gray-900 mb-3 leading-snug">
+          <p class="text-xs font-semibold tracking-widest text-accent uppercase mb-2">Devil's Advocate</p>
+          <p class="font-serif text-sm text-ink-strong mb-3 leading-snug">
             Audit this article?
           </p>
-          <button class="w-full bg-indigo-600 text-white text-xs font-semibold py-2 rounded-md mb-2 cursor-default">
+          <button class="w-full bg-accent text-white text-xs font-semibold py-2 rounded-md mb-2 cursor-default">
             Audit whole page
           </button>
-          <button class="w-full border border-gray-300 text-gray-700 text-xs font-semibold py-2 rounded-md mb-4 cursor-default">
+          <button class="w-full border border-hairline text-ink text-xs font-semibold py-2 rounded-md mb-4 cursor-default">
             Audit selected text
           </button>
 
-          <div class="border-t border-gray-200 pt-3 space-y-2">
+          <div class="border-t border-hairline pt-3 space-y-2">
             <div class="rounded-md bg-red-50 border border-red-200 p-2">
               <p class="text-xs font-bold uppercase tracking-wider text-red-700 mb-0.5">High · 88%</p>
-              <p class="text-xs text-gray-700 leading-snug">False dilemma in paragraph 3</p>
+              <p class="text-xs text-ink leading-snug">False dilemma in paragraph 3</p>
             </div>
             <div class="rounded-md bg-amber-50 border border-amber-200 p-2">
               <p class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-0.5">Medium · 72%</p>
-              <p class="text-xs text-gray-700 leading-snug">Unstated warrant: "expert consensus implies policy"</p>
+              <p class="text-xs text-ink leading-snug">Unstated warrant: "expert consensus implies policy"</p>
             </div>
-            <div class="rounded-md bg-gray-50 border border-gray-200 p-2">
-              <p class="text-xs font-bold uppercase tracking-wider text-gray-600 mb-0.5">Low · 64%</p>
-              <p class="text-xs text-gray-700 leading-snug">Loaded language: "the so-called experts"</p>
+            <div class="rounded-md bg-paper border border-hairline p-2">
+              <p class="text-xs font-bold uppercase tracking-wider text-ink mb-0.5">Low · 64%</p>
+              <p class="text-xs text-ink leading-snug">Loaded language: "the so-called experts"</p>
             </div>
           </div>
         </div>
@@ -83,34 +83,34 @@ import Base from '../layouts/Base.astro';
 
     <!-- Three-feature pitch -->
     <section class="mb-16">
-      <h2 class="text-xs font-semibold uppercase tracking-widest text-indigo-500 mb-6">What you get</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-accent mb-6">What you get</h2>
       <div class="grid sm:grid-cols-3 gap-5">
 
-        <div class="rounded-xl border border-gray-200 p-5">
-          <p class="font-serif text-2xl text-indigo-600 mb-2">11</p>
-          <p class="text-sm font-semibold text-gray-900 mb-2">Analytical lenses</p>
-          <p class="text-sm text-gray-600 leading-relaxed">
+        <div class="rounded-xl border border-hairline p-5">
+          <p class="font-serif text-2xl text-accent mb-2">11</p>
+          <p class="text-sm font-semibold text-ink-strong mb-2">Analytical lenses</p>
+          <p class="text-sm text-ink leading-relaxed">
             The same engine that runs on the web. Toulmin decomposition, 26 named fallacies, loaded
             language, unstated warrants, key-term consistency, referential clarity,
             empirical testability, modal-scope check, and more.
-            <a href="/how-it-works" class="text-indigo-600 hover:text-indigo-800 underline">Full breakdown →</a>
+            <a href="/how-it-works" class="text-accent hover:text-accent-support underline">Full breakdown →</a>
           </p>
         </div>
 
-        <div class="rounded-xl border border-gray-200 p-5">
-          <p class="font-serif text-2xl text-indigo-600 mb-2">Toulmin</p>
-          <p class="text-sm font-semibold text-gray-900 mb-2">Structural decomposition</p>
-          <p class="text-sm text-gray-600 leading-relaxed">
+        <div class="rounded-xl border border-hairline p-5">
+          <p class="font-serif text-2xl text-accent mb-2">Toulmin</p>
+          <p class="text-sm font-semibold text-ink-strong mb-2">Structural decomposition</p>
+          <p class="text-sm text-ink leading-relaxed">
             Every audit returns the argument's claim, grounds, warrant, qualifier, and rebuttal -
             with the weakest link identified. The piece of scaffolding that, if removed, brings the
             argument down.
           </p>
         </div>
 
-        <div class="rounded-xl border border-gray-200 p-5">
-          <p class="font-serif text-2xl text-indigo-600 mb-2">∅</p>
-          <p class="text-sm font-semibold text-gray-900 mb-2">Persistence-free reader mode</p>
-          <p class="text-sm text-gray-600 leading-relaxed">
+        <div class="rounded-xl border border-hairline p-5">
+          <p class="font-serif text-2xl text-accent mb-2">∅</p>
+          <p class="text-sm font-semibold text-ink-strong mb-2">Persistence-free reader mode</p>
+          <p class="text-sm text-ink leading-relaxed">
             No account, no history, no server-side storage of what you're reading. The audit runs
             against the page and the result lives in the side panel for that session. Close the
             tab; it's gone.
@@ -122,7 +122,7 @@ import Base from '../layouts/Base.astro';
 
     <!-- Install -->
     <section class="mb-16">
-      <h2 class="text-xs font-semibold uppercase tracking-widest text-indigo-500 mb-4">Install</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-accent mb-4">Install</h2>
       <div class="rounded-xl border border-amber-200 bg-amber-50 p-6">
         <p class="text-sm font-semibold text-amber-900 mb-2">Coming to the Chrome Web Store.</p>
         <p class="text-sm text-amber-900 leading-relaxed">
@@ -136,14 +136,14 @@ import Base from '../layouts/Base.astro';
 
     <!-- CTA back to /reader -->
     <section class="mb-4">
-      <div class="rounded-xl border border-gray-200 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="rounded-xl border border-hairline p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p class="text-sm font-semibold text-gray-900 mb-1">Prefer the web version?</p>
-          <p class="text-sm text-gray-500 leading-relaxed">
-            Paste any text or URL at <span class="font-mono text-xs bg-gray-100 px-1.5 py-0.5 rounded">/reader</span> - same engine, no install.
+          <p class="text-sm font-semibold text-ink-strong mb-1">Prefer the web version?</p>
+          <p class="text-sm text-muted leading-relaxed">
+            Paste any text or URL at <span class="font-mono text-xs bg-hairline/40 px-1.5 py-0.5 rounded">/reader</span> - same engine, no install.
           </p>
         </div>
-        <a href="/reader" class="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors">
+        <a href="/reader" class="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-accent text-white text-sm font-semibold hover:bg-accent/90 transition-colors">
           Open the Reader →
         </a>
       </div>

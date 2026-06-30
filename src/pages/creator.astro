@@ -9,16 +9,16 @@ import Base from '../layouts/Base.astro';
   <main class="max-w-4xl mx-auto px-6 pt-20 pb-16">
 
     <nav class="mb-10">
-      <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← The Whetstone</a>
+      <a href="/" class="text-xs text-muted hover:text-ink transition-colors">← The Whetstone</a>
     </nav>
 
     <!-- Hero -->
     <header class="mb-12">
       <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-3">Creator Studio</p>
-      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-4">
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-strong leading-tight mb-4">
         Stress-test your arguments<br class="hidden sm:block" /> before your readers do.
       </h1>
-      <p class="text-xl text-gray-500 leading-relaxed max-w-2xl">
+      <p class="text-xl text-muted leading-relaxed max-w-2xl">
         Structural audit, counterargument generation, citation checking, evidence verification,
         and the philosophical commitments your draft operates within - all before you publish.
       </p>
@@ -37,7 +37,7 @@ import Base from '../layouts/Base.astro';
       </a>
       <a
         href="/pricing"
-        class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+        class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-ink border border-hairline rounded-lg hover:bg-paper transition-colors"
       >
         View pricing →
       </a>
@@ -45,53 +45,53 @@ import Base from '../layouts/Base.astro';
 
     <!-- What the studio returns - editorial layout -->
     <section class="mb-16">
-      <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-8">What the engine analyses</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">What the engine analyses</h2>
 
-      <div class="grid md:grid-cols-2 gap-0 border border-gray-200 rounded-xl overflow-hidden">
-        <div class="p-6 border-b md:border-b-0 md:border-r border-gray-200">
+      <div class="grid md:grid-cols-2 gap-0 border border-hairline rounded-xl overflow-hidden">
+        <div class="p-6 border-b md:border-b-0 md:border-r border-hairline">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-2">Structure</p>
-          <h3 class="text-base font-semibold text-gray-900 mb-2">Argument skeleton</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+          <h3 class="text-base font-semibold text-ink-strong mb-2">Argument skeleton</h3>
+          <p class="text-sm text-ink leading-relaxed">
             Every claim rendered as numbered premises with inference rules. Modus ponens, categorical syllogism,
             inductive generalisation - the formal structure of what you're actually arguing, stripped of rhetoric.
           </p>
         </div>
-        <div class="p-6 border-b border-gray-200">
+        <div class="p-6 border-b border-hairline">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-2">Critique</p>
-          <h3 class="text-base font-semibold text-gray-900 mb-2">26 reasoning patterns + 8 rhetorical techniques</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+          <h3 class="text-base font-semibold text-ink-strong mb-2">26 reasoning patterns + 8 rhetorical techniques</h3>
+          <p class="text-sm text-ink leading-relaxed">
             From Ad Hominem to Motte-and-Bailey, Selection Bias to Presupposition Smuggling.
             Each flagged with verbatim quotes, severity, and confidence. Inline highlights show exactly where.
           </p>
         </div>
-        <div class="p-6 border-b md:border-b-0 md:border-r border-gray-200">
+        <div class="p-6 border-b md:border-b-0 md:border-r border-hairline">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-2">Opposition</p>
-          <h3 class="text-base font-semibold text-gray-900 mb-2">Counterargument generation</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+          <h3 class="text-base font-semibold text-ink-strong mb-2">Counterargument generation</h3>
+          <p class="text-sm text-ink leading-relaxed">
             The 2-3 strongest objections a thoughtful opponent would deploy that your draft fails to engage with.
             Each with its own Toulmin structure - claim, grounds, warrant.
           </p>
         </div>
-        <div class="p-6 border-b border-gray-200">
+        <div class="p-6 border-b border-hairline">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-2">Sources</p>
-          <h3 class="text-base font-semibold text-gray-900 mb-2">Citation audit</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+          <h3 class="text-base font-semibold text-ink-strong mb-2">Citation audit</h3>
+          <p class="text-sm text-ink leading-relaxed">
             Every cited URL fetched and checked against the claim it's cited for.
             Well-cited, weakly-cited, mismatched, or uncited - before your readers check for you.
           </p>
         </div>
-        <div class="p-6 md:border-r border-gray-200">
+        <div class="p-6 md:border-r border-hairline">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-2">Framework</p>
-          <h3 class="text-base font-semibold text-gray-900 mb-2">Philosophical commitments</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+          <h3 class="text-base font-semibold text-ink-strong mb-2">Philosophical commitments</h3>
+          <p class="text-sm text-ink leading-relaxed">
             The ethical, epistemic, political, and methodological framework your argument operates within -
             made visible so you can decide whether to defend it, soften it, or replace it.
           </p>
         </div>
         <div class="p-6">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-2">Evidence</p>
-          <h3 class="text-base font-semibold text-gray-900 mb-2">Evidence-weighted likelihood</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+          <h3 class="text-base font-semibold text-ink-strong mb-2">Evidence-weighted likelihood</h3>
+          <p class="text-sm text-ink leading-relaxed">
             For empirical claims, we search 200M+ academic papers via Semantic Scholar and assess
             scientific consensus. Value claims are identified as such - they don't get percentages.
           </p>
@@ -101,32 +101,32 @@ import Base from '../layouts/Base.astro';
 
     <!-- Who it serves -->
     <section class="mb-16">
-      <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-8">Who it serves</h2>
-      <div class="grid sm:grid-cols-2 gap-0 border border-gray-200 rounded-xl overflow-hidden">
-        <div class="p-6 border-b sm:border-b-0 sm:border-r border-gray-200">
-          <h3 class="text-sm font-semibold text-gray-900 mb-2">Students & academics</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+      <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">Who it serves</h2>
+      <div class="grid sm:grid-cols-2 gap-0 border border-hairline rounded-xl overflow-hidden">
+        <div class="p-6 border-b sm:border-b-0 sm:border-r border-hairline">
+          <h3 class="text-sm font-semibold text-ink-strong mb-2">Students & academics</h3>
+          <p class="text-sm text-ink leading-relaxed">
             Thesis structure, evidence quality, counterargument handling, citation integrity.
             The question is "is your argument sound?" - not "did you write this?"
           </p>
         </div>
-        <div class="p-6 border-b border-gray-200">
-          <h3 class="text-sm font-semibold text-gray-900 mb-2">Journalists</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+        <div class="p-6 border-b border-hairline">
+          <h3 class="text-sm font-semibold text-ink-strong mb-2">Journalists</h3>
+          <p class="text-sm text-ink leading-relaxed">
             Source verification, counterargument coverage, warrant exposure.
             Solo or multi-seat for newsrooms.
           </p>
         </div>
-        <div class="p-6 sm:border-r border-gray-200">
-          <h3 class="text-sm font-semibold text-gray-900 mb-2">YouTubers & Substackers</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+        <div class="p-6 sm:border-r border-hairline">
+          <h3 class="text-sm font-semibold text-ink-strong mb-2">YouTubers & Substackers</h3>
+          <p class="text-sm text-ink leading-relaxed">
             Pre-publish audit for essay and analysis content.
             Revision tracking shows what improved between drafts.
           </p>
         </div>
         <div class="p-6">
-          <h3 class="text-sm font-semibold text-gray-900 mb-2">Newsrooms</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">
+          <h3 class="text-sm font-semibold text-ink-strong mb-2">Newsrooms</h3>
+          <p class="text-sm text-ink leading-relaxed">
             Multi-seat workspace, shared document library, API access.{' '}
             <a href="mailto:daniel.livingstone44@gmail.com" class="text-amber-600 hover:text-amber-800 font-medium">Get in touch →</a>
           </p>
