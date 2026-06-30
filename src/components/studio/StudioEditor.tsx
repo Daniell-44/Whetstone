@@ -283,7 +283,11 @@ export default function StudioEditor({
     initialVersionId ? initialContent : null,
   );
   const [isRunning, setIsRunning] = useState(false);
-  const [isEditing, setIsEditing] = useState(true);
+  // A reopened draft that already has an audit should land in highlighted-review
+  // mode, not the blank textarea — otherwise the inline highlights don't render
+  // and clicking a finding card has no span to scroll to. New drafts start in
+  // editing mode as before.
+  const [isEditing, setIsEditing] = useState(initialAuditResult == null);
   const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
   // Transient flash on a span when the user jumps to it from a right-hand card.
   const [flashKey, setFlashKey] = useState<string | null>(null);
@@ -1141,6 +1145,11 @@ export default function StudioEditor({
       </h3>
       {!hasActiveSubscription ? <CitationUpsell /> : (
         <>
+          {citationState.status === 'idle' && (
+            <p class="text-xs text-gray-400 italic leading-relaxed">
+              Source Match runs when you analyse a draft. It checks <span class="font-medium">linked URLs</span> — re-analyse to check this draft's sources. (Academic-style "(Author, Year)" references without a link can't be fetched.)
+            </p>
+          )}
           {citationState.status === 'loading' && <SectionLoading label="Checking sources…" />}
           {citationState.status === 'error' && <SectionError code={citationState.code} message={citationState.message} />}
           {citationState.status === 'done' && (

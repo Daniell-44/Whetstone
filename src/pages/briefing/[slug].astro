@@ -36,12 +36,12 @@ const LI_PATH = 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.8
 
     <!-- Top nav -->
     <nav class="mb-8 flex items-center justify-between">
-      <a href="/" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Briefings</a>
+      <a href="/" class="text-xs text-muted hover:text-accent transition-colors">← Briefings</a>
       <div class="flex items-center gap-2 lg:hidden">
-        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100" title="Share on X/Twitter" aria-label="Share on X/Twitter">
+        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-muted hover:text-accent hover:bg-paper" title="Share on X/Twitter" aria-label="Share on X/Twitter">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={X_PATH}/></svg>
         </a>
-        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100" title="Share on LinkedIn" aria-label="Share on LinkedIn">
+        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-muted hover:text-accent hover:bg-paper" title="Share on LinkedIn" aria-label="Share on LinkedIn">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={LI_PATH}/></svg>
         </a>
       </div>
@@ -52,14 +52,14 @@ const LI_PATH = 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.8
 
       <!-- LEFT: Table of contents -->
       <aside class="hidden lg:block lg:col-span-2 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
-        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">On this page</p>
+        <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">On this page</p>
         <nav class="space-y-1.5 text-xs">
-          <a href="#overview" class="block text-gray-500 hover:text-gray-900 transition-colors">Overview</a>
-          {hasPositions && <a href="#positions" class="block text-gray-500 hover:text-gray-900 transition-colors">The positions</a>}
-          {hasShared && <a href="#shared" class="block text-gray-500 hover:text-gray-900 transition-colors">Shared assumption</a>}
-          {hasEditor && <a href="#discussion" class="block text-gray-500 hover:text-gray-900 transition-colors">Editor's view</a>}
+          <a href="#overview" class="block text-muted hover:text-accent transition-colors">Overview</a>
+          {hasPositions && <a href="#positions" class="block text-muted hover:text-accent transition-colors">The positions</a>}
+          {hasShared && <a href="#shared" class="block text-muted hover:text-accent transition-colors">Shared assumption</a>}
+          {hasEditor && <a href="#discussion" class="block text-muted hover:text-accent transition-colors">Editor's view</a>}
         </nav>
-        <a href="/" class="mt-6 block text-xs text-gray-400 hover:text-gray-600 transition-colors">← All Briefings</a>
+        <a href="/" class="mt-6 block text-xs text-muted hover:text-accent transition-colors">← All Briefings</a>
       </aside>
 
       <!-- CENTER -->
@@ -71,55 +71,55 @@ const LI_PATH = 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.8
       <aside class="lg:col-span-3 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto space-y-6">
 
         <!-- Share -->
-        <div class="rounded-xl border border-gray-200 bg-white p-4">
-          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Share</p>
+        <div class="rounded-md border border-hairline bg-surface p-4">
+          <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Share</p>
           <div class="flex gap-2">
-            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors" title="X/Twitter" aria-label="Share on X/Twitter">
+            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent hover:bg-paper transition-colors" title="X/Twitter" aria-label="Share on X/Twitter">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={X_PATH}/></svg>
             </a>
-            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors" title="LinkedIn" aria-label="Share on LinkedIn">
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent hover:bg-paper transition-colors" title="LinkedIn" aria-label="Share on LinkedIn">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={LI_PATH}/></svg>
             </a>
-            <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='Link'},1500)})" class="flex-1 py-2 rounded-md text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors" title="Copy link">Link</button>
+            <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='Link'},1500)})" class="flex-1 py-2 rounded-md text-xs text-muted hover:text-accent hover:bg-paper transition-colors" title="Copy link">Link</button>
           </div>
         </div>
 
         <!-- Audit a similar argument -->
-        <div class="rounded-xl border border-indigo-200 bg-indigo-50 p-4">
-          <p class="text-xs font-semibold text-indigo-700 mb-1.5">Audit a similar argument</p>
-          <p class="text-xs text-indigo-600 leading-relaxed mb-3">
+        <div class="rounded-md border border-accent/20 bg-accent/5 p-4">
+          <p class="text-xs font-semibold text-accent mb-1.5">Audit a similar argument</p>
+          <p class="text-xs text-ink leading-relaxed mb-3">
             Paste your own text and the engine returns the same structural analysis you see here.
           </p>
-          <a href="/reader" class="block w-full text-center px-3 py-2 rounded-md bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors">Open the Reader →</a>
+          <a href="/reader" class="block w-full text-center px-3 py-2 rounded-md bg-accent text-paper text-xs font-semibold hover:bg-accent/90 transition-colors">Open the Reader →</a>
         </div>
 
         <!-- Cite this briefing -->
-        <div class="rounded-xl border border-gray-200 bg-white p-4">
-          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Cite this Briefing</p>
+        <div class="rounded-md border border-hairline bg-surface p-4">
+          <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Cite this Briefing</p>
           <div class="flex flex-col gap-1.5">
-            <a href={`/briefing/${briefing.slug}/citations.bib`} class="text-xs text-gray-500 hover:text-gray-900 transition-colors flex items-center justify-between" download>
+            <a href={`/briefing/${briefing.slug}/citations.bib`} class="text-xs text-muted hover:text-accent transition-colors flex items-center justify-between" download>
               <span class="font-mono">.bib</span>
-              <span class="text-xs text-gray-400">BibTeX</span>
+              <span class="text-xs text-muted">BibTeX</span>
             </a>
-            <a href={`/briefing/${briefing.slug}/citations.ris`} class="text-xs text-gray-500 hover:text-gray-900 transition-colors flex items-center justify-between" download>
+            <a href={`/briefing/${briefing.slug}/citations.ris`} class="text-xs text-muted hover:text-accent transition-colors flex items-center justify-between" download>
               <span class="font-mono">.ris</span>
-              <span class="text-xs text-gray-400">EndNote, Mendeley</span>
+              <span class="text-xs text-muted">EndNote, Mendeley</span>
             </a>
           </div>
         </div>
 
         <!-- Related briefings -->
         {related.length > 0 && (
-          <div class="rounded-xl border border-gray-200 bg-white p-4">
-            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Related</p>
+          <div class="rounded-md border border-hairline bg-surface p-4">
+            <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Related</p>
             <ul class="space-y-3">
               {related.map((rel) => (
                 <li>
                   <a href={`/briefing/${rel.slug}`} class="group block">
                     {rel.category && (
-                      <p class="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">{rel.category}</p>
+                      <p class="text-[9px] font-bold uppercase tracking-wider text-muted mb-1">{rel.category}</p>
                     )}
-                    <p class="text-xs font-medium text-gray-700 group-hover:text-indigo-700 leading-snug transition-colors">{rel.question}</p>
+                    <p class="text-xs font-medium text-ink group-hover:text-accent leading-snug transition-colors">{rel.question}</p>
                   </a>
                 </li>
               ))}

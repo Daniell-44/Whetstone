@@ -131,44 +131,44 @@ const presentCategories = Object.keys(categoryCounts).sort();
     <!-- Scorecards section with left rail -->
     <section>
       <div class="flex items-center gap-4 mb-6 sm:mb-8">
-        <h2 class="font-serif text-xl sm:text-2xl text-gray-900 shrink-0">Briefings</h2>
-        <div class="h-px flex-1 bg-gray-200" />
-        <a href="/scorecards" class="text-xs text-indigo-600 hover:text-indigo-800 transition-colors font-medium shrink-0">
+        <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Briefings</h2>
+        <div class="h-px flex-1 bg-hairline" />
+        <a href="/scorecards" class="text-xs text-accent hover:text-accent-support transition-colors font-medium shrink-0">
           View all →
         </a>
       </div>
 
       {scorecards.length === 0 ? (
-        <div class="py-20 border-t border-gray-200 text-center">
-          <p class="font-serif text-2xl text-gray-300">No scorecards published yet.</p>
+        <div class="py-20 border-t border-hairline text-center">
+          <p class="font-serif text-2xl text-hairline">No scorecards published yet.</p>
         </div>
       ) : (
         <div class="flex flex-col lg:flex-row gap-8">
 
           <!-- Left filter rail (desktop only) -->
           <aside class="hidden lg:block w-56 shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
-            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Browse</p>
+            <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Browse</p>
             <nav class="space-y-1">
-              <a href="#all" class="flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
+              <a href="#all" class="flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-surface border border-hairline text-ink-strong">
                 <span>All</span>
-                <span class="text-xs text-gray-500">{scorecards.length}</span>
+                <span class="text-xs text-muted">{scorecards.length}</span>
               </a>
               {presentCategories.map(cat => (
                 <a
                   href={`#${cat}`}
-                  class="block px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-800 transition-colors capitalize"
+                  class="block px-3 py-2 rounded-md text-sm text-muted hover:bg-surface hover:text-ink transition-colors capitalize"
                 >
                   {cat}
                 </a>
               ))}
             </nav>
 
-            <div class="mt-6 pt-6 border-t border-gray-200">
-              <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">About</p>
-              <p class="text-xs text-gray-500 leading-relaxed">
+            <div class="mt-6 pt-6 border-t border-hairline">
+              <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">About</p>
+              <p class="text-xs text-muted leading-relaxed">
                 Each scorecard is an audited argument - claim, evidence, reasoning, and where it breaks down.
               </p>
-              <a href="/how-it-works" class="block mt-3 text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+              <a href="/how-it-works" class="block mt-3 text-xs text-accent hover:text-accent-support font-medium">
                 How scorecards work →
               </a>
             </div>
@@ -176,11 +176,11 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
           <!-- Mobile category strip -->
           <div class="lg:hidden flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-2 scrollbar-thin">
-            <a href="#all" class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-900">
+            <a href="#all" class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-surface border border-hairline text-ink-strong">
               All ({scorecards.length})
             </a>
             {presentCategories.map(cat => (
-              <a href={`#${cat}`} class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-50 text-gray-500 capitalize">
+              <a href={`#${cat}`} class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-surface border border-hairline text-muted capitalize">
                 {cat} ({categoryCounts[cat]})
               </a>
             ))}
@@ -195,48 +195,43 @@ const presentCategories = Object.keys(categoryCounts).sort();
               <div class="grid sm:grid-cols-2 gap-4 mb-8">
                 {briefings.map((b, idx) => {
                   const card = briefingCard(b);
+                  // Restrained card: hairline surface + a thin top-rule in the
+                  // type colour (accent=briefing, teal=explainer) for contrast
+                  // without a heavy banner. Image shows only when a real one exists.
+                  const ruleCls = card.isExplainer ? 'border-t-accent-support' : 'border-t-accent';
+                  const eyebrowCls = card.isExplainer ? 'text-accent-support' : 'text-accent';
                   return (
                     <a
                       href={`/briefing/${b.slug}`}
-                      class={`group block bg-white border border-gray-200 rounded-lg p-5 sm:p-6 hover:border-gray-300 hover:shadow-sm transition-all ${idx === 0 ? 'sm:col-span-2' : ''}`}
+                      class={`group block bg-surface border border-hairline border-t-2 ${ruleCls} rounded-md p-5 sm:p-6 hover:border-accent/40 hover:shadow-sm transition-all ${idx === 0 ? 'sm:col-span-2' : ''}`}
                     >
-                      {b.image ? (
+                      {/* Image only when a real one exists; explainers never get one. */}
+                      {!card.isExplainer && b.image && (
                         <img src={b.image} alt="" loading="lazy" class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} object-cover rounded-md mb-4`} />
-                      ) : (
-                        /* Placeholder banner for sizing until real images land —
-                           a solid category colour also gives the feed real contrast. */
-                        <div class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} rounded-md mb-4 flex items-center justify-center ${b.category && CATEGORY_STYLES[b.category] ? CATEGORY_STYLES[b.category].bg : 'bg-slate-700'}`}>
-                          <span class="font-serif text-white/70 text-base sm:text-lg capitalize">{b.category ?? (card.isExplainer ? 'Explainer' : 'Briefing')}</span>
-                        </div>
                       )}
                       <div class="flex items-center gap-2 mb-2.5 flex-wrap">
-                        <span class={`inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${card.isExplainer ? 'bg-slate-700 text-white' : 'bg-indigo-600 text-white'}`}>
+                        <span class={`text-xs font-semibold uppercase tracking-widest ${eyebrowCls}`}>
                           {card.isExplainer ? 'Explainer' : 'Briefing'}
                         </span>
-                        {b.category && CATEGORY_STYLES[b.category] && (
-                          <span class={`inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${CATEGORY_STYLES[b.category!].chip}`}>
-                            {b.category}
-                          </span>
+                        {b.category && (
+                          <span class="text-xs font-medium uppercase tracking-wider text-muted">· {b.category}</span>
                         )}
                         {!card.isExplainer && (
-                          <>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{card.positions.length} positions</span>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{b.sources.length} sources</span>
-                          </>
+                          <span class="text-xs text-muted">· {card.positions.length} positions · {b.sources.length} sources</span>
                         )}
                       </div>
-                      <h3 class="font-serif text-lg sm:text-xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-2">
+                      <h3 class="font-serif text-lg sm:text-xl text-ink-strong group-hover:text-accent transition-colors leading-snug mb-2">
                         {b.question}
                       </h3>
-                      <p class="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">
-                        {card.isExplainer ? card.dek : (<><span class="font-medium text-gray-400">Audit found</span>: {card.dek}</>)}
+                      <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
+                        {card.isExplainer ? card.dek : (<><span class="font-medium text-muted">Audit found</span>: {card.dek}</>)}
                       </p>
                       {card.positions.length > 0 && (
                         <div>
                           <PositionSpectrum positions={card.positions} axis={card.axis} compact />
                           <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
                             {card.positions.map((p, i) => (
-                              <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+                              <span class="inline-flex items-center gap-1 text-xs text-muted">
                                 <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
                                 {p.label}
                               </span>
@@ -254,7 +249,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
             {scorecards.length > 0 && (
               <a
                 href={`/scorecard/${scorecards[0].slug}`}
-                class="group block border-b border-gray-200 py-6 sm:py-10 mb-8"
+                class="group block border-b border-hairline py-6 sm:py-10 mb-8"
               >
                 <div class="max-w-4xl">
                   <div class="flex items-center gap-3 mb-4">
@@ -268,17 +263,17 @@ const presentCategories = Object.keys(categoryCounts).sort();
                       </span>
                     )}
                     <div class="flex items-center gap-1.5">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{scorecards[0].positions?.length ?? 0} positions</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-paper border border-hairline text-muted text-xs font-medium">{scorecards[0].positions?.length ?? 0} positions</span>
                       {cardMeta(scorecards[0]).sourceCount > 0 && (
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{cardMeta(scorecards[0]).sourceCount} sources</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-paper border border-hairline text-muted text-xs font-medium">{cardMeta(scorecards[0]).sourceCount} sources</span>
                       )}
                     </div>
                   </div>
-                  <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-tight mb-4">
+                  <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink-strong group-hover:text-accent transition-colors leading-tight mb-4">
                     {scorecards[0].question}
                   </h3>
-                  <p class="text-base sm:text-lg text-gray-500 leading-relaxed mb-4">
-                    <span class="font-medium text-gray-400">Audit found</span>: {cardMeta(scorecards[0]).auditFound}
+                  <p class="text-base sm:text-lg text-ink leading-relaxed mb-4">
+                    <span class="font-medium text-muted">Audit found</span>: {cardMeta(scorecards[0]).auditFound}
                   </p>
                   {scorecards[0].positions && scorecards[0].positions.length > 0 && (
                     scorecards[0].spectrumAxis ? (
@@ -286,7 +281,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                         <PositionSpectrum positions={scorecards[0].positions} axis={scorecards[0].spectrumAxis} />
                         <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                           {scorecards[0].positions.map((p, i) => (
-                            <span class="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                            <span class="inline-flex items-center gap-1.5 text-xs text-muted">
                               <span class={`inline-flex items-center justify-center w-4 h-4 rounded-full text-white text-[9px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
                               {p.label}
                             </span>
@@ -298,13 +293,13 @@ const presentCategories = Object.keys(categoryCounts).sort();
                         {scorecards[0].positions.map((p, i) => (
                           <div class="flex items-start gap-2">
                             <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-xs font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
-                            <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
+                            <span class="text-sm text-ink leading-snug">{p.label}</span>
                           </div>
                         ))}
                       </div>
                     )
                   )}
-                  <p class="text-xs text-gray-400 tabular-nums">
+                  <p class="text-xs text-muted tabular-nums">
                     {new Date(scorecards[0].publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
@@ -323,7 +318,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                 {scorecards.slice(1).map((sc) => (
                   <a
                     href={`/scorecard/${sc.slug}`}
-                    class="group block max-w-3xl bg-white border border-gray-200 rounded-lg p-5 sm:p-6 hover:border-gray-300 hover:shadow-sm transition-all"
+                    class="group block max-w-3xl bg-surface border border-hairline rounded-lg p-5 sm:p-6 hover:border-accent/40 hover:shadow-sm transition-all"
                   >
                     <div class="flex items-center gap-2 mb-2.5 flex-wrap">
                       {sc.category && CATEGORY_STYLES[sc.category] ? (
@@ -331,20 +326,20 @@ const presentCategories = Object.keys(categoryCounts).sort();
                           {sc.category}
                         </span>
                       ) : (
-                        <span class="inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-gray-700 text-white">
+                        <span class="inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-ink text-paper">
                           Scorecard
                         </span>
                       )}
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{sc.positions?.length ?? 0} positions</span>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-paper border border-hairline text-muted text-xs font-medium">{sc.positions?.length ?? 0} positions</span>
                       {cardMeta(sc).sourceCount > 0 && (
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{cardMeta(sc).sourceCount} sources</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-paper border border-hairline text-muted text-xs font-medium">{cardMeta(sc).sourceCount} sources</span>
                       )}
                     </div>
-                    <h3 class="font-serif text-lg sm:text-xl text-gray-900 group-hover:text-indigo-600 transition-colors leading-snug mb-2.5">
+                    <h3 class="font-serif text-lg sm:text-xl text-ink-strong group-hover:text-accent transition-colors leading-snug mb-2.5">
                       {sc.question}
                     </h3>
-                    <p class="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">
-                      <span class="font-medium text-gray-400">Audit found</span>: {cardMeta(sc).auditFound}
+                    <p class="text-sm text-muted leading-relaxed line-clamp-2 mb-3">
+                      <span class="font-medium text-muted">Audit found</span>: {cardMeta(sc).auditFound}
                     </p>
                     {sc.positions && sc.positions.length > 0 && (
                       sc.spectrumAxis ? (
@@ -352,7 +347,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                           <PositionSpectrum positions={sc.positions} axis={sc.spectrumAxis} compact />
                           <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
                             {sc.positions.map((p, i) => (
-                              <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+                              <span class="inline-flex items-center gap-1 text-xs text-muted">
                                 <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
                                 {p.label}
                               </span>
@@ -364,13 +359,13 @@ const presentCategories = Object.keys(categoryCounts).sort();
                           {sc.positions.map((p, i) => (
                             <div class="flex items-start gap-2">
                               <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-xs font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
-                              <span class="text-sm text-gray-600 leading-snug">{p.label}</span>
+                              <span class="text-sm text-ink leading-snug">{p.label}</span>
                             </div>
                           ))}
                         </div>
                       )
                     )}
-                    <p class="text-xs text-gray-400 tabular-nums">
+                    <p class="text-xs text-muted tabular-nums">
                       {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
                         day: 'numeric', month: 'short', year: 'numeric',
                       })}
@@ -386,21 +381,21 @@ const presentCategories = Object.keys(categoryCounts).sort();
     </section>
 
     <!-- Footer info strip -->
-    <div class="grid sm:grid-cols-3 gap-0 mt-16 border-t border-gray-900 pt-6">
-      <div class="py-4 px-4 sm:px-6 sm:border-r sm:border-gray-200">
-        <h3 class="text-xs font-bold uppercase text-gray-900 mb-2">Chrome Extension</h3>
-        <p class="text-sm text-gray-500 leading-relaxed mb-2">Audit any argument while you read - runs in the side panel against the page in view.</p>
-        <a href="/extension" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Learn more →</a>
+    <div class="grid sm:grid-cols-3 gap-0 mt-16 border-t border-ink pt-6">
+      <div class="py-4 px-4 sm:px-6 sm:border-r sm:border-hairline">
+        <h3 class="text-xs font-bold uppercase text-ink-strong mb-2">Chrome Extension</h3>
+        <p class="text-sm text-muted leading-relaxed mb-2">Audit any argument while you read - runs in the side panel against the page in view.</p>
+        <a href="/extension" class="text-xs font-semibold text-accent hover:text-accent-support">Learn more →</a>
       </div>
-      <div class="py-4 px-4 sm:px-6 sm:border-r sm:border-gray-200">
-        <h3 class="text-xs font-bold uppercase text-gray-900 mb-2">Creator Studio</h3>
-        <p class="text-sm text-gray-500 leading-relaxed mb-2">Point the engine at your own writing.</p>
-        <a href="/creator" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Learn more →</a>
+      <div class="py-4 px-4 sm:px-6 sm:border-r sm:border-hairline">
+        <h3 class="text-xs font-bold uppercase text-ink-strong mb-2">Creator Studio</h3>
+        <p class="text-sm text-muted leading-relaxed mb-2">Point the engine at your own writing.</p>
+        <a href="/creator" class="text-xs font-semibold text-accent hover:text-accent-support">Learn more →</a>
       </div>
       <div class="py-4 px-4 sm:px-6">
-        <h3 class="text-xs font-bold uppercase text-gray-900 mb-2">Strongest Opposing Case</h3>
-        <p class="text-sm text-gray-500 leading-relaxed mb-2">Paste any argument, get its steelmanned opposition.</p>
-        <a href="/strongest-opposing-case" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">Try it →</a>
+        <h3 class="text-xs font-bold uppercase text-ink-strong mb-2">Strongest Opposing Case</h3>
+        <p class="text-sm text-muted leading-relaxed mb-2">Paste any argument, get its steelmanned opposition.</p>
+        <a href="/strongest-opposing-case" class="text-xs font-semibold text-accent hover:text-accent-support">Try it →</a>
       </div>
     </div>
 

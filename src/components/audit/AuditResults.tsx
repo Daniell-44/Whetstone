@@ -508,7 +508,7 @@ function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy,
           matchKey={matchKey}
           findingSnapshot={fallacy}
         />
-        <div class="ml-auto">
+        <div class="ml-auto mt-2">
           <ShareFindingButton
             label={fallacy.name}
             quote={fallacy.quote}
@@ -573,7 +573,7 @@ function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, bu
           matchKey={matchKey}
           findingSnapshot={item}
         />
-        <div class="ml-auto">
+        <div class="ml-auto mt-2">
           <ShareFindingButton
             label={item.technique}
             quote={item.phrase}
