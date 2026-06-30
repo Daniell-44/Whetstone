@@ -137,7 +137,7 @@ function CitationUpsell() {
   return (
     <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
       <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
-      <p class="text-sm text-gray-700 leading-relaxed max-w-sm mx-auto">
+      <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
         Source Match fetches every cited URL in your draft and checks whether the source
         actually supports the claim. Subscribe to unlock it.
       </p>
@@ -155,7 +155,7 @@ function CounterargUpsell() {
   return (
     <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
       <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
-      <p class="text-sm text-gray-700 leading-relaxed max-w-sm mx-auto">
+      <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
         The opposing-cases engine surfaces the strongest objections your draft fails
         to engage with. Subscribe for $22/mo to unlock it.
       </p>
@@ -189,8 +189,8 @@ function SectionError({ code, message }: { code: string; message: string }) {
 
 function SectionLoading({ label }: { label: string }) {
   return (
-    <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-5 text-center">
-      <p class="text-sm text-indigo-700 font-medium">{label}</p>
+    <div class="rounded-xl bg-accent/5 border border-accent/20 p-5 text-center">
+      <p class="text-sm text-accent font-medium">{label}</p>
     </div>
   );
 }
@@ -221,18 +221,18 @@ function LensButton({
       disabled={isLoading || isDone}
       aria-label={isDone ? `${label} — done` : isLoading ? `Running ${label}…` : `Run ${label}`}
       class={`group flex items-center gap-2 w-full text-xs font-medium px-3 py-2.5 rounded-lg border transition-colors text-left
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-accent
         ${isDone     ? 'bg-emerald-50 border-emerald-300 text-emerald-800 cursor-default' :
-          isLoading  ? 'bg-indigo-50  border-indigo-300  text-indigo-600  cursor-wait'    :
-                       'bg-white      border-gray-300    text-gray-700    cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700'}`}
+          isLoading  ? 'bg-accent/5  border-accent  text-accent  cursor-wait'    :
+                       'bg-surface      border-hairline    text-ink    cursor-pointer hover:bg-accent/5 hover:border-accent hover:text-accent'}`}
     >
       {isLoading ? (
-        <svg class="shrink-0 w-3.5 h-3.5 animate-spin text-indigo-500" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg class="shrink-0 w-3.5 h-3.5 animate-spin text-accent" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
       ) : (
-        <span class={`shrink-0 text-[13px] leading-none ${isDone ? 'text-emerald-600' : 'text-indigo-400 group-hover:text-indigo-600'}`} aria-hidden="true">
+        <span class={`shrink-0 text-[13px] leading-none ${isDone ? 'text-emerald-600' : 'text-accent/70 group-hover:text-accent'}`} aria-hidden="true">
           {isDone ? '✓' : '▸'}
         </span>
       )}
@@ -722,12 +722,12 @@ export default function StudioEditor({
           maxLength={200}
           placeholder="Untitled draft"
           disabled={isRunning}
-          class="w-full sm:flex-1 sm:w-auto rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-base sm:text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
+          class="w-full sm:flex-1 sm:w-auto rounded-lg border border-hairline bg-surface px-3 py-2.5 text-base sm:text-sm font-medium text-ink placeholder-muted focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
         />
         {docId && (
           <a
             href={`/creator/documents/${docId}/versions`}
-            class="shrink-0 rounded-xl border border-gray-200 bg-white px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
+            class="shrink-0 rounded-xl border border-hairline bg-surface px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-muted hover:text-ink hover:border-hairline transition-colors"
           >
             History
           </a>
@@ -737,7 +737,7 @@ export default function StudioEditor({
             type="button"
             onClick={handleNewDraft}
             disabled={isRunning}
-            class="shrink-0 rounded-xl border border-gray-200 bg-white px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors disabled:opacity-40"
+            class="shrink-0 rounded-xl border border-hairline bg-surface px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-muted hover:text-ink hover:border-hairline transition-colors disabled:opacity-40"
           >
             New draft
           </button>
@@ -768,8 +768,8 @@ export default function StudioEditor({
 
       {/* Sample-loading status (artificial delay) */}
       {samplePending && (
-        <div class="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-center">
-          <p class="text-xs font-medium text-indigo-700">Loading cached analysis…</p>
+        <div class="rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-center">
+          <p class="text-xs font-medium text-accent">Loading cached analysis…</p>
         </div>
       )}
 
@@ -803,21 +803,21 @@ export default function StudioEditor({
         /* Highlighted review mode - fills vertical space */
         <div class="flex flex-col flex-1 space-y-2">
           <div class="flex items-center justify-between flex-wrap gap-2">
-            <p class="text-xs text-gray-400">
+            <p class="text-xs text-muted">
               {draftViewMode === 'highlights'
                 ? 'Click a highlight to jump to the finding. Hover for details.'
                 : 'Hover for finding details. Click any colour to jump to the top finding. Darker = more density.'}
             </p>
             <div class="flex items-center gap-3">
               {/* View toggle */}
-              <div class="flex gap-0.5 p-0.5 bg-gray-100 rounded-md">
+              <div class="flex gap-0.5 p-0.5 bg-hairline/40 rounded-md">
                 <button
                   type="button"
                   onClick={() => setDraftViewMode('highlights')}
                   class={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                     draftViewMode === 'highlights'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-800'
+                      ? 'bg-surface text-ink-strong shadow-sm'
+                      : 'text-muted hover:text-ink'
                   }`}
                 >
                   Highlights
@@ -827,8 +827,8 @@ export default function StudioEditor({
                   onClick={() => setDraftViewMode('heatmap')}
                   class={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                     draftViewMode === 'heatmap'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-800'
+                      ? 'bg-surface text-ink-strong shadow-sm'
+                      : 'text-muted hover:text-ink'
                   }`}
                 >
                   Heatmap
@@ -837,7 +837,7 @@ export default function StudioEditor({
               <button
                 type="button"
                 onClick={() => { setIsEditing(true); setActiveFindingKey(null); }}
-                class="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors"
+                class="text-xs text-accent hover:text-accent-support font-medium transition-colors"
               >
                 ✎ Edit draft
               </button>
@@ -878,13 +878,13 @@ export default function StudioEditor({
               placeholder="Paste your draft here - any argumentative text, essay, or opinion piece (50-10,000 characters)."
               disabled={isRunning}
               data-tour-anchor="studio-textarea"
-              class="w-full flex-1 min-h-[50vh] sm:min-h-[50vh] xl:min-h-[calc(100vh-22rem)] border border-gray-200 bg-white px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
+              class="w-full flex-1 min-h-[50vh] sm:min-h-[50vh] xl:min-h-[calc(100vh-22rem)] border border-hairline bg-surface px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-sm text-ink placeholder-muted leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
             />
             <div class="flex justify-between mt-1.5 text-xs">
               <span class={
                 charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600'
                 : charCount > MAX_CHARS               ? 'text-red-500'
-                :                                       'text-gray-400'
+                :                                       'text-muted'
               }>
                 {charCount > 0 && charCount < MIN_CHARS
                   ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
@@ -892,7 +892,7 @@ export default function StudioEditor({
                   ? 'Too long - please trim to 10,000 characters'
                   : ''}
               </span>
-              <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
+              <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
                 {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
               </span>
             </div>
@@ -908,7 +908,7 @@ export default function StudioEditor({
               class={`flex-1 py-2.5 px-6 rounded-lg text-sm font-semibold transition-colors ${
                 canSubmit
                   ? 'bg-amber-500 text-white hover:bg-amber-600'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-hairline/40 text-muted cursor-not-allowed'
               }`}
             >
               {isRunning ? 'Analysing…' : 'Analyse my draft'}
@@ -918,10 +918,10 @@ export default function StudioEditor({
             )}
           </div>
           {canSubmit && !isRunning && (
-            <p class="text-xs text-gray-300 text-center">⌘/Ctrl + Enter</p>
+            <p class="text-xs text-muted text-center">⌘/Ctrl + Enter</p>
           )}
           {isRunning && hasActiveSubscription && (
-            <p class="text-xs text-center text-gray-400">
+            <p class="text-xs text-center text-muted">
               ~60-90s - fetching cited sources and finding opposing cases takes longer than a simple audit.
             </p>
           )}
@@ -951,8 +951,8 @@ export default function StudioEditor({
   // the old Overview panel duplicated the skeleton (central claim + the ★
   // implicit premises that are the hidden assumptions), so it was retired.
   const skeletonPanel = extractionState.status !== 'idle' ? (
-    <div class="rounded-lg border border-emerald-200 bg-white p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Argument Skeleton</h3>
+    <div class="rounded-lg border border-emerald-200 bg-surface p-4">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Argument Skeleton</h3>
       {extractionState.status === 'loading' && <SectionLoading label="Mapping structure…" />}
       {extractionState.status === 'error' && <SectionError code={extractionState.code} message={extractionState.message} />}
       {extractionState.status === 'done' && (
@@ -975,8 +975,8 @@ export default function StudioEditor({
 
   // Framework check.
   const frameworkPanel = commitmentsState.status !== 'idle' ? (
-    <div class="rounded-lg border border-purple-200 bg-white p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+    <div class="rounded-lg border border-purple-200 bg-surface p-4">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="commitments" preference={terminologyPreference} />
       </h3>
       {commitmentsState.status === 'loading' && <SectionLoading label="Detecting frameworks…" />}
@@ -989,8 +989,8 @@ export default function StudioEditor({
 
   // Counterarguments.
   const counterargPanel = (
-    <div class="rounded-lg border border-violet-200 bg-white p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+    <div class="rounded-lg border border-violet-200 bg-surface p-4">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
       </h3>
       {/* Pro-gated (Pro-model cost). Free users see the upsell instead of an
@@ -1005,8 +1005,8 @@ export default function StudioEditor({
                  signal the draft earned, not an empty card - so we drop the
                  central-claim "(?)" card and show one neutral-toned line (no
                  alarm colour). */
-              <p class="text-xs text-gray-500 leading-relaxed">
-                <span class="font-medium text-gray-700">No strong counterarguments surfaced.</span>{' '}
+              <p class="text-xs text-muted leading-relaxed">
+                <span class="font-medium text-ink">No strong counterarguments surfaced.</span>{' '}
                 The draft does not appear to leave an obvious opposing case unaddressed.
               </p>
             ) : (
@@ -1021,10 +1021,10 @@ export default function StudioEditor({
   // Deeper lenses - on-demand, free tier. They read the whole document (not a
   // span), so they live on the LEFT with the other document-level engines.
   const deeperLensesPanel = auditState.status === 'done' ? (
-    <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
+    <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-hairline bg-surface p-4 space-y-4">
       <div class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400">Deeper lenses</h3>
-        <span class="text-xs text-gray-400">click any to run</span>
+        <h3 class="text-xs font-semibold uppercase tracking-widest text-muted">Deeper lenses</h3>
+        <span class="text-xs text-muted">click any to run</span>
       </div>
       <div class="grid grid-cols-2 gap-2.5">
         <LensButton
@@ -1050,14 +1050,14 @@ export default function StudioEditor({
       </div>
 
       {/* Cui bono - sharp-edged lens, visually separated + always-shown caveat in display */}
-      <div class="border-t border-gray-100 pt-3">
+      <div class="border-t border-hairline pt-3">
         <div class="flex items-center justify-between mb-2">
           <p class="text-xs font-semibold uppercase tracking-widest text-amber-700">
             Structural-incentive analysis
           </p>
-          <p class="text-xs text-gray-400 italic">structural, not personal</p>
+          <p class="text-xs text-muted italic">structural, not personal</p>
         </div>
-        <p class="text-xs text-gray-500 leading-relaxed mb-2">
+        <p class="text-xs text-muted leading-relaxed mb-2">
           Whose positions in a political economy benefit if a reader accepts this framing.
           Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
         </p>
@@ -1072,7 +1072,7 @@ export default function StudioEditor({
       {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
       {presupState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Presuppositions</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Presuppositions</h4>
           <PresuppositionDisplay result={presupState.data} />
         </div>
       )}
@@ -1081,7 +1081,7 @@ export default function StudioEditor({
       {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
       {rhetState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Rhetorical mode</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Rhetorical mode</h4>
           <RhetoricalModeDisplay result={rhetState.data} />
         </div>
       )}
@@ -1090,7 +1090,7 @@ export default function StudioEditor({
       {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
       {humilityState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Epistemic humility</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Epistemic humility</h4>
           <EpistemicHumilityDisplay result={humilityState.data} />
         </div>
       )}
@@ -1099,7 +1099,7 @@ export default function StudioEditor({
       {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
       {disagreeState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-indigo-600 mb-2">Engagement quality</h4>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Engagement quality</h4>
           <DisagreementEngagementDisplay result={disagreeState.data} />
         </div>
       )}
@@ -1118,8 +1118,8 @@ export default function StudioEditor({
   // Span-anchored findings (RIGHT). Clicking a card scrolls to + flashes its
   // quote in the centre draft. (AuditResults scope="span".)
   const spanFindingsPanel = (
-    <div data-tour-anchor="studio-findings" class="rounded-lg border border-gray-200 bg-white p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Findings</h3>
+    <div data-tour-anchor="studio-findings" class="rounded-lg border border-hairline bg-surface p-4">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Findings</h3>
       {auditState.status === 'loading' && <SectionLoading label="Running audit…" />}
       {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
       {auditState.status === 'done' && (
@@ -1139,14 +1139,14 @@ export default function StudioEditor({
 
   // Citation audit (RIGHT).
   const citationPanel = (
-    <div class="rounded-lg border border-sky-200 bg-white p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+    <div class="rounded-lg border border-sky-200 bg-surface p-4">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
       </h3>
       {!hasActiveSubscription ? <CitationUpsell /> : (
         <>
           {citationState.status === 'idle' && (
-            <p class="text-xs text-gray-400 italic leading-relaxed">
+            <p class="text-xs text-muted italic leading-relaxed">
               Source Match runs when you analyse a draft. It checks <span class="font-medium">linked URLs</span> — re-analyse to check this draft's sources. (Academic-style "(Author, Year)" references without a link can't be fetched.)
             </p>
           )}
@@ -1168,8 +1168,8 @@ export default function StudioEditor({
 
   // Evidence check (RIGHT, Studio Pro).
   const evidencePanel = hasActiveSubscription && evidenceState.status !== 'idle' ? (
-    <div class="rounded-lg border border-emerald-200 bg-white p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+    <div class="rounded-lg border border-emerald-200 bg-surface p-4">
+      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         Evidence Check
       </h3>
       {evidenceState.status === 'loading' && <SectionLoading label="Searching academic literature…" />}
@@ -1211,14 +1211,14 @@ export default function StudioEditor({
         {inputSection}
         {!hasActiveSubscription && (
           <div class="grid sm:grid-cols-2 gap-4">
-            <div class="rounded-lg border border-violet-200 bg-white p-4">
-              <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+            <div class="rounded-lg border border-violet-200 bg-surface p-4">
+              <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
                 <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
               </h3>
               <CounterargUpsell />
             </div>
-            <div class="rounded-lg border border-sky-200 bg-white p-4">
-              <h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+            <div class="rounded-lg border border-sky-200 bg-surface p-4">
+              <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
                 <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
               </h3>
               <CitationUpsell />
@@ -1248,7 +1248,7 @@ export default function StudioEditor({
   ] : [];
 
   const scoreBadge = score !== null ? (
-    <span class="text-xs font-bold rounded-full px-1.5 py-0.5 bg-white/20">{score}</span>
+    <span class="text-xs font-bold rounded-full px-1.5 py-0.5 bg-surface/20">{score}</span>
   ) : null;
 
   // Three-panel Grammarly-style layout on desktop; single-column + bottom sheet on mobile

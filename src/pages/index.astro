@@ -205,9 +205,16 @@ const presentCategories = Object.keys(categoryCounts).sort();
                       href={`/briefing/${b.slug}`}
                       class={`group block bg-surface border border-hairline border-t-2 ${ruleCls} rounded-md p-5 sm:p-6 hover:border-accent/40 hover:shadow-sm transition-all ${idx === 0 ? 'sm:col-span-2' : ''}`}
                     >
-                      {/* Image only when a real one exists; explainers never get one. */}
-                      {!card.isExplainer && b.image && (
-                        <img src={b.image} alt="" loading="lazy" class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} object-cover rounded-md mb-4`} />
+                      {/* Briefings get a banner (real image, else a category-colour
+                         placeholder until real art lands); explainers stay text-first. */}
+                      {!card.isExplainer && (
+                        b.image ? (
+                          <img src={b.image} alt="" loading="lazy" class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} object-cover rounded-md mb-4`} />
+                        ) : (
+                          <div class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} rounded-md mb-4 flex items-center justify-center ${b.category && CATEGORY_STYLES[b.category] ? CATEGORY_STYLES[b.category].bg : 'bg-ink'}`}>
+                            <span class="font-serif text-paper/70 text-base sm:text-lg capitalize">{b.category ?? 'Briefing'}</span>
+                          </div>
+                        )
                       )}
                       <div class="flex items-center gap-2 mb-2.5 flex-wrap">
                         <span class={`text-xs font-semibold uppercase tracking-widest ${eyebrowCls}`}>
