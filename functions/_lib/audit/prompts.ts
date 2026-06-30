@@ -316,6 +316,7 @@ These three patterns are superficially similar but identify different problems.
 - **Ad Hominem** attacks the *person making* an argument — their character, motives, or conduct — to dismiss the argument without engaging its content.
   - Genetic Fallacy targets the claim's origin; Ad Hominem targets the arguer's character.
   - They can co-occur: "This idea comes from racists and she is a racist, so we should dismiss it" — the first clause is Genetic Fallacy, the second is Ad Hominem.
+  - Tie-breaker: if the attack names the *people's* traits — their character, competence, class, or motives ("run by out-of-touch elitists who have never run a real business"; "written by paid shills") — it is **Ad Hominem**, even when phrased as "it comes from / is run by them". Reserve **Genetic Fallacy** for dismissals that target the *idea's* lineage or mode of origin ("it came from a 19th-century pamphlet"; "that is just astrology repackaged"), not the present arguer's traits.
 
 ### Special Pleading
 
