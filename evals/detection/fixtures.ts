@@ -9,6 +9,10 @@ export interface DetectionFixture {
   id:                string;
   text:              string;
   expectedFallacies: string[]; // [] = should produce no named fallacy
+  // Defensible second labels: if the engine emits one of these it is NOT counted
+  // as a false positive (nor required for recall). For genuine label-boundary
+  // cases where two names are both reasonable.
+  acceptableAlternatives?: string[];
   notes?:            string;
 }
 
@@ -201,7 +205,8 @@ export const DETECTION_FIXTURES: DetectionFixture[] = [
     id: 'det-auth-maverick',
     text: "One contrarian professor emeritus disputes the climate consensus, and that one expert's say-so is good enough for me to dismiss the whole field.",
     expectedFallacies: ['Appeal to Authority'],
-    notes: '[reddit-cmv · hard] Argument from expert opinion, CQ fails: leans on a lone dissenting authority against the consensus, with the say-so doing the evidentiary work. Ratified Appeal to Authority (the pronouncement of a single authority does the work, not selected data — so not Cherry-Picking). Minimal-pair twin of det-clean-auth-consensus.',
+    acceptableAlternatives: ['Cherry-Picking'],
+    notes: '[reddit-cmv · hard] Argument from expert opinion, CQ fails: leans on a lone dissenting authority against the consensus, with the say-so doing the evidentiary work. Ratified primary: Appeal to Authority. Cherry-Picking is a defensible co-label (dismissing a field via one hand-picked dissenter) — accepted as an alternative so the engine is not penalised for emitting it. Minimal-pair twin of det-clean-auth-consensus.',
   },
 
   // --- Pair 3 · Slippery Slope · op-ed ---

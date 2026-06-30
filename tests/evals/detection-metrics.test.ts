@@ -28,6 +28,20 @@ describe('matchFindings', () => {
   it('flags a false finding on a clean passage', () => {
     expect(matchFindings([], ['Slippery Slope'])).toMatchObject({ tp: 0, fp: 1, fn: 0 });
   });
+
+  it('does not penalise a defensible alternate label as a false positive', () => {
+    const m = matchFindings(['Appeal to Authority'], ['Appeal to Authority', 'Cherry-Picking'], ['Cherry-Picking']);
+    expect(m).toMatchObject({ tp: 1, fp: 0, fn: 0 });
+    expect(m.spurious).toEqual([]);
+  });
+
+  it('still flags a real over-detection even when an accepted alternate is present', () => {
+    const m = matchFindings(['Appeal to Authority'], ['Cherry-Picking', 'Slippery Slope'], ['Cherry-Picking']);
+    expect(m.tp).toBe(0);
+    expect(m.fn).toBe(1);            // the required label was still missed
+    expect(m.fp).toBe(1);            // Slippery Slope is a genuine over-detection
+    expect(m.spurious).toEqual(['Slippery Slope']);
+  });
 });
 
 describe('prf', () => {

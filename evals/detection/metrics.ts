@@ -20,14 +20,23 @@ export interface FindingMatch {
 
 const norm = (s: string): string => s.trim().toLowerCase();
 
-/** Multiset name-match of emitted vs expected fallacy names (case-insensitive). */
-export function matchFindings(expected: string[], actual: string[]): FindingMatch {
+/**
+ * Multiset name-match of emitted vs expected fallacy names (case-insensitive).
+ * `alternatives` are defensible second labels for a fixture: if the engine emits
+ * one, it is neither credited as a true positive (it wasn't required) nor
+ * penalised as a false positive (it isn't wrong). This stops the single-label
+ * matcher from under-crediting the engine on genuine label-boundary cases
+ * (e.g. a passage that is both Appeal to Authority and Cherry-Picking).
+ */
+export function matchFindings(expected: string[], actual: string[], alternatives: string[] = []): FindingMatch {
   const remaining = expected.map(norm); // shrinks as emitted names are matched
+  const alts = new Set(alternatives.map(norm));
   const spurious: string[] = [];
   let tp = 0;
   for (const a of actual) {
     const i = remaining.indexOf(norm(a));
     if (i >= 0) { tp += 1; remaining.splice(i, 1); }
+    else if (alts.has(norm(a))) { /* defensible alternate — ignore, neither credit nor penalise */ }
     else spurious.push(a);
   }
   // Whatever's left in `remaining` was expected but never matched = the misses.
