@@ -175,6 +175,7 @@ export async function auditText(
     reasoningFirst:    deps.promptVariant?.reasoningFirst ?? false,
     soundnessGate:     deps.promptVariant?.soundnessGate ?? true,
     criticalQuestions: deps.promptVariant?.criticalQuestions ?? true,
+    fewShot:           deps.promptVariant?.fewShot ?? false, // A/B-pending, off by default
   });
 
   const { output: rawOutput, inputTokens, outputTokens } = await callWithRetry(

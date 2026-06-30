@@ -46,6 +46,7 @@ const promptVariant = {
   reasoningFirst:    has('reasoning'),
   soundnessGate:     precision || has('soundness'),
   criticalQuestions: precision || has('criticalq'),
+  fewShot:           has('fewshot'),
 };
 
 async function main(): Promise<void> {

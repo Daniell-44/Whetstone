@@ -1,4 +1,5 @@
-import { FALLACY_NAMES, LOADED_LANGUAGE_TECHNIQUES } from './taxonomy';
+import { FALLACY_NAMES, FALLACY_DESCRIPTIONS, LOADED_LANGUAGE_TECHNIQUES } from './taxonomy';
+import { FALLACY_EXAMPLES } from './examples';
 
 // ---------------------------------------------------------------------------
 // Base output format (always included)
@@ -235,10 +236,20 @@ Before naming a fallacy: (1) state to yourself the most charitable VALID reading
 - Ad hominem: does the passage dismiss the claim because of the person, or merely flag a bias and call for scrutiny? Noting a conflict of interest without dismissing the claim is NOT a fallacy.
 If the charitable reading survives the critical questions, do not flag.`;
 
+// Knowledge-augmented few-shot (experiment variant 'fewShot'): a definition +
+// worked example for every named fallacy, so the model has a concrete anchor per
+// name instead of a bare label. Non-examples ("NOT this when…") are a planned
+// content addition. Off by default; A/B-gated via the detection eval.
+const FEW_SHOT_LIBRARY = `
+
+## Fallacy reference — definition + example per name
+Anchors for each fallacy name. Flag a fallacy only when the passage genuinely instantiates the pattern — not merely because it resembles the example.
+${FALLACY_NAMES.map((f) => `- **${f}** — ${FALLACY_DESCRIPTIONS[f]} Example: "${FALLACY_EXAMPLES[f].example}" (${FALLACY_EXAMPLES[f].why})`).join('\n')}`;
+
 export function buildSystemPrompt(
   includePhase2: boolean,
   goalsPreamble?: string,
-  opts?: { impartiality?: boolean; reasoningFirst?: boolean; soundnessGate?: boolean; criticalQuestions?: boolean },
+  opts?: { impartiality?: boolean; reasoningFirst?: boolean; soundnessGate?: boolean; criticalQuestions?: boolean; fewShot?: boolean },
 ): string {
   let outputFormat = includePhase2
     ? `${BASE_OUTPUT_FORMAT}${PHASE2_OUTPUT_FORMAT}\n}`
@@ -257,7 +268,7 @@ ${outputFormat}
 
 ## Fallacy names (use exactly these strings)
 ${FALLACY_NAMES.map(f => `- "${f}"`).join('\n')}
-
+${opts?.fewShot ? FEW_SHOT_LIBRARY : ''}
 ## Loaded-language technique names (use exactly these strings)
 ${LOADED_LANGUAGE_TECHNIQUES.map(t => `- "${t}"`).join('\n')}
 

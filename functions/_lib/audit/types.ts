@@ -165,5 +165,8 @@ export interface AuditDeps {
     reasoningFirst?:    boolean;
     soundnessGate?:     boolean;
     criticalQuestions?: boolean;
+    /*   - fewShot: knowledge-augmented few-shot — inject a definition + worked
+     *     example for every fallacy name. A/B-pending, off by default. */
+    fewShot?:           boolean;
   };
 }

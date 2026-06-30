@@ -69,3 +69,16 @@ describe('buildSystemPrompt precision variants', () => {
     expect(p).toContain('most charitable VALID reading');
   });
 });
+
+describe('buildSystemPrompt fewShot variant', () => {
+  it('control omits the fallacy reference library — production unchanged', () => {
+    expect(buildSystemPrompt(false)).not.toContain('Fallacy reference — definition + example');
+  });
+
+  it('fewShot injects a definition + worked example for the fallacy names', () => {
+    const p = buildSystemPrompt(false, undefined, { fewShot: true });
+    expect(p).toContain('Fallacy reference — definition + example');
+    expect(p).toContain('Ad Hominem');
+    expect(p).toContain('Example:');
+  });
+});
