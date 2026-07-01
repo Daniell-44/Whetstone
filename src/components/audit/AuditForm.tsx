@@ -6,6 +6,7 @@ import AuditResults from './AuditResults';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import HighlightedDraft from '../studio/HighlightedDraft';
 import DeeperLensPanel from '../lens-panel/DeeperLensPanel';
+import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
 import { track } from '../../lib/analytics/track';
 
 // ---------------------------------------------------------------------------
@@ -331,6 +332,12 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           </div>
 
         </div>
+      )}
+
+      {/* Strongest opposing case (free, on-demand) — the merged home of the
+         retired standalone Steelman tool. */}
+      {result && !loading && sourceText && (
+        <ReaderOpposingCase text={sourceText} />
       )}
 
       {/* Deeper lenses (free, on-demand) - works for both text and URL audits

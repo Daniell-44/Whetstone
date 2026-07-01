@@ -1,68 +1,9 @@
 ---
 export const prerender = false;
 
-import Base from '../layouts/Base.astro';
-import OpposingCaseForm from '../components/counterargument/OpposingCaseForm';
+// Steelman merged into the Reader as a free lens (Decision 1, 2026-06-30). The
+// standalone tool is retired; its traffic 301s to the Reader, where "Strongest
+// opposing case" now appears after an audit. Kept as a redirect so saved links
+// and search results still resolve.
+return Astro.redirect('/reader', 301);
 ---
-<Base
-  title="Strongest Opposing Case - The Whetstone"
-  description="Paste any argument. The engine returns the strongest opposing case a thoughtful opponent would deploy - steelmanned. Free, no account required."
-  canonicalPath="/strongest-opposing-case"
->
-  <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-16 sm:pb-24">
-
-    <nav class="mb-8">
-      <a href="/reader" class="text-xs text-muted hover:text-ink transition-colors">← Reader</a>
-    </nav>
-
-    <header class="mb-10">
-      <p class="text-xs font-semibold tracking-widest text-violet-600 uppercase mb-3">Steelman generator</p>
-      <h1 class="font-serif text-3xl sm:text-5xl text-ink-strong leading-tight mb-4">
-        The strongest case<br class="hidden sm:block" /> against your argument.
-      </h1>
-      <p class="text-base sm:text-lg text-muted leading-relaxed">
-        Paste an argument - yours or someone else's. The engine returns the 2-3 strongest opposing positions
-        a thoughtful, well-informed opponent would deploy. Each is steelmanned: not a strawman to dismiss,
-        but the best version you'd have to engage with.
-      </p>
-      <p class="text-sm text-muted mt-4">
-        Free, no account required. 5 runs per day. <a href="/login?returnTo=/strongest-opposing-case" class="text-violet-600 hover:text-violet-800 underline">Sign in</a> for more.
-      </p>
-    </header>
-
-    <OpposingCaseForm client:load />
-
-    <!-- Why steelmanning matters -->
-    <section class="mt-16 pt-8 border-t border-hairline">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-muted mb-6">Why steelman?</h2>
-      <div class="grid sm:grid-cols-3 gap-6 text-sm text-ink">
-        <div>
-          <p class="font-semibold text-ink-strong mb-2">It tests your argument</p>
-          <p class="leading-relaxed">If your case can't engage the strongest version of the opposition, it isn't ready for someone who knows the territory.</p>
-        </div>
-        <div>
-          <p class="font-semibold text-ink-strong mb-2">It honours your opponent</p>
-          <p class="leading-relaxed">Engaging the strongest opposing case - rather than the easiest - is the difference between persuasion and dismissal.</p>
-        </div>
-        <div>
-          <p class="font-semibold text-ink-strong mb-2">It's intellectually honest</p>
-          <p class="leading-relaxed">A thinker willing to find the best objection to their own view is harder to ignore than one who only argues against weak versions.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Connection to Studio -->
-    <section class="mt-12 rounded-xl border border-amber-200 bg-amber-50 p-6">
-      <p class="text-xs font-bold uppercase tracking-wider text-amber-600 mb-2">For writers</p>
-      <p class="text-sm text-ink leading-relaxed mb-3">
-        Want to find counterarguments while drafting, with the full structural audit running alongside?
-        <strong>Creator Studio</strong> runs counterargument generation, citation checking, evidence-weighted likelihood,
-        and the philosophical commitments your draft operates within - every time you click Analyse.
-      </p>
-      <a href="/creator/studio" class="text-sm font-semibold text-amber-700 hover:text-amber-900">
-        Open Creator Studio →
-      </a>
-    </section>
-
-  </main>
-</Base>
