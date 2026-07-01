@@ -195,13 +195,17 @@ const presentCategories = Object.keys(categoryCounts).sort();
       /* Asymmetric mosaic (option 1). Mobile: single column. md+: 6-col grid with a
          per-card span (set inline as --span). When filtering, collapse to a uniform
          grid so hidden cards don't leave holes in the pattern. */
+      /* :global() on the child is required — the cards are rendered by the
+         BriefingCard component, so they carry its scope id, not this page's.
+         Without :global() Astro would scope the child selector to this page and
+         the span rule would never match the card. */
       .feed-mosaic { display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: start; }
-      .feed-mosaic > [data-briefing-card] { grid-column: auto; }
+      .feed-mosaic > :global([data-briefing-card]) { grid-column: auto; }
       @media (min-width: 768px) {
         .feed-mosaic { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-        .feed-mosaic > [data-briefing-card] { grid-column: var(--span, span 2); }
+        .feed-mosaic > :global([data-briefing-card]) { grid-column: var(--span, span 2); }
         .feed-mosaic.is-filtering { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .feed-mosaic.is-filtering > [data-briefing-card] { grid-column: auto; }
+        .feed-mosaic.is-filtering > :global([data-briefing-card]) { grid-column: auto; }
       }
     </style>
 
