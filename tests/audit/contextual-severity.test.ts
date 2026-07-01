@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { matchStatement, loadFactor, contextualSeverity } from '../../functions/_lib/audit/contextual-severity';
+import { matchStatement, loadFactor, contextualSeverity, applyContextualSeverity } from '../../functions/_lib/audit/contextual-severity';
 import type { ExtractionStatement, ArgumentExtractionResult } from '../../functions/_lib/argument-extraction/types';
+import type { AuditResult } from '../../functions/_lib/audit/types';
 
 const statements: ExtractionStatement[] = [
   { id: 'P1', type: 'premise', claimType: 'empirical_contested', text: 'Increasing the minimum wage will reduce youth employment.', derivedFrom: [], inferenceRule: null },
@@ -56,5 +57,31 @@ describe('contextualSeverity', () => {
     expect(r.baseBand).toBe('medium');
     expect(r.matchedStatementId).toBeNull();
     expect(r.band).toBe('medium');            // 2 × 1 × 0.85 = 1.7 → medium
+  });
+});
+
+describe('phase-2 opts', () => {
+  const finding = { quote: 'Increasing the minimum wage will reduce youth employment', severity: 'medium' as const };
+  it('a decisive (recoverable:false) or high-stakes finding can be pushed up a band', () => {
+    expect(contextualSeverity(finding, extraction).band).toBe('medium');                         // 2 × 1.2 × 1.15 = 2.76
+    expect(contextualSeverity(finding, extraction, { recoverable: false }).band).toBe('high');    // × 1.1 = 3.036
+    expect(contextualSeverity(finding, extraction, { stakesFactor: 1.2 }).band).toBe('high');     // × 1.2 = 3.312
+  });
+});
+
+describe('applyContextualSeverity', () => {
+  const audit = {
+    centralClaim: '',
+    toulmin: { claim: '', grounds: '', weakestLink: '', unstatedWarrants: [] },
+    namedFallacies: [{ name: 'Hasty Generalisation', quote: 'Unemployment statistics are collected on a monthly basis', explanation: '', severity: 'high', groundedness: { kind: 'structural' } }],
+    loadedLanguage: [], keyTermScrutiny: [], referentChecks: [], falsifiabilityChecks: [], modalScopeChecks: [],
+    notes: null,
+  } as unknown as AuditResult;
+
+  it('re-bands a copy without mutating the original', () => {
+    const out = applyContextualSeverity(audit, extraction);
+    expect(out).not.toBe(audit);
+    expect(audit.namedFallacies[0].severity).toBe('high');   // original untouched
+    expect(out.namedFallacies[0].severity).toBe('medium');   // incidental aside → downgraded
   });
 });

@@ -48,6 +48,7 @@ let initialCounterargResult: CounterargumentResult | null = null;
 let initialExtractionResult:  ArgumentExtractionResult | null = null;
 let initialCommitmentsResult: PhilosophicalCommitmentsResult | null = null;
 let initialCitationResult:    CitationAuditResult | null = null;
+let initialAnalyzedAt:        number | null = null;
 let initialActions:          Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }> = {};
 
 if (docIdParam) {
@@ -65,6 +66,8 @@ if (docIdParam) {
     initialExtractionResult  = safeJsonParse<ArgumentExtractionResult>(latest?.extraction_json);
     initialCommitmentsResult = safeJsonParse<PhilosophicalCommitmentsResult>(latest?.commitments_json);
     initialCitationResult    = safeJsonParse<CitationAuditResult>(latest?.citation_audit_json);
+    // Only stamp "last analysed" when the loaded version actually has an audit.
+    initialAnalyzedAt        = initialAuditResult ? (latest?.created_at ?? null) : null;
 
     const rows = await actionDb.listActionsForDocument(doc.id, session.user_id);
     for (const r of rows) {
@@ -127,6 +130,7 @@ if (docIdParam) {
       initialExtractionResult={initialExtractionResult}
       initialCommitmentsResult={initialCommitmentsResult}
       initialCitationAuditResult={initialCitationResult}
+      initialAnalyzedAt={initialAnalyzedAt}
       initialActions={initialActions}
       terminologyPreference={terminology}
     />

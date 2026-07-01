@@ -7,6 +7,7 @@ import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import HighlightedDraft from '../studio/HighlightedDraft';
 import DeeperLensPanel from '../lens-panel/DeeperLensPanel';
 import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
+import { applyContextualSeverity } from '../../../functions/_lib/audit/contextual-severity';
 import { track } from '../../lib/analytics/track';
 
 // ---------------------------------------------------------------------------
@@ -134,6 +135,9 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // The left panel only has content for text audits (highlighted draft / skeleton).
   // For URL audits it's empty, so findings take the full width instead of a 45% column.
   const hasLeftContent = (tab === 'text' && !!textInput) || !!extraction;
+  // A4 experimental flag (off by default) — `?ctxsev=1` re-bands severities by
+  // argument context for A/B evaluation. Never on in production.
+  const ctxSev = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ctxsev') === '1';
 
   function switchTab(t: Tab) {
     setTab(t);
@@ -327,7 +331,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           <div class={`w-full ${hasLeftContent ? 'xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto' : ''}`}>
             <div class="rounded-lg border border-hairline bg-surface p-4">
               <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Findings</h3>
-              <AuditResults result={result} />
+              <AuditResults result={ctxSev && extraction ? applyContextualSeverity(result, extraction) : result} />
             </div>
           </div>
 

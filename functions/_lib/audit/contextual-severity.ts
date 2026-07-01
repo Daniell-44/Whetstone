@@ -1,4 +1,5 @@
 import type { ClaimType, ExtractionStatement, ArgumentExtractionResult } from '../argument-extraction/types';
+import type { AuditResult } from './types';
 
 // ---------------------------------------------------------------------------
 // A4 — context-sensitive severity (phase 1: loadFactor + claimTypeFactor).
@@ -89,15 +90,27 @@ export interface ContextualSeverity {
   matchedStatementId: string | null; // which extracted statement it was tied to
 }
 
+// Phase-2 inputs — optional and neutral by default. They need upstream signals
+// that don't exist yet: `stakesFactor` from a topic-stakes classifier, and
+// `recoverable` from a per-finding recoverability tag (a finding that survives
+// as decisive is harder to recover from). Wire these when those signals ship.
+export interface Phase2Opts {
+  stakesFactor?: number;   // >1 raises the stakes of the domain, <1 lowers
+  recoverable?:  boolean;  // true = easily addressed (slight downgrade); false = decisive (slight boost)
+}
+
 export function contextualSeverity(
   finding:    { quote: string; severity: Severity },
   extraction: ArgumentExtractionResult | null | undefined,
+  opts:       Phase2Opts = {},
 ): ContextualSeverity {
   const statements = extraction?.statements ?? [];
   const stmt   = statements.length ? matchStatement(finding.quote, statements) : null;
   const ctf    = stmt ? (CLAIM_TYPE_FACTOR[stmt.claimType] ?? 1) : 1;
   const lf     = loadFactor(stmt, statements);
-  const factor = ctf * lf;
+  const stakes = opts.stakesFactor ?? 1;
+  const recov  = opts.recoverable === true ? 0.9 : opts.recoverable === false ? 1.1 : 1;
+  const factor = ctf * lf * stakes * recov;
   const band   = bandFor(BASE[finding.severity] * factor);
 
   let reason: string;
@@ -120,5 +133,36 @@ export function contextualSeverity(
     factor:             Math.round(factor * 100) / 100,
     reason,
     matchedStatementId: stmt?.id ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Whole-audit transform — returns a COPY of the audit with each span-anchored
+// finding's severity replaced by its context-adjusted band. Flag-gated callers
+// only: Reader/Studio pass the transformed audit to the display when the flag
+// is on, so the display, sorting and score flow from the adjusted bands with
+// zero display-code changes. Warrants keep their band (no reliable span quote).
+// ---------------------------------------------------------------------------
+
+function reband<T extends { severity: Severity }>(
+  item: T, quote: string, extraction: ArgumentExtractionResult | null | undefined, opts: Phase2Opts,
+): T {
+  const band = contextualSeverity({ quote, severity: item.severity }, extraction, opts).band;
+  return band === item.severity ? item : { ...item, severity: band };
+}
+
+export function applyContextualSeverity(
+  audit:      AuditResult,
+  extraction: ArgumentExtractionResult | null | undefined,
+  opts:       Phase2Opts = {},
+): AuditResult {
+  return {
+    ...audit,
+    namedFallacies:       audit.namedFallacies.map(f => reband(f, f.quote, extraction, opts)),
+    loadedLanguage:       audit.loadedLanguage.map(l => reband(l, l.phrase, extraction, opts)),
+    keyTermScrutiny:      (audit.keyTermScrutiny      ?? []).map(f => reband(f, f.usage_a, extraction, opts)),
+    referentChecks:       (audit.referentChecks       ?? []).map(f => reband(f, f.evidence, extraction, opts)),
+    falsifiabilityChecks: (audit.falsifiabilityChecks ?? []).map(f => reband(f, f.evidence, extraction, opts)),
+    modalScopeChecks:     (audit.modalScopeChecks     ?? []).map(f => reband(f, f.evidence, extraction, opts)),
   };
 }

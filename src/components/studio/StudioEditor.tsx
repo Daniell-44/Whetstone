@@ -23,6 +23,7 @@ import HeatmapDraft from './HeatmapDraft';
 import MobileFindingsSheet from './MobileFindingsSheet';
 import SamplePicker from './SamplePicker';
 import { totalFindingCount, argumentScore } from '../../lib/audit';
+import { applyContextualSeverity } from '../../../functions/_lib/audit/contextual-severity';
 import { SAMPLES, sampleSignature, type Sample } from '../../data/samples';
 import type { Audience, Intent } from '../../../functions/_lib/audit/goals';
 import AuditResults from '../audit/AuditResults';
@@ -256,6 +257,7 @@ interface Props {
   initialExtractionResult?:     ArgumentExtractionResult | null;
   initialCommitmentsResult?:    PhilosophicalCommitmentsResult | null;
   initialCitationAuditResult?:  CitationAuditResult | null;
+  initialAnalyzedAt?:           number | null;
   initialActions?:              Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
   terminologyPreference?:       TerminologyPreference;
 }
@@ -271,6 +273,7 @@ export default function StudioEditor({
   initialExtractionResult     = null,
   initialCommitmentsResult    = null,
   initialCitationAuditResult  = null,
+  initialAnalyzedAt           = null,
   initialActions              = {},
   terminologyPreference,
 }: Props) {
@@ -288,6 +291,10 @@ export default function StudioEditor({
   // and clicking a finding card has no span to scroll to. New drafts start in
   // editing mode as before.
   const [isEditing, setIsEditing] = useState(initialAuditResult == null);
+  const [analyzedAt, setAnalyzedAt] = useState<number | null>(initialAnalyzedAt);
+  // A4 experimental flag (off by default). `?ctxsev=1` re-bands finding
+  // severities by argument context for A/B evaluation — never on in production.
+  const ctxSev = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ctxsev') === '1';
   const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
   // Transient flash on a span when the user jumps to it from a right-hand card.
   const [flashKey, setFlashKey] = useState<string | null>(null);
@@ -493,6 +500,7 @@ export default function StudioEditor({
     setExtractionState({ status: 'loading' });
     setAuditState({ status: 'loading' });
     setLastRunGoals({ audience, intent });  // record goals this run used
+    setAnalyzedAt(Date.now());
     if (hasActiveSubscription) {
       setCounterargState({ status: 'loading' });
       setCommitmentsState({ status: 'loading' });
@@ -950,7 +958,10 @@ export default function StudioEditor({
 
   // Summary score - pinned to the top of the LEFT column.
   const summaryPanel = auditState.status === 'done' ? (
-    <div data-tour-anchor="studio-share">
+    <div data-tour-anchor="studio-share" class="space-y-1.5">
+      {analyzedAt && (
+        <p class="text-xs text-muted">Last analysed {new Date(analyzedAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+      )}
       <SummaryToolbar result={auditState.data} draftText={draft} draftTitle={title} />
     </div>
   ) : null;
@@ -1133,7 +1144,7 @@ export default function StudioEditor({
       {auditState.status === 'error' && <SectionError code={auditState.code} message={auditState.message} />}
       {auditState.status === 'done' && (
         <AuditResults
-          result={auditState.data}
+          result={ctxSev && extractionState.status === 'done' ? applyContextualSeverity(auditState.data, extractionState.data) : auditState.data}
           documentId={docId}
           versionId={versionId}
           initialActions={initialActions}
