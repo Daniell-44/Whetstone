@@ -6,8 +6,6 @@ import Base from '../layouts/Base.astro';
 import AuditForm from '../components/audit/AuditForm';
 import HeroHeadline from '../components/reader/HeroHeadline';
 import PositionSpectrum from '../components/scorecard/PositionSpectrum.astro';
-import { listScorecards } from '../../functions/_lib/scorecard/storage';
-import type { Scorecard } from '../../functions/_lib/scorecard/types';
 import { getAllBriefings } from '../lib/briefings';
 import type { BriefingArticle } from '../../functions/_lib/briefing/types';
 
@@ -55,11 +53,6 @@ import { makeBillingDb } from '../../functions/_lib/billing/subscription';
 import { makeWorkspaceDb } from '../../functions/_lib/workspaces/db';
 import { userHasActiveSubscriptionViaWorkspace } from '../../functions/_lib/workspaces/permissions';
 
-// Scorecards superseded by an article-format briefing — hidden from the feed so
-// they don't double-appear. (Remove the scorecard data entirely once migrated.)
-const SUPERSEDED_SCORECARDS = new Set(['minimum-wage-employment', 'ai-creative-jobs', 'smartphone-ban-schools', 'climate-individual-action', 'social-media-regulation', 'gene-editing-embryos', 'effective-altruism']);
-const scorecards = (await listScorecards(env.SCORECARDS)).filter((sc) => !SUPERSEDED_SCORECARDS.has(sc.slug));
-
 // Deeper lenses on the Reader are Pro-gated; detect subscription for the teaser.
 const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
 const isPro = session
@@ -80,30 +73,8 @@ const CATEGORY_STYLES: Record<string, { bg: string; text: string; chip: string }
   education:   { bg: 'bg-sky-600',     text: 'text-white', chip: 'bg-sky-100 text-sky-700' },
 };
 
-const TAG_COLOURS = [
-  { bg: 'bg-indigo-600',  text: 'text-white' },
-  { bg: 'bg-rose-600',    text: 'text-white' },
-  { bg: 'bg-emerald-600', text: 'text-white' },
-];
-
-// Per-card audit metadata, derived from the scorecard itself (no new fields).
-const POSITION_CHIP = [
-  'bg-sky-50 text-sky-700',
-  'bg-rose-50 text-rose-700',
-  'bg-amber-50 text-amber-700',
-  'bg-emerald-50 text-emerald-700',
-];
-
 // Solid dot palette for the position spectrum — must match PositionSpectrum.astro.
 const SPECTRUM_DOT = ['bg-sky-600', 'bg-rose-600', 'bg-amber-600', 'bg-emerald-600', 'bg-violet-600'];
-
-function cardMeta(sc: Scorecard) {
-  const positionCount = sc.positions?.length ?? 0;
-  const sourceCount   = (sc.positions ?? []).reduce((n, p) => n + (p.sources?.length ?? 0), 0);
-  // The cross-cutting finding makes the best "Audit found —" line; dek is the fallback.
-  const auditFound    = (sc.metaAnalysis?.bridgingWarrant ?? sc.dek ?? '').trim();
-  return { positionCount, sourceCount, auditFound };
-}
 
 const categoryCounts: Record<string, number> = {};
 for (const b of briefings) {
@@ -128,17 +99,14 @@ const presentCategories = Object.keys(categoryCounts).sort();
       <AuditForm isPro={isPro} initialText={auditPrefill} initialUrl={auditUrl} client:load />
     </section>
 
-    <!-- Scorecards section with left rail -->
+    <!-- Briefings feed with left rail -->
     <section>
       <div class="flex items-center gap-4 mb-6 sm:mb-8">
         <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Briefings</h2>
         <div class="h-px flex-1 bg-hairline" />
-        <a href="/scorecards" class="text-xs text-accent hover:text-accent-support transition-colors font-medium shrink-0">
-          View all →
-        </a>
       </div>
 
-      {briefings.length === 0 && scorecards.length === 0 ? (
+      {briefings.length === 0 ? (
         <div class="py-20 border-t border-hairline text-center">
           <p class="font-serif text-2xl text-hairline">No briefings published yet.</p>
         </div>
@@ -256,135 +224,6 @@ const presentCategories = Object.keys(categoryCounts).sort();
               </div>
             )}
 
-            <!-- Lead story -->
-            {scorecards.length > 0 && (
-              <a
-                href={`/scorecard/${scorecards[0].slug}`}
-                class="group block border-b border-hairline py-6 sm:py-10 mb-8"
-              >
-                <div class="max-w-4xl">
-                  <div class="flex items-center gap-3 mb-4">
-                    {scorecards[0].category && CATEGORY_STYLES[scorecards[0].category] ? (
-                      <span class={`inline-block px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${CATEGORY_STYLES[scorecards[0].category!].bg} ${CATEGORY_STYLES[scorecards[0].category!].text}`}>
-                        {scorecards[0].category}
-                      </span>
-                    ) : (
-                      <span class={`inline-block px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${TAG_COLOURS[0].bg} ${TAG_COLOURS[0].text}`}>
-                        Featured
-                      </span>
-                    )}
-                    <div class="flex items-center gap-1.5">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-paper border border-hairline text-muted text-xs font-medium">{scorecards[0].positions?.length ?? 0} positions</span>
-                      {cardMeta(scorecards[0]).sourceCount > 0 && (
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-paper border border-hairline text-muted text-xs font-medium">{cardMeta(scorecards[0]).sourceCount} sources</span>
-                      )}
-                    </div>
-                  </div>
-                  <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink-strong group-hover:text-accent transition-colors leading-tight mb-4">
-                    {scorecards[0].question}
-                  </h3>
-                  <p class="text-base sm:text-lg text-ink leading-relaxed mb-4">
-                    <span class="font-medium text-muted">Audit found</span>: {cardMeta(scorecards[0]).auditFound}
-                  </p>
-                  {scorecards[0].positions && scorecards[0].positions.length > 0 && (
-                    scorecards[0].spectrumAxis ? (
-                      <div class="mb-4 max-w-2xl">
-                        <PositionSpectrum positions={scorecards[0].positions} axis={scorecards[0].spectrumAxis} />
-                        <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                          {scorecards[0].positions.map((p, i) => (
-                            <span class="inline-flex items-center gap-1.5 text-xs text-muted">
-                              <span class={`inline-flex items-center justify-center w-4 h-4 rounded-full text-white text-[9px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
-                              {p.label}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ) : (
-                      <div class="flex flex-col gap-1.5 mb-4 max-w-2xl">
-                        {scorecards[0].positions.map((p, i) => (
-                          <div class="flex items-start gap-2">
-                            <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-xs font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
-                            <span class="text-sm text-ink leading-snug">{p.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  )}
-                  <p class="text-xs text-muted tabular-nums">
-                    {new Date(scorecards[0].publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
-                      day: 'numeric', month: 'long', year: 'numeric',
-                    })}
-                  </p>
-                </div>
-              </a>
-            )}
-
-            <!--
-              Single-column feed of white cards — one briefing at a time, each in
-              its own bordered card for clear separation, capped at max-w-3xl so
-              lines stay readable. Spacing (gap) does the separating, not dividers.
-            -->
-            {scorecards.length > 1 && (
-              <div class="flex flex-col gap-4">
-                {scorecards.slice(1).map((sc) => (
-                  <a
-                    href={`/scorecard/${sc.slug}`}
-                    class="group block max-w-3xl bg-surface border border-hairline rounded-lg p-5 sm:p-6 hover:border-accent/40 hover:shadow-sm transition-all"
-                  >
-                    <div class="flex items-center gap-2 mb-2.5 flex-wrap">
-                      {sc.category && CATEGORY_STYLES[sc.category] ? (
-                        <span class={`inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${CATEGORY_STYLES[sc.category!].bg} ${CATEGORY_STYLES[sc.category!].text}`}>
-                          {sc.category}
-                        </span>
-                      ) : (
-                        <span class="inline-block px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider bg-ink text-paper">
-                          Scorecard
-                        </span>
-                      )}
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-paper border border-hairline text-muted text-xs font-medium">{sc.positions?.length ?? 0} positions</span>
-                      {cardMeta(sc).sourceCount > 0 && (
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-paper border border-hairline text-muted text-xs font-medium">{cardMeta(sc).sourceCount} sources</span>
-                      )}
-                    </div>
-                    <h3 class="font-serif text-lg sm:text-xl text-ink-strong group-hover:text-accent transition-colors leading-snug mb-2.5">
-                      {sc.question}
-                    </h3>
-                    <p class="text-sm text-muted leading-relaxed line-clamp-2 mb-3">
-                      <span class="font-medium text-muted">Audit found</span>: {cardMeta(sc).auditFound}
-                    </p>
-                    {sc.positions && sc.positions.length > 0 && (
-                      sc.spectrumAxis ? (
-                        <div class="mb-3">
-                          <PositionSpectrum positions={sc.positions} axis={sc.spectrumAxis} compact />
-                          <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
-                            {sc.positions.map((p, i) => (
-                              <span class="inline-flex items-center gap-1 text-xs text-muted">
-                                <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
-                                {p.label}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div class="flex flex-col gap-1.5 mb-3">
-                          {sc.positions.map((p, i) => (
-                            <div class="flex items-start gap-2">
-                              <span class={`inline-flex items-center justify-center shrink-0 w-5 h-5 rounded text-xs font-bold ${POSITION_CHIP[i % POSITION_CHIP.length]}`}>{i + 1}</span>
-                              <span class="text-sm text-ink leading-snug">{p.label}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )
-                    )}
-                    <p class="text-xs text-muted tabular-nums">
-                      {new Date(sc.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', {
-                        day: 'numeric', month: 'short', year: 'numeric',
-                      })}
-                    </p>
-                  </a>
-                ))}
-              </div>
-            )}
           </div>
 
         </div>
