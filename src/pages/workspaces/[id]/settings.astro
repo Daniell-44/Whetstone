@@ -44,7 +44,7 @@ function formatDate(epochMs: number): string {
   <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
 
     <nav class="mb-10">
-      <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Documents</a>
+      <a href="/creator/documents" class="text-xs text-muted hover:text-ink transition-colors">← Documents</a>
     </nav>
 
     {justJoined && (
@@ -55,21 +55,21 @@ function formatDate(epochMs: number): string {
 
     <header class="mb-10">
       <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Workspace</p>
-      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight">{workspace.name}</h1>
-      <p class="mt-2 text-sm text-gray-500">Your role: <span class="capitalize font-medium">{member.role}</span></p>
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-strong leading-tight">{workspace.name}</h1>
+      <p class="mt-2 text-sm text-muted">Your role: <span class="capitalize font-medium">{member.role}</span></p>
     </header>
 
     {/* Rename workspace */}
     {canManage && (
       <section class="mb-10">
-        <h2 class="text-sm font-semibold text-gray-700 mb-3">Workspace name</h2>
+        <h2 class="text-sm font-semibold text-ink mb-3">Workspace name</h2>
         <form id="rename-form" class="flex gap-3">
           <input
             id="workspace-name"
             type="text"
             value={workspace.name}
             maxlength="100"
-            class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+            class="flex-1 rounded-lg border border-hairline px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
           />
           <button
             type="submit"
@@ -78,19 +78,19 @@ function formatDate(epochMs: number): string {
             Save
           </button>
         </form>
-        <p id="rename-status" class="mt-2 text-xs text-gray-400 hidden"></p>
+        <p id="rename-status" class="mt-2 text-xs text-muted hidden"></p>
       </section>
     )}
 
     {/* Members */}
     <section class="mb-10">
-      <h2 class="text-sm font-semibold text-gray-700 mb-3">Members ({members.length})</h2>
-      <ul class="divide-y divide-gray-100 rounded-xl border border-gray-100">
+      <h2 class="text-sm font-semibold text-ink mb-3">Members ({members.length})</h2>
+      <ul class="divide-y divide-hairline rounded-xl border border-hairline">
         {members.map(m => (
           <li class="flex items-center justify-between px-4 py-3 gap-4">
             <div class="min-w-0">
-              <p class="text-sm font-medium text-gray-900">{m.user_id}</p>
-              <p class="text-xs text-gray-400 capitalize">{m.role} · joined {formatDate(m.joined_at)}</p>
+              <p class="text-sm font-medium text-ink-strong">{m.user_id}</p>
+              <p class="text-xs text-muted capitalize">{m.role} · joined {formatDate(m.joined_at)}</p>
             </div>
             {isOwner && m.user_id !== session.user_id && m.role !== 'owner' && (
               <button
@@ -109,17 +109,17 @@ function formatDate(epochMs: number): string {
     {/* Invite member */}
     {canManage && (
       <section class="mb-10">
-        <h2 class="text-sm font-semibold text-gray-700 mb-3">Invite a member</h2>
+        <h2 class="text-sm font-semibold text-ink mb-3">Invite a member</h2>
         <form id="invite-form" class="flex gap-3">
           <input
             id="invite-email"
             type="email"
             placeholder="colleague@example.com"
-            class="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+            class="flex-1 rounded-lg border border-hairline px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
           />
           <select
             id="invite-role"
-            class="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+            class="rounded-lg border border-hairline px-3 py-2 text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
           >
             <option value="member">Member</option>
             <option value="admin">Admin</option>
@@ -131,22 +131,22 @@ function formatDate(epochMs: number): string {
             Invite
           </button>
         </form>
-        <p id="invite-status" class="mt-2 text-xs text-gray-400 hidden"></p>
+        <p id="invite-status" class="mt-2 text-xs text-muted hidden"></p>
 
         {invitations.length > 0 && (
           <div class="mt-4">
-            <p class="text-xs font-medium text-gray-500 mb-2">Pending invitations</p>
-            <ul class="divide-y divide-gray-100 rounded-xl border border-gray-100">
+            <p class="text-xs font-medium text-muted mb-2">Pending invitations</p>
+            <ul class="divide-y divide-hairline rounded-xl border border-hairline">
               {invitations.map(inv => (
                 <li class="flex items-center justify-between px-4 py-3 gap-4">
                   <div>
-                    <p class="text-sm text-gray-900">{inv.email}</p>
-                    <p class="text-xs text-gray-400 capitalize">{inv.role} · expires {formatDate(inv.expires_at)}</p>
+                    <p class="text-sm text-ink-strong">{inv.email}</p>
+                    <p class="text-xs text-muted capitalize">{inv.role} · expires {formatDate(inv.expires_at)}</p>
                   </div>
                   <button
                     type="button"
                     data-revoke-invitation={inv.id}
-                    class="text-xs text-gray-400 hover:text-red-600 transition-colors shrink-0"
+                    class="text-xs text-muted hover:text-red-600 transition-colors shrink-0"
                   >
                     Revoke
                   </button>
@@ -159,7 +159,7 @@ function formatDate(epochMs: number): string {
     )}
 
     {/* Leave / delete */}
-    <section class="border-t border-gray-100 pt-8">
+    <section class="border-t border-hairline pt-8">
       {!isOwner && (
         <button
           type="button"

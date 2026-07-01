@@ -58,21 +58,21 @@ export default function OpposingCaseForm() {
     <div class="space-y-6">
 
       {/* Input area */}
-      <div class="rounded-xl border border-violet-200 bg-white p-5 sm:p-6 space-y-3">
+      <div class="rounded-xl border border-violet-200 bg-surface p-5 sm:p-6 space-y-3">
         <textarea
           value={text}
           onInput={e => setText((e.target as HTMLTextAreaElement).value)}
           placeholder="Paste an argument you believe in - or one you want to test against the strongest opposing case…"
           rows={9}
           disabled={phase.status === 'loading'}
-          class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-300 transition-colors disabled:opacity-60"
+          class="w-full rounded-lg border border-hairline bg-paper px-4 py-3 text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-300 transition-colors disabled:opacity-60"
         />
 
         <div class="flex justify-between text-xs">
           <span class={
             charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600'
             : charCount > MAX_CHARS               ? 'text-red-500'
-            :                                       'text-gray-400'
+            :                                       'text-muted'
           }>
             {charCount > 0 && charCount < MIN_CHARS
               ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
@@ -80,7 +80,7 @@ export default function OpposingCaseForm() {
                 ? 'Too long - trim to 10,000 characters'
                 : ''}
           </span>
-          <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-gray-400'}>
+          <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
             {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
           </span>
         </div>
@@ -93,7 +93,7 @@ export default function OpposingCaseForm() {
             class={`flex-1 py-2.5 px-6 rounded-lg text-sm font-semibold transition-colors ${
               canSubmit
                 ? 'bg-violet-600 text-white hover:bg-violet-700'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-hairline/40 text-muted cursor-not-allowed'
             }`}
           >
             {phase.status === 'loading' ? 'Finding the strongest case against…' : 'Find the strongest opposing case'}
@@ -102,14 +102,14 @@ export default function OpposingCaseForm() {
             <button
               type="button"
               onClick={() => setText(SAMPLE)}
-              class="w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 border border-gray-200 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+              class="w-full sm:w-auto px-4 py-2.5 rounded-lg text-sm font-medium text-muted border border-hairline hover:bg-paper hover:text-ink transition-colors"
             >
               Try an example
             </button>
           )}
         </div>
         {canSubmit && (
-          <p class="text-xs text-gray-300 text-center">⌘/Ctrl + Enter</p>
+          <p class="text-xs text-muted text-center">⌘/Ctrl + Enter</p>
         )}
       </div>
 
@@ -128,7 +128,7 @@ export default function OpposingCaseForm() {
       )}
 
       {phase.status === 'done' && (
-        <div class="rounded-xl border border-violet-200 bg-white p-5 sm:p-6">
+        <div class="rounded-xl border border-violet-200 bg-surface p-5 sm:p-6">
           <CounterargumentResultDisplay result={phase.result} />
         </div>
       )}

@@ -18,7 +18,7 @@ import {
 
 const KIND_STYLE = {
   structural:   'bg-sky-100      text-sky-800      border-sky-200',
-  interpretive: 'bg-gray-100     text-gray-700     border-gray-200',
+  interpretive: 'bg-hairline/40     text-ink     border-hairline',
   empirical:    'bg-emerald-100  text-emerald-800  border-emerald-200',
 } as const;
 

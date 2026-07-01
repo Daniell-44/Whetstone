@@ -56,17 +56,17 @@ const toInfo   = { version_number: toVersion.version_number,   content: toVersio
   <main class="max-w-4xl mx-auto px-6 pt-20 pb-16">
 
     <nav class="mb-10 flex items-center gap-4">
-      <a href="/creator/documents" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← My Documents</a>
-      <span class="text-xs text-gray-300">/</span>
-      <a href={`/creator/documents/${docId}/versions`} class="text-xs text-gray-400 hover:text-gray-600 transition-colors">
+      <a href="/creator/documents" class="text-xs text-muted hover:text-ink transition-colors">← My Documents</a>
+      <span class="text-xs text-muted">/</span>
+      <a href={`/creator/documents/${docId}/versions`} class="text-xs text-muted hover:text-ink transition-colors">
         History
       </a>
     </nav>
 
     <header class="mb-10">
       <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Comparison</p>
-      <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight mb-3">{doc.title}</h1>
-      <p class="text-sm text-gray-400">
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-strong leading-tight mb-3">{doc.title}</h1>
+      <p class="text-sm text-muted">
         Version {fromVersion.version_number} → Version {toVersion.version_number}
       </p>
     </header>

@@ -23,12 +23,12 @@ export default function LabelWithTooltip({ label, preference }: Props) {
     <>
       {text}
       <details class="inline font-normal normal-case tracking-normal">
-        <summary class="cursor-pointer list-none ml-1 text-gray-400 hover:text-gray-600 text-[0.65rem] not-italic">
+        <summary class="cursor-pointer list-none ml-1 text-muted hover:text-ink text-[0.65rem] not-italic">
           (?)
         </summary>
-        <div class="mt-1.5 text-xs bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5 max-w-xs not-italic font-normal normal-case tracking-normal">
-          <p class="text-gray-700 leading-relaxed">{tooltip.plain}</p>
-          <p class="text-gray-400 leading-relaxed mt-1 italic">{tooltip.pedigree}</p>
+        <div class="mt-1.5 text-xs bg-paper border border-hairline rounded-lg px-3 py-2.5 max-w-xs not-italic font-normal normal-case tracking-normal">
+          <p class="text-ink leading-relaxed">{tooltip.plain}</p>
+          <p class="text-muted leading-relaxed mt-1 italic">{tooltip.pedigree}</p>
         </div>
       </details>
     </>

@@ -85,18 +85,18 @@ export default function CrossDocumentForm() {
     <div class="space-y-6">
       <div class="space-y-4">
         {docs.map((doc, i) => (
-          <div key={i} class="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
+          <div key={i} class="rounded-xl border border-hairline bg-surface p-4 space-y-3">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-gray-500">Document {i + 1}</span>
-                <div class="flex gap-0.5 p-0.5 bg-gray-100 rounded-md">
+                <span class="text-xs font-semibold text-muted">Document {i + 1}</span>
+                <div class="flex gap-0.5 p-0.5 bg-hairline/40 rounded-md">
                   {(['text', 'url'] as DocKind[]).map(k => (
                     <button
                       key={k}
                       type="button"
                       onClick={() => updateDoc(i, { kind: k, text: '' })}
                       class={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                        doc.kind === k ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'
+                        doc.kind === k ? 'bg-surface text-ink-strong shadow-sm' : 'text-muted hover:text-ink'
                       }`}
                     >
                       {k === 'text' ? 'Paste' : 'URL'}
@@ -108,7 +108,7 @@ export default function CrossDocumentForm() {
                 <button
                   type="button"
                   onClick={() => removeDoc(i)}
-                  class="text-xs text-gray-400 hover:text-red-600 transition-colors"
+                  class="text-xs text-muted hover:text-red-600 transition-colors"
                 >
                   Remove
                 </button>
@@ -121,7 +121,7 @@ export default function CrossDocumentForm() {
               onInput={e => updateDoc(i, { label: (e.target as HTMLInputElement).value })}
               placeholder="Label (optional) - e.g. author, date, title"
               maxLength={120}
-              class="w-full rounded-md border border-gray-200 px-3 py-1.5 text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-300"
+              class="w-full rounded-md border border-hairline px-3 py-1.5 text-xs text-ink placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
             />
 
             {doc.kind === 'text' ? (
@@ -130,7 +130,7 @@ export default function CrossDocumentForm() {
                 onInput={e => updateDoc(i, { text: (e.target as HTMLTextAreaElement).value })}
                 placeholder="Paste this document's text (50-10,000 characters)…"
                 rows={5}
-                class="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 leading-relaxed resize-y focus:outline-none focus:ring-1 focus:ring-indigo-300"
+                class="w-full rounded-md border border-hairline px-3 py-2 text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-1 focus:ring-accent"
               />
             ) : (
               <input
@@ -138,7 +138,7 @@ export default function CrossDocumentForm() {
                 value={doc.text}
                 onInput={e => updateDoc(i, { text: (e.target as HTMLInputElement).value })}
                 placeholder="https://example.com/article"
-                class="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-300"
+                class="w-full rounded-md border border-hairline px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
               />
             )}
           </div>
@@ -150,7 +150,7 @@ export default function CrossDocumentForm() {
           <button
             type="button"
             onClick={addDoc}
-            class="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+            class="text-sm text-accent hover:text-accent-support font-medium"
           >
             + Add document
           </button>
@@ -160,7 +160,7 @@ export default function CrossDocumentForm() {
           onClick={handleSubmit}
           disabled={!canSubmit}
           class={`ml-auto py-2.5 px-6 rounded-xl text-sm font-semibold transition-colors ${
-            canSubmit ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            canSubmit ? 'bg-accent text-white hover:bg-accent/90' : 'bg-hairline/40 text-muted cursor-not-allowed'
           }`}
         >
           {phase.status === 'loading' ? 'Analysing…' : `Analyse ${filledDocs.length || MIN_DOCS} documents`}
@@ -168,9 +168,9 @@ export default function CrossDocumentForm() {
       </div>
 
       {phase.status === 'loading' && (
-        <div class="rounded-xl bg-indigo-50 border border-indigo-100 p-5 text-center">
-          <p class="text-sm text-indigo-700 font-medium">Auditing each document, then comparing across them…</p>
-          <p class="text-xs text-indigo-400 mt-1">This takes 60-120 seconds - each document is fully audited before the cross-document pass.</p>
+        <div class="rounded-xl bg-accent/5 border border-accent/20 p-5 text-center">
+          <p class="text-sm text-accent font-medium">Auditing each document, then comparing across them…</p>
+          <p class="text-xs text-accent/70 mt-1">This takes 60-120 seconds - each document is fully audited before the cross-document pass.</p>
         </div>
       )}
 
@@ -181,7 +181,7 @@ export default function CrossDocumentForm() {
       )}
 
       {phase.status === 'done' && (
-        <div class="border-t border-gray-200 pt-6">
+        <div class="border-t border-hairline pt-6">
           <CrossDocumentDisplay result={phase.result} />
         </div>
       )}

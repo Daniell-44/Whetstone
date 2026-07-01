@@ -31,24 +31,24 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
 
     <nav class="mb-6 flex items-center justify-between text-xs">
       <div class="flex items-center gap-3">
-        <a href="/creator" class="text-gray-400 hover:text-gray-600 transition-colors">← Creator</a>
-        <span class="text-gray-200">|</span>
+        <a href="/creator" class="text-muted hover:text-ink transition-colors">← Creator</a>
+        <span class="text-hairline">|</span>
         <p class="font-semibold tracking-widest text-violet-600 uppercase">Studio · Cross-Document</p>
       </div>
-      <a href="/creator/studio" class="text-gray-400 hover:text-gray-600 transition-colors">← Back to Studio</a>
+      <a href="/creator/studio" class="text-muted hover:text-ink transition-colors">← Back to Studio</a>
     </nav>
 
     <header class="mb-8">
-      <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mb-3">
+      <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">
         Cross-document audit
       </h1>
-      <p class="text-base sm:text-lg text-gray-500 leading-relaxed max-w-3xl">
+      <p class="text-base sm:text-lg text-muted leading-relaxed max-w-3xl">
         Paste or link 2-5 documents - typically by the same author, or on the same topic.
         The engine audits each one, then compares across them: claims that get contradicted,
         warrants repeated without defence, positions that shift without acknowledgement, and
         certainty that escalates without new evidence.
       </p>
-      <p class="text-xs text-gray-400 mt-3">
+      <p class="text-xs text-muted mt-3">
         Studio-tier feature. Each document is fully audited before the cross-document pass -
         analysis takes 60-120 seconds.
       </p>
@@ -57,7 +57,7 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
     {!hasActiveSubscription ? (
       <div class="rounded-xl border border-violet-200 bg-violet-50 p-6 text-center space-y-4">
         <p class="text-xs font-semibold uppercase tracking-widest text-violet-600">Studio Pro feature</p>
-        <p class="text-sm text-gray-700 max-w-sm mx-auto leading-relaxed">
+        <p class="text-sm text-ink max-w-sm mx-auto leading-relaxed">
           Cross-document audit runs the full audit suite on each document plus a cross-document
           synthesis pass. Subscribe to unlock it.
         </p>

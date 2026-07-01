@@ -32,25 +32,25 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
     <!-- Top nav -->
     <nav class="mb-6 flex items-center justify-between text-xs">
       <div class="flex items-center gap-3">
-        <a href="/creator" class="text-gray-400 hover:text-gray-600 transition-colors">← Creator</a>
-        <span class="text-gray-200">|</span>
+        <a href="/creator" class="text-muted hover:text-ink transition-colors">← Creator</a>
+        <span class="text-hairline">|</span>
         <p class="font-semibold tracking-widest text-amber-600 uppercase">Studio · Transcript</p>
       </div>
-      <a href="/creator/studio" class="text-gray-400 hover:text-gray-600 transition-colors">
+      <a href="/creator/studio" class="text-muted hover:text-ink transition-colors">
         ← Back to Studio
       </a>
     </nav>
 
     <header class="mb-8">
-      <h1 class="font-serif text-3xl sm:text-4xl text-gray-900 leading-tight mb-3">
+      <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">
         Transcript audit
       </h1>
-      <p class="text-base sm:text-lg text-gray-500 leading-relaxed max-w-3xl">
+      <p class="text-base sm:text-lg text-muted leading-relaxed max-w-3xl">
         Drop a YouTube URL or paste a transcript. The engine identifies the argumentative segments,
         audits each one, and synthesises patterns across the whole transcript - claims that get walked back,
         warrants repeated without defence, objections raised but never engaged.
       </p>
-      <p class="text-xs text-gray-400 mt-3">
+      <p class="text-xs text-muted mt-3">
         Studio-tier feature. 60-minute podcasts typically yield 4-8 audited segments.
       </p>
     </header>
@@ -58,7 +58,7 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
     {!hasActiveSubscription ? (
       <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
         <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
-        <p class="text-sm text-gray-700 max-w-sm mx-auto leading-relaxed">
+        <p class="text-sm text-ink max-w-sm mx-auto leading-relaxed">
           Transcript audits run the full audit suite on each segment plus a cross-segment synthesis pass.
           Subscribe to unlock it.
         </p>

@@ -45,7 +45,7 @@ export default function RestoreButton({ docId, versionId }: Props) {
       disabled={state === 'loading'}
       class={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors ${
         state === 'loading'
-          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          ? 'bg-hairline/40 text-muted cursor-not-allowed'
           : 'bg-amber-500 text-white hover:bg-amber-600'
       }`}
     >

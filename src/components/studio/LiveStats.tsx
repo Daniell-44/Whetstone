@@ -46,7 +46,7 @@ export default function LiveStats({ text }: Props) {
   if (stats.words === 0) return null;
 
   return (
-    <div class="flex items-center gap-3 text-xs text-gray-400 px-1">
+    <div class="flex items-center gap-3 text-xs text-muted px-1">
       <span>{stats.words.toLocaleString()} words</span>
       <span>·</span>
       <span>{stats.sentences} sentence{stats.sentences !== 1 ? 's' : ''}</span>

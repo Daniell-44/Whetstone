@@ -84,17 +84,17 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
   const score     = argumentScore(result);
 
   return (
-    <div class="rounded-lg border border-gray-200 bg-white px-3 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+    <div class="rounded-lg border border-hairline bg-surface px-3 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
       {/* Overall assessment — categorical band, not a misleading 0–100 number */}
       <div class="flex items-center shrink-0">
         <span class={`px-2.5 py-1 rounded-full text-xs font-semibold ${bandStyle(score)}`}>{scoreLabel(score)}</span>
       </div>
 
-      <div class="h-8 w-px bg-gray-200 shrink-0" />
+      <div class="h-8 w-px bg-hairline shrink-0" />
 
       {/* Findings summary */}
       <div class="flex items-center gap-3 flex-wrap flex-1">
-        <span class="text-sm font-medium text-gray-700">
+        <span class="text-sm font-medium text-ink">
           {total} finding{total !== 1 ? 's' : ''}
         </span>
         {breakdown.high > 0 && (
@@ -110,7 +110,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
           </span>
         )}
         {breakdown.low > 0 && (
-          <span class="flex items-center gap-1 text-gray-400 text-xs">
+          <span class="flex items-center gap-1 text-muted text-xs">
             <span class="text-base leading-none">●</span>
             {breakdown.low} low
           </span>
@@ -118,7 +118,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
       </div>
 
       {/* Text stats */}
-      <div class="flex items-center gap-x-2 gap-y-1 text-gray-400 text-xs min-w-0 flex-wrap">
+      <div class="flex items-center gap-x-2 gap-y-1 text-muted text-xs min-w-0 flex-wrap">
         <span>{words.toLocaleString()} words</span>
         <span>·</span>
         <span>~{avgLen} w/s</span>
@@ -137,7 +137,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
               setTimeout(() => setCopied(false), 2000);
             });
           }}
-          class="px-2 py-1 rounded text-xs font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          class="px-2 py-1 rounded text-xs font-medium text-muted hover:text-ink hover:bg-hairline/40 transition-colors"
           title="Copy audit report as markdown"
         >
           {copied ? '✓ Copied' : 'Copy report'}
@@ -148,7 +148,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
             const safeName = (draftTitle ?? 'audit').replace(/[^a-zA-Z0-9-_ ]/g, '').trim().replace(/\s+/g, '-').toLowerCase();
             downloadMarkdown(md, `whetstone-${safeName}.md`);
           }}
-          class="px-2 py-1 rounded text-xs font-medium text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          class="px-2 py-1 rounded text-xs font-medium text-muted hover:text-ink hover:bg-hairline/40 transition-colors"
           title="Download audit report as .md file"
         >
           ↓ Download
@@ -161,7 +161,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
               ? 'text-emerald-600 bg-emerald-50'
               : share.status === 'error'
                 ? 'text-red-600 bg-red-50'
-                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                : 'text-muted hover:text-ink hover:bg-hairline/40'
           } disabled:opacity-60`}
           title="Create a shareable permalink (30-day expiry). Auto-copies to clipboard."
         >

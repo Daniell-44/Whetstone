@@ -79,7 +79,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
         <button
           type="button"
           onClick={() => setOpen(true)}
-          class="sm:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-gray-900 text-white text-sm font-semibold shadow-lg hover:bg-gray-800 active:scale-95 transition-all duration-150"
+          class="sm:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-ink-strong text-white text-sm font-semibold shadow-lg hover:bg-ink active:scale-95 transition-all duration-150"
           style="padding-bottom: calc(0.625rem + env(safe-area-inset-bottom, 0) / 4);"
         >
           {scoreBadge}
@@ -101,7 +101,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
       {mounted && (
         <div
           ref={sheetRef}
-          class="sm:hidden fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-2xl flex flex-col"
+          class="sm:hidden fixed inset-x-0 bottom-0 z-50 bg-surface rounded-t-2xl shadow-2xl flex flex-col"
           style={`
             max-height: 85vh;
             padding-bottom: env(safe-area-inset-bottom, 0);
@@ -117,11 +117,11 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
             onTouchEnd={handleTouchEnd}
             onClick={() => setOpen(false)}
           >
-            <div class="w-10 h-1 rounded-full bg-gray-300" />
+            <div class="w-10 h-1 rounded-full bg-hairline" />
           </div>
 
           {/* Tab strip */}
-          <div class="flex border-b border-gray-100 overflow-x-auto px-2 shrink-0">
+          <div class="flex border-b border-hairline overflow-x-auto px-2 shrink-0">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -129,14 +129,14 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
                 onClick={() => setActiveTab(tab.id)}
                 class={`shrink-0 px-3 py-2.5 text-xs font-medium transition-colors border-b-2 ${
                   tab.id === active.id
-                    ? 'text-indigo-600 border-indigo-600'
-                    : 'text-gray-500 border-transparent hover:text-gray-700'
+                    ? 'text-accent border-accent'
+                    : 'text-muted border-transparent hover:text-ink'
                 }`}
               >
                 {tab.label}
                 {tab.count !== undefined && tab.count > 0 && (
                   <span class={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
-                    tab.id === active.id ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'
+                    tab.id === active.id ? 'bg-accent/10 text-accent' : 'bg-hairline/40 text-muted'
                   }`}>{tab.count}</span>
                 )}
               </button>

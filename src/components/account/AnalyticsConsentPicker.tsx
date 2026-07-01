@@ -25,11 +25,11 @@ export default function AnalyticsConsentPicker() {
           type="checkbox"
           checked={on}
           onChange={toggle}
-          class="mt-0.5 h-4 w-4 rounded accent-indigo-600 shrink-0"
+          class="mt-0.5 h-4 w-4 rounded accent-accent shrink-0"
         />
         <div>
-          <p class="text-sm text-gray-800 font-medium">Help improve The Whetstone</p>
-          <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+          <p class="text-sm text-ink font-medium">Help improve The Whetstone</p>
+          <p class="text-xs text-muted mt-0.5 leading-relaxed">
             Opt in to anonymous product-event analytics. Whitelisted event names + metadata only.
             No text content, no IP storage, no third parties. Toggle off anytime; we throw away any queued events.
           </p>

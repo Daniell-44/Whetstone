@@ -45,7 +45,7 @@ export default function VersionsList({ docId, versions }: Props) {
   return (
     <div class="space-y-2">
       {versions.length === 0 && (
-        <p class="text-sm text-gray-400 py-8 text-center">No versions saved yet.</p>
+        <p class="text-sm text-muted py-8 text-center">No versions saved yet.</p>
       )}
 
       {versions.map(v => {
@@ -58,8 +58,8 @@ export default function VersionsList({ docId, versions }: Props) {
               isSelected
                 ? 'border-amber-300 bg-amber-50'
                 : isDisabled
-                ? 'border-gray-100 bg-gray-50 opacity-50'
-                : 'border-gray-200 bg-white hover:border-amber-200'
+                ? 'border-hairline bg-paper opacity-50'
+                : 'border-hairline bg-surface hover:border-amber-200'
             }`}
           >
             <label class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer">
@@ -71,19 +71,19 @@ export default function VersionsList({ docId, versions }: Props) {
                 class="w-4 h-4 accent-amber-500 shrink-0"
               />
               <div class="min-w-0">
-                <p class="text-sm font-medium text-gray-900">Version {v.version_number}</p>
-                <p class="text-xs text-gray-400">{formatDate(v.created_at)}</p>
+                <p class="text-sm font-medium text-ink-strong">Version {v.version_number}</p>
+                <p class="text-xs text-muted">{formatDate(v.created_at)}</p>
               </div>
             </label>
 
             <div class="flex gap-1.5 shrink-0">
-              {v.hasAudit     && <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">Audited</span>}
+              {v.hasAudit     && <span class="text-xs px-2 py-0.5 rounded-full bg-accent/5 text-accent">Audited</span>}
               {v.hasCounterarg && <span class="text-xs px-2 py-0.5 rounded-full bg-violet-50 text-violet-600">Counterargs</span>}
             </div>
 
             <a
               href={`/creator/documents/${docId}/versions/${v.id}`}
-              class="shrink-0 text-xs text-gray-400 hover:text-amber-600 transition-colors"
+              class="shrink-0 text-xs text-muted hover:text-amber-600 transition-colors"
             >
               View →
             </a>
@@ -99,7 +99,7 @@ export default function VersionsList({ docId, versions }: Props) {
           class={`w-full py-3 rounded-xl text-sm font-semibold transition-colors ${
             canCompare
               ? 'bg-amber-500 text-white hover:bg-amber-600'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-hairline/40 text-muted cursor-not-allowed'
           }`}
         >
           {canCompare

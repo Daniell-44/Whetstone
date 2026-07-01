@@ -81,7 +81,7 @@ function AuditLoading() {
         <div class="w-full xl:w-[45%] rounded-lg border border-hairline bg-surface p-4 space-y-3">
           <div class="h-2.5 w-1/4 rounded bg-hairline animate-pulse" />
           {[0, 1, 2].map(i => (
-            <div key={i} class="rounded-md border border-gray-100 p-2.5 space-y-1.5">
+            <div key={i} class="rounded-md border border-hairline p-2.5 space-y-1.5">
               <div class="h-2 w-1/2 rounded bg-hairline animate-pulse" />
               <div class="h-2 w-full rounded bg-hairline/40 animate-pulse" />
             </div>

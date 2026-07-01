@@ -49,7 +49,7 @@ export default function TerminologyPicker({ initialPreference }: Props) {
           class={`flex items-start gap-3 cursor-pointer rounded-lg border px-4 py-3 transition-colors ${
             preference === opt.value
               ? 'border-amber-400 bg-amber-50'
-              : 'border-gray-200 bg-white hover:bg-gray-50'
+              : 'border-hairline bg-surface hover:bg-paper'
           }`}
         >
           <input
@@ -61,15 +61,15 @@ export default function TerminologyPicker({ initialPreference }: Props) {
             class="mt-0.5 accent-amber-500"
           />
           <div>
-            <p class="text-sm font-medium text-gray-900">{opt.label}</p>
-            <p class="text-xs text-gray-500 mt-0.5">{opt.description}</p>
+            <p class="text-sm font-medium text-ink-strong">{opt.label}</p>
+            <p class="text-xs text-muted mt-0.5">{opt.description}</p>
           </div>
         </label>
       ))}
 
       <div class="h-4 flex items-center">
         {status === 'saving' && (
-          <p class="text-xs text-gray-400">Saving…</p>
+          <p class="text-xs text-muted">Saving…</p>
         )}
         {status === 'saved' && (
           <p class="text-xs text-green-600">Saved</p>

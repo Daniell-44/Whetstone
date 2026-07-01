@@ -27,10 +27,10 @@ export default function HeroHeadline() {
 
   return (
     <>
-      <h1 class="font-serif text-2xl sm:text-4xl text-gray-900 leading-tight text-center text-balance mb-4 max-w-4xl mx-auto">
+      <h1 class="font-serif text-2xl sm:text-4xl text-ink-strong leading-tight text-center text-balance mb-4 max-w-4xl mx-auto">
         {copy.headline}
       </h1>
-      <p class="text-base sm:text-lg text-gray-500 leading-relaxed text-center max-w-2xl mx-auto">
+      <p class="text-base sm:text-lg text-muted leading-relaxed text-center max-w-2xl mx-auto">
         {copy.sub}
       </p>
     </>

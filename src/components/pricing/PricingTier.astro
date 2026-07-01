@@ -19,16 +19,16 @@ const tierKey = label.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
   <p class={`text-xs font-bold uppercase tracking-wider ${labelColour} mb-2`}>{label}</p>
   <div class="flex items-baseline gap-1 mb-1">
-    <span class="font-serif text-4xl text-gray-900">{price}</span>
-    {priceUnit && <span class="text-gray-400 text-sm">{priceUnit}</span>}
+    <span class="font-serif text-4xl text-ink-strong">{price}</span>
+    {priceUnit && <span class="text-muted text-sm">{priceUnit}</span>}
   </div>
-  <p class="text-sm text-gray-400 mb-4 sm:mb-6">{subtext}</p>
+  <p class="text-sm text-muted mb-4 sm:mb-6">{subtext}</p>
 
   <!-- Mobile collapse toggle (CSS-only via :checked) -->
   <input type="checkbox" id={`tier-toggle-${tierKey}`} class="peer/tier hidden" />
   <label
     for={`tier-toggle-${tierKey}`}
-    class="sm:hidden w-full flex items-center justify-between py-2 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer"
+    class="sm:hidden w-full flex items-center justify-between py-2 mb-2 text-xs font-semibold text-muted uppercase tracking-wider cursor-pointer"
   >
     <span>{features.length} features</span>
     <svg
@@ -39,7 +39,7 @@ const tierKey = label.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
   <ul class={`space-y-2.5 text-sm mb-6 sm:mb-8 hidden peer-checked/tier:block sm:block`}>
     {features.map((feature) => (
-      <li class={`flex gap-2 ${highlighted ? 'text-gray-700' : 'text-gray-600'}`}>
+      <li class={`flex gap-2 ${highlighted ? 'text-ink' : 'text-ink'}`}>
         <span class={`shrink-0 ${featureColour}`}>✓</span>
         <span>{feature}</span>
       </li>

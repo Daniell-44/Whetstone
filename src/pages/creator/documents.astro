@@ -54,13 +54,13 @@ function formatDate(epochMs: number): string {
   <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
 
     <nav class="mb-10">
-      <a href="/creator" class="text-xs text-gray-400 hover:text-gray-600 transition-colors">← Creator</a>
+      <a href="/creator" class="text-xs text-muted hover:text-ink transition-colors">← Creator</a>
     </nav>
 
     <header class="mb-10 flex items-start justify-between">
       <div>
         <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Creator Studio</p>
-        <h1 class="font-serif text-4xl sm:text-5xl text-gray-900 leading-tight">
+        <h1 class="font-serif text-4xl sm:text-5xl text-ink-strong leading-tight">
           {workspaceName ? workspaceName : 'My Documents'}
         </h1>
       </div>
@@ -76,28 +76,28 @@ function formatDate(epochMs: number): string {
     </header>
 
     {documents.length === 0 ? (
-      <div class="rounded-xl border border-gray-100 bg-gray-50 p-12 text-center">
-        <p class="text-gray-400 mb-4">No saved drafts yet.</p>
+      <div class="rounded-xl border border-hairline bg-paper p-12 text-center">
+        <p class="text-muted mb-4">No saved drafts yet.</p>
         <a href="/creator/studio" class="text-sm text-amber-600 hover:text-amber-700 underline">
           Start your first draft →
         </a>
       </div>
     ) : (
-      <ul class="divide-y divide-gray-100">
+      <ul class="divide-y divide-hairline">
         {documents.map(doc => (
           <li class="py-4 flex items-center justify-between gap-4">
             <div class="min-w-0">
               <a
                 href={`/creator/studio?doc=${doc.id}`}
-                class="block text-sm font-medium text-gray-900 hover:text-amber-700 truncate transition-colors"
+                class="block text-sm font-medium text-ink-strong hover:text-amber-700 truncate transition-colors"
               >
                 {doc.title}
               </a>
               <div class="flex items-center gap-3 mt-0.5">
-                <p class="text-xs text-gray-400">Updated {formatDate(doc.updated_at)}</p>
+                <p class="text-xs text-muted">Updated {formatDate(doc.updated_at)}</p>
                 <a
                   href={`/creator/documents/${doc.id}/versions`}
-                  class="text-xs text-gray-400 hover:text-amber-600 transition-colors"
+                  class="text-xs text-muted hover:text-amber-600 transition-colors"
                 >
                   {versionCounts[doc.id] ?? 0} version{(versionCounts[doc.id] ?? 0) === 1 ? '' : 's'}
                 </a>
@@ -105,7 +105,7 @@ function formatDate(epochMs: number): string {
             </div>
             <a
               href={`/creator/studio?doc=${doc.id}`}
-              class="shrink-0 text-xs text-gray-400 hover:text-amber-600 transition-colors"
+              class="shrink-0 text-xs text-muted hover:text-amber-600 transition-colors"
             >
               Open →
             </a>

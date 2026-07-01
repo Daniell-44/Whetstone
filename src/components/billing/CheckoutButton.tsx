@@ -43,7 +43,7 @@ export default function CheckoutButton() {
         disabled={isLoading}
         class={`w-full py-3 px-6 rounded-xl text-sm font-semibold transition-colors ${
           isLoading
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            ? 'bg-hairline/40 text-muted cursor-not-allowed'
             : 'bg-amber-500 text-white hover:bg-amber-600'
         }`}
       >

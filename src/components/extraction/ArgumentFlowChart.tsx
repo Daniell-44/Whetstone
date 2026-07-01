@@ -116,14 +116,14 @@ export default function ArgumentFlowChart({ result }: Props) {
   }, [result]);
 
   if (result.statements.length === 0) {
-    return <p class="text-sm text-gray-400 italic">No argument structure to visualise.</p>;
+    return <p class="text-sm text-muted italic">No argument structure to visualise.</p>;
   }
 
   return (
     <div class="space-y-3">
       {loading && (
         <div class="text-center py-8">
-          <p class="text-sm text-gray-400">Rendering flow chart…</p>
+          <p class="text-sm text-muted">Rendering flow chart…</p>
         </div>
       )}
 
@@ -135,17 +135,17 @@ export default function ArgumentFlowChart({ result }: Props) {
 
       <div
         ref={containerRef}
-        class="overflow-x-auto rounded-lg border border-gray-100 bg-white p-4"
+        class="overflow-x-auto rounded-lg border border-hairline bg-surface p-4"
       />
 
       {/* Legend - node shapes + every inference-rule code with full names.
           Stacked (not inline) and larger so the codes on the arrows are
           actually decodable. */}
-      <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3 space-y-2.5">
+      <div class="rounded-lg border border-hairline bg-paper/60 p-3 space-y-2.5">
         {/* Node shapes */}
-        <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-gray-500">
+        <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted">
           <span class="flex items-center gap-1.5">
-            <span class="w-3 h-3 rounded bg-gray-100 border border-gray-300" />
+            <span class="w-3 h-3 rounded bg-hairline/40 border border-hairline" />
             Premise (a stated reason)
           </span>
           <span class="flex items-center gap-1.5">
@@ -159,19 +159,19 @@ export default function ArgumentFlowChart({ result }: Props) {
         </div>
 
         {/* Inference-rule codes - the labels on the arrows */}
-        <div class="border-t border-gray-200 pt-2">
-          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">
+        <div class="border-t border-hairline pt-2">
+          <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-1.5">
             Arrow codes (how each step is reasoned)
           </p>
-          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600">
-            <div><dt class="inline font-semibold">MP</dt> = Modus ponens <span class="text-gray-400">(if P then Q; P; so Q)</span></div>
-            <div><dt class="inline font-semibold">MT</dt> = Modus tollens <span class="text-gray-400">(if P then Q; not Q; so not P)</span></div>
-            <div><dt class="inline font-semibold">HS</dt> = Hypothetical syllogism <span class="text-gray-400">(chained if-thens)</span></div>
-            <div><dt class="inline font-semibold">DS</dt> = Disjunctive syllogism <span class="text-gray-400">(P or Q; not P; so Q)</span></div>
-            <div><dt class="inline font-semibold">CS</dt> = Categorical syllogism <span class="text-gray-400">(all/some/none reasoning)</span></div>
-            <div><dt class="inline font-semibold">Ind.</dt> = Inductive <span class="text-gray-400">(from examples to a general rule)</span></div>
-            <div><dt class="inline font-semibold">Abd.</dt> = Abductive <span class="text-gray-400">(inference to the best explanation)</span></div>
-            <div><dt class="inline font-semibold">Anal.</dt> = Analogy <span class="text-gray-400">(this case resembles that one)</span></div>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs text-ink">
+            <div><dt class="inline font-semibold">MP</dt> = Modus ponens <span class="text-muted">(if P then Q; P; so Q)</span></div>
+            <div><dt class="inline font-semibold">MT</dt> = Modus tollens <span class="text-muted">(if P then Q; not Q; so not P)</span></div>
+            <div><dt class="inline font-semibold">HS</dt> = Hypothetical syllogism <span class="text-muted">(chained if-thens)</span></div>
+            <div><dt class="inline font-semibold">DS</dt> = Disjunctive syllogism <span class="text-muted">(P or Q; not P; so Q)</span></div>
+            <div><dt class="inline font-semibold">CS</dt> = Categorical syllogism <span class="text-muted">(all/some/none reasoning)</span></div>
+            <div><dt class="inline font-semibold">Ind.</dt> = Inductive <span class="text-muted">(from examples to a general rule)</span></div>
+            <div><dt class="inline font-semibold">Abd.</dt> = Abductive <span class="text-muted">(inference to the best explanation)</span></div>
+            <div><dt class="inline font-semibold">Anal.</dt> = Analogy <span class="text-muted">(this case resembles that one)</span></div>
           </dl>
         </div>
       </div>

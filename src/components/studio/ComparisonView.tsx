@@ -12,26 +12,26 @@ import type { TerminologyPreference } from '../../lib/labels';
 const SEVERITY_BADGE: Record<string, string> = {
   high:   'bg-red-100 text-red-700',
   medium: 'bg-amber-100 text-amber-700',
-  low:    'bg-gray-100 text-gray-600',
+  low:    'bg-hairline/40 text-ink',
 };
 
 function FallacyPill({ fallacy, variant }: { fallacy: NamedFallacy; variant: 'removed' | 'added' | 'persisted' }) {
   const border = variant === 'removed' ? 'border-red-200 bg-red-50'
                : variant === 'added'   ? 'border-emerald-200 bg-emerald-50'
-               :                         'border-gray-200 bg-gray-50';
-  const badge = SEVERITY_BADGE[fallacy.severity] ?? 'bg-gray-100 text-gray-600';
+               :                         'border-hairline bg-paper';
+  const badge = SEVERITY_BADGE[fallacy.severity] ?? 'bg-hairline/40 text-ink';
   return (
     <div class={`rounded-xl border p-4 ${border}`}>
       <div class="flex items-start justify-between gap-2 mb-2">
-        <p class="text-sm font-semibold text-gray-900">{fallacy.name}</p>
+        <p class="text-sm font-semibold text-ink-strong">{fallacy.name}</p>
         <span class={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badge}`}>
           {fallacy.severity}
         </span>
       </div>
-      <blockquote class="text-xs italic text-gray-600 border-l-2 border-gray-300 pl-3 mb-2 leading-relaxed">
+      <blockquote class="text-xs italic text-ink border-l-2 border-hairline pl-3 mb-2 leading-relaxed">
         "{fallacy.quote}"
       </blockquote>
-      <p class="text-xs text-gray-600 leading-relaxed">{fallacy.explanation}</p>
+      <p class="text-xs text-ink leading-relaxed">{fallacy.explanation}</p>
     </div>
   );
 }
@@ -39,16 +39,16 @@ function FallacyPill({ fallacy, variant }: { fallacy: NamedFallacy; variant: 're
 function LoadedLanguagePill({ item, variant }: { item: LoadedLanguage; variant: 'removed' | 'added' | 'persisted' }) {
   const cls = variant === 'removed' ? 'bg-red-50 border-red-200'
             : variant === 'added'   ? 'bg-emerald-50 border-emerald-200'
-            :                         'bg-gray-50 border-gray-200';
+            :                         'bg-paper border-hairline';
   return (
     <div class={`rounded-lg border px-4 py-3 ${cls}`}>
       <div class="flex items-start gap-2 flex-wrap mb-1">
-        <span class="text-sm font-medium text-gray-900">"{item.phrase}"</span>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 shrink-0 mt-0.5">
+        <span class="text-sm font-medium text-ink-strong">"{item.phrase}"</span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-hairline/40 text-ink shrink-0 mt-0.5">
           {item.technique}
         </span>
       </div>
-      <p class="text-xs text-gray-500 leading-relaxed">{item.explanation}</p>
+      <p class="text-xs text-muted leading-relaxed">{item.explanation}</p>
     </div>
   );
 }
@@ -59,29 +59,29 @@ function CounterargCard({ c, preference }: { c: Counterargument; preference?: Te
       <p class="text-sm font-semibold text-violet-900 leading-snug">{c.position}</p>
       <div class="space-y-1.5 pl-4 border-l-2 border-violet-300">
         <div>
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
+          <p class="text-xs font-semibold text-muted uppercase tracking-wide mb-0.5">
             <LabelWithTooltip label="toulminClaim" preference={preference} />
           </p>
-          <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.claim}</p>
+          <p class="text-sm text-ink leading-relaxed">{c.strongestCase.claim}</p>
         </div>
         <div>
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
+          <p class="text-xs font-semibold text-muted uppercase tracking-wide mb-0.5">
             <LabelWithTooltip label="toulminGrounds" preference={preference} />
           </p>
-          <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.grounds}</p>
+          <p class="text-sm text-ink leading-relaxed">{c.strongestCase.grounds}</p>
         </div>
         <div>
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-0.5">
+          <p class="text-xs font-semibold text-muted uppercase tracking-wide mb-0.5">
             <LabelWithTooltip label="toulminWarrant" preference={preference} />
           </p>
-          <p class="text-sm text-gray-700 leading-relaxed">{c.strongestCase.warrant}</p>
+          <p class="text-sm text-ink leading-relaxed">{c.strongestCase.warrant}</p>
         </div>
       </div>
-      <div class="rounded-lg bg-white border border-violet-200 p-3">
+      <div class="rounded-lg bg-surface border border-violet-200 p-3">
         <p class="text-xs font-semibold text-violet-600 uppercase tracking-wide mb-1">
           <LabelWithTooltip label="missedByDraft" preference={preference} />
         </p>
-        <p class="text-sm text-gray-700 leading-relaxed">{c.missedByDraft}</p>
+        <p class="text-sm text-ink leading-relaxed">{c.missedByDraft}</p>
       </div>
     </div>
   );
@@ -95,11 +95,11 @@ function SideBySide({ labelA, labelB, children }: {
   return (
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">{labelA}</p>
+        <p class="text-xs font-semibold text-muted uppercase tracking-widest mb-2">{labelA}</p>
         {children[0]}
       </div>
       <div>
-        <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">{labelB}</p>
+        <p class="text-xs font-semibold text-muted uppercase tracking-widest mb-2">{labelB}</p>
         {children[1]}
       </div>
     </div>
@@ -113,7 +113,7 @@ function SideBySide({ labelA, labelB, children }: {
 function StatPill({ label, value, tone }: { label: string; value: string | number; tone: 'good' | 'bad' | 'neutral' }) {
   const cls = tone === 'good'    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
             : tone === 'bad'     ? 'bg-red-50 border-red-200 text-red-700'
-            :                      'bg-gray-50 border-gray-200 text-gray-600';
+            :                      'bg-paper border-hairline text-ink';
   return (
     <div class={`rounded-xl border px-4 py-3 text-center ${cls}`}>
       <p class="text-xl font-bold">{value}</p>
@@ -155,13 +155,13 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
     <div class="space-y-10">
 
       {/* Summary card */}
-      <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-4">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
+      <section class="rounded-xl border border-hairline bg-surface p-6 space-y-4">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted">
           Changes from v{from.version_number} → v{to.version_number}
         </h2>
 
         {!auditDiff.fromAudited && !auditDiff.toAudited ? (
-          <p class="text-sm text-gray-400">Neither version has been audited - run the analysis to compare findings.</p>
+          <p class="text-sm text-muted">Neither version has been audited - run the analysis to compare findings.</p>
         ) : (
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <StatPill
@@ -200,22 +200,22 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
       {/* Content diff */}
       <section>
-        <details class="rounded-xl border border-gray-200 bg-white overflow-hidden">
-          <summary class="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-gray-400 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+        <details class="rounded-xl border border-hairline bg-surface overflow-hidden">
+          <summary class="px-6 py-4 text-xs font-semibold uppercase tracking-widest text-muted cursor-pointer list-none hover:bg-paper transition-colors">
             ↳ Draft content (v{from.version_number} vs v{to.version_number})
           </summary>
-          <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
+          <div class="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-hairline">
             <div class="p-5">
-              <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p class="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
                 Version {from.version_number} · {formatDate(from.created_at)}
               </p>
-              <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{from.content}</p>
+              <p class="text-sm text-ink leading-relaxed whitespace-pre-wrap">{from.content}</p>
             </div>
             <div class="p-5">
-              <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p class="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
                 Version {to.version_number} · {formatDate(to.created_at)}
               </p>
-              <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{to.content}</p>
+              <p class="text-sm text-ink leading-relaxed whitespace-pre-wrap">{to.content}</p>
             </div>
           </div>
         </details>
@@ -223,8 +223,8 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
       {/* Toulmin comparison */}
       {(auditDiff.fromAudited || auditDiff.toAudited) && (
-        <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
+        <section class="rounded-xl border border-hairline bg-surface p-6 space-y-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted">
             <LabelWithTooltip label="toulmin" preference={terminologyPreference} />
           </h2>
 
@@ -235,8 +235,8 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
               </p>
               <SideBySide labelA={`v${from.version_number}`} labelB={`v${to.version_number}`}>
                 {[
-                  <p class="text-sm text-gray-700 leading-relaxed">{auditDiff.centralClaim.from ?? '-'}</p>,
-                  <p class="text-sm text-gray-700 leading-relaxed">{auditDiff.centralClaim.to ?? '-'}</p>,
+                  <p class="text-sm text-ink leading-relaxed">{auditDiff.centralClaim.from ?? '-'}</p>,
+                  <p class="text-sm text-ink leading-relaxed">{auditDiff.centralClaim.to ?? '-'}</p>,
                 ]}
               </SideBySide>
             </div>
@@ -252,13 +252,13 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
                                : 'weakestLink';
                 return (
                   <div key={field}>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    <p class="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
                       <LabelWithTooltip label={labelKey} preference={terminologyPreference} />
                     </p>
                     <SideBySide labelA={`v${from.version_number}`} labelB={`v${to.version_number}`}>
                       {[
-                        <p class="text-sm text-gray-700 leading-relaxed">{fromVal}</p>,
-                        <p class="text-sm text-gray-700 leading-relaxed">{toVal}</p>,
+                        <p class="text-sm text-ink leading-relaxed">{fromVal}</p>,
+                        <p class="text-sm text-ink leading-relaxed">{toVal}</p>,
                       ]}
                     </SideBySide>
                   </div>
@@ -271,15 +271,15 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
       {/* Fallacy diff */}
       {(auditDiff.fromAudited || auditDiff.toAudited) && (
-        <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
+        <section class="rounded-xl border border-hairline bg-surface p-6 space-y-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted">
             <LabelWithTooltip label="namedFallacies" preference={terminologyPreference} />
           </h2>
 
           {auditDiff.fallacies.removed.length === 0 &&
            auditDiff.fallacies.added.length === 0 &&
            auditDiff.fallacies.persisted.length === 0 ? (
-            <p class="text-sm text-gray-400">No reasoning pattern data to compare - run the audit on both versions.</p>
+            <p class="text-sm text-muted">No reasoning pattern data to compare - run the audit on both versions.</p>
           ) : (
             <>
               {auditDiff.fallacies.removed.length > 0 && (
@@ -310,7 +310,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
               {auditDiff.fallacies.persisted.length > 0 && (
                 <div>
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
+                  <p class="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
                     <LabelWithTooltip label="diffPersisted" preference={terminologyPreference} /> ({auditDiff.fallacies.persisted.length})
                   </p>
                   <div class="space-y-3">
@@ -327,15 +327,15 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
       {/* Loaded language diff */}
       {(auditDiff.fromAudited || auditDiff.toAudited) && (
-        <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
+        <section class="rounded-xl border border-hairline bg-surface p-6 space-y-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted">
             <LabelWithTooltip label="loadedLanguage" preference={terminologyPreference} />
           </h2>
 
           {auditDiff.loadedLanguage.removed.length === 0 &&
            auditDiff.loadedLanguage.added.length === 0 &&
            auditDiff.loadedLanguage.persisted.length === 0 ? (
-            <p class="text-sm text-gray-400">No word choice data to compare.</p>
+            <p class="text-sm text-muted">No word choice data to compare.</p>
           ) : (
             <>
               {auditDiff.loadedLanguage.removed.length > 0 && (
@@ -366,7 +366,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
               {auditDiff.loadedLanguage.persisted.length > 0 && (
                 <div>
-                  <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
+                  <p class="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
                     <LabelWithTooltip label="diffPersisted" preference={terminologyPreference} /> ({auditDiff.loadedLanguage.persisted.length})
                   </p>
                   <div class="space-y-2">
@@ -383,18 +383,18 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
       {/* Counterargument side-by-side */}
       {(counterargDiff.fromGenerated || counterargDiff.toGenerated) && (
-        <section class="rounded-xl border border-gray-200 bg-white p-6 space-y-6">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-gray-400">
+        <section class="rounded-xl border border-hairline bg-surface p-6 space-y-6">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted">
             <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
           </h2>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p class="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
                 Version {from.version_number}
               </p>
               {!counterargDiff.fromGenerated ? (
-                <p class="text-sm text-gray-400">Not generated for this version.</p>
+                <p class="text-sm text-muted">Not generated for this version.</p>
               ) : (
                 <div class="space-y-3">
                   {counterargDiff.counterarguments.from.map((c, i) => (
@@ -405,11 +405,11 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
             </div>
 
             <div>
-              <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              <p class="text-xs font-semibold text-muted uppercase tracking-widest mb-3">
                 Version {to.version_number}
               </p>
               {!counterargDiff.toGenerated ? (
-                <p class="text-sm text-gray-400">Not generated for this version.</p>
+                <p class="text-sm text-muted">Not generated for this version.</p>
               ) : (
                 <div class="space-y-3">
                   {counterargDiff.counterarguments.to.map((c, i) => (

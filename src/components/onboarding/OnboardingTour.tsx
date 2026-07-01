@@ -156,7 +156,7 @@ export default function OnboardingTour() {
 
       {/* Card */}
       <div
-        class="rounded-xl bg-white shadow-2xl border border-gray-200 p-5"
+        class="rounded-xl bg-surface shadow-2xl border border-hairline p-5"
         style={cardStyle}
         role="dialog"
         aria-labelledby="tour-title"
@@ -168,20 +168,20 @@ export default function OnboardingTour() {
           <button
             type="button"
             onClick={skip}
-            class="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2"
+            class="text-xs text-muted hover:text-ink underline underline-offset-2"
           >
             Skip
           </button>
         </div>
-        <h3 id="tour-title" class="text-base font-semibold text-gray-900 mb-1.5">{step.title}</h3>
-        <p class="text-sm text-gray-600 leading-relaxed mb-4">{step.body}</p>
+        <h3 id="tour-title" class="text-base font-semibold text-ink-strong mb-1.5">{step.title}</h3>
+        <p class="text-sm text-ink leading-relaxed mb-4">{step.body}</p>
         <div class="flex items-center justify-between">
           <div class="flex gap-1">
             {STEPS.map((_, i) => (
               <span
                 key={i}
                 class={`h-1.5 rounded-full transition-all ${
-                  i === stepIdx ? 'w-6 bg-amber-500' : 'w-1.5 bg-gray-200'
+                  i === stepIdx ? 'w-6 bg-amber-500' : 'w-1.5 bg-hairline'
                 }`}
               />
             ))}

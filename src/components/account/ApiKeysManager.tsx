@@ -90,17 +90,17 @@ export default function ApiKeysManager() {
 
       {/* Existing keys */}
       {loading ? (
-        <p className="text-sm text-gray-400">Loading…</p>
+        <p className="text-sm text-muted">Loading…</p>
       ) : active.length === 0 ? (
-        <p className="text-sm text-gray-400">No API keys yet.</p>
+        <p className="text-sm text-muted">No API keys yet.</p>
       ) : (
-        <div className="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white">
+        <div className="divide-y divide-hairline rounded-lg border border-hairline bg-surface">
           {active.map((k) => (
             <div key={k.id} className="px-4 py-3 flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-medium text-gray-900">{k.name}</p>
-                <p className="text-xs font-mono text-gray-400 mt-0.5">{k.keyPrefix}…</p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-sm font-medium text-ink-strong">{k.name}</p>
+                <p className="text-xs font-mono text-muted mt-0.5">{k.keyPrefix}…</p>
+                <p className="text-xs text-muted mt-1">
                   Created {fmt(k.createdAt)} · Last used {fmt(k.lastUsedAt)}
                 </p>
               </div>
@@ -123,12 +123,12 @@ export default function ApiKeysManager() {
           onInput={(e) => setNewName((e.target as HTMLInputElement).value)}
           placeholder={'Key name (e.g. "CMS integration")'}
           maxLength={80}
-          className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+          className="flex-1 rounded-md border border-hairline px-3 py-2 text-sm text-ink-strong placeholder-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
         />
         <button
           type="submit"
           disabled={creating || !newName.trim()}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50 transition-colors"
         >
           {creating ? 'Creating…' : 'Create key'}
         </button>
@@ -136,9 +136,9 @@ export default function ApiKeysManager() {
 
       {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-muted">
         Use your key as <code className="font-mono">Authorization: Bearer &lt;key&gt;</code> on POST requests to{' '}
-        <a href="/developer" className="underline hover:text-gray-600">/api/audit</a>.
+        <a href="/developer" className="underline hover:text-ink">/api/audit</a>.
         Maximum 10 active keys per account.
       </p>
     </div>

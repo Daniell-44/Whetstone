@@ -121,12 +121,12 @@ export default function LoginForm({ returnTo }: Props) {
   if (state === 'sent' || state === 'verifying') {
     return (
       <div class="space-y-4">
-        <div class="rounded-lg border border-indigo-100 bg-indigo-50 px-5 py-5">
-          <p class="text-base font-medium text-indigo-900 mb-1">Check your email</p>
-          <p class="text-sm text-indigo-700 leading-relaxed">
+        <div class="rounded-lg border border-accent/20 bg-accent/5 px-5 py-5">
+          <p class="text-base font-medium text-ink-strong mb-1">Check your email</p>
+          <p class="text-sm text-accent leading-relaxed">
             We sent a sign-in link and a 6-digit code to <strong>{email}</strong>.
           </p>
-          <p class="text-xs text-indigo-700 mt-2 tabular-nums">
+          <p class="text-xs text-accent mt-2 tabular-nums">
             {expired ? (
               <span class="text-red-700 font-medium">Code expired - request a new one</span>
             ) : (
@@ -135,9 +135,9 @@ export default function LoginForm({ returnTo }: Props) {
           </p>
         </div>
 
-        <div class="rounded-lg border border-gray-200 bg-white px-5 py-5 space-y-3">
-          <p class="text-sm text-gray-800 font-medium">Enter the 6-digit code</p>
-          <p class="text-xs text-gray-500 leading-relaxed">
+        <div class="rounded-lg border border-hairline bg-surface px-5 py-5 space-y-3">
+          <p class="text-sm text-ink font-medium">Enter the 6-digit code</p>
+          <p class="text-xs text-muted leading-relaxed">
             Use this if you'll click the email link on a different device.
             Otherwise, click the link in the email directly.
           </p>
@@ -151,10 +151,10 @@ export default function LoginForm({ returnTo }: Props) {
               onInput={(e) => setCode((e.target as HTMLInputElement).value.replace(/\D/g, ''))}
               placeholder="123456"
               class={`w-full rounded-md border px-3 py-3 text-2xl tracking-[0.5em] font-mono text-center
-                     focus:outline-none focus:ring-2 transition-colors disabled:bg-gray-50
+                     focus:outline-none focus:ring-2 transition-colors disabled:bg-paper
                      ${expired
                        ? 'border-red-200 focus:ring-red-300 focus:border-red-400'
-                       : 'border-gray-300 focus:ring-indigo-300 focus:border-indigo-400'}`}
+                       : 'border-hairline focus:ring-accent focus:border-accent'}`}
               disabled={state === 'verifying' || expired}
               autoFocus
             />
@@ -162,8 +162,8 @@ export default function LoginForm({ returnTo }: Props) {
             <button
               type="submit"
               disabled={code.length !== 6 || state === 'verifying' || expired}
-              class="w-full rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white
-                     hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed
+              class="w-full rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-white
+                     hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed
                      transition-colors"
             >
               {state === 'verifying' ? 'Verifying…' : 'Sign in with code'}
@@ -176,13 +176,13 @@ export default function LoginForm({ returnTo }: Props) {
             type="button"
             onClick={() => void sendCode()}
             disabled={!expired && msRemaining > CODE_TTL_MS - 30_000} // 30s cooldown to avoid spam
-            class="text-indigo-600 hover:text-indigo-800 disabled:text-gray-400 disabled:cursor-not-allowed underline underline-offset-2"
+            class="text-accent hover:text-accent-support disabled:text-muted disabled:cursor-not-allowed underline underline-offset-2"
           >
             {expired ? 'Send a new code' : 'Resend code'}
           </button>
           <button
             type="button"
-            class="text-gray-500 hover:text-gray-700 underline underline-offset-2"
+            class="text-muted hover:text-ink underline underline-offset-2"
             onClick={() => {
               setState('idle');
               setEmail('');
@@ -202,7 +202,7 @@ export default function LoginForm({ returnTo }: Props) {
   return (
     <form onSubmit={submitEmail} class="space-y-4">
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+        <label for="email" class="block text-sm font-medium text-ink mb-1">
           Email address
         </label>
         <input
@@ -213,9 +213,9 @@ export default function LoginForm({ returnTo }: Props) {
           value={email}
           onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
           placeholder="you@example.com"
-          class="w-full rounded-md border border-gray-300 px-3 py-2.5 text-base shadow-sm
-                 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500
-                 disabled:bg-gray-50"
+          class="w-full rounded-md border border-hairline px-3 py-2.5 text-base shadow-sm
+                 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent
+                 disabled:bg-paper"
           disabled={state === 'loading'}
         />
       </div>
@@ -225,14 +225,14 @@ export default function LoginForm({ returnTo }: Props) {
       <button
         type="submit"
         disabled={invalid || state === 'loading'}
-        class="w-full rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white
-               hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed
+        class="w-full rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-white
+               hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed
                transition-colors"
       >
         {state === 'loading' ? 'Sending…' : 'Send sign-in link'}
       </button>
 
-      <p class="text-xs text-gray-400 text-center">
+      <p class="text-xs text-muted text-center">
         No password needed. We'll email you a link plus a 6-digit code.
       </p>
     </form>
