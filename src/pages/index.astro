@@ -117,17 +117,20 @@ const presentCategories = Object.keys(categoryCounts).sort();
           <aside class="hidden lg:block w-56 shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
             <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Browse</p>
             <nav class="space-y-1">
-              <a href="#all" class="flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-surface border border-hairline text-ink-strong">
+              <button type="button" data-filter="all" aria-pressed="true" class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left transition-colors">
                 <span>All</span>
-                <span class="text-xs text-muted">{briefings.length}</span>
-              </a>
+                <span class="feed-filter-count text-xs">{briefings.length}</span>
+              </button>
               {presentCategories.map(cat => (
-                <a
-                  href={`#${cat}`}
-                  class="block px-3 py-2 rounded-md text-sm text-muted hover:bg-surface hover:text-ink transition-colors capitalize"
+                <button
+                  type="button"
+                  data-filter={cat}
+                  aria-pressed="false"
+                  class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left capitalize transition-colors"
                 >
-                  {cat}
-                </a>
+                  <span>{cat}</span>
+                  <span class="feed-filter-count text-xs">{categoryCounts[cat]}</span>
+                </button>
               ))}
             </nav>
 
@@ -144,13 +147,13 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
           <!-- Mobile category strip -->
           <div class="lg:hidden flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-2 scrollbar-thin">
-            <a href="#all" class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-surface border border-hairline text-ink-strong">
+            <button type="button" data-filter="all" aria-pressed="true" class="feed-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
               All ({briefings.length})
-            </a>
+            </button>
             {presentCategories.map(cat => (
-              <a href={`#${cat}`} class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-surface border border-hairline text-muted capitalize">
+              <button type="button" data-filter={cat} aria-pressed="false" class="feed-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
                 {cat} ({categoryCounts[cat]})
-              </a>
+              </button>
             ))}
           </div>
 
@@ -171,6 +174,8 @@ const presentCategories = Object.keys(categoryCounts).sort();
                   return (
                     <a
                       href={`/briefing/${b.slug}`}
+                      data-briefing-card
+                      data-category={b.category ?? ''}
                       class={`group block bg-surface border border-hairline border-t-2 ${ruleCls} rounded-md p-5 sm:p-6 hover:border-accent/40 hover:shadow-sm transition-all ${idx === 0 ? 'sm:col-span-2' : ''}`}
                     >
                       {/* Briefings get a banner (real image, else a category-colour
@@ -229,6 +234,39 @@ const presentCategories = Object.keys(categoryCounts).sort();
         </div>
       )}
     </section>
+
+    <style>
+      /* Category-filter controls (rail + mobile strip). Active state is driven by
+         aria-pressed so the styling stays in sync with the a11y state the script sets. */
+      .feed-filter { color: var(--color-muted); border: 1px solid transparent; }
+      .feed-filter:hover { background: var(--color-surface); color: var(--color-ink); }
+      .feed-filter[aria-pressed="true"] { background: var(--color-surface); border-color: var(--color-hairline); color: var(--color-ink-strong); font-weight: 500; }
+      .feed-filter-count { color: var(--color-muted); }
+      .feed-chip { color: var(--color-muted); background: var(--color-surface); border: 1px solid var(--color-hairline); }
+      .feed-chip[aria-pressed="true"] { color: var(--color-ink-strong); border-color: var(--color-accent); }
+    </style>
+
+    <script>
+      // Client-side category filter for the briefings feed. Rail buttons and mobile
+      // chips share [data-filter]; cards carry [data-category]. No reload — cards are
+      // shown/hidden in place, and aria-pressed is kept in sync across both controls.
+      const filters = Array.from(document.querySelectorAll<HTMLElement>('[data-filter]'));
+      const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-briefing-card]'));
+      function applyFeedFilter(cat: string) {
+        for (const card of cards) {
+          const match = cat === 'all' || card.getAttribute('data-category') === cat;
+          // Inline display beats the card's `block` utility with no !important and
+          // no reliance on Astro style-scoping cooperating with a JS-added class.
+          card.style.display = match ? '' : 'none';
+        }
+        for (const f of filters) {
+          f.setAttribute('aria-pressed', f.getAttribute('data-filter') === cat ? 'true' : 'false');
+        }
+      }
+      for (const f of filters) {
+        f.addEventListener('click', () => applyFeedFilter(f.getAttribute('data-filter') || 'all'));
+      }
+    </script>
 
     <!-- Footer info strip -->
     <div class="grid sm:grid-cols-3 gap-0 mt-16 border-t border-ink pt-6">
