@@ -177,7 +177,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                   <span class="text-xs font-semibold uppercase tracking-widest text-muted shrink-0">Featured</span>
                   <div class="h-px flex-1 bg-hairline" />
                 </div>
-                <div class="grid sm:grid-cols-2 gap-4 items-start">
+                <div class="grid md:grid-cols-2 gap-4 items-start">
                   {featuredBriefings.map((b) => <BriefingCard b={b} size="featured" />)}
                 </div>
               </div>
@@ -229,7 +229,8 @@ const presentCategories = Object.keys(categoryCounts).sort();
       @media (min-width: 768px) {
         .feed-mosaic { grid-template-columns: repeat(6, minmax(0, 1fr)); }
         .feed-mosaic > :global([data-briefing-card]) { grid-column: var(--span, span 2); }
-        .feed-mosaic.is-filtering { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        /* Per-topic (filtered) view: fewer, larger cards. */
+        .feed-mosaic.is-filtering { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .feed-mosaic.is-filtering > :global([data-briefing-card]) { grid-column: auto; }
       }
     </style>
