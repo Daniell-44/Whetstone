@@ -1,0 +1,99 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../layouts/Base.astro';
+import { makeAuthDb } from '../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
+
+const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB)).catch(() => null);
+const isLoggedIn = !!session;
+---
+<Base
+  title="Feedback - The Whetstone"
+  description="Tell us what's working, what isn't, and what you'd like the audit to do next."
+  canonicalPath="/feedback"
+  isLoggedIn={isLoggedIn}
+>
+  <main class="max-w-2xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-24">
+    <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-2">Feedback</h1>
+    <p class="text-base text-ink leading-relaxed mb-8">
+      The Whetstone is early and improving in the open. Tell us what's working, what isn't,
+      where a briefing or an audit misses — or what you'd like to see next. Every note is read.
+    </p>
+
+    <form id="feedback-form" class="space-y-4">
+      <div>
+        <label for="fb-message" class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1.5">Your feedback</label>
+        <textarea
+          id="fb-message"
+          name="message"
+          required
+          maxlength="4000"
+          rows="7"
+          placeholder="What's on your mind?"
+          class="w-full rounded-md border border-hairline bg-surface p-3 text-[0.9375rem] text-ink leading-relaxed placeholder:text-muted focus:outline-none focus:border-accent"
+        ></textarea>
+      </div>
+
+      <div>
+        <label for="fb-email" class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1.5">Email <span class="normal-case font-normal text-muted">(optional, if you'd like a reply)</span></label>
+        <input
+          id="fb-email"
+          name="email"
+          type="email"
+          maxlength="200"
+          placeholder="you@example.com"
+          class="w-full rounded-md border border-hairline bg-surface p-3 text-[0.9375rem] text-ink placeholder:text-muted focus:outline-none focus:border-accent"
+        />
+      </div>
+
+      <div class="flex items-center gap-4 pt-1">
+        <button
+          type="submit"
+          id="fb-submit"
+          class="inline-flex items-center rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent-support transition-colors disabled:opacity-60"
+        >
+          Send feedback
+        </button>
+        <p id="fb-status" class="text-sm text-muted" aria-live="polite"></p>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const form   = document.getElementById('feedback-form') as HTMLFormElement | null;
+    const status = document.getElementById('fb-status');
+    const submit = document.getElementById('fb-submit') as HTMLButtonElement | null;
+    const messageEl = document.getElementById('fb-message') as HTMLTextAreaElement | null;
+    const emailEl   = document.getElementById('fb-email') as HTMLInputElement | null;
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!messageEl || !status || !submit) return;
+      const message = messageEl.value.trim();
+      if (!message) { status.textContent = 'Please write a message.'; return; }
+
+      submit.disabled = true;
+      status.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/site-feedback', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ message, email: emailEl?.value.trim() ?? '', path: document.referrer || location.pathname }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.ok) {
+          form?.reset();
+          status.textContent = 'Thanks — your feedback was sent.';
+        } else {
+          status.textContent = data?.error?.message ?? 'Something went wrong. Please try again.';
+        }
+      } catch {
+        status.textContent = 'Network error — please try again.';
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  </script>
+</Base>
