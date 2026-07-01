@@ -22,6 +22,7 @@ export function normalizeForMatch(s: string): string {
     .replace(/[‘’ʼ]/g, "'")
     .replace(/[“”]/g, '"')
     .replace(/[–—−]/g, '-')
+    .replace(/\\/g, '')       // LaTeX-escaped punctuation in academic abstracts (e.g. arXiv "15\%") is cosmetic
     .replace(/\s+/g, ' ')
     .trim();
 }

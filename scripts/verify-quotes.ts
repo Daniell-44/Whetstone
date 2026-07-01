@@ -14,12 +14,42 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as url from 'node:url';
+import { parseHTML } from 'linkedom';
 import { parseBriefingFile } from '../functions/_lib/briefing/parse';
 import { collectQuoteChecks, quoteMatch } from '../functions/_lib/briefing/verify-quotes';
-import { fetchAndExtract } from '../functions/_lib/extract/article';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const DIR = path.resolve(__dirname, '..', 'src', 'content', 'briefings');
+
+const UA =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+  '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
+// Lightweight page-text fetch for quote checking. Unlike the article extractor
+// (which needs ≥250 words of <p> text and so fails on abstract pages like
+// arXiv), this returns the page's decoded text so we can search for the quote
+// anywhere in it — works on arXiv abstracts, think-tank pages, gov PDFs-as-HTML,
+// etc. Returns null on a non-200 or a genuinely empty page.
+async function fetchPageText(pageUrl: string): Promise<string | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20_000);
+  try {
+    const res = await fetch(pageUrl, {
+      signal:   controller.signal,
+      redirect: 'follow',
+      headers:  { 'User-Agent': UA, 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const doc  = (parseHTML(html) as unknown as { document: { body?: { textContent?: string } } }).document;
+    const text = (doc.body?.textContent ?? '').replace(/\s+/g, ' ').trim();
+    return text.length > 0 ? text : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 async function main(): Promise<void> {
   const arg = process.argv[2];
@@ -51,8 +81,7 @@ async function main(): Promise<void> {
     for (const c of checks) {
       let body = bodyCache.get(c.url);
       if (body === undefined) {
-        const res = await fetchAndExtract(c.url);
-        body = res.ok ? res.article.text : null;
+        body = await fetchPageText(c.url);
         bodyCache.set(c.url, body);
       }
 
