@@ -24,7 +24,8 @@
     "verify:quotes": "tsx scripts/verify-quotes.ts",
     "regen:samples": "tsx scripts/regen-samples.ts",
     "eval:grounded": "tsx evals/grounded/runner.ts",
-    "eval:detection": "tsx evals/detection/runner.ts"
+    "eval:detection": "tsx evals/detection/runner.ts",
+    "eval:a4": "tsx evals/a4-rebanding.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.3",

@@ -21,21 +21,22 @@ function findings(a: AuditResult): { quote: string; sev: Sev; lens: string }[] {
 }
 const counts = (ss: Sev[]) => ({ high: ss.filter(s => s === 'high').length, medium: ss.filter(s => s === 'medium').length, low: ss.filter(s => s === 'low').length });
 
-let total = 0, changed = 0, up = 0, down = 0;
+let total = 0, changed = 0, up = 0, down = 0, matched = 0;
 for (const s of SAMPLES) {
   const fs = findings(s.cached.audit);
   const rows = fs.map(f => {
     const cs = contextualSeverity({ quote: f.quote, severity: f.sev }, s.cached.extraction);
-    return { ...f, band: cs.band as Sev, reason: cs.reason, matched: cs.matchedStatementId, changed: cs.band !== f.sev };
+    return { ...f, band: cs.band as Sev, reason: cs.reason, matchedId: cs.matchedStatementId, delta: cs.delta, changed: cs.band !== f.sev };
   });
   total += rows.length;
   const ch = rows.filter(r => r.changed);
   changed += ch.length;
+  matched += rows.filter(r => r.matchedId).length;
   for (const r of ch) (rank[r.band] > rank[r.sev] ? up++ : down++);
   console.log(`\n### ${s.shortLabel} — ${rows.length} findings, ${s.cached.extraction.statements.length} statements`);
-  console.log(`  base: ${JSON.stringify(counts(rows.map(r => r.sev)))}   ctx: ${JSON.stringify(counts(rows.map(r => r.band)))}`);
-  for (const r of ch) console.log(`  ${r.sev} -> ${r.band}  [${r.lens}] "${r.quote.slice(0, 46)}${r.quote.length > 46 ? '…' : ''}" (${r.reason}${r.matched ? `, ${r.matched}` : ''})`);
-  if (ch.length === 0) console.log('  (no band changes)');
+  console.log(`  base: ${JSON.stringify(counts(rows.map(r => r.sev)))}   ctx: ${JSON.stringify(counts(rows.map(r => r.band)))}   matched: ${rows.filter(r => r.matchedId).length}/${rows.length}`);
+  for (const r of rows.filter(r => r.matchedId)) console.log(`  ${r.sev}${r.changed ? ` -> ${r.band}` : ''}  Δ${r.delta >= 0 ? '+' : ''}${r.delta}  [${r.lens}] "${r.quote.slice(0, 44)}${r.quote.length > 44 ? '…' : ''}" (${r.reason}, ${r.matchedId})`);
+  if (rows.every(r => !r.matchedId)) console.log('  (nothing matched a statement)');
 }
-console.log(`\n=== A4 phase-1 re-banding over ${SAMPLES.length} cached samples ===`);
-console.log(`findings: ${total}   changed: ${changed}  (${up} up, ${down} down)   unchanged: ${total - changed}`);
+console.log(`\n=== A4 join re-banding over ${SAMPLES.length} cached samples ===`);
+console.log(`findings: ${total}   matched: ${matched}   band-changed: ${changed}  (${up} up, ${down} down)`);

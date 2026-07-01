@@ -27,7 +27,7 @@ describe('loadFactor', () => {
     expect(loadFactor(byId('C1'), statements)).toBe(1.3);   // conclusion
     expect(loadFactor(byId('P1'), statements)).toBe(1.15);  // premise C1 derives from
     expect(loadFactor(byId('P3'), statements)).toBe(0.95);  // aside — no conclusion uses it
-    expect(loadFactor(null, statements)).toBe(0.85);        // couldn't place it
+    expect(loadFactor(null, statements)).toBe(1.0);         // couldn't place it → NEUTRAL (no downgrade)
   });
 });
 
@@ -56,16 +56,23 @@ describe('contextualSeverity', () => {
     const r = contextualSeverity({ quote: 'anything', severity: 'medium' }, null);
     expect(r.baseBand).toBe('medium');
     expect(r.matchedStatementId).toBeNull();
-    expect(r.band).toBe('medium');            // 2 × 1 × 0.85 = 1.7 → medium
+    expect(r.band).toBe('medium');            // 2 × 1 (unmatched neutral) = 2.0 → medium (unchanged)
   });
 });
 
 describe('phase-2 opts', () => {
-  const finding = { quote: 'Increasing the minimum wage will reduce youth employment', severity: 'medium' as const };
-  it('a decisive (recoverable:false) or high-stakes finding can be pushed up a band', () => {
-    expect(contextualSeverity(finding, extraction).band).toBe('medium');                         // 2 × 1.2 × 1.15 = 2.76
-    expect(contextualSeverity(finding, extraction, { recoverable: false }).band).toBe('high');    // × 1.1 = 3.036
-    expect(contextualSeverity(finding, extraction, { stakesFactor: 1.2 }).band).toBe('high');     // × 1.2 = 3.312
+  // Use an UNMATCHED finding (base delta 0) so the opt is what moves the band.
+  const finding = { quote: 'the weather in Paris was pleasant', severity: 'medium' as const };
+  it('a decisive (recoverable:false) or high-stakes finding shifts up one band', () => {
+    expect(contextualSeverity(finding, extraction).band).toBe('medium');                        // delta 0 (unmatched)
+    expect(contextualSeverity(finding, extraction, { recoverable: false }).band).toBe('high');   // +1
+    expect(contextualSeverity(finding, extraction, { stakesFactor: 1.2 }).band).toBe('high');    // +1
+  });
+  it('caps the total shift at one band even when several nudges stack', () => {
+    // load-bearing contested (+1) + recoverable:false (+1) + high stakes (+1) still = +1
+    const r = contextualSeverity({ quote: 'Increasing the minimum wage will reduce youth employment', severity: 'low' }, extraction, { recoverable: false, stakesFactor: 1.5 });
+    expect(r.delta).toBe(1);
+    expect(r.band).toBe('medium');   // low + 1 = medium, not high
   });
 });
 
