@@ -605,6 +605,15 @@ export default function StudioEditor({
         .then(data => {
           if (data.ok) {
             setCitationState({ status: 'done', data: data.result });
+            // Persist onto the version so a reopened draft rehydrates Source
+            // Match (citation runs via a non-version endpoint, so save explicitly).
+            if (currentDocId && currentVersionId) {
+              void fetch(`/api/documents/${currentDocId}/versions/${currentVersionId}/citation`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ result: data.result }),
+              }).catch(() => {});
+            }
           } else {
             const code = data.error.code;
             setCitationState({ status: 'error', code, message: CITATION_ERROR_MESSAGES[code] ?? data.error.message });
