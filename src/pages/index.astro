@@ -57,7 +57,7 @@ import { userHasActiveSubscriptionViaWorkspace } from '../../functions/_lib/work
 
 // Scorecards superseded by an article-format briefing — hidden from the feed so
 // they don't double-appear. (Remove the scorecard data entirely once migrated.)
-const SUPERSEDED_SCORECARDS = new Set(['minimum-wage-employment', 'ai-creative-jobs']);
+const SUPERSEDED_SCORECARDS = new Set(['minimum-wage-employment', 'ai-creative-jobs', 'smartphone-ban-schools', 'climate-individual-action', 'social-media-regulation', 'gene-editing-embryos', 'effective-altruism']);
 const scorecards = (await listScorecards(env.SCORECARDS)).filter((sc) => !SUPERSEDED_SCORECARDS.has(sc.slug));
 
 // Deeper lenses on the Reader are Pro-gated; detect subscription for the teaser.
@@ -106,8 +106,8 @@ function cardMeta(sc: Scorecard) {
 }
 
 const categoryCounts: Record<string, number> = {};
-for (const sc of scorecards) {
-  if (sc.category) categoryCounts[sc.category] = (categoryCounts[sc.category] ?? 0) + 1;
+for (const b of briefings) {
+  if (b.category) categoryCounts[b.category] = (categoryCounts[b.category] ?? 0) + 1;
 }
 const presentCategories = Object.keys(categoryCounts).sort();
 ---
@@ -138,9 +138,9 @@ const presentCategories = Object.keys(categoryCounts).sort();
         </a>
       </div>
 
-      {scorecards.length === 0 ? (
+      {briefings.length === 0 && scorecards.length === 0 ? (
         <div class="py-20 border-t border-hairline text-center">
-          <p class="font-serif text-2xl text-hairline">No scorecards published yet.</p>
+          <p class="font-serif text-2xl text-hairline">No briefings published yet.</p>
         </div>
       ) : (
         <div class="flex flex-col lg:flex-row gap-8">
@@ -151,7 +151,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
             <nav class="space-y-1">
               <a href="#all" class="flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium bg-surface border border-hairline text-ink-strong">
                 <span>All</span>
-                <span class="text-xs text-muted">{scorecards.length}</span>
+                <span class="text-xs text-muted">{briefings.length}</span>
               </a>
               {presentCategories.map(cat => (
                 <a
@@ -166,10 +166,10 @@ const presentCategories = Object.keys(categoryCounts).sort();
             <div class="mt-6 pt-6 border-t border-hairline">
               <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">About</p>
               <p class="text-xs text-muted leading-relaxed">
-                Each scorecard is an audited argument - claim, evidence, reasoning, and where it breaks down.
+                Each briefing takes one contested question and audits every position — claim, evidence, and where the reasoning breaks down.
               </p>
               <a href="/how-it-works" class="block mt-3 text-xs text-accent hover:text-accent-support font-medium">
-                How scorecards work →
+                How briefings work →
               </a>
             </div>
           </aside>
@@ -177,7 +177,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
           <!-- Mobile category strip -->
           <div class="lg:hidden flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-2 scrollbar-thin">
             <a href="#all" class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-surface border border-hairline text-ink-strong">
-              All ({scorecards.length})
+              All ({briefings.length})
             </a>
             {presentCategories.map(cat => (
               <a href={`#${cat}`} class="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-surface border border-hairline text-muted capitalize">
