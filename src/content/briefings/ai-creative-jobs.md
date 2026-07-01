@@ -11,8 +11,8 @@ goldman   | Goldman Sachs (300M exposed)     | Goldman Sachs Research  | https:/
 gpts      | Eloundou et al., "GPTs are GPTs" | arXiv                   | https://arxiv.org/abs/2303.10130     | -62 | left
 frey      | Frey & Osborne lineage           | Oxford Martin           | https://www.oxfordmartin.ox.ac.uk/   | -70 | left
 acemoglu  | Acemoglu, the "task" view        | NBER                    | https://www.nber.org/                | -10 | mid
-brookings | Brookings, creative labour       | Brookings Institution   | https://www.brookings.edu/           |   6 | mid   | assessed
-nberwork  | Generative AI at Work            | NBER                    | https://www.nber.org/papers/w31161   |  45 | right
+brookings | Brookings, freelance market | Brookings Institution | https://www.brookings.edu/articles/is-generative-ai-a-job-killer-evidence-from-the-freelance-market/ | 6 | mid | assessed
+nberwork  | Brynjolfsson et al., "Generative AI at Work" | arXiv | https://arxiv.org/abs/2304.11771 | 45 | right
 mckinsey  | McKinsey, 800 agencies           | McKinsey Digital        | https://www.mckinsey.com/            |  72 | right | assessed
 hbr       | HBR, augmentation                | Harvard Business Review | https://hbr.org/                     |  80 | right
 
@@ -26,22 +26,22 @@ The figure measures exposure at the level of individual work tasks, then gets re
 
 The optimists answer from the other end of the same data.
 
-::position colour=1 source=mckinsey label="Augmentation"
-Surveying 800 agencies through the first adoption wave, McKinsey reported "no net headcount reduction" — junior roles shifted toward oversight and editing, while output per worker and client demand rose together. The historical pattern, they argue, is that tools which raise output expand markets faster than they shrink employment.
-::audit name="Hasty Generalisation" kind=structural
-The reassuring numbers come only from agencies that survived the transition; the ones that closed are absent from the sample, so survivorship bias understates displacement.
+::position colour=1 source=nberwork label="Augmentation"
+The optimistic case leans on field evidence rather than forecasts. In a study of workers given an AI assistant, Brynjolfsson and colleagues found that "Access to AI assistance increases worker productivity, as measured by issues resolved per hour, by 15% on average, with substantial heterogeneity across workers" — the largest gains going to the least experienced. The pattern, optimists argue, is the familiar one: tools that raise output expand markets faster than they shrink employment.
+::audit name="Non Sequitur" kind=structural
+Two leaps carry the claim to "creative jobs are safe": the study measured customer-support agents, not creative workers, and it measured output per worker, not whether jobs survive — higher productivity is as consistent with fewer workers as with more.
 
 A third camp says both are right about different halves of the work.
 
-::position colour=2 source=brookings label="Bifurcation"
-Brookings draws the line down the middle: "commoditised production and distinctive authorship part ways." Stock-photography revenue collapsed while gallery and signature-artist markets grew in parallel — AI substitutes for the replicable and complements the distinctive. The boundary moves, but it doesn't close.
-::audit name="Unstated Power Assumption" kind=structural
-It assumes markets can reliably tell "human" authorship from AI output — but that legibility depends on platform rules, copyright, and credentialing systems that are themselves in flux.
+::position colour=2 source=brookings label="Premium collapse"
+A third reading says the comfort of a protected top tier is exactly what the data denies. Studying the online freelance market after ChatGPT, Brookings found that "those with stronger past performance—as measured by client feedback, contract history, and other platform-based reputational metrics—experience larger declines in both the number of new contracts and total monthly earnings." AI let lower-rated freelancers approximate top-tier output, so it compressed the skill premium rather than splitting the market — the most experienced were hit hardest.
+::audit name="Hasty Generalisation" kind=structural
+The evidence is from online freelance platforms specifically; stretching "the premium collapsed here" to all distinctive creative work assumes gallery, staff, and signature-artist markets clear the same way, which the study never tested.
 
 ::shared
-All three treat market demand as exogenous — a fixed object the technology displaces, augments, or splits. None defends a demand-elasticity assumption, yet that parameter is doing the real work: high elasticity makes augmentation true, low elasticity makes displacement true. Argue the elasticity and you would actually be arguing the question.
+All three treat market demand as exogenous — a fixed object the technology displaces, augments, or redistributes. None defends a demand-elasticity assumption, yet that parameter is doing the real work: high elasticity makes augmentation true, low elasticity makes displacement true. Argue the elasticity and you would actually be arguing the question.
 
 ::editor
-My read: the bifurcation case is the most honest, but it understates how quickly the "distinctive" tier can itself be commoditised once the tools learn a signature style.
+My read: the freelance evidence is the most unsettling of the three, because it denies the one comfort everyone reaches for — a protected top tier. But it comes from a single slice of the market, so how far it generalises is the real open question.
 ::why-wrong
-If demand for creative work is genuinely elastic, cheaper production could expand the whole market enough that even the displaced find new seats.
+If demand for creative work is elastic enough, cheaper production could expand the whole market fast enough that even the de-premiumed find new seats.
