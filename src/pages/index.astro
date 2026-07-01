@@ -5,8 +5,9 @@ import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
 import AuditForm from '../components/audit/AuditForm';
 import HeroHeadline from '../components/reader/HeroHeadline';
-import PositionSpectrum from '../components/scorecard/PositionSpectrum.astro';
+import BriefingCard from '../components/briefing/BriefingCard.astro';
 import { getAllBriefings } from '../lib/briefings';
+import { featured } from '../data/featured';
 import type { BriefingArticle } from '../../functions/_lib/briefing/types';
 
 const briefings = getAllBriefings();
@@ -28,25 +29,6 @@ const auditPrefill = auditTarget ? briefingPlainText(auditTarget) : '';
 const auditUrlParam = Astro.url.searchParams.get('url') ?? '';
 const auditUrl      = auditUrlParam.startsWith('http') ? auditUrlParam : '';
 
-function briefingDek(b: BriefingArticle): string {
-  const l = b.blocks.find((bl) => bl.type === 'landscape');
-  return l && 'text' in l ? l.text : '';
-}
-
-function briefingCard(b: BriefingArticle) {
-  const isExplainer = b.kind === 'explainer';
-  const leaningById: Record<string, number> = Object.fromEntries(b.sources.map((s) => [s.id, s.leaning]));
-  const positions = b.blocks.flatMap((bl) =>
-    bl.type === 'position' ? [{ label: bl.label, leaning: leaningById[bl.sourceId] ?? 0 }] : [],
-  );
-  const shared = b.blocks.find((bl) => bl.type === 'shared');
-  const firstProse = b.blocks.find((bl) => bl.type === 'prose');
-  // Explainers have no audit verdict — lead with the opening line instead.
-  const dek = isExplainer
-    ? (firstProse && 'text' in firstProse ? firstProse.text : briefingDek(b))
-    : (shared && 'text' in shared ? shared.text : briefingDek(b));
-  return { isExplainer, positions, dek, axis: b.spectrumAxis };
-}
 import { makeAuthDb } from '../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
 import { makeBillingDb } from '../../functions/_lib/billing/subscription';
@@ -59,22 +41,22 @@ const isPro = session
   ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
   : false;
 
-// Category tag colours
-const CATEGORY_STYLES: Record<string, { bg: string; text: string; chip: string }> = {
-  politics:    { bg: 'bg-red-600',     text: 'text-white', chip: 'bg-red-100 text-red-700' },
-  economics:   { bg: 'bg-emerald-600', text: 'text-white', chip: 'bg-emerald-100 text-emerald-700' },
-  science:     { bg: 'bg-blue-600',    text: 'text-white', chip: 'bg-blue-100 text-blue-700' },
-  technology:  { bg: 'bg-violet-600',  text: 'text-white', chip: 'bg-violet-100 text-violet-700' },
-  health:      { bg: 'bg-pink-600',    text: 'text-white', chip: 'bg-pink-100 text-pink-700' },
-  culture:     { bg: 'bg-amber-600',   text: 'text-white', chip: 'bg-amber-100 text-amber-700' },
-  philosophy:  { bg: 'bg-indigo-600',  text: 'text-white', chip: 'bg-indigo-100 text-indigo-700' },
-  law:         { bg: 'bg-gray-700',    text: 'text-white', chip: 'bg-gray-200 text-gray-700' },
-  environment: { bg: 'bg-green-600',   text: 'text-white', chip: 'bg-green-100 text-green-700' },
-  education:   { bg: 'bg-sky-600',     text: 'text-white', chip: 'bg-sky-100 text-sky-700' },
-};
+// Featured band vs mosaic split. `featured` (src/data/featured.ts) is the curated
+// front page, in order; everything else flows into the asymmetric mosaic below,
+// newest first (getAllBriefings already sorts by date desc).
+const bySlug = new Map(briefings.map((b) => [b.slug, b]));
+const featuredBriefings = featured
+  .map((slug) => bySlug.get(slug))
+  .filter((b): b is BriefingArticle => b != null);
+const featuredSet = new Set(featuredBriefings.map((b) => b.slug));
+const restBriefings = briefings.filter((b) => !featuredSet.has(b.slug));
 
-// Solid dot palette for the position spectrum — must match PositionSpectrum.astro.
-const SPECTRUM_DOT = ['bg-sky-600', 'bg-rose-600', 'bg-amber-600', 'bg-emerald-600', 'bg-violet-600'];
+// Option-1 asymmetric mosaic: a 6-column grid where each card's span cycles
+// through [wide, narrow] → [trio] → [narrow, wide] → [trio]. The wide feature
+// (span 4) flips sides each cycle; every row sums to 6 so full rows stay clean.
+// The cycle drives BOTH the column span and the card size (wide vs standard).
+const SPAN_CYCLE = [4, 2, 2, 2, 2, 2, 4, 2, 2, 2];
+const spanFor = (i: number) => SPAN_CYCLE[i % SPAN_CYCLE.length];
 
 const categoryCounts: Record<string, number> = {};
 for (const b of briefings) {
@@ -161,72 +143,38 @@ const presentCategories = Object.keys(categoryCounts).sort();
                width-cap), so the grid spans to the section header on wide screens. -->
           <div class="min-w-0 w-full">
 
-            <!-- Article-format briefings (new) — lead the feed -->
-            {briefings.length > 0 && (
-              <div class="grid sm:grid-cols-2 gap-4 mb-8 items-start">
-                {briefings.map((b, idx) => {
-                  const card = briefingCard(b);
-                  // Restrained card: hairline surface + a thin top-rule in the
-                  // type colour (accent=briefing, teal=explainer) for contrast
-                  // without a heavy banner. Image shows only when a real one exists.
-                  const ruleCls = card.isExplainer ? 'border-t-accent-support' : 'border-t-accent';
-                  const eyebrowCls = card.isExplainer ? 'text-accent-support' : 'text-accent';
-                  return (
-                    <a
-                      href={`/briefing/${b.slug}`}
-                      data-briefing-card
-                      data-category={b.category ?? ''}
-                      class={`group block bg-surface border border-hairline border-t-2 ${ruleCls} rounded-md p-5 sm:p-6 hover:border-accent/40 hover:shadow-sm transition-all ${idx === 0 ? 'sm:col-span-2' : ''}`}
-                    >
-                      {/* Briefings get a banner (real image, else a category-colour
-                         placeholder until real art lands); explainers stay text-first. */}
-                      {!card.isExplainer && (
-                        b.image ? (
-                          <img src={b.image} alt="" loading="lazy" class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} object-cover rounded-md mb-4`} />
-                        ) : (
-                          <div class={`w-full ${idx === 0 ? 'h-44' : 'h-28'} rounded-md mb-4 flex items-center justify-center ${b.category && CATEGORY_STYLES[b.category] ? CATEGORY_STYLES[b.category].bg : 'bg-ink'}`}>
-                            <span class="font-serif text-paper/70 text-base sm:text-lg capitalize">{b.category ?? 'Briefing'}</span>
-                          </div>
-                        )
-                      )}
-                      <div class="flex items-center gap-2 mb-2.5 flex-wrap">
-                        <span class={`text-xs font-semibold uppercase tracking-widest ${eyebrowCls}`}>
-                          {card.isExplainer ? 'Explainer' : 'Briefing'}
-                        </span>
-                        {b.category && (
-                          <span class="text-xs font-medium uppercase tracking-wider text-muted">· {b.category}</span>
-                        )}
-                        {!card.isExplainer && (
-                          <span class="text-xs text-muted">· {card.positions.length} positions · {b.sources.length} sources</span>
-                        )}
-                      </div>
-                      <h3 class={`font-serif text-lg sm:text-xl text-ink-strong group-hover:text-accent transition-colors leading-snug ${card.isExplainer ? '' : 'mb-2'}`}>
-                        {b.question}
-                      </h3>
-                      {/* Explainers are compact — headline only, no dek — so two
-                         stack in a briefing's footprint. Briefings keep the audit dek. */}
-                      {!card.isExplainer && (
-                        <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
-                          <span class="font-medium text-muted">Audit found</span>: {card.dek}
-                        </p>
-                      )}
-                      {card.positions.length > 0 && (
-                        <div>
-                          <PositionSpectrum positions={card.positions} axis={card.axis} compact />
-                          <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
-                            {card.positions.map((p, i) => (
-                              <span class="inline-flex items-center gap-1 text-xs text-muted">
-                                <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
-                                {p.label}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </a>
-                  );
-                })}
+            {/* Curated featured band (src/data/featured.ts). The filter script
+               hides it when a category filter leaves it with no matching cards. */}
+            {featuredBriefings.length > 0 && (
+              <div id="feed-featured" class="mb-10">
+                <div class="flex items-center gap-3 mb-4">
+                  <span class="text-xs font-semibold uppercase tracking-widest text-muted shrink-0">Featured</span>
+                  <div class="h-px flex-1 bg-hairline" />
+                </div>
+                <div class="grid sm:grid-cols-2 gap-4 items-start">
+                  {featuredBriefings.map((b) => <BriefingCard b={b} size="featured" />)}
+                </div>
               </div>
+            )}
+
+            {restBriefings.length > 0 && (
+              <Fragment>
+                {featuredBriefings.length > 0 && (
+                  <div class="flex items-center gap-3 mb-4">
+                    <span class="text-xs font-semibold uppercase tracking-widest text-muted shrink-0">Latest</span>
+                    <div class="h-px flex-1 bg-hairline" />
+                  </div>
+                )}
+                {/* Asymmetric mosaic (option 1). Mobile: one column. md+: a 6-col
+                   span cycle set inline as --span. A category filter adds
+                   .is-filtering, collapsing it to a clean uniform grid. */}
+                <div id="feed-mosaic" class="feed-mosaic">
+                  {restBriefings.map((b, i) => {
+                    const span = spanFor(i);
+                    return <BriefingCard b={b} size={span === 4 ? 'wide' : 'standard'} style={`--span: span ${span}`} />;
+                  })}
+                </div>
+              </Fragment>
             )}
 
           </div>
@@ -244,6 +192,17 @@ const presentCategories = Object.keys(categoryCounts).sort();
       .feed-filter-count { color: var(--color-muted); }
       .feed-chip { color: var(--color-muted); background: var(--color-surface); border: 1px solid var(--color-hairline); }
       .feed-chip[aria-pressed="true"] { color: var(--color-ink-strong); border-color: var(--color-accent); }
+      /* Asymmetric mosaic (option 1). Mobile: single column. md+: 6-col grid with a
+         per-card span (set inline as --span). When filtering, collapse to a uniform
+         grid so hidden cards don't leave holes in the pattern. */
+      .feed-mosaic { display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: start; }
+      .feed-mosaic > [data-briefing-card] { grid-column: auto; }
+      @media (min-width: 768px) {
+        .feed-mosaic { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+        .feed-mosaic > [data-briefing-card] { grid-column: var(--span, span 2); }
+        .feed-mosaic.is-filtering { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .feed-mosaic.is-filtering > [data-briefing-card] { grid-column: auto; }
+      }
     </style>
 
     <script>
@@ -252,12 +211,23 @@ const presentCategories = Object.keys(categoryCounts).sort();
       // shown/hidden in place, and aria-pressed is kept in sync across both controls.
       const filters = Array.from(document.querySelectorAll<HTMLElement>('[data-filter]'));
       const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-briefing-card]'));
+      const mosaic = document.getElementById('feed-mosaic');
+      const featuredBand = document.getElementById('feed-featured');
       function applyFeedFilter(cat: string) {
         for (const card of cards) {
           const match = cat === 'all' || card.getAttribute('data-category') === cat;
           // Inline display beats the card's `block` utility with no !important and
           // no reliance on Astro style-scoping cooperating with a JS-added class.
           card.style.display = match ? '' : 'none';
+        }
+        // The mosaic's asymmetric spans assume the full set; when filtering, collapse
+        // it to a uniform grid so hidden cards don't leave holes.
+        mosaic?.classList.toggle('is-filtering', cat !== 'all');
+        // Hide the curated band entirely if the active filter leaves it with no cards.
+        if (featuredBand) {
+          const anyVisible = Array.from(featuredBand.querySelectorAll<HTMLElement>('[data-briefing-card]'))
+            .some((c) => c.style.display !== 'none');
+          featuredBand.style.display = anyVisible ? '' : 'none';
         }
         for (const f of filters) {
           f.setAttribute('aria-pressed', f.getAttribute('data-filter') === cat ? 'true' : 'false');

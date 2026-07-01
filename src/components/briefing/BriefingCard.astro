@@ -1,0 +1,104 @@
+---
+// Single briefing/explainer card, used across the home feed at several sizes.
+// One source of truth for the card look so the featured band and the asymmetric
+// mosaic can't drift apart.
+//
+// size:
+//   featured  — large, always has a banner (real image or category placeholder)
+//   wide      — the mosaic's wide feature cell; always has a banner
+//   standard  — the mosaic's normal cell; image-OPTIONAL (banner only if a real
+//               image exists), otherwise text-first
+// Explainers are always text-first regardless of size.
+import PositionSpectrum from '../scorecard/PositionSpectrum.astro';
+import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
+
+interface Props {
+  b: BriefingArticle;
+  size?: 'featured' | 'wide' | 'standard';
+  style?: string;
+  class?: string;
+}
+const { b, size = 'standard', style, class: extraClass = '' } = Astro.props;
+
+const CATEGORY_STYLES: Record<string, string> = {
+  politics: 'bg-red-600', economics: 'bg-emerald-600', science: 'bg-blue-600',
+  technology: 'bg-violet-600', health: 'bg-pink-600', culture: 'bg-amber-600',
+  philosophy: 'bg-indigo-600', law: 'bg-gray-700', environment: 'bg-green-600',
+  education: 'bg-sky-600',
+};
+const SPECTRUM_DOT = ['bg-sky-600', 'bg-rose-600', 'bg-amber-600', 'bg-emerald-600', 'bg-violet-600'];
+
+function landscapeText(a: BriefingArticle): string {
+  const l = a.blocks.find((bl) => bl.type === 'landscape');
+  return l && 'text' in l ? l.text : '';
+}
+
+const isExplainer = b.kind === 'explainer';
+const leaningById: Record<string, number> = Object.fromEntries(b.sources.map((s) => [s.id, s.leaning]));
+const positions = b.blocks.flatMap((bl) =>
+  bl.type === 'position' ? [{ label: bl.label, leaning: leaningById[bl.sourceId] ?? 0 }] : [],
+);
+const shared = b.blocks.find((bl) => bl.type === 'shared');
+const firstProse = b.blocks.find((bl) => bl.type === 'prose');
+// Explainers have no audit verdict — lead with the opening line instead.
+const dek = isExplainer
+  ? (firstProse && 'text' in firstProse ? firstProse.text : landscapeText(b))
+  : (shared && 'text' in shared ? shared.text : landscapeText(b));
+
+const showBanner = !isExplainer && (size === 'featured' || size === 'wide' || !!b.image);
+const bannerH = size === 'featured' ? 'h-44' : 'h-28';
+const ruleCls = isExplainer ? 'border-t-accent-support' : 'border-t-accent';
+const eyebrowCls = isExplainer ? 'text-accent-support' : 'text-accent';
+const headingCls = size === 'featured'
+  ? 'text-xl sm:text-2xl'
+  : size === 'wide' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg';
+---
+<a
+  href={`/briefing/${b.slug}`}
+  data-briefing-card
+  data-category={b.category ?? ''}
+  style={style}
+  class={`group block bg-surface border border-hairline border-t-2 ${ruleCls} rounded-md p-5 sm:p-6 hover:border-accent/40 hover:shadow-sm transition-all ${extraClass}`}
+>
+  {showBanner && (
+    b.image ? (
+      <img src={b.image} alt="" loading="lazy" class={`w-full ${bannerH} object-cover rounded-md mb-4`} />
+    ) : (
+      <div class={`w-full ${bannerH} rounded-md mb-4 flex items-center justify-center ${b.category && CATEGORY_STYLES[b.category] ? CATEGORY_STYLES[b.category] : 'bg-ink'}`}>
+        <span class="font-serif text-paper/70 text-base sm:text-lg capitalize">{b.category ?? 'Briefing'}</span>
+      </div>
+    )
+  )}
+  <div class="flex items-center gap-2 mb-2.5 flex-wrap">
+    <span class={`text-xs font-semibold uppercase tracking-widest ${eyebrowCls}`}>
+      {isExplainer ? 'Explainer' : 'Briefing'}
+    </span>
+    {b.category && (
+      <span class="text-xs font-medium uppercase tracking-wider text-muted">· {b.category}</span>
+    )}
+    {!isExplainer && (
+      <span class="text-xs text-muted">· {positions.length} positions · {b.sources.length} sources</span>
+    )}
+  </div>
+  <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>
+    {b.question}
+  </h3>
+  {!isExplainer && (
+    <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
+      <span class="font-medium text-muted">Audit found</span>: {dek}
+    </p>
+  )}
+  {positions.length > 0 && (
+    <div>
+      <PositionSpectrum positions={positions} axis={b.spectrumAxis} compact />
+      <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+        {positions.map((p, i) => (
+          <span class="inline-flex items-center gap-1 text-xs text-muted">
+            <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
+            {p.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  )}
+</a>
