@@ -192,7 +192,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
             <!-- Article-format briefings (new) — lead the feed -->
             {briefings.length > 0 && (
-              <div class="grid sm:grid-cols-2 gap-4 mb-8">
+              <div class="grid sm:grid-cols-2 gap-4 mb-8 items-start">
                 {briefings.map((b, idx) => {
                   const card = briefingCard(b);
                   // Restrained card: hairline surface + a thin top-rule in the
@@ -227,12 +227,16 @@ const presentCategories = Object.keys(categoryCounts).sort();
                           <span class="text-xs text-muted">· {card.positions.length} positions · {b.sources.length} sources</span>
                         )}
                       </div>
-                      <h3 class="font-serif text-lg sm:text-xl text-ink-strong group-hover:text-accent transition-colors leading-snug mb-2">
+                      <h3 class={`font-serif text-lg sm:text-xl text-ink-strong group-hover:text-accent transition-colors leading-snug ${card.isExplainer ? '' : 'mb-2'}`}>
                         {b.question}
                       </h3>
-                      <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
-                        {card.isExplainer ? card.dek : (<><span class="font-medium text-muted">Audit found</span>: {card.dek}</>)}
-                      </p>
+                      {/* Explainers are compact — headline only, no dek — so two
+                         stack in a briefing's footprint. Briefings keep the audit dek. */}
+                      {!card.isExplainer && (
+                        <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
+                          <span class="font-medium text-muted">Audit found</span>: {card.dek}
+                        </p>
+                      )}
                       {card.positions.length > 0 && (
                         <div>
                           <PositionSpectrum positions={card.positions} axis={card.axis} compact />

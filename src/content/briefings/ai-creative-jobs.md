@@ -19,10 +19,10 @@ hbr       | HBR, augmentation                | Harvard Business Review | https:/
 ::landscape
 The fight over whether generative AI ends creative work has narrowed from "can the machine do it?" to a quieter question: when production gets cheap, does the market for creative work shrink, hold, or grow?
 
-::position colour=0 source=goldman label="Mass displacement"
-The displacement case reaches for scale. Goldman Sachs put "300 million jobs globally exposed" to automation by generative models, and labour-economics models project a 40–60% cut in routine copywriting, illustration, and short-form editorial work by 2030. The logic is the long arc of automation: once the capability exists, affected sectors eventually shed most of their workers.
+::position colour=0 source=gpts label="Mass displacement"
+The displacement case reaches for scale. The "GPTs are GPTs" study found that "around 80% of the U.S. workforce could have at least 10% of their work tasks affected by the introduction of LLMs, while approximately 19% of workers may see at least 50% of their tasks impacted." Read as a jobs forecast, that becomes the long arc of automation: once the capability exists, affected sectors eventually shed most of their workers.
 ::audit name="Texas Sharpshooter" kind=structural
-The headline figure is drawn around the narrow sub-tasks where AI already matches median output, then generalised to whole occupations the studies never measured.
+The figure measures exposure at the level of individual work tasks, then gets read as whole jobs disappearing — but a task being "affected" is not a worker being replaced, and the study never measured occupations.
 
 The optimists answer from the other end of the same data.
 
