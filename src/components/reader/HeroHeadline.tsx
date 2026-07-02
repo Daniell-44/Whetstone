@@ -12,11 +12,11 @@ import { useVariant } from '../../lib/ab/useVariant';
 const COPY = {
   control: {
     headline: 'Think more carefully about arguments.',
-    sub:      'Paste any text, drop a URL, or browse published logic scorecards below.',
+    sub:      'Paste any text, drop a URL, or browse the briefings below.',
   },
   concrete: {
     headline: "See where an argument's reasoning breaks down.",
-    sub:      'Paste any text, drop a URL, or browse a scorecard to see the engine at work.',
+    sub:      'Paste any text, drop a URL, or browse a briefing to see the engine at work.',
   },
 } as const;
 
