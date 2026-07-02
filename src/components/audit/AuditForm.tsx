@@ -365,18 +365,18 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             audit with nothing to paste. Hidden once a result is on screen. */}
         {!result && !loading && (
           <div>
-            <p class="text-xs text-muted mb-2">New here? Start with an example</p>
-            <div class="grid sm:grid-cols-3 gap-3">
+            <p class="text-xs text-muted mb-1.5">New here? Start with an example</p>
+            <div class="grid sm:grid-cols-3 gap-2">
               {EXAMPLES.map(ex => (
                 <button
                   key={ex.label}
                   type="button"
                   onClick={() => loadExample(ex.text)}
-                  class="group text-left rounded-lg border border-hairline bg-surface p-3 hover:border-accent/40 hover:shadow-sm transition-all"
+                  class="group text-left rounded-md border border-hairline bg-surface p-2 hover:border-accent/40 transition-colors"
                 >
-                  <span class="text-[0.625rem] font-semibold uppercase tracking-wider text-muted">{ex.label}</span>
-                  <p class="text-xs text-ink italic leading-snug mt-1.5 line-clamp-3">"{ex.text}"</p>
-                  <span class="inline-block mt-2 text-xs font-medium text-accent group-hover:text-accent-support">Audit this →</span>
+                  <span class="text-[0.5625rem] font-semibold uppercase tracking-wider text-muted">{ex.label}</span>
+                  <p class="text-[0.6875rem] text-muted italic leading-snug mt-1 line-clamp-2">"{ex.text}"</p>
+                  <span class="inline-block mt-1.5 text-[0.6875rem] font-medium text-accent">Audit this →</span>
                 </button>
               ))}
             </div>
