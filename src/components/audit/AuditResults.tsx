@@ -1188,7 +1188,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
               <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="loadedLanguage" preference={terminologyPreference} />
               </h2>
-              <div class="rounded-xl border border-hairline bg-white overflow-hidden">
+              <div class="rounded-xl border border-hairline bg-surface overflow-hidden">
                 <div class="divide-y divide-hairline">
                   {activeLoadedLang.map((item, i) => (
                     <LoadedLanguageRow
