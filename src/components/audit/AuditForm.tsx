@@ -61,6 +61,22 @@ const ERROR_MESSAGES: Record<string, string> = {
 // treated as a URL to fetch; anything else is treated as argument text.
 const URL_RE = /^https?:\/\/\S+$/i;
 
+// Count span-level findings for the results verdict bar. The Reader has no
+// dismissed state (no document), so the raw arrays are the active set.
+function countFindings(r: AuditResult) {
+  const groups: { severity: string }[][] = [
+    r.namedFallacies as { severity: string }[],
+    r.loadedLanguage as { severity: string }[],
+    (r.keyTermScrutiny ?? []) as { severity: string }[],
+    (r.referentChecks ?? []) as { severity: string }[],
+    (r.falsifiabilityChecks ?? []) as { severity: string }[],
+    (r.modalScopeChecks ?? []) as { severity: string }[],
+  ];
+  let total = 0, critical = 0;
+  for (const g of groups) for (const f of g) { total++; if (f.severity === 'high') critical++; }
+  return { total, critical };
+}
+
 // ---------------------------------------------------------------------------
 // Loading state — a progress bar (eased fast-then-slow toward ~90%, never
 // completing until the result lands) plus a skeleton of the result layout.
@@ -161,6 +177,18 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // A4 experimental flag (off by default) — `?ctxsev=1` re-bands severities by
   // argument context for A/B evaluation. Never on in production.
   const ctxSev = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ctxsev') === '1';
+  // The result actually shown (ctxsev re-bands severities when the flag is on).
+  const displayResult = result ? (ctxSev && extraction ? applyContextualSeverity(result, extraction) : result) : null;
+  const counts = result ? countFindings(result) : { total: 0, critical: 0 };
+
+  // Jump-tab teleport within the single results scroll.
+  function jumpTo(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function openStructure() {
+    const el = document.getElementById('r-structure') as HTMLDetailsElement | null;
+    if (el) { el.open = true; requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' })); }
+  }
 
   // Core audit runner, shared by the form submit and the example chips.
   async function runAudit(raw: string) {
@@ -337,40 +365,87 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         </div>
       )}
 
-      {/* Split-panel results - text with highlights left, findings right */}
-      {result && !loading && (
-        <div class="flex flex-col xl:flex-row gap-4 items-start">
+      {/* Verdict-first results (structure 2): a one-line verdict + jump tabs,
+         the findings up top (the payoff), and the argument structure folded into
+         a collapsible below. Jump tabs teleport within this single scroll. */}
+      {result && !loading && displayResult && (
+        <div class="space-y-4">
+          <style>{`
+            .reader-structure > summary { list-style: none; }
+            .reader-structure > summary::-webkit-details-marker { display: none; }
+            .reader-structure .rs-chevron { transition: transform .15s ease; }
+            .reader-structure[open] > summary .rs-chevron { transform: rotate(180deg); }
+          `}</style>
 
-          {/* Left: highlighted text + extraction (only when there's something to show) */}
-          {hasLeftContent && (
-            <div class="w-full xl:w-[55%] space-y-4">
-              {auditedMode === 'text' && sourceText && (
-                <HighlightedDraft
-                  text={sourceText}
-                  audit={result}
-                  activeFindingKey={null}
-                  onHighlightClick={() => {}}
-                />
-              )}
-              {extraction && (
-                <div class="rounded-lg border border-emerald-200 bg-surface p-4">
-                  <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
-                    Argument Skeleton
-                  </h3>
-                  <ArgumentExtraction result={extraction} />
-                </div>
+          {/* Verdict bar */}
+          <div class="rounded-lg border border-hairline bg-surface px-4 py-3">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-sm font-medium text-ink-strong">
+                {counts.total} {counts.total === 1 ? 'issue' : 'issues'} found
+              </span>
+              {counts.critical > 0 && (
+                <span class="inline-flex items-center gap-1 text-xs text-muted">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500" aria-hidden="true" />
+                  {counts.critical} critical
+                </span>
               )}
             </div>
-          )}
+            <p class="text-xs text-muted mt-1 line-clamp-1">
+              <span class="font-medium text-ink">Weakest link:</span> {result.toulmin.weakestLink}
+            </p>
+          </div>
 
-          {/* Right: findings — full width when there's no left panel (e.g. URL audits) */}
-          <div class={`w-full ${hasLeftContent ? 'xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto' : ''}`}>
-            <div class="rounded-lg border border-hairline bg-surface p-4">
-              <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Findings</h3>
-              <AuditResults result={ctxSev && extraction ? applyContextualSeverity(result, extraction) : result} />
+          {/* Jump tabs — teleport within the page (not content-hiding panes) */}
+          <div class="flex items-center gap-1.5 flex-wrap text-xs">
+            <span class="text-muted mr-0.5">Jump to</span>
+            <button type="button" onClick={() => jumpTo('r-findings')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Findings</button>
+            {result.loadedLanguage.length > 0 && (
+              <button type="button" onClick={() => jumpTo('r-language')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Language</button>
+            )}
+            {hasLeftContent && (
+              <button type="button" onClick={() => jumpTo('r-text')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Your text</button>
+            )}
+            <button type="button" onClick={openStructure} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Structure</button>
+          </div>
+
+          {/* Findings up top (+ your text / skeleton beside it on wide screens) */}
+          <div id="r-findings" class="scroll-mt-20 flex flex-col xl:flex-row gap-4 items-start">
+            {hasLeftContent && (
+              <div id="r-text" class="w-full xl:w-[55%] space-y-4 scroll-mt-20">
+                {auditedMode === 'text' && sourceText && (
+                  <HighlightedDraft
+                    text={sourceText}
+                    audit={displayResult}
+                    activeFindingKey={null}
+                    onHighlightClick={() => {}}
+                  />
+                )}
+                {extraction && (
+                  <div class="rounded-lg border border-hairline bg-surface p-4">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+                      Argument skeleton
+                    </h3>
+                    <ArgumentExtraction result={extraction} />
+                  </div>
+                )}
+              </div>
+            )}
+            <div class={`w-full ${hasLeftContent ? 'xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto' : ''}`}>
+              <AuditResults result={displayResult} scope="span" />
             </div>
           </div>
 
+          {/* Argument structure — collapsible, below the findings */}
+          <details id="r-structure" class="reader-structure scroll-mt-20 rounded-lg border border-hairline bg-surface">
+            <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
+              <span class="text-xs font-semibold uppercase tracking-widest text-muted">Argument structure</span>
+              <span class="text-xs text-muted normal-case tracking-normal">claim · Toulmin · weakest link</span>
+              <svg class="rs-chevron ml-auto w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </summary>
+            <div class="px-4 pb-4">
+              <AuditResults result={displayResult} scope="overarching" />
+            </div>
+          </details>
         </div>
       )}
 
@@ -389,21 +464,21 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       {/* Studio conversion panel - names the Pro features the Reader doesn't
          include. Naming the locked features is the upsell. */}
       {result && !loading && (
-        <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-5">
-          <p class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">Go deeper in Studio</p>
+        <div class="rounded-xl border border-hairline bg-paper p-5">
+          <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Go deeper in Studio</p>
           <p class="text-sm text-ink leading-relaxed mb-3">
             The Reader gives you the full structural audit free. Studio adds the tools for working on your own writing:
           </p>
           <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-ink mb-4">
-            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Counterargument (steelman the other side)</li>
-            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Citation audit - checks your sources</li>
-            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Evidence-weighted likelihood</li>
-            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Cross-document self-contradiction check</li>
-            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Save drafts with version history</li>
-            <li class="flex items-start gap-1.5"><span class="text-amber-500">+</span> Inline highlights as you edit</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Counterargument (steelman the other side)</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Citation audit - checks your sources</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Evidence-weighted likelihood</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Cross-document self-contradiction check</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Save drafts with version history</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Inline highlights as you edit</li>
           </ul>
           <div class="flex flex-wrap items-center gap-3">
-            <a href="/creator/studio" class="inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors">
+            <a href="/creator/studio" class="inline-block rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent/90 transition-colors">
               Open Studio →
             </a>
             <a href="/pricing" class="text-xs text-muted hover:text-ink underline">See plans</a>

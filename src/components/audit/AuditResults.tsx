@@ -35,16 +35,25 @@ interface Props {
 // Constants
 // ---------------------------------------------------------------------------
 
+// Cards are neutral (Ink & Ledger) — the severity signal is carried by the dot
+// + outline badge, not a full-bleed colour fill.
 const SEVERITY_CARD: Record<string, string> = {
-  high:   'bg-red-50 border-red-200',
-  medium: 'bg-amber-50 border-amber-200',
-  low:    'bg-paper border-hairline',
+  high:   'bg-surface border-hairline',
+  medium: 'bg-surface border-hairline',
+  low:    'bg-surface border-hairline',
 };
 
 const SEVERITY_BADGE: Record<string, string> = {
-  high:   'bg-red-100 text-red-700',
-  medium: 'bg-amber-100 text-amber-700',
-  low:    'bg-paper text-ink',
+  high:   'border border-red-300 text-red-700',
+  medium: 'border border-amber-300 text-amber-700',
+  low:    'border border-hairline text-muted',
+};
+
+// The remaining colour signal after the card fills were calmed.
+const SEVERITY_DOT: Record<string, string> = {
+  high:   'bg-red-500',
+  medium: 'bg-amber-500',
+  low:    'bg-hairline',
 };
 
 // Plain-language severity: "how much this hurts the argument".
@@ -93,12 +102,14 @@ function ClampText({ text, class: cls = 'text-xs text-ink leading-relaxed' }: { 
 // ---------------------------------------------------------------------------
 
 function SeverityBadge({ severity }: { severity: string }) {
-  const cls = SEVERITY_BADGE[severity] ?? 'bg-paper text-ink';
+  const cls = SEVERITY_BADGE[severity] ?? 'border border-hairline text-muted';
+  const dot = SEVERITY_DOT[severity] ?? 'bg-hairline';
   return (
     <span
-      class={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${cls}`}
+      class={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium shrink-0 bg-surface ${cls}`}
       title="How much this weakens the argument"
     >
+      <span class={`w-1.5 h-1.5 rounded-full ${dot}`} aria-hidden="true" />
       {SEVERITY_LABEL[severity] ?? severity}
     </span>
   );
@@ -1099,11 +1110,11 @@ export default function AuditResults({ result, documentId, versionId, initialAct
             </div>
           )}
 
-          <div class="rounded-lg bg-amber-50 border border-amber-200 p-4">
-            <dt class="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">
+          <div class="rounded-lg bg-paper border border-hairline border-l-2 border-l-accent p-4">
+            <dt class="text-xs font-semibold text-accent uppercase tracking-wide mb-1">
               <LabelWithTooltip label="weakestLink" preference={terminologyPreference} />
             </dt>
-            <dd class="text-sm text-amber-900 leading-relaxed">{result.toulmin.weakestLink}</dd>
+            <dd class="text-sm text-ink leading-relaxed">{result.toulmin.weakestLink}</dd>
           </div>
         </dl>
       </section>
@@ -1111,10 +1122,10 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
       {/* Findings or empty state */}
       {showSpanFindings && (!hasFindings ? (
-        <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-5">
-          <p class="text-sm text-emerald-700">
-            No reasoning patterns or loaded language detected - the argument's structural integrity
-            is the focus of the analysis above.
+        <div class="rounded-xl bg-paper border border-hairline p-5">
+          <p class="text-sm text-ink">
+            No reasoning patterns or loaded language detected — the argument rests on its structural
+            integrity, covered in the analysis.
           </p>
         </div>
       ) : (
@@ -1171,7 +1182,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           )}
 
           {(activeLoadedLang.length > 0 || dismissedLoadedLang.length > 0) && (
-            <section>
+            <section id="r-language" class="scroll-mt-20">
               <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="loadedLanguage" preference={terminologyPreference} />
               </h2>
