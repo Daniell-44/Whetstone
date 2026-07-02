@@ -14,8 +14,6 @@ import { track } from '../../lib/analytics/track';
 // Types
 // ---------------------------------------------------------------------------
 
-type Tab = 'text' | 'url';
-
 type AuditApiResponse =
   | { ok: true;  audit: AuditResult; sourceText?: string; usage: { inputTokens: number; outputTokens: number } }
   | { ok: false; error: { code: string; message: string } };
@@ -31,15 +29,37 @@ type ExtractionApiResponse =
 const MIN_CHARS = 50;
 const MAX_CHARS = 10_000;
 
+// One-click starters for first-time visitors ("beat the blank page"). These are
+// illustrative demo inputs, NOT published editorial — each is a short argument
+// carrying real logical issues for the engine to find. Safe to swap or extend.
+const EXAMPLES: { label: string; text: string }[] = [
+  {
+    label: 'a political claim',
+    text: `Every year we wait to cut taxes, working families fall further behind. My opponent has never run a business, so he simply cannot be trusted with the economy. The choice is simple: either we cut taxes now, or we accept permanent decline. Last time we tried his approach, unemployment went up — so the verdict is already in.`,
+  },
+  {
+    label: 'a news op-ed',
+    text: `The new policy is a disaster. Crime rose in the three months after it passed, which proves the reform caused it. Experts everywhere agree the old system worked better, and no serious person still defends the change. If we truly cared about victims, we would repeal it tomorrow.`,
+  },
+  {
+    label: 'a debate transcript',
+    text: `A: We should ban the app — it's addictive and it harms teenagers. B: So you want the government controlling everything we do online? A: That's not what I said. B: Either the market decides or bureaucrats do; there is no middle ground. And screen time is up, so the app is obviously to blame for rising anxiety.`,
+  },
+];
+
 const ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMITED:      "You've reached the daily audit limit. Come back tomorrow to run more audits.",
-  EXTRACTION_FAILED: "Couldn't extract the article text from that URL. Try pasting the text directly using the Text tab.",
+  EXTRACTION_FAILED: "Couldn't extract the article text from that URL. Try pasting the text directly instead.",
   TOO_SHORT:         'The extracted text was too short to audit. Try pasting the full article text directly.',
-  NOT_HTML:          "That URL doesn't point to an HTML page. Try pasting the text directly using the Text tab.",
+  NOT_HTML:          "That URL doesn't point to an HTML page. Try pasting the text directly instead.",
   FETCH_FAILED:      "Couldn't reach that URL - check it's publicly accessible, or paste the text directly.",
   AUDIT_FAILED:      'The analysis failed. Please try again in a moment.',
   INVALID_INPUT:     'Please check your input and try again.',
 };
+
+// A single pasted token starting with http(s) and containing no whitespace is
+// treated as a URL to fetch; anything else is treated as argument text.
+const URL_RE = /^https?:\/\/\S+$/i;
 
 // ---------------------------------------------------------------------------
 // Loading state — a progress bar (eased fast-then-slow toward ~90%, never
@@ -98,61 +118,64 @@ function AuditLoading() {
 // ---------------------------------------------------------------------------
 
 export default function AuditForm({ isPro = false, initialText = '', initialUrl = '' }: { isPro?: boolean; initialText?: string; initialUrl?: string }) {
-  const [tab, setTab]             = useState<Tab>('text');
-  const [textInput, setTextInput] = useState('');
-  const [urlInput, setUrlInput]   = useState('');
+  const [input, setInput]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [result, setResult]       = useState<AuditResult | null>(null);
   const [extraction, setExtraction] = useState<ArgumentExtractionResult | null>(null);
   const [loadedFromLink, setLoadedFromLink] = useState(false);
-  const formRef = useRef<HTMLDivElement>(null);
-  // The text the audit ran against - used to drive the deeper-lens panel.
-  // For text-tab audits it equals textInput; for URL audits it's the extracted article body.
+  // The text the audit ran against — drives the deeper-lens panel and the
+  // highlighted draft. For text audits it's the pasted text; for URL audits it's
+  // the server-extracted article body.
   const [sourceText, setSourceText] = useState<string>('');
+  // Which mode the *last completed* audit ran in — decides whether the left
+  // highlighted-draft panel appears. Not derived from `input`, which can change
+  // after results render.
+  const [auditedMode, setAuditedMode] = useState<'text' | 'url' | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
 
-  // /?audit=<slug> deep-link from a briefing: pre-load the text and bring the
-  // reader into view. We deliberately don't auto-run — the reader presses Audit
-  // — so a crawler or accidental prefetch of the link can't burn audit quota.
+  // /?audit=<slug> or /?url=<src> deep-link from a briefing: pre-load the field
+  // and bring it into view. We deliberately don't auto-run — the reader presses
+  // the button — so a crawler or accidental prefetch can't burn audit quota.
   useEffect(() => {
     if (initialUrl && initialUrl.startsWith('http')) {
-      setTab('url');
-      setUrlInput(initialUrl);
+      setInput(initialUrl);
       setLoadedFromLink(true);
       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (initialText && initialText.length >= MIN_CHARS) {
-      setTab('text');
-      setTextInput(initialText);
+      setInput(initialText);
       setLoadedFromLink(true);
       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, []);
 
-  const charCount = textInput.length;
+  const trimmed   = input.trim();
+  const looksUrl  = URL_RE.test(trimmed);
+  const charCount = input.length;
   const textValid = charCount >= MIN_CHARS && charCount <= MAX_CHARS;
-  const urlValid  = urlInput.trim().startsWith('http');
-  const canSubmit = !loading && (tab === 'text' ? textValid : urlValid);
-  // The left panel only has content for text audits (highlighted draft / skeleton).
-  // For URL audits it's empty, so findings take the full width instead of a 45% column.
-  const hasLeftContent = (tab === 'text' && !!textInput) || !!extraction;
+  const canSubmit = !loading && (looksUrl || textValid);
+  // The left panel only has content for text audits (highlighted draft) or when
+  // an extraction skeleton came back. For URL audits it's empty, so findings
+  // take the full width instead of a 45% column.
+  const hasLeftContent = (auditedMode === 'text' && !!sourceText) || !!extraction;
   // A4 experimental flag (off by default) — `?ctxsev=1` re-bands severities by
   // argument context for A/B evaluation. Never on in production.
   const ctxSev = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ctxsev') === '1';
 
-  function switchTab(t: Tab) {
-    setTab(t);
-    setError(null);
-  }
+  // Core audit runner, shared by the form submit and the example chips.
+  async function runAudit(raw: string) {
+    const t      = raw.trim();
+    const isUrl  = URL_RE.test(t);
+    const isText = !isUrl;
+    // Guard: text needs to clear the length bounds; URLs always pass.
+    if (isText && !(raw.length >= MIN_CHARS && raw.length <= MAX_CHARS)) return;
 
-  async function handleSubmit(e: Event) {
-    e.preventDefault();
     setLoading(true);
     setError(null);
     setResult(null);
     setExtraction(null);
 
-    const isText = tab === 'text';
-    const body   = isText ? { text: textInput } : { url: urlInput.trim() };
+    const body      = isText ? { text: raw } : { url: t };
     const startedAt = performance.now();
     track('audit_started', { surface: 'reader', source_kind: isText ? 'text' : 'url' });
 
@@ -170,7 +193,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           fetch('/api/extract-argument', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ text: textInput }),
+            body:    JSON.stringify({ text: raw }),
           }).then(r => r.json() as Promise<ExtractionApiResponse>),
         );
       }
@@ -182,9 +205,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         const data = auditData.value as AuditApiResponse;
         if (data.ok) {
           setResult(data.audit);
-          // Store the text the audit ran against (server-extracted for URLs)
-          // so the deeper-lens panel can fire follow-up calls.
-          setSourceText(data.sourceText ?? (isText ? textInput : ''));
+          setSourceText(data.sourceText ?? (isText ? raw : ''));
+          setAuditedMode(isText ? 'text' : 'url');
           track('audit_completed', {
             latency_ms:    Math.round(performance.now() - startedAt),
             finding_count: totalFindingCount(data.audit),
@@ -200,7 +222,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         track('audit_failed', { error_code: 'NETWORK' });
       }
 
-      // Handle extraction result (best-effort - don't block audit display on failure)
+      // Handle extraction result (best-effort — don't block audit display on failure)
       if (extractionData && extractionData.status === 'fulfilled') {
         const data = extractionData.value as ExtractionApiResponse;
         if (data.ok) setExtraction(data.extraction);
@@ -210,87 +232,101 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     }
   }
 
+  function handleSubmit(e: Event) {
+    e.preventDefault();
+    runAudit(input);
+  }
+
+  // Example chip: fill the field with the sample and run it immediately, so a
+  // first-time visitor sees a real audit without having anything to paste.
+  function loadExample(text: string) {
+    setInput(text);
+    runAudit(text);
+  }
+
   return (
     <div class="space-y-5" ref={formRef}>
 
       {loadedFromLink && (
         <div class="rounded-lg border border-accent/30 bg-accent/5 px-4 py-2.5">
           <p class="text-xs text-accent">
-            Loaded from a briefing. Press <span class="font-semibold">Audit this argument</span> to run the full structural audit on it.
+            Loaded from a briefing. Press the <span class="font-semibold">audit</span> button to run the full structural audit on it.
           </p>
         </div>
       )}
 
-      {/* Tab switcher */}
-      <div class="flex gap-1 p-1 bg-hairline/40 rounded-lg w-fit">
-        {(['text', 'url'] as Tab[]).map(t => (
+      <form onSubmit={handleSubmit} class="space-y-3">
+        {/* Unified input — auto-detects a pasted URL vs argument text. The run
+            control is an inline arrow inside the field (no separate CTA, no tabs). */}
+        <div class="relative">
+          <textarea
+            value={input}
+            onInput={e => setInput((e.target as HTMLTextAreaElement).value)}
+            placeholder="Paste an argument, or drop a link to audit…"
+            aria-label="Argument text or URL to audit"
+            rows={loadedFromLink ? 6 : 2}
+            class="w-full rounded-xl border border-hairline bg-surface pl-4 pr-16 py-3 text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+            style={`min-height:${loadedFromLink ? 180 : 64}px;`}
+          />
           <button
-            key={t}
-            type="button"
-            onClick={() => switchTab(t)}
-            class={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              tab === t
-                ? 'bg-surface text-ink-strong shadow-sm'
-                : 'text-muted hover:text-ink'
+            type="submit"
+            disabled={!canSubmit}
+            aria-label="Audit this argument"
+            title="Audit this argument"
+            class={`absolute right-2.5 bottom-2.5 w-11 h-11 rounded-full flex items-center justify-center transition-colors ${
+              canSubmit ? 'bg-accent text-paper hover:bg-accent/90' : 'bg-hairline/50 text-muted cursor-not-allowed'
             }`}
           >
-            {t === 'text' ? 'Paste text' : 'Paste URL'}
+            {loading ? (
+              <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            )}
           </button>
-        ))}
-      </div>
+        </div>
 
-      <form onSubmit={handleSubmit} class="space-y-3">
-        {tab === 'text' ? (
-          <div>
-            <textarea
-              value={textInput}
-              onInput={e => setTextInput((e.target as HTMLTextAreaElement).value)}
-              placeholder="Paste an article, speech, or any argumentative text…"
-              aria-label="Text to audit"
-              rows={1}
-              class="w-full rounded-xl border border-hairline bg-surface px-4 py-3 text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
-              style={`min-height: ${loadedFromLink ? 180 : 44}px;`}
-            />
-            <div class="flex justify-between mt-1.5 text-xs">
-              <span class={charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600' : charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
-                {charCount > 0 && charCount < MIN_CHARS
-                  ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
-                  : charCount > MAX_CHARS
-                  ? 'Too long - please trim to 10,000 characters'
-                  : ''}
-              </span>
-              <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
-                {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
-              </span>
-            </div>
-          </div>
+        {/* Contextual hint: character budget for text, fetch caveat for a URL. */}
+        {looksUrl ? (
+          <p class="text-xs text-muted">
+            The page must be publicly accessible. Paywalled articles can't be extracted — paste the text directly instead.
+          </p>
         ) : (
-          <div>
-            <input
-              type="url"
-              value={urlInput}
-              onInput={e => setUrlInput((e.target as HTMLInputElement).value)}
-              placeholder="https://example.com/article"
-              aria-label="Article URL to audit"
-              class="w-full rounded-xl border border-hairline bg-surface px-4 py-3 text-sm text-ink placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
-            />
-            <p class="mt-1.5 text-xs text-muted">
-              The page must be publicly accessible. Paywalled articles can't be extracted - paste the text directly instead.
-            </p>
+          <div class="flex justify-between text-xs">
+            <span class={charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600' : charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
+              {charCount > 0 && charCount < MIN_CHARS
+                ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
+                : charCount > MAX_CHARS
+                ? 'Too long - please trim to 10,000 characters'
+                : ''}
+            </span>
+            <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
+              {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
+            </span>
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          class={`w-full py-3 px-6 rounded-xl text-sm font-semibold transition-colors ${
-            canSubmit
-              ? 'bg-accent text-paper hover:bg-accent/90'
-              : 'bg-hairline/40 text-muted cursor-not-allowed'
-          }`}
-        >
-          {loading ? 'Analysing…' : 'Audit this argument'}
-        </button>
+        {/* Example starters — one click loads a real argument and runs it. Hidden
+            once a result is on screen (past the blank-page stage). */}
+        {!result && !loading && (
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-muted">New here? Try</span>
+            {EXAMPLES.map(ex => (
+              <button
+                key={ex.label}
+                type="button"
+                onClick={() => loadExample(ex.text)}
+                class="text-xs px-3 py-1 rounded-full border border-hairline text-ink hover:border-accent hover:text-accent transition-colors"
+              >
+                {ex.label}
+              </button>
+            ))}
+          </div>
+        )}
       </form>
 
       {loading && <AuditLoading />}
@@ -308,9 +344,9 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           {/* Left: highlighted text + extraction (only when there's something to show) */}
           {hasLeftContent && (
             <div class="w-full xl:w-[55%] space-y-4">
-              {tab === 'text' && textInput && (
+              {auditedMode === 'text' && sourceText && (
                 <HighlightedDraft
-                  text={textInput}
+                  text={sourceText}
                   audit={result}
                   activeFindingKey={null}
                   onHighlightClick={() => {}}
