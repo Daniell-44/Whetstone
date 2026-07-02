@@ -185,9 +185,14 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   const counts = result ? countFindings(result) : { total: 0, critical: 0 };
   const auditedWords = sourceText ? sourceText.trim().split(/\s+/).filter(Boolean).length : 0;
 
-  // Jump-tab teleport within the single results scroll.
+  // Jump-tab teleport within the single results scroll. Opens the target fold
+  // (or the fold that contains the target) before scrolling to it.
   function jumpTo(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const el = document.getElementById(id);
+    if (!el) return;
+    const det = el.closest('details') as HTMLDetailsElement | null;
+    if (det) det.open = true;
+    requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
   // Reset to the pre-audit state (from the collapsed input bar's "New audit").
   function newAudit() {
@@ -431,35 +436,63 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             <button type="button" onClick={() => jumpTo('r-structure')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Structure</button>
           </div>
 
-          {/* Findings up top (+ your text / skeleton beside it on wide screens) */}
-          <div id="r-findings" class="scroll-mt-20 flex flex-col xl:flex-row gap-4 items-start">
+          {/* Three foldable regions — Your text (left), Findings + Argument
+             structure (right). Each is a <details>; the tabs open the target
+             fold and scroll to it. */}
+          <style>{`
+            .rd-fold > summary { list-style: none; }
+            .rd-fold > summary::-webkit-details-marker { display: none; }
+            .rd-fold .rd-chevron { transition: transform .15s ease; }
+            .rd-fold[open] > summary .rd-chevron { transform: rotate(180deg); }
+          `}</style>
+          <div class="flex flex-col xl:flex-row gap-4 items-start">
             {hasLeftContent && (
-              <div id="r-text" class="w-full xl:w-[55%] space-y-4 scroll-mt-20">
-                {auditedMode === 'text' && sourceText && (
-                  <HighlightedDraft
-                    text={sourceText}
-                    audit={displayResult}
-                    activeFindingKey={null}
-                    onHighlightClick={() => {}}
-                  />
-                )}
-                {extraction && (
-                  <div class="rounded-lg border border-hairline bg-surface p-4">
-                    <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
-                      Argument skeleton
-                    </h3>
-                    <ArgumentExtraction result={extraction} />
-                  </div>
-                )}
-              </div>
+              <details id="r-text" open class="rd-fold scroll-mt-20 w-full xl:w-[55%] rounded-lg border border-hairline bg-surface">
+                <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
+                  <span class="text-xs font-semibold uppercase tracking-widest text-muted">Your text</span>
+                  <svg class="rd-chevron ml-auto w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div class="px-4 pb-4 space-y-4">
+                  {auditedMode === 'text' && sourceText && (
+                    <HighlightedDraft
+                      text={sourceText}
+                      audit={displayResult}
+                      activeFindingKey={null}
+                      onHighlightClick={() => {}}
+                    />
+                  )}
+                  {extraction && (
+                    <div class="rounded-lg border border-hairline bg-paper p-4">
+                      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+                        Argument skeleton
+                      </h3>
+                      <ArgumentExtraction result={extraction} />
+                    </div>
+                  )}
+                </div>
+              </details>
             )}
-            <div class={`w-full ${hasLeftContent ? 'xl:w-[45%]' : ''}`}>
-              <AuditResults result={displayResult} scope="span" flush />
-              {/* Argument structure — a section below the findings in the right
-                 column; the scope="overarching" block's own top rule separates it. */}
-              <div id="r-structure" class="scroll-mt-20">
-                <AuditResults result={displayResult} scope="overarching" />
-              </div>
+            <div class={`w-full space-y-4 ${hasLeftContent ? 'xl:w-[45%]' : ''}`}>
+              <details id="r-findings" open class="rd-fold scroll-mt-20 rounded-lg border border-hairline bg-surface">
+                <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
+                  <span class="text-xs font-semibold uppercase tracking-widest text-muted">Findings</span>
+                  <span class="text-xs text-muted ml-auto">{counts.total} {counts.total === 1 ? 'issue' : 'issues'}</span>
+                  <svg class="rd-chevron w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div class="px-4 pb-4">
+                  <AuditResults result={displayResult} scope="span" flush />
+                </div>
+              </details>
+              <details id="r-structure" open class="rd-fold scroll-mt-20 rounded-lg border border-hairline bg-surface">
+                <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
+                  <span class="text-xs font-semibold uppercase tracking-widest text-muted">Argument structure</span>
+                  <span class="text-xs text-muted normal-case tracking-normal hidden sm:inline">claim · Toulmin · weakest link</span>
+                  <svg class="rd-chevron ml-auto w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div class="px-4 pb-4">
+                  <AuditResults result={displayResult} scope="overarching" flush />
+                </div>
+              </details>
             </div>
           </div>
         </div>
