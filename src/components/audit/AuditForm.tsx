@@ -148,6 +148,9 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // highlighted-draft panel appears. Not derived from `input`, which can change
   // after results render.
   const [auditedMode, setAuditedMode] = useState<'text' | 'url' | null>(null);
+  // After a successful audit the input collapses to a summary bar; "Edit" flips
+  // this back to the full field.
+  const [editing, setEditing] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
   // /?audit=<slug> or /?url=<src> deep-link from a briefing: pre-load the field
@@ -180,14 +183,21 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // The result actually shown (ctxsev re-bands severities when the flag is on).
   const displayResult = result ? (ctxSev && extraction ? applyContextualSeverity(result, extraction) : result) : null;
   const counts = result ? countFindings(result) : { total: 0, critical: 0 };
+  const auditedWords = sourceText ? sourceText.trim().split(/\s+/).filter(Boolean).length : 0;
 
   // Jump-tab teleport within the single results scroll.
   function jumpTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  function openStructure() {
-    const el = document.getElementById('r-structure') as HTMLDetailsElement | null;
-    if (el) { el.open = true; requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' })); }
+  // Reset to the pre-audit state (from the collapsed input bar's "New audit").
+  function newAudit() {
+    setInput('');
+    setResult(null);
+    setExtraction(null);
+    setError(null);
+    setAuditedMode(null);
+    setSourceText('');
+    setEditing(false);
   }
 
   // Core audit runner, shared by the form submit and the example chips.
@@ -199,6 +209,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     if (isText && !(raw.length >= MIN_CHARS && raw.length <= MAX_CHARS)) return;
 
     setLoading(true);
+    setEditing(false);
     setError(null);
     setResult(null);
     setExtraction(null);
@@ -283,6 +294,17 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         </div>
       )}
 
+      {/* Input: full field before an audit (or when editing), a compact summary
+          bar after — so the pasted text isn't duplicated with the marked draft. */}
+      {(result && !editing) ? (
+        <div class="flex items-center gap-3 rounded-xl border border-hairline bg-surface px-4 py-2.5">
+          <span class="text-sm text-ink">Audited <span class="font-medium">{auditedWords.toLocaleString()} words</span></span>
+          <div class="ml-auto flex items-center gap-2">
+            <button type="button" onClick={() => setEditing(true)} class="text-xs px-3 py-1 rounded-md border border-hairline text-ink hover:border-accent hover:text-accent transition-colors">Edit</button>
+            <button type="button" onClick={newAudit} class="text-xs px-3 py-1 rounded-md bg-accent text-paper hover:bg-accent/90 transition-colors">New audit</button>
+          </div>
+        </div>
+      ) : (
       <form onSubmit={handleSubmit} class="space-y-3">
         {/* Unified input — auto-detects a pasted URL vs argument text. The run
             control is an inline arrow inside the field (no separate CTA, no tabs). */}
@@ -338,24 +360,30 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           </div>
         )}
 
-        {/* Example starters — one click loads a real argument and runs it. Hidden
-            once a result is on screen (past the blank-page stage). */}
+        {/* Example starters (F3 preview cards) — each shows its sample argument;
+            one click loads it and runs the audit, so a first-timer sees a real
+            audit with nothing to paste. Hidden once a result is on screen. */}
         {!result && !loading && (
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs text-muted">New here? Try</span>
-            {EXAMPLES.map(ex => (
-              <button
-                key={ex.label}
-                type="button"
-                onClick={() => loadExample(ex.text)}
-                class="text-xs px-3 py-1 rounded-full border border-hairline text-ink hover:border-accent hover:text-accent transition-colors"
-              >
-                {ex.label}
-              </button>
-            ))}
+          <div>
+            <p class="text-xs text-muted mb-2">New here? Start with an example</p>
+            <div class="grid sm:grid-cols-3 gap-3">
+              {EXAMPLES.map(ex => (
+                <button
+                  key={ex.label}
+                  type="button"
+                  onClick={() => loadExample(ex.text)}
+                  class="group text-left rounded-lg border border-hairline bg-surface p-3 hover:border-accent/40 hover:shadow-sm transition-all"
+                >
+                  <span class="text-[0.625rem] font-semibold uppercase tracking-wider text-muted">{ex.label}</span>
+                  <p class="text-xs text-ink italic leading-snug mt-1.5 line-clamp-3">"{ex.text}"</p>
+                  <span class="inline-block mt-2 text-xs font-medium text-accent group-hover:text-accent-support">Audit this →</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </form>
+      )}
 
       {loading && <AuditLoading />}
 
@@ -365,17 +393,12 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         </div>
       )}
 
-      {/* Verdict-first results (structure 2): a one-line verdict + jump tabs,
-         the findings up top (the payoff), and the argument structure folded into
-         a collapsible below. Jump tabs teleport within this single scroll. */}
+      {/* Verdict-first results (structure 2): a one-line verdict + jump tabs, the
+         findings up top (the payoff) with the highlighted draft beside them, and
+         the argument structure as a section below the findings in the right
+         column. Jump tabs teleport within this single scroll. */}
       {result && !loading && displayResult && (
         <div class="space-y-4">
-          <style>{`
-            .reader-structure > summary { list-style: none; }
-            .reader-structure > summary::-webkit-details-marker { display: none; }
-            .reader-structure .rs-chevron { transition: transform .15s ease; }
-            .reader-structure[open] > summary .rs-chevron { transform: rotate(180deg); }
-          `}</style>
 
           {/* Verdict bar */}
           <div class="rounded-lg border border-hairline bg-surface px-4 py-3">
@@ -405,7 +428,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             {hasLeftContent && (
               <button type="button" onClick={() => jumpTo('r-text')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Your text</button>
             )}
-            <button type="button" onClick={openStructure} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Structure</button>
+            <button type="button" onClick={() => jumpTo('r-structure')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Structure</button>
           </div>
 
           {/* Findings up top (+ your text / skeleton beside it on wide screens) */}
@@ -430,22 +453,15 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                 )}
               </div>
             )}
-            <div class={`w-full ${hasLeftContent ? 'xl:w-[45%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-5rem)] xl:overflow-y-auto' : ''}`}>
-              <AuditResults result={displayResult} scope="span" />
+            <div class={`w-full ${hasLeftContent ? 'xl:w-[45%]' : ''}`}>
+              <AuditResults result={displayResult} scope="span" flush />
+              {/* Argument structure — a section below the findings in the right
+                 column; the scope="overarching" block's own top rule separates it. */}
+              <div id="r-structure" class="scroll-mt-20">
+                <AuditResults result={displayResult} scope="overarching" />
+              </div>
             </div>
           </div>
-
-          {/* Argument structure — collapsible, below the findings */}
-          <details id="r-structure" class="reader-structure scroll-mt-20 rounded-lg border border-hairline bg-surface">
-            <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
-              <span class="text-xs font-semibold uppercase tracking-widest text-muted">Argument structure</span>
-              <span class="text-xs text-muted normal-case tracking-normal">claim · Toulmin · weakest link</span>
-              <svg class="rs-chevron ml-auto w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-            </summary>
-            <div class="px-4 pb-4">
-              <AuditResults result={displayResult} scope="overarching" />
-            </div>
-          </details>
         </div>
       )}
 

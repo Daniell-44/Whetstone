@@ -29,6 +29,8 @@ interface Props {
   // currently-selected card. Both are no-ops when omitted.
   activeFindingKey?:      string | null;
   onFindingNavigate?:     (matchKey: string) => void;
+  // Drop the top border + padding (for embedding, e.g. the Reader's right column).
+  flush?:                 boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -936,7 +938,7 @@ function DismissedToggle({ count, expanded, onToggle }: { count: number; expande
 // Main export
 // ---------------------------------------------------------------------------
 
-export default function AuditResults({ result, documentId, versionId, initialActions, terminologyPreference, scope = 'all', activeFindingKey, onFindingNavigate }: Props) {
+export default function AuditResults({ result, documentId, versionId, initialActions, terminologyPreference, scope = 'all', activeFindingKey, onFindingNavigate, flush = false }: Props) {
   const { actions, setAction, removeAction, busyKeys } = useActionState(documentId, initialActions);
 
   // Which half of the split is this instance rendering?
@@ -1035,7 +1037,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
     dismissedModal.length > 0;
 
   return (
-    <div class="space-y-8 border-t border-hairline pt-8">
+    <div class={flush ? 'space-y-8' : 'space-y-8 border-t border-hairline pt-8'}>
 
       {/* Central claim */}
       {showOverarching && (
