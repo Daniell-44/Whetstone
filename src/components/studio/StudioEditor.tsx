@@ -351,8 +351,8 @@ export default function StudioEditor({
 
   useEffect(() => {
     document.title = findingCount > 0
-      ? `(${findingCount}) Creator Studio - The Whetstone`
-      : 'Creator Studio - The Whetstone';
+      ? `(${findingCount}) Studio - The Whetstone`
+      : 'Studio - The Whetstone';
   }, [findingCount]);
 
   // Ctrl/Cmd+Enter to analyse

@@ -24,7 +24,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 ---
 <Base
   title="Pricing - The Whetstone"
-  description="Free structural audit for readers. Solo plan for writers at A$33/month. Studio for teams from A$95/month."
+  description="Free structural audit for readers. Studio Solo for writers at A$33/month. Studio Team for teams from A$95/month."
   canonicalPath="/pricing"
   isLoggedIn={isLoggedIn}
 >
@@ -35,7 +35,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
         Pricing
       </h1>
       <p class="text-lg text-muted max-w-xl mx-auto">
-        The audit engine is free for readers. Creators pay for the tools that make arguments stronger.
+        The audit engine is free in the Reader. Studio adds the tools that make your own arguments stronger.
       </p>
     </header>
 
@@ -63,13 +63,13 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
         ]}
         featureColour="text-muted"
       >
-        <a slot="cta" href="/reader" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-ink border border-hairline hover:bg-paper transition-colors">
+        <a slot="cta" href="/" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-ink border border-hairline hover:bg-paper transition-colors">
           Use the Reader
         </a>
       </PricingTier>
 
       <PricingTier
-        label="Solo"
+        label="Studio Solo"
         labelColour="text-amber-600"
         price="A$33"
         priceUnit="/mo"
@@ -112,7 +112,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
       </PricingTier>
 
       <PricingTier
-        label="Studio"
+        label="Studio Team"
         labelColour="text-violet-600"
         price="A$95"
         priceUnit="/mo"

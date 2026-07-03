@@ -22,7 +22,7 @@ if (!session) {
 const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, session.user_id);
 ---
 <Base
-  title="Transcript Audit - Creator Studio"
+  title="Transcript Audit - Studio"
   description="Audit a YouTube video, podcast, or speech transcript. Per-segment audits plus cross-segment synthesis."
   canonicalPath="/creator/studio/transcript"
   isLoggedIn={true}
@@ -32,7 +32,7 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
     <!-- Top nav -->
     <nav class="mb-6 flex items-center justify-between text-xs">
       <div class="flex items-center gap-3">
-        <a href="/creator" class="text-muted hover:text-ink transition-colors">← Creator</a>
+        <a href="/creator" class="text-muted hover:text-ink transition-colors">← Studio</a>
         <span class="text-hairline">|</span>
         <p class="font-semibold tracking-widest text-amber-600 uppercase">Studio · Transcript</p>
       </div>

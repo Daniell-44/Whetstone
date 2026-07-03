@@ -175,7 +175,7 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
             <li>· <strong>Whose interests it serves</strong>: who benefits from the framing</li>
           </ul>
           <a href="/creator" class="inline-block text-xs font-semibold rounded-md bg-amber-500 text-white px-3 py-1.5 hover:bg-amber-600 transition-colors">
-            Unlock with Creator Pro →
+            Unlock with Studio Pro →
           </a>
         </div>
       ) : (
