@@ -25,7 +25,7 @@ const NEUTRAL    = '#C7C3B6';
 ---
 {sources.length > 0 && (
   <div>
-    <p class="text-xs font-semibold uppercase tracking-[0.06em] text-gray-400 mb-1">The map · N = {sources.length}</p>
+    <p class="text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1">The map · N = {sources.length}</p>
     <div class="overflow-x-auto scrollbar-thin">
       <div class="relative" style="height:108px;">
       {/* default bubbles for the quoted sources */}
@@ -53,17 +53,17 @@ const NEUTRAL    = '#C7C3B6';
       ))}
       {/* assessed markers */}
       {assessed.map((s, i) => (
-        <span class="absolute rounded-full text-white text-xs font-semibold flex items-center justify-center" style={`left:${toPct(s.leaning)}%;top:76px;width:18px;height:18px;background:${SIDE[s.side].dot};transform:translate(-50%,-50%);box-shadow:0 0 0 3px #f9fafb;`}>{i + 1}</span>
+        <span class="absolute rounded-full text-white text-xs font-semibold flex items-center justify-center" style={`left:${toPct(s.leaning)}%;top:76px;width:18px;height:18px;background:${SIDE[s.side].dot};transform:translate(-50%,-50%);box-shadow:0 0 0 3px #FBF7F0;`}>{i + 1}</span>
       ))}
-      <span class="absolute text-[9px] text-gray-400" style="top:90px;left:0;">{axis.left}</span>
-      <span class="absolute text-[9px] text-gray-400" style="top:90px;right:0;">{axis.right}</span>
+      <span class="absolute text-[9px] text-muted" style="top:90px;left:0;">{axis.left}</span>
+      <span class="absolute text-[9px] text-muted" style="top:90px;right:0;">{axis.right}</span>
       </div>
     </div>
-    <div class="flex items-center gap-3 mt-1.5 text-xs text-gray-500 flex-wrap">
+    <div class="flex items-center gap-3 mt-1.5 text-xs text-muted flex-wrap">
       <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#185FA5;"></span>{axis.left}</span>
       <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style={`background:${NEUTRAL};`}></span>mixed / unclear</span>
       <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#993C1D;"></span>{axis.right}</span>
     </div>
-    <p class="text-xs text-gray-400 mt-1 leading-snug">Quoted sources show by default; hover any dot for its source.</p>
+    <p class="text-xs text-muted mt-1 leading-snug">Quoted sources show by default; hover any dot for its source.</p>
   </div>
 )}
