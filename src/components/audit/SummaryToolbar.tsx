@@ -26,13 +26,6 @@ function scoreLabel(score: number): string {
   return 'Significant issues';
 }
 
-function bandStyle(score: number): string {
-  if (score >= 75) return 'bg-emerald-100 text-emerald-700';
-  if (score >= 60) return 'bg-amber-100 text-amber-700';
-  if (score >= 40) return 'bg-orange-100 text-orange-700';
-  return 'bg-red-100 text-red-700';
-}
-
 // ---------------------------------------------------------------------------
 // Main toolbar
 // ---------------------------------------------------------------------------
@@ -87,7 +80,7 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
     <div class="rounded-lg border border-hairline bg-surface px-3 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
       {/* Overall assessment — categorical band, not a misleading 0–100 number */}
       <div class="flex items-center shrink-0">
-        <span class={`px-2.5 py-1 rounded-full text-xs font-semibold ${bandStyle(score)}`}>{scoreLabel(score)}</span>
+        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-paper text-ink-strong border border-hairline">{scoreLabel(score)}</span>
       </div>
 
       <div class="h-8 w-px bg-hairline shrink-0" />
