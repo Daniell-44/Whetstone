@@ -228,18 +228,18 @@ function HoverCard({ highlight, x, y }: { highlight: Highlight; x: number; y: nu
 
   return (
     <div
-      class={`fixed z-50 max-w-sm rounded-lg border shadow-lg p-3 text-xs leading-relaxed pointer-events-none ${severityColour[highlight.severity] ?? 'border-gray-300 bg-white'}`}
+      class={`fixed z-50 max-w-sm rounded-lg border shadow-lg p-3 text-xs leading-relaxed pointer-events-none ${severityColour[highlight.severity] ?? 'border-hairline bg-surface'}`}
       style={{ left: `${Math.min(x, window.innerWidth - 360)}px`, top: `${y + 16}px` }}
     >
-      <p class="font-semibold text-gray-900 mb-1">{highlight.label}</p>
-      <p class="text-gray-600">{highlight.explanation}</p>
+      <p class="font-semibold text-ink-strong mb-1">{highlight.label}</p>
+      <p class="text-ink">{highlight.explanation}</p>
       <div class="flex items-center gap-2 mt-2">
         <span class={`px-1.5 py-0.5 rounded-full text-xs font-medium ${
           highlight.severity === 'high' ? 'bg-red-100 text-red-700' :
           highlight.severity === 'medium' ? 'bg-amber-100 text-amber-700' :
           'bg-gray-100 text-gray-600'
         }`}>{highlight.severity}</span>
-        <span class="text-gray-400">structural</span>
+        <span class="text-muted">structural</span>
       </div>
     </div>
   );
@@ -318,7 +318,7 @@ export default function HighlightedDraft({ text, audit, activeFindingKey, flashK
     <div ref={containerRef} class="relative">
       {/* Summary bar */}
       {highlightCount > 0 && (
-        <div class="flex items-center gap-3 mb-3 text-xs text-gray-500">
+        <div class="flex items-center gap-3 mb-3 text-xs text-muted">
           <span>{highlightCount} finding{highlightCount !== 1 ? 's' : ''} highlighted</span>
           {highCount > 0 && (
             <span class="flex items-center gap-1">
@@ -342,7 +342,7 @@ export default function HighlightedDraft({ text, audit, activeFindingKey, flashK
       )}
 
       {/* Draft text with highlights */}
-      <div class="rounded-lg border border-gray-200 bg-white px-5 py-4 text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-serif select-text overflow-y-auto" style={{ minHeight: 'calc(100vh - 22rem)' }}>
+      <div class="rounded-lg border border-hairline bg-surface px-5 py-4 text-sm text-ink leading-relaxed whitespace-pre-wrap font-serif select-text overflow-y-auto" style={{ minHeight: 'calc(100vh - 22rem)' }}>
         {segments}
       </div>
 

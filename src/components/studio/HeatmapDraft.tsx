@@ -182,10 +182,10 @@ function heatColour(weight: number, max: number): string {
 function HeatTooltip({ run, x, y }: { run: Run; x: number; y: number }) {
   return (
     <div
-      class="fixed z-50 max-w-md rounded-lg border border-gray-200 bg-white shadow-xl p-3 pointer-events-none text-xs"
+      class="fixed z-50 max-w-md rounded-lg border border-hairline bg-surface shadow-xl p-3 pointer-events-none text-xs"
       style={`left: ${Math.min(x + 12, window.innerWidth - 420)}px; top: ${y + 16}px;`}
     >
-      <p class="font-semibold text-gray-900 mb-2">
+      <p class="font-semibold text-ink-strong mb-2">
         {run.contributions.length} finding{run.contributions.length !== 1 ? 's' : ''} overlap here · density {run.weight.toFixed(1)}
       </p>
       <ul class="space-y-1.5">
@@ -197,8 +197,8 @@ function HeatTooltip({ run, x, y }: { run: Run; x: number; y: number }) {
                                         'bg-gray-400'
             }`} />
             <div class="flex-1 min-w-0">
-              <p class="font-medium text-gray-800">{c.label}</p>
-              <p class="text-xs text-gray-500">{c.severity} · structural</p>
+              <p class="font-medium text-ink">{c.label}</p>
+              <p class="text-xs text-muted">{c.severity} · structural</p>
             </div>
           </li>
         ))}
@@ -215,9 +215,9 @@ function HeatLegend({ max }: { max: number }) {
   if (max === 0) return null;
   const stops = [0.1, 0.3, 0.5, 0.75, 1.0];
   return (
-    <div class="flex items-center gap-2 text-xs text-gray-500">
+    <div class="flex items-center gap-2 text-xs text-muted">
       <span>cool</span>
-      <div class="flex h-2.5 rounded-full overflow-hidden border border-gray-200">
+      <div class="flex h-2.5 rounded-full overflow-hidden border border-hairline">
         {stops.map((s, i) => (
           <div key={i} style={`width: 24px; background: ${heatColour(s * max, max)};`} />
         ))}
@@ -272,15 +272,15 @@ export default function HeatmapDraft({ text, audit, onFindingClick }: Props) {
 
       {/* Header */}
       <div class="flex items-center justify-between gap-3 mb-3 text-xs flex-wrap">
-        <div class="flex items-center gap-3 text-gray-500">
+        <div class="flex items-center gap-3 text-muted">
           <span>
-            <strong class="text-gray-900">{total}</strong> overlapping finding{total !== 1 ? 's' : ''}
+            <strong class="text-ink-strong">{total}</strong> overlapping finding{total !== 1 ? 's' : ''}
           </span>
           {hottest && hottest.weight > 0 && (
             <>
-              <span class="text-gray-300">·</span>
+              <span class="text-hairline">·</span>
               <span>
-                Densest passage carries <strong class="text-gray-900">{hottest.contributions.length}</strong> stacked finding{hottest.contributions.length !== 1 ? 's' : ''}
+                Densest passage carries <strong class="text-ink-strong">{hottest.contributions.length}</strong> stacked finding{hottest.contributions.length !== 1 ? 's' : ''}
               </span>
             </>
           )}
@@ -289,7 +289,7 @@ export default function HeatmapDraft({ text, audit, onFindingClick }: Props) {
       </div>
 
       {/* Text with heatmap overlay */}
-      <div class="rounded-lg border border-gray-200 bg-white px-5 py-4 text-sm text-gray-800 leading-relaxed whitespace-pre-wrap font-serif select-text overflow-y-auto" style={{ minHeight: 'calc(100vh - 22rem)' }}>
+      <div class="rounded-lg border border-hairline bg-surface px-5 py-4 text-sm text-ink leading-relaxed whitespace-pre-wrap font-serif select-text overflow-y-auto" style={{ minHeight: 'calc(100vh - 22rem)' }}>
         {runs.map((run, i) => (
           <span
             key={i}
@@ -313,7 +313,7 @@ export default function HeatmapDraft({ text, audit, onFindingClick }: Props) {
 
       {/* Empty state */}
       {total === 0 && (
-        <p class="text-xs text-gray-400 italic mt-3 text-center">
+        <p class="text-xs text-muted italic mt-3 text-center">
           No findings to map. The audit didn't flag any quotable issues in this draft.
         </p>
       )}
