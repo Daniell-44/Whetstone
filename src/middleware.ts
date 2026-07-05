@@ -7,7 +7,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // the new canonical thewhetstone.review. *.workers.dev is left alone (it's the
   // dev/testing fallback).
   const reqUrl = new URL(context.request.url);
-  if (reqUrl.hostname === 'thewhetstone.net' || reqUrl.hostname === 'www.thewhetstone.net') {
+  // NB: skip /api/* — a 301 turns a POST into a GET, which would break API
+  // clients (e.g. the extension still calling thewhetstone.net/api/audit). The
+  // worker serves the same API on both hosts, so leave API traffic un-redirected.
+  if (
+    (reqUrl.hostname === 'thewhetstone.net' || reqUrl.hostname === 'www.thewhetstone.net')
+    && !reqUrl.pathname.startsWith('/api/')
+  ) {
     reqUrl.hostname = 'thewhetstone.review';
     reqUrl.protocol = 'https:';
     return new Response(null, { status: 301, headers: { Location: reqUrl.toString() } });
