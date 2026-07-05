@@ -9,6 +9,7 @@ import DeeperLensPanel from '../lens-panel/DeeperLensPanel';
 import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
 import { applyContextualSeverity } from '../../../functions/_lib/audit/contextual-severity';
 import { track } from '../../lib/analytics/track';
+import { SAMPLES, type Sample } from '../../data/samples';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,23 +30,8 @@ type ExtractionApiResponse =
 const MIN_CHARS = 50;
 const MAX_CHARS = 10_000;
 
-// One-click starters for first-time visitors ("beat the blank page"). These are
-// illustrative demo inputs, NOT published editorial — each is a short argument
-// carrying real logical issues for the engine to find. Safe to swap or extend.
-const EXAMPLES: { label: string; text: string }[] = [
-  {
-    label: 'a political claim',
-    text: `Every year we wait to cut taxes, working families fall further behind. My opponent has never run a business, so he simply cannot be trusted with the economy. The choice is simple: either we cut taxes now, or we accept permanent decline. Last time we tried his approach, unemployment went up — so the verdict is already in.`,
-  },
-  {
-    label: 'a news op-ed',
-    text: `The new policy is a disaster. Crime rose in the three months after it passed, which proves the reform caused it. Experts everywhere agree the old system worked better, and no serious person still defends the change. If we truly cared about victims, we would repeal it tomorrow.`,
-  },
-  {
-    label: 'a debate transcript',
-    text: `A: We should ban the app — it's addictive and it harms teenagers. B: So you want the government controlling everything we do online? A: That's not what I said. B: Either the market decides or bureaucrats do; there is no middle ground. And screen time is up, so the app is obviously to blame for rising anxiety.`,
-  },
-];
+// First-time-visitor examples now come from the shared Studio sample set
+// (src/data/samples) — pre-cached audits, loaded instantly with no API call.
 
 const ERROR_MESSAGES: Record<string, string> = {
   RATE_LIMITED:      "You've reached the daily audit limit. Come back tomorrow to run more audits.",
@@ -152,6 +138,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // this back to the full field.
   const [editing, setEditing] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
+  const [showExamples, setShowExamples] = useState(false);
 
   // /?audit=<slug> or /?url=<src> deep-link from a briefing: pre-load the field
   // and bring it into view. We deliberately don't auto-run — the reader presses
@@ -281,11 +268,25 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     runAudit(input);
   }
 
-  // Example chip: fill the field with the sample and run it immediately, so a
-  // first-time visitor sees a real audit without having anything to paste.
-  function loadExample(text: string) {
-    setInput(text);
-    runAudit(text);
+  // Example picker: load a PRE-CACHED sample (no API call). We keep a short
+  // artificial delay + the same loading animation so it doesn't feel fake — the
+  // reader still sees the "reading and analysing" beat, then the result lands.
+  function loadSample(sample: Sample) {
+    setShowExamples(false);
+    setError(null);
+    setEditing(false);
+    setResult(null);
+    setExtraction(null);
+    setInput(sample.text);
+    setSourceText(sample.text);
+    setAuditedMode('text');
+    setLoading(true);
+    track('sample_picked', { sample_id: sample.id });
+    window.setTimeout(() => {
+      setResult(sample.cached.audit as AuditResult);
+      setExtraction(sample.cached.extraction as ArgumentExtractionResult);
+      setLoading(false);
+    }, 1200);
   }
 
   return (
@@ -365,26 +366,51 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           </div>
         )}
 
-        {/* Example starters (F3 preview cards) — each shows its sample argument;
-            one click loads it and runs the audit, so a first-timer sees a real
-            audit with nothing to paste. Hidden once a result is on screen. */}
+        {/* Pre-cached example picker — tucked behind a "Try an example" toggle so
+            it doesn't dominate the page (Daniel: examples off the main page). Picks
+            load instantly (no API) with the short delay + loading animation so it
+            still feels real. Cards stay horizontal (his pref) but carry the Studio
+            sample set's failure-mode tags. */}
         {!result && !loading && (
           <div>
-            <p class="text-xs text-muted mb-1.5">New here? Start with an example</p>
-            <div class="grid sm:grid-cols-3 gap-2">
-              {EXAMPLES.map(ex => (
-                <button
-                  key={ex.label}
-                  type="button"
-                  onClick={() => loadExample(ex.text)}
-                  class="group text-left rounded-md border border-hairline bg-surface p-2 hover:border-accent/40 transition-colors"
-                >
-                  <span class="text-[0.5625rem] font-semibold uppercase tracking-wider text-muted">{ex.label}</span>
-                  <p class="text-[0.6875rem] text-muted italic leading-snug mt-1 line-clamp-2">"{ex.text}"</p>
-                  <span class="inline-block mt-1.5 text-[0.6875rem] font-medium text-accent">Audit this →</span>
-                </button>
-              ))}
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowExamples(v => !v)}
+              class="flex items-center gap-1 text-xs text-muted hover:text-ink transition-colors"
+            >
+              New here? Try an example
+              <svg class={`w-3 h-3 transition-transform ${showExamples ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            {showExamples && (
+              <div class="mt-2 rounded-lg border border-hairline bg-paper p-2">
+                <p class="px-1 pb-1.5 text-[0.625rem] uppercase tracking-wider text-muted">Pre-cached · instant, no API call</p>
+                <div class="grid sm:grid-cols-3 gap-2">
+                  {SAMPLES.map(s => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => loadSample(s)}
+                      class="group text-left rounded-md border border-hairline bg-surface p-2.5 hover:border-accent/40 transition-colors"
+                    >
+                      <div class="flex items-baseline justify-between gap-1.5">
+                        <span class="text-[0.75rem] font-semibold text-ink-strong leading-tight">{s.shortLabel}</span>
+                        <span class="text-[0.5625rem] uppercase tracking-wider text-muted shrink-0">{s.category}</span>
+                      </div>
+                      <p class="text-[0.6875rem] text-muted leading-snug mt-0.5 line-clamp-1">{s.title}</p>
+                      <div class="flex flex-wrap gap-1 mt-1.5">
+                        {s.failureModes.slice(0, 2).map(mode => (
+                          <span key={mode} class="text-[0.625rem] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">{mode}</span>
+                        ))}
+                        {s.failureModes.length > 2 && (
+                          <span class="text-[0.625rem] px-1.5 py-0.5 rounded bg-hairline/40 text-muted font-medium">+{s.failureModes.length - 2}</span>
+                        )}
+                      </div>
+                      <span class="inline-block mt-1.5 text-[0.6875rem] font-medium text-accent">See the analysis →</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </form>
@@ -434,6 +460,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               <button type="button" onClick={() => jumpTo('r-text')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Your text</button>
             )}
             <button type="button" onClick={() => jumpTo('r-structure')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Structure</button>
+            <span class="text-hairline mx-0.5" aria-hidden="true">·</span>
+            <button type="button" onClick={() => jumpTo('briefings')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent-support hover:text-accent-support transition-colors">Briefings ↓</button>
           </div>
 
           {/* Three foldable regions — Your text (left), Findings + Argument
