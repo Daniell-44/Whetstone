@@ -15,7 +15,7 @@ import Base from '../layouts/Base.astro';
     <header class="mb-10">
       <p class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">Privacy</p>
       <h1 class="font-serif text-3xl text-ink-strong mb-4">How we handle your data</h1>
-      <p class="text-muted text-sm">Last updated 26 May 2026</p>
+      <p class="text-muted text-sm">Last updated 5 July 2026</p>
     </header>
 
     <div class="space-y-10 text-sm text-ink leading-relaxed">
@@ -39,9 +39,8 @@ import Base from '../layouts/Base.astro';
           at midnight UTC and is never linked to any personal identifier beyond the IP address itself.
         </p>
         <p>
-          Published Logic Scorecards (question, positions, analysis) are stored in Cloudflare KV so the
-          public pages can render them. Scorecards contain no personal data - they are editorial content
-          created by the site curator.
+          Published briefings (the question, the mapped positions, and the structural analysis) are
+          editorial content authored for the site. They contain no personal data.
         </p>
       </section>
 
@@ -66,6 +65,26 @@ import Base from '../layouts/Base.astro';
           We set no tracking or analytics cookies. The site does not use any third-party scripts
           (no Google Analytics, no Meta Pixel, no ad networks). Your browser may cache static assets
           as normal HTTP caching - that is not a cookie.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">The Chrome extension</h2>
+        <p class="mb-3">
+          The Whetstone extension audits the argument on a page you choose. When you run an audit, the
+          selected passage or article text is sent to the same AI provider (Google Gemini, under the
+          zero-retention policy above) and the result is shown in the side panel. The page content is
+          not stored on our servers.
+        </p>
+        <p class="mb-3">
+          The extension reads a single cookie - your <code class="text-xs bg-hairline/40 px-1 py-0.5 rounded">whetstone_session</code>
+          sign-in cookie - only to recognise whether you have an account, so it can show the right
+          features. It does not read other cookies or track your browsing.
+        </p>
+        <p>
+          Optional usage analytics are off by default and can be enabled in the extension's settings;
+          no page content is ever included. If you paste your own Gemini API key for deeper analysis, it
+          is stored locally in your browser and never sent to us.
         </p>
       </section>
 
