@@ -4,6 +4,7 @@ import { totalFindingCount } from '../../lib/audit';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
 import AuditResults from './AuditResults';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
+import ToulminCallouts from './ToulminCallouts';
 import HighlightedDraft from '../studio/HighlightedDraft';
 import DeeperLensPanel from '../lens-panel/DeeperLensPanel';
 import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
@@ -160,10 +161,10 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   const charCount = input.length;
   const textValid = charCount >= MIN_CHARS && charCount <= MAX_CHARS;
   const canSubmit = !loading && (looksUrl || textValid);
-  // The left panel only has content for text audits (highlighted draft) or when
-  // an extraction skeleton came back. For URL audits it's empty, so findings
-  // take the full width instead of a 45% column.
-  const hasLeftContent = (auditedMode === 'text' && !!sourceText) || !!extraction;
+  // The left panel is the highlighted draft (text audits only). The skeleton +
+  // Toulmin now live together in the right-column "Argument structure" region,
+  // so a URL audit (no draft) collapses findings + structure to full width.
+  const hasLeftContent = auditedMode === 'text' && !!sourceText;
   // A4 experimental flag (off by default) — `?ctxsev=1` re-bands severities by
   // argument context for A/B evaluation. Never on in production.
   const ctxSev = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ctxsev') === '1';
@@ -489,14 +490,6 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                       onHighlightClick={() => {}}
                     />
                   )}
-                  {extraction && (
-                    <div class="rounded-lg border border-hairline bg-paper p-4">
-                      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
-                        Argument skeleton
-                      </h3>
-                      <ArgumentExtraction result={extraction} />
-                    </div>
-                  )}
                 </div>
               </details>
             )}
@@ -514,11 +507,12 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               <details id="r-structure" open class="rd-fold scroll-mt-20 rounded-lg border border-hairline bg-surface">
                 <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
                   <span class="text-xs font-semibold uppercase tracking-widest text-muted">Argument structure</span>
-                  <span class="text-xs text-muted normal-case tracking-normal hidden sm:inline">claim · Toulmin · weakest link</span>
+                  <span class="text-xs text-muted normal-case tracking-normal hidden sm:inline">skeleton · assumptions · weakest link</span>
                   <svg class="rd-chevron ml-auto w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 </summary>
-                <div class="px-4 pb-4">
-                  <AuditResults result={displayResult} scope="overarching" flush />
+                <div class="px-4 pb-4 space-y-4">
+                  {extraction && <ArgumentExtraction result={extraction} />}
+                  <ToulminCallouts toulmin={displayResult.toulmin} />
                 </div>
               </details>
             </div>

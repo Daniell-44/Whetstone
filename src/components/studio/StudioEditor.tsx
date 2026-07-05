@@ -29,6 +29,7 @@ import type { Audience, Intent } from '../../../functions/_lib/audit/goals';
 import AuditResults from '../audit/AuditResults';
 import CounterargumentResultDisplay from './CounterargumentResultDisplay';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
+import ToulminCallouts from '../audit/ToulminCallouts';
 import PhilosophicalCommitmentsDisplay from '../commitments/PhilosophicalCommitmentsDisplay';
 import CitationAuditDisplay from '../citation-audit/CitationAuditDisplay';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
@@ -982,12 +983,9 @@ export default function StudioEditor({
           evidenceAssessments={evidenceState.status === 'done' ? evidenceState.data.assessments : undefined}
         />
       )}
-      {auditState.status === 'done' && auditState.data.toulmin.weakestLink && (
-        <div class="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-3">
-          <p class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-1">
-            <LabelWithTooltip label="weakestLink" preference={terminologyPreference} />
-          </p>
-          <p class="text-sm text-amber-900 leading-relaxed">{auditState.data.toulmin.weakestLink}</p>
+      {auditState.status === 'done' && (
+        <div class="mt-4">
+          <ToulminCallouts toulmin={auditState.data.toulmin} terminologyPreference={terminologyPreference} />
         </div>
       )}
     </div>
