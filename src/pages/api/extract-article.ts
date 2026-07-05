@@ -3,8 +3,7 @@
 // Given a URL, fetches the page and extracts clean article text, title, and
 // publication name. Returns the result directly - extraction failure is a
 // normal outcome (ok: false) that the UI should handle by falling back to
-// a manual paste box. Gated by the same X-Analyser-Secret auth as
-// /api/analyse-debate.
+// a manual paste box. Gated by the X-Analyser-Secret auth.
 
 export const prerender = false;
 
