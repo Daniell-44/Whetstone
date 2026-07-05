@@ -11,7 +11,7 @@ export const POST: APIRoute = async ({ request }) => {
     db:            makeAuthDb(env.DB),
     rateLimitKv:   env.RATE_LIMIT,
     sendEmail:     makeEmailSender(env.RESEND_API_KEY ?? ''),
-    siteUrl:       env.SITE_URL ?? 'https://whetstone.so',
+    siteUrl:       env.SITE_URL ?? 'https://thewhetstone.review',
     // Toggle on via wrangler.toml: AUTH_DEBUG_LOG_CODES = "1"
     debugLogCodes: env.AUTH_DEBUG_LOG_CODES === '1',
   });

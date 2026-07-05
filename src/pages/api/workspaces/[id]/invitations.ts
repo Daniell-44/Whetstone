@@ -30,6 +30,6 @@ export const POST: APIRoute = async ({ request, params }) => {
     sendInvitation: env.RESEND_API_KEY
       ? makeWorkspaceInvitationSender(env.RESEND_API_KEY)
       : async () => { /* no-op: email not configured */ },
-    siteUrl:        env.SITE_URL ?? 'https://thewhetstone.net',
+    siteUrl:        env.SITE_URL ?? 'https://thewhetstone.review',
   });
 };

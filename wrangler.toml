@@ -133,7 +133,7 @@ AUDIT_USER_DAILY_CAP  = "50"
 COUNTERARG_DAILY_CAP  = "20"
 COMMITMENTS_DAILY_CAP = "15"
 CITATION_DAILY_CAP    = "10"
-SITE_URL              = "https://thewhetstone.net"
+SITE_URL              = "https://thewhetstone.review"
 # Set to "1" to log magic-link sign-in codes via console.log so they appear in
 # `wrangler tail`. Useful when Resend email delivery is broken. Set to "0" or
 # remove this line in real production.
