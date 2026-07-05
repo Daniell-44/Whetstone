@@ -4,6 +4,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../../layouts/Base.astro';
 import TranscriptStudio from '../../../components/transcript/TranscriptStudio';
+import StudioNav from '../../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
 import { makeBillingDb } from '../../../../functions/_lib/billing/subscription';
 import { makeWorkspaceDb } from '../../../../functions/_lib/workspaces/db';
@@ -29,17 +30,7 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
 >
   <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
 
-    <!-- Top nav -->
-    <nav class="mb-6 flex items-center justify-between text-xs">
-      <div class="flex items-center gap-3">
-        <a href="/creator" class="text-muted hover:text-ink transition-colors">← Studio</a>
-        <span class="text-hairline">|</span>
-        <p class="font-semibold tracking-widest text-amber-600 uppercase">Studio · Transcript</p>
-      </div>
-      <a href="/creator/studio" class="text-muted hover:text-ink transition-colors">
-        ← Back to Studio
-      </a>
-    </nav>
+    <StudioNav current="transcript" hasActiveSubscription={hasActiveSubscription} />
 
     <header class="mb-8">
       <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">

@@ -1,0 +1,55 @@
+---
+// Shared Studio toolbar nav (Option 1 — unified tab strip). Replaces the bespoke
+// per-page nav that was copy-pasted across studio / transcript / cross-document /
+// documents. The "Studio" home (amber identity) links to the /creator overview;
+// the four modes are peer tabs with an active underline; Subscribe stays a
+// distinct action on the right for non-subscribers.
+interface Props {
+  current: 'editor' | 'transcript' | 'cross-document' | 'documents';
+  hasActiveSubscription?: boolean;
+}
+const { current, hasActiveSubscription = false } = Astro.props;
+
+const tabs: { key: Props['current']; label: string; href: string }[] = [
+  { key: 'editor',         label: 'Editor',         href: '/creator/studio' },
+  { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript' },
+  { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document' },
+  { key: 'documents',      label: 'Documents',      href: '/creator/documents' },
+];
+---
+<nav class="mb-4 flex items-center justify-between gap-3 flex-wrap border-b border-hairline pb-2">
+  <div class="flex items-center gap-x-5 gap-y-1.5 flex-wrap">
+    <a
+      href="/creator"
+      class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors shrink-0"
+      title="Studio overview"
+    >
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Studio
+    </a>
+    <div class="flex items-center gap-4 flex-wrap">
+      {tabs.map((t) => (
+        <a
+          href={t.href}
+          aria-current={current === t.key ? 'page' : undefined}
+          class={`text-sm pb-0.5 -mb-2 border-b-2 transition-colors ${
+            current === t.key
+              ? 'text-ink-strong font-semibold border-accent'
+              : 'text-muted border-transparent hover:text-ink'
+          }`}
+        >
+          {t.label}
+        </a>
+      ))}
+    </div>
+  </div>
+  {!hasActiveSubscription && (
+    <a
+      href="/pricing"
+      class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 transition-colors shrink-0"
+    >
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+      Subscribe
+    </a>
+  )}
+</nav>
