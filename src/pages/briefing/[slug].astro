@@ -65,6 +65,29 @@ const LI_PATH = 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.8
       <!-- CENTER -->
       <div class="lg:col-span-7">
         <BriefingArticle briefing={briefing} />
+
+        <!-- End-of-briefing next step (D1-B): no dead ends. -->
+        <div class="mt-12 pt-8 border-t border-hairline">
+          <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">Next</p>
+          <div class="grid sm:grid-cols-2 gap-4">
+            {related[0] && (
+              <a href={`/briefing/${related[0].slug}`} class="group block rounded-md border border-hairline bg-surface p-4 hover:border-accent/40 transition-all">
+                <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-1.5">Another briefing</p>
+                <p class="font-serif text-base text-ink-strong group-hover:text-accent transition-colors leading-snug">{related[0].question}</p>
+              </a>
+            )}
+            <div class="rounded-md border border-hairline bg-surface p-4 flex flex-col justify-between gap-3">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-1.5">Run the engine yourself</p>
+                <p class="text-sm text-ink leading-relaxed">The same audit that produced the cards above is free on any text.</p>
+              </div>
+              <div class="flex flex-wrap gap-x-4 gap-y-1">
+                <a href="/audit" class="text-sm font-semibold text-accent hover:text-accent-support">Open the Audit →</a>
+                <a href="/method" class="text-sm font-semibold text-accent-support hover:text-accent">How the audit works →</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- RIGHT: share + related (sticky) -->
@@ -90,7 +113,7 @@ const LI_PATH = 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.8
           <p class="text-xs text-ink leading-relaxed mb-3">
             Paste your own text and the engine returns the same structural analysis you see here.
           </p>
-          <a href="/" class="block w-full text-center px-3 py-2 rounded-md bg-accent text-paper text-xs font-semibold hover:bg-accent/90 transition-colors">Open the Reader →</a>
+          <a href="/audit" class="block w-full text-center px-3 py-2 rounded-md bg-accent text-paper text-xs font-semibold hover:bg-accent/90 transition-colors">Open the Audit →</a>
         </div>
 
         <!-- Cite this briefing -->

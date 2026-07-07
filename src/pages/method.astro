@@ -1,0 +1,156 @@
+---
+import Base from '../layouts/Base.astro';
+
+// How the audit works — the citable methodology page (D1 Option B, 2026-07-07).
+// Absorbs the engine content that previously lived on /about, plus the briefing
+// method. This is also where the source-placement rubric lands when the
+// spectrum-model decision (D2) is made.
+
+const ICONS = {
+  structure: 'M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z',
+  patterns:  'm21 21-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z',
+  counter:   'M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155',
+  citation:  'M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244',
+  framework: 'M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z',
+  evidence:  'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z',
+};
+
+const FEATURES = [
+  { icon: ICONS.structure, title: 'Argument structure', body: "Toulmin decomposition: claim, grounds, warrant, and the weakest link. The skeleton of the argument, stripped of rhetoric." },
+  { icon: ICONS.patterns,  title: '26 reasoning patterns', body: 'Post Hoc to Motte-and-Bailey, Selection Bias to Genetic Fallacy, each with the verbatim quote that exemplifies it and a severity.' },
+  { icon: ICONS.counter,   title: 'Counterarguments', body: "The two or three strongest objections a thoughtful opponent would deploy, each steelmanned, each with its own Toulmin structure." },
+  { icon: ICONS.citation,  title: 'Citation audit', body: 'Every cited URL is fetched and checked: does the source actually support the claim it is cited for?' },
+  { icon: ICONS.framework, title: 'Frameworks made visible', body: 'The ethical, epistemic, and political framework the argument operates within, surfaced so you can defend or replace it.' },
+  { icon: ICONS.evidence,  title: 'Evidence-weighted likelihood', body: 'For empirical claims, we search 200M+ academic papers and synthesise where the scientific consensus actually sits.' },
+];
+
+const WONT = [
+  { h: "It won't adjudicate claims.", p: 'The engine analyses argument structure, not the factual accuracy of specific assertions, though the citation and evidence lenses help.' },
+  { h: "It's not a political moderator.", p: 'The same engine runs on a climate-policy argument and its counter. The frame is neutral; the conclusions you draw remain yours.' },
+  { h: "It's not a writing improver.", p: 'It audits but does not rewrite. Preserving your voice is deliberate. Fixing flagged issues stays with you.' },
+  { h: 'It is not always right.', p: 'Findings flag structure, not verdicts. Treat them as prompts to look more carefully; calibration improves with feedback.' },
+];
+
+const BRIEFING_PARTS = [
+  { h: 'One contested question', p: 'Each briefing takes a single question that serious people genuinely disagree about, stated plainly and kept evergreen.' },
+  { h: 'A per-question spectrum', p: 'Sources are mapped on an axis named for what actually divides them — "competitive market vs monopsony power", not left vs right. The question chooses the axis.' },
+  { h: 'Positions, each audited', p: 'The strongest form of each position, quoted verbatim from a real source — followed by a structural audit card: the named reasoning pattern, where it sits, and why it matters.' },
+  { h: 'The shared assumption', p: 'The premise both sides quietly stand on. No other outlet tells you what the disagreement agrees about.' },
+  { h: "The editor's view, walled off", p: 'A position, taken openly, labelled as opinion, and followed by "why this might be wrong" — the strongest reason to doubt it.' },
+  { h: 'Other takes, audited', p: 'Curated external takes each carry their own structural annotation. Where none are surveyed, the briefing says so.' },
+];
+---
+<Base
+  title="How the audit works — The Whetstone"
+  description="The methodology behind The Whetstone: eleven analytical lenses grounded in argumentation theory, verbatim-quote discipline, groundedness labels, and how a briefing is built."
+  canonicalPath="/method"
+>
+  <main>
+
+    <!-- Header -->
+    <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-10">
+      <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-3">Method</p>
+      <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-4 max-w-3xl">How the audit works</h1>
+      <p class="text-base sm:text-lg text-muted leading-relaxed max-w-2xl">
+        Every position in a briefing, and every text run through <a href="/audit" class="text-accent hover:text-accent-support">the Audit</a>,
+        goes through the same engine. This page is the method: what it looks for, what the labels mean, and what it deliberately won't do.
+      </p>
+    </section>
+
+    <!-- The lenses -->
+    <section class="border-t border-hairline bg-surface">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">What the engine analyses</h2>
+        <p class="text-sm text-muted mb-8 max-w-2xl">Eleven lenses, each grounded in a real tradition of logic and argument analysis: from Toulmin's argument model to key-term, referential, and testability scrutiny. Six of the headline outputs:</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-0 border border-hairline rounded-xl overflow-hidden bg-surface">
+          {FEATURES.map((f) => (
+            <div class="p-6 border-b border-r border-hairline">
+              <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-hairline/40 text-ink mb-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d={f.icon} /></svg>
+              </span>
+              <h3 class="text-sm font-semibold text-ink-strong mb-2">{f.title}</h3>
+              <p class="text-sm text-muted leading-relaxed">{f.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- The discipline: verbatim quotes + groundedness -->
+    <section class="border-t border-hairline">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">Two rules the findings live by</h2>
+        <div class="grid md:grid-cols-2 gap-8 max-w-5xl">
+          <div class="pl-4 border-l-2 border-accent">
+            <p class="text-sm font-semibold text-ink-strong mb-1.5">Every finding quotes its evidence, verbatim.</p>
+            <p class="text-sm text-muted leading-relaxed">
+              A finding must point at exact words in the text. Quotes that don't appear verbatim in the source are
+              dropped before anything is shown — a finding you can't check against the text isn't a finding.
+            </p>
+          </div>
+          <div class="pl-4 border-l-2 border-accent-support">
+            <p class="text-sm font-semibold text-ink-strong mb-1.5">Every finding declares its kind of ground.</p>
+            <p class="text-sm text-muted leading-relaxed">
+              <span class="font-medium text-ink">Logic</span> — verifiable in the text's own structure.
+              <span class="font-medium text-ink"> Judgment call</span> — depends on a reading a careful reader could contest.
+              <span class="font-medium text-ink"> Factual</span> — checkable against external sources.
+              No fake percentage scores; the label tells you how to weigh the finding.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How a briefing is built -->
+    <section id="briefings" class="border-t border-hairline bg-surface">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">How a briefing is built</h2>
+        <p class="text-sm text-muted mb-8 max-w-2xl">
+          A briefing maps the argument space of one question — it does not sample the media coverage. See a live example:
+          <a href="/briefing/minimum-wage-jobs" class="text-accent hover:text-accent-support font-medium">Does raising the minimum wage cost jobs? →</a>
+        </p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-5xl">
+          {BRIEFING_PARTS.map(b => (
+            <div class="pl-4 border-l-2 border-hairline">
+              <p class="text-sm font-semibold text-ink-strong mb-1">{b.h}</p>
+              <p class="text-sm text-muted leading-relaxed">{b.p}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- What it won't do -->
+    <section class="border-t border-hairline">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">What it won't do</h2>
+        <div class="grid sm:grid-cols-2 gap-6 lg:gap-8 max-w-4xl">
+          {WONT.map(w => (
+            <div class="pl-4 border-l-2 border-hairline">
+              <p class="text-sm font-semibold text-ink-strong mb-1">{w.h}</p>
+              <p class="text-sm text-muted leading-relaxed">{w.p}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Open and inspectable -->
+    <section class="border-t border-hairline bg-surface">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <div class="max-w-3xl">
+          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Open and inspectable</h2>
+          <p class="text-base text-ink leading-relaxed mb-4">
+            Every prompt, schema, and analytical framework is in the public repository. A tool that shapes how people
+            read arguments should itself be transparent: if a finding seems off, you can read the prompt that produced it.
+          </p>
+          <div class="flex flex-wrap gap-x-6 gap-y-2">
+            <a href="https://github.com/Daniell-44/Whetstone" target="_blank" rel="noopener" class="text-sm font-semibold text-accent hover:text-accent-support">View on GitHub →</a>
+            <a href="/feedback" class="text-sm font-semibold text-accent-support hover:text-accent">Send feedback →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</Base>
