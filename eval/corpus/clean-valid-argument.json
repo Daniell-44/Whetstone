@@ -1,0 +1,38 @@
+{
+  "id": "clean-valid-argument",
+  "category": "clean-control",
+  "targetLenses": [],
+  "text": "Cities should stop requiring new apartment buildings to include minimum numbers of parking spaces. The case rests on three premises, each independently supported. First, parking minimums raise construction costs substantially: structured parking costs between $25,000 and $65,000 per space to build, and because the requirement applies per unit, it adds tens of thousands of dollars to the cost of each new home whether or not the eventual resident owns a car. Second, a large fraction of urban renters do not own cars — in the densest American cities, more than 40 percent of renter households are car-free — so a blanket per-unit requirement forces many people to buy something they will not use. Third, when cities have removed these requirements, developers have continued to build parking where demand justifies it, but in smaller quantities: after Buffalo removed its minimums in 2017, mixed-use projects built roughly 20 percent fewer spaces than the old code would have required, while purely residential projects hardly changed. If all three premises hold — and the evidence for each is strong — the conclusion follows directly: the mandate imposes real costs, serves many residents badly, and is unnecessary for ensuring parking gets built where people actually want it. To be clear about the limits of this argument: it does not show that parking minimums are the main driver of housing costs — land and labour matter more — and the Buffalo evidence covers only the first few years after reform in one mid-sized city, so the size of the effect elsewhere is genuinely uncertain. Cities with poor transit may see different developer behaviour. But the argument does not need those stronger claims. It needs only this: a requirement that demonstrably raises costs, demonstrably misallocates them onto car-free households, and demonstrably is not needed to produce parking where demand exists, is unequivocally a requirement that has failed to justify itself. The burden of proof belongs on the mandate, not on its removal. Repealing parking minimums is not a radical experiment; it is the removal of a policy whose central empirical justification has not survived contact with the places that tested it.",
+  "answerKey": {
+    "fallacies": [],
+    "unstatedWarrants": [],
+    "loadedLanguage": [],
+    "keyTerms": [],
+    "referents": [],
+    "falsifiability": [],
+    "modalScope": [],
+    "traps": [
+      {
+        "description": "The emphatic phrase 'unequivocally a requirement that has failed to justify itself' looks like certainty inflation or loaded language.",
+        "whyNotAFlaw": "The strong claim is explicitly conditioned on three premises the text has just supported with quantified evidence, and the text has ALREADY conceded scope limits (one city, few years, transit caveat) before making it. Emphasis earned by evidence is not inflation."
+      },
+      {
+        "description": "'has not survived contact with the places that tested it' is vivid, quotable rhetoric that pattern-matches loaded language.",
+        "whyNotAFlaw": "It summarizes an evidenced empirical claim (the Buffalo result) rather than smuggling in an evaluation the argument has not earned. Vividness alone is not a loaded-language violation."
+      },
+      {
+        "description": "'more than 40 percent of renter households are car-free' and the Buffalo figures could be flagged as vague or unsourced referents.",
+        "whyNotAFlaw": "The claims are specific, quantified, dated, and attributed to a named natural experiment (Buffalo, 2017). This is the opposite of 'studies show' weaseling; an engine that flags it is punishing specificity."
+      },
+      {
+        "description": "'The burden of proof belongs on the mandate, not on its removal' could be read as begging the question about where burdens lie.",
+        "whyNotAFlaw": "It is a stated normative conclusion drawn AFTER the evidential work, not a premise assumed to do the work. The text argues for it; it does not presuppose it."
+      },
+      {
+        "description": "The argument's hedges ('genuinely uncertain', 'may see different developer behaviour') could be flagged as the argument undermining itself.",
+        "whyNotAFlaw": "Honest scope-limiting strengthens rather than weakens the argument's structure; the conclusion is explicitly sized to survive the concessions."
+      }
+    ],
+    "expectClean": true
+  }
+}

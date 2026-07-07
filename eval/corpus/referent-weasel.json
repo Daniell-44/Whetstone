@@ -1,0 +1,80 @@
+{
+  "id": "referent-weasel",
+  "category": "workplace-culture",
+  "targetLenses": ["referentChecks", "namedFallacies", "loadedLanguage", "unstatedWarrants", "modalScope", "falsifiability"],
+  "text": "Somewhere along the line, the open-plan office stopped being a design decision and became an article of faith. Question it in a leadership meeting and you will get the same brochure language about serendipity and collaboration. But experts agree that the open-plan office is the single worst thing to happen to knowledge work in a generation, and the case against it grows harder to wave away each year.\n\nStudies show that workers in open layouts are interrupted every few minutes and take far longer to settle back into a task than colleagues with doors. A growing body of research links the format to higher sickness absence, elevated stress and a quiet, corrosive disengagement. Some estimates put the cost of lost focus in the thousands of pounds per employee per year; one widely cited figure has the average knowledge worker losing more than two hours a day to interruption and recovery.\n\nThe strongest single piece of evidence is also the most specific. In 2018, Harvard's Ethan Bernstein and Stephen Turban tracked staff at two Fortune 500 firms before and after their move to open plan, using wearable sensors, and published the results in Philosophical Transactions of the Royal Society B. The Harvard numbers are brutal: face-to-face interaction did not dip, it collapsed — down roughly seventy per cent, with conversation migrating to email and instant messaging. So much for serendipity.\n\nDefenders answer that open plan at least saves money on floor space, though even here critics claim the savings are illusory once turnover and sick days are counted. Many managers privately admit the format was never really about collaboration — it was cost-cutting dressed up as collaboration, battery-farm seating rebranded as culture. Everyone in the industry knows this; almost nobody will say it with their name attached.\n\nIt is worth being honest about the sponsorship problem on the other side, too. Steelcase, which sells the furniture these layouts require, funds a good deal of the research celebrating them — a conflict worth bearing in mind, even though funding alone settles nothing.\n\nIn my last three workplaces, the pattern was identical: headphones on by ten, meeting rooms booked solid as refuges, real conversation happening anywhere but the floor — which tells you everything you need to know about open plan as a category. Open plan saps a kind of deep focus that no productivity metric will ever capture. And when this many people are saying the same thing, the burden of proof has shifted. The science here is settled; the only question left is how long facilities budgets can keep pretending otherwise.",
+  "answerKey": {
+    "fallacies": [
+      {
+        "name": "Appeal to Authority",
+        "plantedSentence": "But experts agree that the open-plan office is the single worst thing to happen to knowledge work in a generation, and the case against it grows harder to wave away each year."
+      },
+      {
+        "name": "Appeal to Popularity",
+        "plantedSentence": "And when this many people are saying the same thing, the burden of proof has shifted."
+      },
+      {
+        "name": "Hasty Generalization",
+        "plantedSentence": "In my last three workplaces, the pattern was identical: headphones on by ten, meeting rooms booked solid as refuges, real conversation happening anywhere but the floor — which tells you everything you need to know about open plan as a category."
+      }
+    ],
+    "unstatedWarrants": [
+      "The unnamed experts and studies exist, are methodologically sound, and represent the balance of evidence rather than a selected fringe.",
+      "A fall in face-to-face interaction entails a fall in productivity — the Bernstein-Turban study measured how interaction shifted channel, not whether output suffered.",
+      "The author's three workplaces are representative of open-plan offices in general.",
+      "The managers' anonymous private admissions are truthful, representative, and not cherry-picked anecdote."
+    ],
+    "loadedLanguage": [
+      {
+        "phrase": "the single worst thing to happen to knowledge work in a generation",
+        "technique": "Unsupported superlative hyperbole laundered as expert consensus."
+      },
+      {
+        "phrase": "battery-farm seating",
+        "technique": "Dehumanising metaphor that frames the layout as animal confinement before any argument is made."
+      },
+      {
+        "phrase": "cost-cutting dressed up as collaboration",
+        "technique": "Imputes concealed bad-faith motive to proponents without evidence."
+      },
+      {
+        "phrase": "brochure language about serendipity and collaboration",
+        "technique": "Dismisses the opposing case as marketing copy rather than engaging its content."
+      }
+    ],
+    "keyTerms": [],
+    "referents": [
+      "experts agree",
+      "Studies show",
+      "A growing body of research",
+      "Some estimates put the cost",
+      "one widely cited figure",
+      "critics claim",
+      "Many managers privately admit",
+      "Everyone in the industry knows",
+      "when this many people are saying the same thing"
+    ],
+    "falsifiability": [
+      "a kind of deep focus that no productivity metric will ever capture"
+    ],
+    "modalScope": [
+      "tells you everything you need to know",
+      "The science here is settled"
+    ],
+    "traps": [
+      {
+        "description": "The paragraph citing Harvard's Ethan Bernstein and Stephen Turban pattern-matches Appeal to Authority, and 'The strongest single piece of evidence' sounds like inflation.",
+        "whyNotAFlaw": "This is the one properly grounded citation in the piece: named researchers, named journal (Philosophical Transactions of the Royal Society B), specific method (wearable sensors at two Fortune 500 firms) and a specific checkable finding. Flagging it as a vague authority or referent problem is a false positive — the genuine gap it leaves (interaction is not productivity) is keyed under unstated warrants instead."
+      },
+      {
+        "description": "'The Harvard numbers are brutal: face-to-face interaction did not dip, it collapsed' reads as emphatic, potentially loaded language.",
+        "whyNotAFlaw": "The emphasis is warranted by the cited roughly-seventy-per-cent figure from the named study; emphatic description of quantified evidence is not manipulative loading."
+      },
+      {
+        "description": "The Steelcase sponsorship passage ('funds a good deal of the research celebrating them') pattern-matches the Genetic Fallacy or Ad Hominem against pro-open-plan research.",
+        "whyNotAFlaw": "It names a specific funder with a real commercial interest, treats the conflict as a reason for closer scrutiny rather than refutation, and explicitly concedes that 'funding alone settles nothing'. That is legitimate source-credibility weighing, not a fallacy."
+      }
+    ],
+    "expectClean": false
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "id": "falsecause-cherrypick",
+  "category": "urban-policy",
+  "targetLenses": ["namedFallacies", "unstatedWarrants", "loadedLanguage", "modalScope"],
+  "text": "When Riverton closed six blocks of Market Street to cars in May 2022, the objections, led by the Downtown Parking Association, were close to apocalyptic. Merchants would flee. Deliveries would stall. Downtown would be a ghost town by winter. Two years on, the council is weighing whether to extend the pedestrian mall to the riverfront, and the record of those predictions deserves a look.\n\nStart with the numbers. In April 2022, the month before the closure, the downtown storefront vacancy rate stood at 21 percent. The timeline settles the question: the mall opened in May, and by Christmas the vacancy rate had fallen by a third. Foot-traffic counters at Fourth and Market recorded 34 percent more pedestrians in 2023 than in 2019, according to the city's open-data portal. And in a survey of current storefront tenants conducted last fall, 84 percent said the pedestrianization had been good for business.\n\nThe safety case is even simpler. The collision data are stark: injuries on the closed blocks fell from 31 in 2019 to 4 last year, according to the police department's public dashboard. Whatever one thinks of retail economics, fewer people are being carried off Market Street on stretchers.\n\nThe logistics predictions fared no better. Early-morning delivery windows have worked; the city's 311 records show curb-complaint volumes on adjacent streets essentially flat since 2021. Restaurateurs who once warned of ruined lunch service now set tables where the loading zone used to be.\n\nThe Parking Association has answered with a commissioned report projecting $12 million in lost economic activity if the mall is extended. That report deserves scrutiny rather than deference: the association's members own the surface lots the extension would replace, and its projections were produced by a consultancy the association itself retained. A reader weighing the report should weigh that interest alongside it.\n\nIt is true that retail vacancies fell across the county over the same period, as the region recovered from the pandemic. But compare 2023 with 2020, the worst year of the pandemic, and downtown sales-tax receipts are up 61 percent. Growth on that scale does not happen by accident.\n\nThe asphalt nostalgists who treat every parking space as a birthright will keep insisting the recovery would have happened anyway. The council should not spend another season relitigating a settled point. On the evidence, the case for extension is not merely strong; it is beyond reasonable dispute. The choice before the council is simple: extend the mall to the riverfront, or watch downtown slide back into the parking-crater economics of 2019.",
+  "answerKey": {
+    "fallacies": [
+      {
+        "name": "Post Hoc",
+        "plantedSentence": "The timeline settles the question: the mall opened in May, and by Christmas the vacancy rate had fallen by a third."
+      },
+      {
+        "name": "Cherry Picking",
+        "plantedSentence": "But compare 2023 with 2020, the worst year of the pandemic, and downtown sales-tax receipts are up 61 percent."
+      },
+      {
+        "name": "Hasty Generalization",
+        "plantedSentence": "And in a survey of current storefront tenants conducted last fall, 84 percent said the pedestrianization had been good for business."
+      },
+      {
+        "name": "False Cause",
+        "plantedSentence": "Growth on that scale does not happen by accident."
+      },
+      {
+        "name": "False Dichotomy",
+        "plantedSentence": "The choice before the council is simple: extend the mall to the riverfront, or watch downtown slide back into the parking-crater economics of 2019."
+      }
+    ],
+    "unstatedWarrants": [
+      "The vacancy decline was caused by the street closure rather than by the county-wide post-pandemic recovery the author concedes and then sets aside.",
+      "Businesses that closed or relocated before the tenant survey was taken would have answered the same way as the tenants who remained.",
+      "Increased foot traffic translates into increased retail spending.",
+      "Results on the existing six blocks will transfer to the proposed riverfront extension."
+    ],
+    "loadedLanguage": [
+      {
+        "phrase": "asphalt nostalgists",
+        "technique": "Dismissive caricature label that ridicules opponents instead of engaging their argument."
+      },
+      {
+        "phrase": "treat every parking space as a birthright",
+        "technique": "Hyperbolic framing that recasts a cost-benefit objection as irrational entitlement."
+      },
+      {
+        "phrase": "parking-crater economics",
+        "technique": "Pejorative metaphor that stacks the concluding choice by making the alternative sound like blight."
+      }
+    ],
+    "keyTerms": [],
+    "referents": [],
+    "falsifiability": [],
+    "modalScope": [
+      "The timeline settles the question",
+      "a settled point",
+      "beyond reasonable dispute"
+    ],
+    "traps": [
+      {
+        "description": "The paragraph attacking the Parking Association's commissioned report ('That report deserves scrutiny rather than deference: the association's members own the surface lots the extension would replace...') pattern-matches Ad Hominem or the Genetic Fallacy.",
+        "whyNotAFlaw": "It is a proportionate, factual conflict-of-interest challenge to a source's reliability, which is legitimate when weighing commissioned projections. Note the report's $12 million counter-projection is the counter-evidence the author never rebuts on the merits; that evasion is captured by the Cherry Picking and Post Hoc keys, not by this sentence."
+      },
+      {
+        "description": "'The collision data are stark' reads as emphatic, potentially loaded language.",
+        "whyNotAFlaw": "The emphasis is earned: the sentence cites specific figures (31 injuries down to 4) from a named public source (the police department's public dashboard). Flagging it as loaded language is a false positive."
+      },
+      {
+        "description": "The concession 'It is true that retail vacancies fell across the county over the same period, as the region recovered from the pandemic.' may look like a flaw because it is immediately followed by a pivot.",
+        "whyNotAFlaw": "The concession itself is honest engagement with the strongest counter-evidence (the county-wide post-pandemic recovery). The flaw is the very next sentence's shift to the flattering 2020 baseline, which is already keyed as Cherry Picking; the concession sentence should not be separately flagged."
+      }
+    ],
+    "expectClean": false
+  }
+}

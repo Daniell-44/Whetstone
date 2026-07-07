@@ -1,0 +1,66 @@
+{
+  "id": "strawman-adhominem",
+  "category": "misrepresentation-and-attack",
+  "targetLenses": ["namedFallacies", "loadedLanguage", "unstatedWarrants", "referent", "falsifiability", "modalScope"],
+  "text": "Next month the Maple Heights city council will vote on Ordinance 214, which would allow up to four homes on residential lots within a quarter mile of the Route 9 bus corridor. Supporters call it a modest step toward affordability. Residents deserve a more honest account of what is actually on the table.\n\nBegin with the part of the case that is real. The numbers are genuinely alarming: median rent in Maple Heights rose 41 percent in five years, according to the county assessor's own filings. Nobody disputes that this city has a housing problem. The dispute is over whether Ordinance 214 is a remedy or an accelerant.\n\nThe Yes on 214 coalition says it wants \"gentle density near transit.\" Strip away the pastel branding and the plan is plain enough: they want to abolish the single-family neighborhood as a category and hand our streets over to corporate landlords, block by block. Once you see the proposal for what it is — a wrecking ball aimed at every quiet street in this city — the affordability talk sounds less like policy and more like cover for demolition.\n\nThe ordinance's most prominent academic champion is Dr. Alma Reyes of the Regional Growth Institute, who testified that fourplexes near transit would ease rents within a decade. You do not have to look far to see why she thinks so: the institute's donor roll is stacked with construction firms and landlord associations, so of course its scholars conclude that the answer to every civic question is more building.\n\nContrast that with the council's own traffic study, which projects only minor congestion effects. That study deserves scrutiny — not because of who commissioned it, but because the firm that produced it has twice been sanctioned by the state for fabricating survey responses. When a projection rests on the work of a shop with a documented record of inventing data, asking for an independent review is not mudslinging; it is due diligence.\n\nThere is also a price effect the coalition prefers not to discuss. If the council rezones the corridor, land prices along Route 9 will rise, because rezoning raises what a builder can afford to pay for a lot; assessors in three comparable cities recorded exactly that jump within two years of similar reforms. That is not a scare story. It is arithmetic, and it deserves an answer.\n\nObservers have noted that ordinances like this one have delivered fewer new homes elsewhere than their sponsors promised. And there is something the spreadsheets will never capture: the character of a neighborhood is not a quantity any study can measure, and no dataset will tell you what is lost when it goes. Pass this ordinance and the change will inevitably erode what makes these blocks livable.\n\nMaple Heights can add homes without a developer-driven land grab. The council should shelve Ordinance 214 and start over — with residents, not lobbyists, holding the pen.",
+  "answerKey": {
+    "fallacies": [
+      {
+        "name": "Straw Man",
+        "plantedSentence": "Strip away the pastel branding and the plan is plain enough: they want to abolish the single-family neighborhood as a category and hand our streets over to corporate landlords, block by block."
+      },
+      {
+        "name": "Ad Hominem (Circumstantial)",
+        "plantedSentence": "You do not have to look far to see why she thinks so: the institute's donor roll is stacked with construction firms and landlord associations, so of course its scholars conclude that the answer to every civic question is more building."
+      }
+    ],
+    "unstatedWarrants": [
+      "Development that profits builders and landlords is thereby bad for existing residents.",
+      "Research funded by an interested industry is unreliable regardless of its methods or evidence.",
+      "A neighborhood's livability depends on preserving its current physical form of single-family homes."
+    ],
+    "loadedLanguage": [
+      {
+        "phrase": "pastel branding",
+        "technique": "Dismisses the coalition's stated position as cosmetic marketing before engaging with it, priming the reader to treat the official description as a disguise."
+      },
+      {
+        "phrase": "a wrecking ball aimed at every quiet street in this city",
+        "technique": "Recasts a permissive zoning change as an instrument of violent, city-wide destruction; the imagery substitutes for an account of what the ordinance permits."
+      },
+      {
+        "phrase": "more like cover for demolition",
+        "technique": "Insinuates bad faith — reframes the supporters' affordability rationale as a deceptive pretext without evidence of deception."
+      },
+      {
+        "phrase": "developer-driven land grab",
+        "technique": "Frames lawful voluntary development as theft or seizure, importing the connotation of dispossession without argument."
+      }
+    ],
+    "keyTerms": [],
+    "referents": [
+      "Observers have noted"
+    ],
+    "falsifiability": [
+      "the character of a neighborhood is not a quantity any study can measure"
+    ],
+    "modalScope": [
+      "will inevitably erode"
+    ],
+    "traps": [
+      {
+        "description": "The attack on the council's traffic study — pointing out that the firm behind it was twice sanctioned for fabricating survey responses — looks like an ad hominem against the source.",
+        "whyNotAFlaw": "A documented record of fabricating data bears directly on the reliability of that firm's projections; challenging the credibility of evidence on relevant grounds and asking for independent review is legitimate. The author even explicitly disclaims the illegitimate version of the move ('not because of who commissioned it')."
+      },
+      {
+        "description": "The emphatic phrase 'genuinely alarming' looks like loaded language.",
+        "whyNotAFlaw": "The emphasis is attached to a specific cited figure (a 41 percent rent rise per county assessor filings), so the strong wording is proportionate to stated evidence rather than doing persuasive work in place of it."
+      },
+      {
+        "description": "The prediction that rezoning will push up land prices along Route 9 looks like a slippery slope.",
+        "whyNotAFlaw": "It states an explicit causal mechanism (rezoning raises what a builder can afford to pay for a lot) and cites assessor data from three comparable cities, so it is a supported single-step causal projection, not an unsupported chain of escalating consequences."
+      }
+    ],
+    "expectClean": false
+  }
+}

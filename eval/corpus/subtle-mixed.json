@@ -1,0 +1,40 @@
+{
+  "id": "subtle-mixed",
+  "category": "hard",
+  "targetLenses": ["namedFallacies", "toulmin.unstatedWarrants"],
+  "text": "The return-to-office debate has been settled quietly, not by ideology but by results. Consider the natural experiment of the past two years. Among the fifty largest US employers, the twenty that mandated at least four days in office by early 2024 saw measured output per employee rise an average of 6 percent over the following eighteen months, while firms that stayed remote-flexible saw essentially flat productivity. The mandating firms also report faster promotion cycles for junior staff and higher scores on internal collaboration surveys. These are not cherry-picked anecdotes; they are consistent results across a large share of the corporate economy. The mechanism is not mysterious either. Junior employees learn by osmosis — overhearing negotiations, watching how seniors handle a difficult client — and that transmission simply does not happen over scheduled video calls. Mentorship needs proximity. Nor is this a claim that office work suits everyone: clearly some roles and some individuals thrive remotely. The claim is about averages and institutions, not individuals. Critics respond that mandates hurt morale and retention, and early attrition data did show a bump in departures at mandating firms. But that bump concentrated among employees with below-median performance ratings, which suggests the mandates are functioning as a useful sorting mechanism as much as a retention risk. An institution is not obliged to optimise for the preferences of its least productive members. The lesson for boards weighing the decision is straightforward. The firms that acted decisively have the results; the firms that hedged have flat lines. Where the goal is a durable, self-reproducing institutional culture — and for any firm intending to exist in twenty years, that must be the goal — the office is not a nostalgic indulgence. It is the mechanism by which firms transmit what they know.",
+  "answerKey": {
+    "fallacies": [
+      { "name": "False Cause (selection effect presented as treatment effect)", "plantedSentence": "Among the fifty largest US employers, the twenty that mandated at least four days in office by early 2024 saw measured output per employee rise an average of 6 percent over the following eighteen months, while firms that stayed remote-flexible saw essentially flat productivity." }
+    ],
+    "unstatedWarrants": [
+      "That firms which chose to mandate RTO are comparable to firms which did not — i.e. the mandate caused the productivity difference rather than firm health, sector, or management confidence causing both the mandate and the results (the 'natural experiment' framing asserts, and nowhere establishes, exchangeability)",
+      "That 'measured output per employee' validly captures productivity for the knowledge-work roles in dispute — the argument's conclusion is about learning, mentorship and culture, but its headline evidence is an output metric that would miss exactly those goods"
+    ],
+    "loadedLanguage": [],
+    "keyTerms": [],
+    "referents": [],
+    "falsifiability": [],
+    "modalScope": [],
+    "traps": [
+      {
+        "description": "'An institution is not obliged to optimise for the preferences of its least productive members' looks callous and could be flagged as loaded language or ad hominem against departing employees.",
+        "whyNotAFlaw": "It is a normative premise stated openly, applied to an aggregate pattern the text has just cited (attrition concentrated among below-median performers). Disagreeable is not fallacious."
+      },
+      {
+        "description": "'Junior employees learn by osmosis... Mentorship needs proximity' could be flagged as an unsupported empirical assertion or appeal to intuition.",
+        "whyNotAFlaw": "It is offered explicitly as a mechanism sketch ('The mechanism is not mysterious either'), a legitimate abductive move; the argument's real weight is placed on the outcome data, and the text is honest about that division of labour."
+      },
+      {
+        "description": "'for any firm intending to exist in twenty years, that must be the goal' is emphatic and could be flagged as certainty inflation.",
+        "whyNotAFlaw": "It is a definitional/normative claim about what institutional survival requires, clearly signalled as such by 'Where the goal is...', not an empirical prediction dressed as certainty."
+      },
+      {
+        "description": "The attrition rebuttal ('that bump concentrated among employees with below-median performance ratings') might be flagged as cherry-picking.",
+        "whyNotAFlaw": "Engaging the strongest counter-datum and offering a re-reading of it is exactly what good arguments do; the re-reading is signposted with 'which suggests', an honest modal. The genuine problem in the text lies elsewhere (the selection-vs-treatment confusion in the headline comparison)."
+      }
+    ],
+    "expectClean": false,
+    "difficultyNote": "A lazy audit finds nothing or flags the traps; a sharp audit finds exactly three things: the selection-effect fallacy in the flagship comparison, and the two load-bearing unstated warrants (comparability of self-selected mandating firms; output metric validity for culture-transmission conclusions)."
+  }
+}

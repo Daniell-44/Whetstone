@@ -1,0 +1,39 @@
+{
+  "id": "groundedness-boundary",
+  "category": "boundary",
+  "targetLenses": ["loadedLanguage", "namedFallacies"],
+  "text": "The council has once again shown its deep commitment to public consultation. Residents were given a generous four working days to respond to the 300-page redevelopment proposal, published, with impeccable timing, on the Thursday before the bank holiday. One struggles to imagine how the process could have been more accommodating. Turning to the substance: the proposal states that the development will 'support the vitality of the high street'. Note what is not said. It does not say the development includes retail units — the ground-floor plans show none. It does not say local traders were consulted — the consultation log lists two meetings, both with the developer's own commercial tenants. Supporters of the scheme tell us that opposition comes from the usual noisy minority who oppose everything. Perhaps. It is certainly true that some frequent objectors are among the signatories. But the petition currently carries eleven hundred signatures in a ward of four thousand adults, which is an odd sort of minority, and dismissing a quarter of the electorate as 'the usual suspects' is not a demographic observation; it is a way of not answering them. The council insists the decision remains open. The same council has already accepted a £250,000 planning performance agreement from the developer, has referred to the scheme in its investment prospectus as 'committed regeneration pipeline', and has scheduled the demolition contractors' procurement for March. Readers can draw their own conclusions about how open the decision is. None of this means the redevelopment is wrong on the merits. High streets do need investment, and the site is genuinely derelict. But a good outcome reached through a foreclosed process is a debt that gets collected later, in trust. The council should extend the consultation to the statutory six weeks and publish the unredacted viability assessment. If the scheme is as strong as they say, it will survive being looked at.",
+  "answerKey": {
+    "fallacies": [
+      { "name": "Poisoning the Well / Ad Hominem (reported, then rebutted — judgment call whether to attribute to the TEXT or note it as quoted opposition rhetoric)", "plantedSentence": "Supporters of the scheme tell us that opposition comes from the usual noisy minority who oppose everything." }
+    ],
+    "unstatedWarrants": [
+      "That the pattern of council commitments (payment accepted, prospectus language, procurement scheduling) is best explained by a foreclosed decision rather than routine parallel planning — the text argues this only by juxtaposition and an invitation to infer ('Readers can draw their own conclusions')"
+    ],
+    "loadedLanguage": [
+      { "phrase": "has once again shown its deep commitment to public consultation", "technique": "Sarcasm/irony — praise whose literal content is the opposite of the intended meaning. STRUCTURAL to flag that evaluation is being carried by tone; INTERPRETIVE what the tone is, since the literal sentence is complimentary." },
+      { "phrase": "with impeccable timing", "technique": "Ironic insinuation of deliberate burial of the consultation — an accusation made without being stated, deniable as literal praise." },
+      { "phrase": "One struggles to imagine how the process could have been more accommodating.", "technique": "Ironic understatement functioning as an unstated accusation of bad faith." }
+    ],
+    "keyTerms": [],
+    "referents": [],
+    "falsifiability": [],
+    "modalScope": [],
+    "traps": [
+      {
+        "description": "'Readers can draw their own conclusions about how open the decision is' looks like leading insinuation / an argument from innuendo.",
+        "whyNotAFlaw": "Borderline BY DESIGN: the juxtaposed facts (payment, prospectus, procurement date) are specific and checkable, so the inference is substantially earned even though the conclusion is left implicit. A reasonable audit may note the rhetorical move; calling it a fallacy outright over-reads. This item tests whether the engine marks it interpretive rather than structural."
+      },
+      {
+        "description": "The arithmetic rebuttal ('eleven hundred signatures in a ward of four thousand adults, which is an odd sort of minority') is pointed and could be flagged as loaded.",
+        "whyNotAFlaw": "It rebuts a dismissal with a specific, checkable proportion; the edge in 'an odd sort of minority' is earned by the number that precedes it."
+      },
+      {
+        "description": "The concessions ('None of this means the redevelopment is wrong on the merits', 'the site is genuinely derelict') could be read as a motte-and-bailey retreat.",
+        "whyNotAFlaw": "The text's actual claim throughout is about process, not merits, and the concession keeps those separate honestly — there is no bold claim being retreated from."
+      }
+    ],
+    "expectClean": false,
+    "difficultyNote": "The point of this item is groundedness assignment: the irony findings are structurally flaggable (tone carries the evaluation) but their content is interpretive; the reported 'noisy minority' smear belongs to quoted supporters, not the author. An engine that marks all findings 'structural' without distinction fails the boundary test even if it finds the right sentences."
+  }
+}

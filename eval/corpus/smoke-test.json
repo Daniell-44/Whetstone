@@ -1,0 +1,11 @@
+{
+  "id": "smoke-test",
+  "category": "smoke",
+  "targetLenses": ["namedFallacies"],
+  "text": "The new curfew policy must be working, because ever since the council introduced it last month, reported vandalism has fallen. Anyone who denies this is probably one of those activists who never wanted the curfew in the first place, so their objections can be safely ignored. The choice is simple: either we keep the curfew, or we let the town descend into chaos.",
+  "answerKey": {
+    "note": "smoke item only — expected: false cause (post hoc), ad hominem (circumstantial), false dilemma",
+    "fallacies": ["False Cause", "Ad Hominem", "False Dilemma"],
+    "expectClean": false
+  }
+}

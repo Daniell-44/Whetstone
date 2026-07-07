@@ -1,0 +1,34 @@
+{
+  "id": "clean-empirical",
+  "category": "clean-control",
+  "targetLenses": [],
+  "text": "Delaying secondary school start times improves adolescent sleep and, more tentatively, academic performance. The physiological groundwork is well established: adolescent circadian rhythms shift later during puberty, which means a 7:30am start asks teenagers to perform during their biological night. The strongest single piece of evidence on outcomes comes from the Seattle school district's 2016-17 policy change, when start times moved 55 minutes later. Dunster and colleagues, using wrist actigraphy rather than self-report, measured a median 34 minutes of additional daily sleep after the change — a large effect in a literature where interventions that move sleep by ten minutes are considered successful. In the two schools studied, second-semester grades in the sampled science classes were 4.5 percent higher than in the equivalent pre-change cohort, and attendance improved at the more economically disadvantaged of the two schools. A 2017 systematic review of start-time studies found consistent sleep gains across districts, though it rightly noted that most included studies were observational and only a minority controlled well for confounding. The honest summary of the evidence is therefore asymmetric. That later starts produce more sleep is established about as firmly as anything in school policy research: the finding replicates across districts, holds with objective measurement, and has a clear physiological mechanism. That later starts improve grades is probable but not settled — the Seattle grade effect comes from two schools and one subject, and grade comparisons across cohorts are noisy. Anyone claiming the academic benefits are proven is ahead of the data. But policy decisions do not require certainty on every margin; they require that the expected benefits outweigh the costs. More sleep for adolescents is a health benefit in its own right — insufficient adolescent sleep is associated with depression risk and injury rates in the sports-medicine literature — and it is delivered here by an intervention whose main costs are logistical: bus schedules, after-school activities, and parental work patterns. Districts that can solve the logistics should move start times later. The sleep benefit alone justifies it, and the possible academic gains come free.",
+  "answerKey": {
+    "fallacies": [],
+    "unstatedWarrants": [],
+    "loadedLanguage": [],
+    "keyTerms": [],
+    "referents": [],
+    "falsifiability": [],
+    "modalScope": [],
+    "traps": [
+      {
+        "description": "The strong conclusion 'The sleep benefit alone justifies it' could be flagged as overreaching or as certainty inflation.",
+        "whyNotAFlaw": "The text has explicitly separated the established finding (sleep gains, objectively measured, replicated, mechanistically grounded) from the unsettled one (grades), and rests the conclusion only on the established one. The strength is earned and correctly scoped."
+      },
+      {
+        "description": "'is associated with depression risk and injury rates' might be flagged as a causal claim smuggled in via association language.",
+        "whyNotAFlaw": "The text uses precisely the correct hedged verb for observational evidence and does NOT convert it to causation anywhere — this is modal discipline, the opposite of modal-scope inflation."
+      },
+      {
+        "description": "The named citations (Dunster and colleagues; a 2017 systematic review) could be flagged as vague referents since full bibliographic detail is absent.",
+        "whyNotAFlaw": "Named author teams, a named district, a dated policy change, and a described methodology (wrist actigraphy) are specific, checkable attributions — prose register does not require footnote apparatus to avoid the weasel pattern."
+      },
+      {
+        "description": "'Anyone claiming the academic benefits are proven is ahead of the data' preempts an objection and could be read as a straw man of opponents.",
+        "whyNotAFlaw": "It attacks no named opponent and misrepresents no position; it polices the text's OWN side against overclaiming, which is epistemic hygiene, not misrepresentation."
+      }
+    ],
+    "expectClean": true
+  }
+}

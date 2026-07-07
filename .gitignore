@@ -35,3 +35,8 @@ test-results/
 playwright-report/
 blob-report/
 .playwright/
+
+# eval: real op-ed excerpts are copyrighted third-party text — local-only (re-fetchable via provenance URLs)
+eval/corpus/real-oped-*.json
+eval/outputs/
+eval/blind/

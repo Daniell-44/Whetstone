@@ -1,0 +1,60 @@
+{
+  "id": "unfalsifiable-mottebailey",
+  "category": "unfalsifiability",
+  "targetLenses": ["falsifiabilityChecks", "namedFallacies"],
+  "text": "For six years I have taught a single principle to anyone who will listen: the outer circumstances of your life are a mirror of your inner energy. Align that energy with abundance, and abundance flows toward you — the promotion, the windfall, the relationship you had almost given up on. This is not wishful thinking; it is the operating law of a responsive universe, and once you have seen it working you cannot unsee it.\n\nThe beauty of the principle is that nothing in your experience contradicts it. When abundance arrives, it confirms that your energy was aligned; when it is delayed, it confirms only that your alignment is not yet complete. A delay, after all, is never a denial — it is the universe arranging something better than the thing you asked for. Look closely and you will find there is no outcome the principle fails to explain.\n\nNaturally, some people tell me it did not work for them. But when I sit with them, I find without exception that those for whom it 'failed' were never genuinely aligned to begin with — they were still half-clinging to the very fear they claimed to have released. Like attracts like; that is simply how energy operates; so of course aligned energy can only attract aligned circumstances. The person radiating quiet abundance and the person trapped in a scarcity mindset are not running the same experiment.\n\nLet me be fair to the skeptics, because I was once one of them. Psychologists have documented that an optimistic explanatory style modestly predicts persistence on difficult tasks, and I don't dispute that narrow, measurable finding. I know three people who turned their finances around within a year of adopting this outlook — though of course three stories prove nothing on their own, and I would never rest the case on them.\n\nSo when a critic pushes back hard, I simply remind them that all I have ever really claimed is that keeping a hopeful, open outlook makes you more likely to notice and seize an opportunity when it appears — and who, honestly, could argue with that? Science is only beginning to catch up to what the countless people who have transformed their lives this way already know in their bones.\n\nThe invitation, then, is not to believe anything on faith. It is to run the experiment yourself: align your energy, hold the vision, and watch what the universe returns. If it works, you will have your proof. If it does not, you will know exactly where the work still remains.",
+  "answerKey": {
+    "fallacies": [
+      {
+        "name": "Motte-and-Bailey",
+        "plantedSentence": "So when a critic pushes back hard, I simply remind them that all I have ever really claimed is that keeping a hopeful, open outlook makes you more likely to notice and seize an opportunity when it appears — and who, honestly, could argue with that?"
+      },
+      {
+        "name": "No True Scotsman",
+        "plantedSentence": "But when I sit with them, I find without exception that those for whom it 'failed' were never genuinely aligned to begin with — they were still half-clinging to the very fear they claimed to have released."
+      },
+      {
+        "name": "Begging the Question",
+        "plantedSentence": "Like attracts like; that is simply how energy operates; so of course aligned energy can only attract aligned circumstances."
+      }
+    ],
+    "unstatedWarrants": [
+      "A person's inner mental or emotional state exerts causal influence over external, material events such as promotions and windfalls.",
+      "The failure of a promised outcome to appear indicates incomplete 'alignment' rather than the principle being false.",
+      "A person's degree of 'alignment' can be reliably diagnosed after the fact from whether the desired outcome occurred.",
+      "'Energy' is a real causal force capable of reorganising worldly circumstances."
+    ],
+    "loadedLanguage": [
+      {
+        "phrase": "trapped in a scarcity mindset",
+        "technique": "Pejorative framing that pathologises disagreement, casting those without the desired outcome as psychologically deficient rather than possibly correct."
+      }
+    ],
+    "keyTerms": [],
+    "referents": [
+      "the countless people who have transformed their lives this way",
+      "Science is only beginning to catch up"
+    ],
+    "falsifiability": [
+      "When abundance arrives, it confirms that your energy was aligned; when it is delayed, it confirms only that your alignment is not yet complete.",
+      "A delay, after all, is never a denial — it is the universe arranging something better than the thing you asked for.",
+      "Look closely and you will find there is no outcome the principle fails to explain."
+    ],
+    "modalScope": [],
+    "traps": [
+      {
+        "description": "The sentence 'Psychologists have documented that an optimistic explanatory style modestly predicts persistence on difficult tasks, and I don't dispute that narrow, measurable finding' pattern-matches an appeal to authority or a cherry-picked study.",
+        "whyNotAFlaw": "The claim is narrowly scoped, correctly hedged ('modestly'), falsifiable, and reported honestly without being stretched to support the bold metaphysical thesis, so it is legitimate evidence use rather than a fallacy."
+      },
+      {
+        "description": "The three-people anecdote looks like an anecdotal / hasty-generalisation fallacy.",
+        "whyNotAFlaw": "The author explicitly disclaims the inference ('three stories prove nothing on their own, and I would never rest the case on them'), so the anecdote is not load-bearing and flagging it would be a false positive."
+      },
+      {
+        "description": "Absolute phrasings such as 'there is no outcome the principle fails to explain' and 'can only attract aligned circumstances' pattern-match modal-scope certainty inflation.",
+        "whyNotAFlaw": "These absolutes are the mechanism of the unfalsifiability already logged under falsifiability, not a case of certainty outrunning cited evidence; no hedged empirical finding is being overstated, so a separate modal-scope flag would double-count and mislabel the defect."
+      }
+    ],
+    "expectClean": false
+  }
+}

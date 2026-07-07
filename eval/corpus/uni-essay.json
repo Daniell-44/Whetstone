@@ -1,0 +1,43 @@
+{
+  "id": "uni-essay",
+  "category": "persona-student",
+  "targetLenses": ["namedFallacies", "referentChecks", "modalScopeChecks"],
+  "text": "This essay will argue that social media has damaged democratic deliberation. The evidence for this position is overwhelming and can be seen everywhere in modern politics. Since the rise of platforms like Facebook and Twitter, political polarisation has increased dramatically in almost every western country, which shows that social media is the driving force behind democratic decline. People no longer talk to their political opponents; they simply retreat into echo chambers where algorithms feed them content they already agree with. As the renowned scholar Shoshana Zuboff has argued, surveillance capitalism represents a fundamental threat to human autonomy, and therefore social media platforms are incompatible with genuine democratic participation. Many researchers agree that echo chambers are one of the most serious problems facing democracies today. Furthermore, studies have shown that misinformation spreads faster than accurate information on social platforms. It could be argued that social media also has democratising effects, such as giving marginalised groups a voice and enabling movements like the Arab Spring. However, these benefits are clearly outweighed by the harms, because the overall trajectory of democratic health since 2010 has been negative. The Cambridge Analytica scandal proved that platforms will always prioritise profit over democratic integrity. In conclusion, this essay has demonstrated that social media, and indeed digital technology more broadly, is fundamentally incompatible with healthy democracy and represents perhaps the greatest threat to free societies in the twenty-first century. Governments must therefore regulate platforms before deliberative democracy disappears entirely.",
+  "answerKey": {
+    "fallacies": [
+      { "name": "Post Hoc / False Cause", "plantedSentence": "Since the rise of platforms like Facebook and Twitter, political polarisation has increased dramatically in almost every western country, which shows that social media is the driving force behind democratic decline." },
+      { "name": "Appeal to Authority", "plantedSentence": "As the renowned scholar Shoshana Zuboff has argued, surveillance capitalism represents a fundamental threat to human autonomy, and therefore social media platforms are incompatible with genuine democratic participation." },
+      { "name": "Hasty Generalization", "plantedSentence": "The Cambridge Analytica scandal proved that platforms will always prioritise profit over democratic integrity." }
+    ],
+    "unstatedWarrants": [
+      "That correlation in timing between platform adoption and polarisation licenses a causal attribution (no mechanism or counterfactual offered)",
+      "That a single authority's framing (Zuboff) settles the compatibility question without independent argument",
+      "That the balance of benefits and harms can be read off the aggregate trajectory of 'democratic health' without attributing that trajectory to social media specifically"
+    ],
+    "loadedLanguage": [],
+    "keyTerms": [],
+    "referents": [
+      "Many researchers agree that echo chambers are one of the most serious problems facing democracies today.",
+      "Furthermore, studies have shown that misinformation spreads faster than accurate information on social platforms."
+    ],
+    "falsifiability": [],
+    "modalScope": [
+      "In conclusion, this essay has demonstrated that social media, and indeed digital technology more broadly, is fundamentally incompatible with healthy democracy and represents perhaps the greatest threat to free societies in the twenty-first century."
+    ],
+    "traps": [
+      {
+        "description": "The concession paragraph ('It could be argued that social media also has democratising effects...') might be flagged as a straw man of the opposing view.",
+        "whyNotAFlaw": "The essay states the opposing considerations fairly (marginalised voices, Arab Spring) before rejecting them; the flaw in the rejection is the unsupported weighing, not a misrepresentation of the other side."
+      },
+      {
+        "description": "Citing Zuboff at all might be flagged as inherently fallacious.",
+        "whyNotAFlaw": "Citing a relevant scholar is legitimate; the fallacy is specifically the 'and therefore' — treating her framing as sufficient to establish the incompatibility conclusion without argument. A correct audit flags the inferential move, not the citation."
+      },
+      {
+        "description": "The scope creep is between thesis and conclusion: 'social media has damaged democratic deliberation' becomes 'digital technology more broadly is fundamentally incompatible with healthy democracy'.",
+        "whyNotAFlaw": "This IS a flaw and is in the key under modalScope — the trap is for scorers: the engine should catch the thesis-conclusion scope jump specifically, not merely label the conclusion 'strong'. Partial credit distinction."
+      }
+    ],
+    "expectClean": false
+  }
+}

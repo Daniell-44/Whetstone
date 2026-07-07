@@ -1,0 +1,59 @@
+{
+  "id": "modal-inflation",
+  "category": "modalScope",
+  "targetLenses": ["modalScopeChecks"],
+  "text": "Last month a major cohort study followed nearly two hundred thousand adults for a decade and reported that those who ate the most ultra-processed food were, on average, more likely to be diagnosed with depression than those who ate the least. The authors were measured in their language. Consumption of these foods, they wrote, was associated with a higher risk of later depression, and they may contribute to poorer mental health through several plausible biological pathways.\n\nThat is a careful, defensible finding, and it deserves a careful reading. To their credit, the researchers were careful to note that the association could reflect reverse causation, since people who are already depressed may reach for convenient processed food rather than cook, so the arrow might point the other way. Ultra-processed foods are, by definition, industrially formulated from refined ingredients, additives, and substances rarely found in a home kitchen — that much is not in dispute.\n\nBut watch what happens as the finding travels. If eating these products is associated with depression, then plainly these foods raise the risk of depression for anyone who eats them. And if they raise the risk, we can now say plainly that ultra-processed food causes depression — the correlation is simply too strong to mean anything else. A growing chorus of researchers has been telling us for years that something in the modern diet is behind rising distress, and here, at last, is the proof: this study proves the link beyond reasonable doubt.\n\nIt follows that the policy implications are equally certain. Because these industrial concoctions cause the illness, removing them from the national diet will prevent millions of cases of depression over the coming generation. It is now undeniable that the additives themselves are the culprit, and any parent who continues to serve these products is, whether they intend it or not, raising their child's risk of a lifetime of mental suffering.\n\nNone of this requires waiting for another trial. We have followed the evidence from a cautious association to its only possible destination. The hedging in the original paper was academic modesty, nothing more; the underlying truth was there all along. Ultra-processed food does not merely correlate with depression. It manufactures it — and the sooner our dietary guidelines say so without equivocation, the sooner we can begin to heal.",
+  "answerKey": {
+    "fallacies": [
+      {
+        "name": "False Cause (cum hoc, correlation implies causation)",
+        "plantedSentence": "And if they raise the risk, we can now say plainly that ultra-processed food causes depression — the correlation is simply too strong to mean anything else."
+      }
+    ],
+    "unstatedWarrants": [
+      "The observed association is not produced by confounding factors (income, overall diet quality, physical activity) that independently affect both processed-food intake and depression.",
+      "The association runs in the causal direction the author assumes, despite the paper itself flagging possible reverse causation.",
+      "A population-level relative risk transfers to a definite increase in any individual eater's personal risk.",
+      "An intervention that removed the exposure would reproduce the benefit implied by a merely observational association."
+    ],
+    "loadedLanguage": [
+      {
+        "phrase": "these industrial concoctions",
+        "technique": "Pejorative framing that pre-judges the additives as harmful before the causal case is made."
+      },
+      {
+        "phrase": "a lifetime of mental suffering",
+        "technique": "Fear and guilt amplification directed at parents, inflating the emotional stakes of the conclusion."
+      }
+    ],
+    "keyTerms": [],
+    "referents": [
+      "A growing chorus of researchers",
+      "something in the modern diet"
+    ],
+    "falsifiability": [],
+    "modalScope": [
+      "plainly these foods raise the risk of depression for anyone who eats them",
+      "we can now say plainly that ultra-processed food causes depression",
+      "this study proves the link beyond reasonable doubt",
+      "removing them from the national diet will prevent millions of cases of depression over the coming generation",
+      "It is now undeniable that the additives themselves are the culprit",
+      "It manufactures it"
+    ],
+    "traps": [
+      {
+        "description": "The sentence about reverse causation uses 'could' and 'may' ('the association could reflect reverse causation, since people who are already depressed may reach for convenient processed food'), which pattern-matches vague hedging that a modal-scope lens might flag.",
+        "whyNotAFlaw": "These modals accurately represent a genuine, live alternative explanation (reverse causation), so the hedging is warranted and correct; flagging appropriate uncertainty as a modal defect would be a false positive."
+      },
+      {
+        "description": "'Ultra-processed foods are, by definition, industrially formulated from refined ingredients, additives, and substances rarely found in a home kitchen — that much is not in dispute' states a claim with full certainty, which looks like modal overreach.",
+        "whyNotAFlaw": "This is a definitional, uncontested claim; stating a definition with certainty is appropriate, not an inflation of evidence beyond what it supports."
+      },
+      {
+        "description": "The word 'risk' is applied both to the study's population-level finding and to the individual reader ('raise the risk of depression for anyone who eats them'), which can look like a key-term equivocation.",
+        "whyNotAFlaw": "'Risk' keeps a single meaning (probability of depression) throughout; what shifts is the reference class, not the term's sense, so a key-term-scrutiny flag would misfire — the genuine defect is the population-to-individual scope leap, captured as an unstated warrant."
+      }
+    ],
+    "expectClean": false
+  }
+}

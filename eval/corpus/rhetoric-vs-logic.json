@@ -1,0 +1,42 @@
+{
+  "id": "rhetoric-vs-logic",
+  "category": "boundary",
+  "targetLenses": ["loadedLanguage"],
+  "text": "The water company knew. Internal testing flagged the contamination in March. The results sat in an inbox while the company spent April assuring the town, in writing, that the supply met every standard. Children drank that water for eleven more weeks. Let us be precise about what the documents show, because precision is what this grotesque episode deserves. The March laboratory report, released under freedom of information rules, records lead concentrations at nearly three times the regulatory limit at two of the six sampling points. The April newsletter, signed by the operations director, states that 'all recent testing confirms full compliance'. Those two documents cannot both be honest. Either the newsletter's author had not read the March report — in which case the company's internal reporting is broken at the most basic level — or the author had read it, in which case the town was knowingly misled. There is no third possibility: the newsletter makes a universal claim about recent testing, and the March report is a recent test. The company's defence, that the March results were 'provisional pending revalidation', collapses on its own timeline: the revalidation was not commissioned until June, after journalists began asking questions. A provisional result you sit on for three months while telling the public the opposite is not a provisional result; it is a buried one. This shameful conduct has a remedy, and it is not another apology. The regulator has the statutory power to compel disclosure of all internal water-quality communications and to refer individual officers for prosecution where public statements contradict held data. It should use both powers, this month. Companies do not learn from apologies they draft themselves; they learn from consequences they cannot control. Every family in that town poured this company's assurances into their children's cups. The only question that matters now is whether lying about lead carries a cost.",
+  "answerKey": {
+    "fallacies": [],
+    "unstatedWarrants": [
+      "That the regulator's compelled-disclosure and referral powers are the remedy most likely to change conduct (asserted via the 'companies learn from consequences' maxim rather than argued comparatively)"
+    ],
+    "loadedLanguage": [
+      { "phrase": "this grotesque episode", "technique": "Strong evaluative epithet" },
+      { "phrase": "This shameful conduct", "technique": "Strong evaluative epithet" },
+      { "phrase": "Every family in that town poured this company's assurances into their children's cups.", "technique": "Vivid pathos image fusing the company's statements with the physical harm" },
+      { "phrase": "it is a buried one", "technique": "Evaluative reframing of the company's 'provisional' characterisation" }
+    ],
+    "keyTerms": [],
+    "referents": [],
+    "falsifiability": [],
+    "modalScope": [],
+    "traps": [
+      {
+        "description": "The core dilemma ('Those two documents cannot both be honest... There is no third possibility') pattern-matches False Dilemma.",
+        "whyNotAFlaw": "The dilemma is logically exhaustive as constructed: the newsletter makes a universal claim ('all recent testing'), the March report is a member of that set, so either the author knew (misled) or did not (broken reporting). The text even anticipates and eliminates the candidate third option (provisional results) on evidence (revalidation commissioned only in June). This is a VALID constructive dilemma wearing the costume of a fallacy — the single most important trap in the corpus."
+      },
+      {
+        "description": "The heated register throughout ('grotesque', 'shameful', children imagery) invites flagging the ARGUMENT as fallacious appeal to emotion.",
+        "whyNotAFlaw": "The emotional language decorates conclusions that are independently established by the documentary evidence; no inferential step relies on the emotion. A correct audit flags the loaded phrases as rhetoric (they are in the key) while explicitly NOT downgrading the argument's structure, which is tight. An engine that lets tone contaminate its structural verdict fails this item."
+      },
+      {
+        "description": "'lying about lead' in the closing sentence presupposes the dishonesty conclusion.",
+        "whyNotAFlaw": "By the final sentence the disjunction has been argued through; on the surviving branch the description is earned. Borderline: an engine could reasonably note the closing line assumes the worse branch — but the text's own dilemma left 'broken reporting' open, so a sharp audit might fairly flag scope-narrowing here. Scorers: treat flagging this as acceptable EITHER way; it must not be scored as a false positive."
+      },
+      {
+        "description": "'Companies do not learn from apologies they draft themselves; they learn from consequences they cannot control' is an unsupported universal.",
+        "whyNotAFlaw": "It is a maxim offered in the remedy paragraph, doing normative summing-up rather than evidential work — flagging it as Hasty Generalization treats a peroration as a premise. (The related genuine gap — no comparative argument for the remedy — is in the key as an unstated warrant.)"
+      }
+    ],
+    "expectClean": false,
+    "difficultyNote": "Scoring: full marks requires (a) flagging the loaded phrases, (b) NOT flagging the constructive dilemma as False Dilemma, (c) NOT downgrading the argument's structural soundness because of tone. This item measures rhetoric/logic separation."
+  }
+}

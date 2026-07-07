@@ -1,0 +1,53 @@
+{
+  "id": "equivocation-keyterm",
+  "category": "term-shift",
+  "targetLenses": ["keyTermScrutiny", "namedFallacies", "unstatedWarrants", "loadedLanguage", "referent", "modalScope"],
+  "text": "Congress has turned its attention once again to the online advertising industry. The Digital Fairness Act, reintroduced last month, would prohibit most behaviorally targeted advertising and require opt-in consent for the rest. Its sponsors call it a privacy measure. It is better understood as a threat to the free internet, no matter how it is dressed up in the language of privacy — and we should be clear about what that phrase means before we trade it away.\n\nStart with what nobody disputes. The open internet has been the most consequential platform for free expression since the printing press. Dissidents organize on it; local reporters publish without asking a gatekeeper's permission; an unknown writer can reach a million readers by morning. A free internet, in this sense, is not a business model. It is a civic achievement, and any democracy that values free expression has reason to defend it.\n\nNow consider what the act would actually do. Targeted advertising is the revenue engine of the zero-price web: the search tools, news sites, and forums that charge users nothing because advertisers pay the bills. The evidence on what happens when that engine stalls is not speculative. After Europe's consent rules took effect, a study commissioned by the European Publishers Council found that programmatic revenue for small European publishers fell by more than half within eighteen months — a collapse, and the word is not too strong. Some in Washington insist the money would simply shift to contextual advertising, but the European data gives little reason for comfort. Paywalls will inevitably spread to every corner of the web that once was open. The Digital Fairness Act would, in short, end the free internet — and a country that lets its legislators dismantle the free internet is dismantling the very forum on which free expression depends.\n\nIt is fair to note that the act's loudest corporate supporters are subscription giants who stand to gain when ad-funded rivals fold. That interest does not settle the argument by itself, but it should temper the weight we give their testimony about what consumers want.\n\nNone of this means privacy is unimportant, or that the status quo in data collection deserves a defense in every particular. Congress could write disclosure rules, data-minimization standards, and real penalties for breaches without touching the economic foundation of the open web. What it should not do is pass a bill whose likely effect is to move much of the open web behind paywalls.\n\nThe free internet took thirty years to build, and the case for keeping it free is the case for free expression itself. The Digital Fairness Act gets that case exactly backward.",
+  "answerKey": {
+    "fallacies": [
+      {
+        "name": "Equivocation",
+        "plantedSentence": "The Digital Fairness Act would, in short, end the free internet — and a country that lets its legislators dismantle the free internet is dismantling the very forum on which free expression depends."
+      }
+    ],
+    "unstatedWarrants": [
+      "The ad-funded, zero-price model is the only viable way to fund a broadly accessible open web.",
+      "Whatever ends zero-price access thereby ends the internet's role as an open forum for expression.",
+      "Revenue losses observed under Europe's consent rules would replicate at similar scale under the Digital Fairness Act."
+    ],
+    "loadedLanguage": [
+      {
+        "phrase": "dressed up in the language of privacy",
+        "technique": "Presupposes that the bill's privacy rationale is a disguise, framing the sponsors as acting in bad faith before any argument is made."
+      }
+    ],
+    "keyTerms": [
+      {
+        "term": "free internet",
+        "shift": "In the second paragraph 'free internet' means an open forum for expression without gatekeepers (free as in speech); in the third paragraph it means zero-price, ad-funded services (free as in no charge). The closing line fuses the two again ('the case for keeping it free is the case for free expression itself'). The conclusion that the bill endangers free expression only follows if the two senses are conflated — a paywalled internet can still be an uncensored one, so once the senses are separated the argument establishes at most an economic cost, not a threat to expression."
+      }
+    ],
+    "referents": [
+      "Some in Washington"
+    ],
+    "falsifiability": [],
+    "modalScope": [
+      "will inevitably spread to every corner of the web"
+    ],
+    "traps": [
+      {
+        "description": "Noting that the act's loudest corporate supporters are subscription giants who profit if ad-funded rivals fold looks like a circumstantial ad hominem.",
+        "whyNotAFlaw": "The author explicitly says the interest does not settle the argument and uses it only to calibrate the weight given to interested testimony about consumer preferences — a legitimate evidential discount, not a dismissal of the position because of who holds it."
+      },
+      {
+        "description": "The emphatic phrase 'a collapse, and the word is not too strong' looks like inflammatory loaded language.",
+        "whyNotAFlaw": "The emphasis is anchored to a specific cited finding (programmatic revenue for small European publishers falling by more than half within eighteen months), so the strong word summarizes stated evidence rather than substituting for it."
+      },
+      {
+        "description": "Calling the open internet 'the most consequential platform for free expression since the printing press' looks like a false analogy or an appeal to tradition.",
+        "whyNotAFlaw": "It is a historical scale comparison used for emphasis; no property of the printing press is used as a premise, and no conclusion is derived from the comparison."
+      }
+    ],
+    "expectClean": false
+  }
+}
