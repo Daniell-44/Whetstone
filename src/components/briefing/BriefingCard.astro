@@ -11,6 +11,7 @@
 // Explainers are always text-first regardless of size.
 import PositionSpectrum from '../scorecard/PositionSpectrum.astro';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
+import { auditSignature } from '../../../functions/_lib/briefing/signature';
 
 interface Props {
   b: BriefingArticle;
@@ -44,6 +45,16 @@ const firstProse = b.blocks.find((bl) => bl.type === 'prose');
 const dek = isExplainer
   ? (firstProse && 'text' in firstProse ? firstProse.text : landscapeText(b))
   : (shared && 'text' in shared ? shared.text : landscapeText(b));
+
+// Audit signature — the differentiator, visible at feed level (D1-B, 2026-07-07).
+const sig = auditSignature(b);
+const chipFallacies = sig.fallacies.slice(0, 2);
+// Groundedness mix labels follow the site-wide chip vocabulary.
+const KIND_LABEL: Record<string, string> = { structural: 'Logic', interpretive: 'Judgment call', empirical: 'Factual' };
+const kindMix = (Object.entries(sig.kinds) as [string, number][])
+  .filter(([, n]) => n > 0)
+  .map(([k, n]) => `${KIND_LABEL[k]}${n > 1 ? ` ×${n}` : ''}`);
+const showLead = size === 'featured' && !!sig.lead;
 
 const showBanner = !isExplainer && (size === 'featured' || size === 'wide' || !!b.image);
 const bannerH = size === 'featured' ? 'h-44' : 'h-28';
@@ -87,6 +98,24 @@ const headingCls = size === 'featured'
     <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
       <span class="font-medium text-muted">Audit found</span>: {dek}
     </p>
+  )}
+  {showLead && sig.lead && (
+    <p class="text-sm italic text-muted border-l-2 border-accent pl-3 leading-relaxed mb-3">
+      &ldquo;{sig.lead.quote}&rdquo; <span class="not-italic text-xs">— flagged <span class="font-semibold text-accent">{sig.lead.fallacy}</span></span>
+    </p>
+  )}
+  {!isExplainer && chipFallacies.length > 0 && (
+    <div class="flex items-center gap-1.5 flex-wrap mb-3">
+      {chipFallacies.map((f) => (
+        <span class="text-[11px] font-semibold text-accent border border-accent/35 bg-accent/5 px-1.5 py-0.5 rounded">{f}</span>
+      ))}
+      {kindMix.length > 0 && (
+        <span class="text-[11px] font-medium bg-sky-100 text-sky-800 border border-sky-200 px-1.5 py-0.5 rounded">{kindMix.join(' · ')}</span>
+      )}
+      <span class="text-xs text-muted">
+        {sig.auditedPositions} position{sig.auditedPositions === 1 ? '' : 's'} audited{sig.auditedTakes > 0 ? ` · ${sig.auditedTakes} take${sig.auditedTakes === 1 ? '' : 's'}` : ''}
+      </span>
+    </div>
   )}
   {positions.length > 0 && (
     <div>
