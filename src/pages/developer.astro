@@ -31,7 +31,7 @@ import Base from '../layouts/Base.astro';
       <div class="rounded-lg bg-ink-strong text-hairline px-5 py-4 text-sm font-mono overflow-x-auto">
         <span class="text-muted">Authorization:</span> Bearer wsk_live_&lt;your-key&gt;
       </div>
-      <p class="text-xs text-muted mt-3">Keys inherit the rate limits of your subscription tier (200 audits/day).</p>
+      <p class="text-xs text-muted mt-3">Keys inherit the rate limits of your subscription tier (100 audits/month on Studio Solo; more with additional blocks).</p>
     </section>
 
     <!-- Endpoint: POST /api/audit -->
@@ -133,8 +133,8 @@ import Base from '../layouts/Base.astro';
     <section class="mb-12">
       <h2 class="text-xl font-semibold text-ink-strong mb-4">Rate limits</h2>
       <p class="text-sm text-ink leading-relaxed">
-        API key requests share the same daily quota as your browser session (200 audits/day on the Solo tier).
-        The quota resets at midnight UTC. If you need a higher limit, contact us.
+        API key requests share the same quota pool as your browser session (100 audits/month on Studio Solo).
+        The quota resets monthly. If you need a higher limit, add usage blocks from your account or contact us.
       </p>
     </section>
 

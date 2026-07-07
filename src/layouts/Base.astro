@@ -114,6 +114,12 @@ const currentPath = canonicalPath;
           >
             About
           </a>
+          <a
+            href="/pricing"
+            class={`transition-colors hidden sm:block ${currentPath === '/pricing' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+          >
+            Pricing
+          </a>
           {isLoggedIn ? (
             <a
               href="/account"
@@ -164,7 +170,7 @@ const currentPath = canonicalPath;
         <span class="text-xs font-medium">Read</span>
       </a>
       <a
-        href="/creator/studio"
+        href="/creator"
         class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -186,6 +192,7 @@ const currentPath = canonicalPath;
           <a href="/"                        class="hover:text-accent transition-colors">Read</a>
           <a href="/creator"                 class="hover:text-accent transition-colors">Create</a>
           <a href="/about"   class="hover:text-accent transition-colors">About</a>
+          <a href="/pricing" class="hover:text-accent transition-colors">Pricing</a>
           <a href="/feedback" class="hover:text-accent transition-colors">Feedback</a>
           <a href="/account" class="hover:text-accent transition-colors">Account</a>
           <a href="/privacy" class="hover:text-accent transition-colors">Privacy</a>
