@@ -3,7 +3,7 @@
 // dependency needed), a `::sources` pipe-table, and `::` block markers in the
 // body. Plain paragraphs between markers become `prose` blocks.
 
-import type { BriefingArticle, BriefingBlock, BriefingSource, PositionAudit } from './types';
+import type { BriefingArticle, BriefingBlock, BriefingSource, BriefingPositionSource, BriefingEvidenceSource, PositionAudit } from './types';
 
 // Tolerant number parse — a stray or non-numeric `leaning`/`colour` becomes 0
 // (spectrum centre) rather than NaN, which would break the spectrum maths.
@@ -51,6 +51,45 @@ function parseSources(text: string): BriefingSource[] {
     });
 }
 
+// v2 (D2 Option A): id | label | publication | url | stance(-2..+2) | confidence(low/med/high)
+function parsePositions(text: string): BriefingPositionSource[] {
+  return text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const p = line.split('|').map((x) => x.trim());
+      const stance = Math.max(-2, Math.min(2, Math.round(toNum(p[4])))) as BriefingPositionSource['stance'];
+      const conf = (p[5] ?? '').toLowerCase();
+      return {
+        id:          p[0] ?? '',
+        label:       p[1] ?? '',
+        publication: p[2] || undefined,
+        url:         p[3] ?? '',
+        stance,
+        confidence:  (conf === 'low' || conf === 'high' ? conf : 'med') as BriefingPositionSource['confidence'],
+      };
+    });
+}
+
+// v2 (D2 Option A): id | label | publication | url | note
+function parseEvidence(text: string): BriefingEvidenceSource[] {
+  return text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const p = line.split('|').map((x) => x.trim());
+      return {
+        id:          p[0] ?? '',
+        label:       p[1] ?? '',
+        publication: p[2] || undefined,
+        url:         p[3] ?? '',
+        note:        p[4] ?? '',
+      };
+    });
+}
+
 export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
   const norm = raw.replace(/\r\n/g, '\n');
   const fmMatch = norm.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
@@ -61,6 +100,8 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
   let i = 0;
   const blocks: BriefingBlock[] = [];
   let sources: BriefingSource[] = [];
+  let positionSources: BriefingPositionSource[] = [];
+  let evidenceSources: BriefingEvidenceSource[] = [];
   let proseBuf: string[] = [];
 
   const flushProse = () => {
@@ -96,6 +137,10 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
 
     if (name === 'sources') {
       sources = parseSources(readUntilMarker());
+    } else if (name === 'positions') {
+      positionSources = parsePositions(readUntilMarker());
+    } else if (name === 'evidence') {
+      evidenceSources = parseEvidence(readUntilMarker());
     } else if (name === 'landscape') {
       blocks.push({ type: 'landscape', text: readParagraph() });
     } else if (name === 'shared') {
@@ -153,6 +198,9 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
     publishedDate: fm.publishedDate ?? new Date().toISOString().slice(0, 10),
     spectrumAxis:  { left: fm.axisLeft ?? '', right: fm.axisRight ?? '' },
     sources,
+    ...(positionSources.length ? { positionSources } : {}),
+    ...(evidenceSources.length ? { evidenceSources } : {}),
+    ...(fm.otherTakes === 'none' ? { otherTakes: 'none' as const } : {}),
     blocks,
   };
 }
@@ -164,20 +212,54 @@ export function validateBriefing(b: BriefingArticle): string[] {
   const issues: string[] = [];
   if (!b.question.trim()) issues.push('missing `question` (front-matter)');
 
+  const pos = b.positionSources ?? [];
+  const evi = b.evidenceSources ?? [];
+  const v2 = pos.length > 0 || evi.length > 0;
+
   if (b.kind !== 'explainer') {
     if (!b.spectrumAxis.left || !b.spectrumAxis.right) issues.push('missing `axisLeft` / `axisRight`');
-    if (b.sources.length === 0) issues.push('no `::sources` — the spectrum will be empty');
+    if (b.sources.length === 0 && pos.length === 0) issues.push('no `::positions` (or legacy `::sources`) — the spectrum will be empty');
+    // Other-takes policy (D2): absence must be a stated choice.
+    const hasTakes = b.blocks.some((bl) => bl.type === 'takes');
+    if (!hasTakes && b.otherTakes !== 'none') issues.push('no `::takes` and no `otherTakes: none` front-matter — mark the absence deliberately');
   }
+
+  if (v2 && b.sources.length > 0) issues.push('both `::positions` and legacy `::sources` present — finish the migration (legacy table is ignored by the v2 renderers)');
 
   const ids = new Set(b.sources.map((s) => s.id));
   for (const s of b.sources) {
     if (!s.id) issues.push('a `::sources` row has no id (first column)');
     if (!['left', 'mid', 'right'].includes(s.side)) issues.push(`source "${s.id}" has side "${s.side}" — use left / mid / right`);
   }
+
+  const posIds = new Set(pos.map((s) => s.id));
+  const eviIds = new Set(evi.map((s) => s.id));
+  for (const s of pos) {
+    if (!s.id) issues.push('a `::positions` row has no id (first column)');
+  }
+  for (const s of evi) {
+    if (!s.id) issues.push('an `::evidence` row has no id (first column)');
+    if (!s.note.trim()) issues.push(`evidence "${s.id}" has no note (fifth column) — say how the argument uses it`);
+    if (posIds.has(s.id)) issues.push(`id "${s.id}" appears in both ::positions and ::evidence — a source holds one role`);
+  }
+
+  // Every plotted position is audited BY DEFINITION under v2: it must be the
+  // subject of a ::position block (audit card) or a ::takes item.
+  const auditedIds = new Set(
+    b.blocks.flatMap((bl) => (bl.type === 'position' && bl.audit.name ? [bl.sourceId] : [])),
+  );
+  if (v2) {
+    for (const s of pos) {
+      if (!auditedIds.has(s.id)) issues.push(`plotted position "${s.id}" has no ::position audit card — under the v2 model every plotted point is audited (move it to ::evidence or audit it)`);
+    }
+  }
+
   for (const bl of b.blocks) {
     if (bl.type !== 'position') continue;
     const who = bl.label || bl.sourceId || 'unnamed';
-    if (bl.sourceId && !ids.has(bl.sourceId)) issues.push(`position "${who}" → source=${bl.sourceId} matches no ::sources id`);
+    const known = ids.has(bl.sourceId) || posIds.has(bl.sourceId) || eviIds.has(bl.sourceId);
+    if (bl.sourceId && !known) issues.push(`position "${who}" → source=${bl.sourceId} matches no ::positions / ::evidence / ::sources id`);
+    if (bl.sourceId && eviIds.has(bl.sourceId)) issues.push(`position "${who}" quotes evidence-source "${bl.sourceId}" — if it argues a stance it belongs in ::positions`);
     if (!bl.audit.name.trim()) issues.push(`position "${who}" has no ::audit beneath it`);
   }
   return issues;

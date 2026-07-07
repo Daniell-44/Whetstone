@@ -1,5 +1,6 @@
 ---
 import PopulatedSpectrum from './PopulatedSpectrum.astro';
+import BandedSpectrum from './BandedSpectrum.astro';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 
 interface Props { briefing: BriefingArticle }
@@ -20,7 +21,18 @@ const rightSources = briefing.sources.filter((s) => s.side === 'right');
 const isExplainer  = briefing.kind === 'explainer';
 const fmtDate = new Date(briefing.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 const firstPositionIdx = briefing.blocks.findIndex((b) => b.type === 'position');
-const urlBySourceId = new Map(briefing.sources.map((s) => [s.id, s.url]));
+
+// v2 source model (D2 Option A): positions plot, evidence is a bibliography.
+const posSrc = briefing.positionSources ?? [];
+const eviSrc = briefing.evidenceSources ?? [];
+const v2 = posSrc.length > 0;
+const hasTakes = briefing.blocks.some((b) => b.type === 'takes');
+const urlBySourceId = new Map([
+  ...briefing.sources.map((s) => [s.id, s.url] as const),
+  ...posSrc.map((s) => [s.id, s.url] as const),
+  ...eviSrc.map((s) => [s.id, s.url] as const),
+]);
+const stanceCol = (s: number) => (s < 0 ? '#1E5C5A' : s > 0 ? '#9A2B1F' : '#8A8377');
 ---
 <article class="max-w-2xl mx-auto">
   <span class={`text-xs font-semibold uppercase tracking-[0.08em] ${isExplainer ? 'text-accent-support' : 'text-accent'}`}>{isExplainer ? 'Explainer' : 'Briefing'}{briefing.category ? ` · ${briefing.category}` : ''}</span>
@@ -30,7 +42,9 @@ const urlBySourceId = new Map(briefing.sources.map((s) => [s.id, s.url]));
   {!isExplainer && (
     <>
       <div class="mb-4">
-        <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />
+        {v2
+          ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
+          : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
       </div>
       <div class="border-b border-hairline mb-7"></div>
     </>
@@ -117,7 +131,43 @@ const urlBySourceId = new Map(briefing.sources.map((s) => [s.id, s.url]));
     })}
   </div>
 
-  {briefing.sources.length > 0 && (
+  {/* Other-takes absence, stated (D2 policy): only when explicitly declared. */}
+  {!isExplainer && !hasTakes && briefing.otherTakes === 'none' && (
+    <div class="mt-8">
+      <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1.5">Other takes</span>
+      <p class="text-sm text-muted italic">No further takes surveyed for this question.</p>
+    </div>
+  )}
+
+  {v2 ? (
+    <div class="mt-10 pt-6 border-t border-hairline space-y-6">
+      <div>
+        <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-3">Positions · {posSrc.length}</span>
+        <ul class="space-y-1.5">
+          {posSrc.map((s) => (
+            <li class="flex items-baseline gap-2">
+              <span class="shrink-0 text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded border" style={`color:${stanceCol(s.stance)};border-color:${stanceCol(s.stance)}55;`}>{s.stance > 0 ? `+${s.stance}` : s.stance}</span>
+              <a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
+              <span class="text-[10px] text-muted">({s.confidence} confidence)</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      {eviSrc.length > 0 && (
+        <div>
+          <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-3">Evidence cited · {eviSrc.length} — not plotted</span>
+          <ul class="space-y-1.5">
+            {eviSrc.map((s) => (
+              <li class="text-xs leading-relaxed">
+                <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-medium text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
+                {s.note && <span class="text-muted"> — {s.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  ) : briefing.sources.length > 0 && (
   <div class="mt-10 pt-6 border-t border-hairline">
     <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-3">Deeper reading · {briefing.sources.length} sources</span>
     <div class="grid sm:grid-cols-2 gap-5">

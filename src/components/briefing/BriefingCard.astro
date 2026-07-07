@@ -35,7 +35,12 @@ function landscapeText(a: BriefingArticle): string {
 }
 
 const isExplainer = b.kind === 'explainer';
-const leaningById: Record<string, number> = Object.fromEntries(b.sources.map((s) => [s.id, s.leaning]));
+// Mini-map placement: v2 positions carry a 5-band stance (map to the compact
+// renderer's -100..100 scale); legacy sources carry a raw leaning.
+const leaningById: Record<string, number> = {
+  ...Object.fromEntries(b.sources.map((s) => [s.id, s.leaning])),
+  ...Object.fromEntries((b.positionSources ?? []).map((s) => [s.id, s.stance * 50])),
+};
 const positions = b.blocks.flatMap((bl) =>
   bl.type === 'position' ? [{ label: bl.label, leaning: leaningById[bl.sourceId] ?? 0 }] : [],
 );

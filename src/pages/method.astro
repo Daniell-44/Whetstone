@@ -120,8 +120,42 @@ const BRIEFING_PARTS = [
       </div>
     </section>
 
+    <!-- How positions are placed (D2 Option A rubric) -->
+    <section id="placement" class="border-t border-hairline">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">How positions are placed on the map</h2>
+        <p class="text-sm text-muted mb-8 max-w-2xl">
+          Only sources that <em>argue a stance</em> are plotted — every plotted point carries an audit card.
+          Sources cited as factual input (a measurement, a dataset, a technical result) are listed as evidence
+          beneath the map, never plotted: a paper that reports a finding does not thereby take a side.
+        </p>
+        <div class="grid md:grid-cols-2 gap-8 max-w-5xl">
+          <div>
+            <p class="text-sm font-semibold text-ink-strong mb-3">The stance bands</p>
+            <ul class="space-y-2 text-sm text-muted">
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums" style="color:#1E5C5A">−2</span> argues strongly for the left-hand pole of the question's axis</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums" style="color:#1E5C5A">−1</span> leans toward the left-hand pole</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums text-muted">0</span> genuinely mixed or split</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums" style="color:#9A2B1F">+1</span> leans toward the right-hand pole</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums" style="color:#9A2B1F">+2</span> argues strongly for the right-hand pole</li>
+            </ul>
+            <p class="text-xs text-muted mt-3 leading-relaxed">Five bands, not a 0–100 number: a two-digit coordinate would claim a precision the judgment doesn't have. The axis itself is named per question — what actually divides the positions, not left vs right.</p>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-ink-strong mb-3">The confidence tag (drawn as marker width)</p>
+            <ul class="space-y-2 text-sm text-muted">
+              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">high</span> we've read three or more pieces of this source's argument on this question — tight marker</li>
+              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">med</span> one or two pieces — medium marker</li>
+              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">low</span> a single article; provisional — wide bracket, honestly "somewhere around here"</li>
+            </ul>
+            <p class="text-xs text-muted mt-3 leading-relaxed">Scope, stated once: placements describe a source's argument <em>on this question</em>, not the outlet in general; a briefing maps the argument space, it does not sample the media coverage.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- What it won't do -->
-    <section class="border-t border-hairline">
+    <section class="border-t border-hairline bg-surface"
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">What it won't do</h2>
         <div class="grid sm:grid-cols-2 gap-6 lg:gap-8 max-w-4xl">
@@ -136,7 +170,7 @@ const BRIEFING_PARTS = [
     </section>
 
     <!-- Open and inspectable -->
-    <section class="border-t border-hairline bg-surface">
+    <section class="border-t border-hairline">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         <div class="max-w-3xl">
           <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Open and inspectable</h2>
