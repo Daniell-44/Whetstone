@@ -4,15 +4,18 @@ category: environment
 axisLeft: individual action
 axisRight: systemic change
 publishedDate: 2026-05-27
+otherTakes: none
 ---
 
-::sources
-natureclimate | How Consumer Behaviour Drives Climate Policy | Nature Climate Change, 2023 | https://www.nature.com/nclimate/ | -80 | left
-annualreview | Lifestyle, Identity, and Climate-Policy Support | Annual Review of Environment and Resources, 2024 | https://www.annualreviews.org/journal/energy | -80 | left
-cdpclimate | The Carbon Majors Database | CDP Climate Disclosure Project, 2017 | https://www.cdp.net/en/articles/media/new-report-shows-just-100-companies-are-source-of-over-70-of-emissions | 85 | right
-theguardian | The BP Carbon Footprint Campaign | The Guardian, 2021 | https://www.theguardian.com/environment/2021/feb/04/the-carbon-footprint-sham-a-deliberate-publicity-ploy-by-bp | 85 | right
-worldinequalit | Climate Inequality Report 2023 | World Inequality Lab, 2023 | https://wid.world/ | 5 | mid
-oxfaminternati | Wealth and Carbon Footprints: A Global Analysis | Oxfam International, 2020 | https://www.oxfam.org/ | 5 | mid
+::positions
+natureclimate | How Consumer Behaviour Drives Climate Policy | Nature Climate Change, 2023 | https://www.nature.com/nclimate/ | -2 | med
+cdpclimate | The Carbon Majors Database | CDP Climate Disclosure Project, 2017 | https://www.cdp.net/en/articles/media/new-report-shows-just-100-companies-are-source-of-over-70-of-emissions | 2 | med
+worldinequalit | Climate Inequality Report 2023 | World Inequality Lab, 2023 | https://wid.world/ | 0 | med
+
+::evidence
+annualreview | Lifestyle, Identity, and Climate-Policy Support | Annual Review of Environment and Resources, 2024 | https://www.annualreviews.org/journal/energy | Survey-based review linking personal lifestyle change to climate-policy support — backs the individual-action camp's voting-behaviour claim.
+theguardian | The BP Carbon Footprint Campaign | The Guardian, 2021 | https://www.theguardian.com/environment/2021/feb/04/the-carbon-footprint-sham-a-deliberate-publicity-ploy-by-bp | Reporting on BP's promotion of the personal-carbon-footprint frame — the deflection evidence cited by the systemic-change camp.
+oxfaminternati | Wealth and Carbon Footprints: A Global Analysis | Oxfam International, 2020 | https://www.oxfam.org/ | Global wealth-emissions analysis behind the top-10% concentration claim — companion data to the World Inequality Lab position.
 
 ::landscape
 Three views on the relationship between individual lifestyle change and collective decarbonisation — and the structural assumption all three share.

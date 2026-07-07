@@ -4,15 +4,18 @@ category: science
 axisLeft: permit
 axisRight: prohibit
 publishedDate: 2026-05-20
+otherTakes: none
 ---
 
-::sources
-internationalc | Heritable Human Genome Editing | International Commission on the Clinical Use of Human Germline Genome Editing, 2020 | https://www.nationalacademies.org/our-work/international-commission-on-the-clinical-use-of-human-germline-genome-editing | -80 | left
-naturemedicine | CRISPR-Cas9 in Human Embryos: 2023 Update | Nature Medicine, 2023 | https://www.nature.com/nm/ | -80 | left
-naturebiotechn | Repair of Double-Strand Breaks Induced by CRISPR-Cas9 Leads to Large Deletions and Complex Rearrangements | Nature Biotechnology, 2018 | https://www.nature.com/nbt/ | 85 | right
-lancetbioethic | Heritable Human Genome Editing: Why Caution Should Prevail | Lancet Bioethics, 2023 | https://www.thelancet.com/ | 85 | right
-whoexpert | Establishing Limits for Human Germline Genome Editing | WHO Expert Advisory Committee, 2021 | https://www.who.int/ | -25 | left
-science2023 | Public Attitudes Toward Germline Editing: An International Survey | Science, 2023 | https://www.science.org/ | -25 | left
+::positions
+internationalc | Heritable Human Genome Editing | International Commission on the Clinical Use of Human Germline Genome Editing, 2020 | https://www.nationalacademies.org/our-work/international-commission-on-the-clinical-use-of-human-germline-genome-editing | -2 | med
+naturebiotechn | Repair of Double-Strand Breaks Induced by CRISPR-Cas9 Leads to Large Deletions and Complex Rearrangements | Nature Biotechnology, 2018 | https://www.nature.com/nbt/ | 2 | med
+whoexpert | Establishing Limits for Human Germline Genome Editing | WHO Expert Advisory Committee, 2021 | https://www.who.int/ | -1 | med
+
+::evidence
+naturemedicine | CRISPR-Cas9 in Human Embryos: 2023 Update | Nature Medicine, 2023 | https://www.nature.com/nm/ | 2023 technical update on CRISPR-Cas9 performance in human embryos; supplies the efficacy evidence (correction rates) the permit camp cites. Empirical — argues no policy stance here.
+lancetbioethic | Heritable Human Genome Editing: Why Caution Should Prevail | Lancet Bioethics, 2023 | https://www.thelancet.com/ | Bioethics argument that caution should prevail on heritable editing; reinforces the prohibit camp's precautionary framing. Argues a prohibit stance but has no audit card in this file.
+science2023 | Public Attitudes Toward Germline Editing: An International Survey | Science, 2023 | https://www.science.org/ | International survey of public attitudes toward germline editing; descriptive opinion data rather than an argument. Takes no policy stance.
 
 ::landscape
 Three positions on heritable human gene editing — the ethical frame each adopts, and the empirical-vs-value distinctions all three blur.

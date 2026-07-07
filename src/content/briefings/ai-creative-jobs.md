@@ -4,17 +4,20 @@ category: technology
 axisLeft: mass displacement
 axisRight: pure augmentation
 publishedDate: 2026-06-24
+otherTakes: none
 ---
 
-::sources
-goldman   | Goldman Sachs (300M exposed)     | Goldman Sachs Research  | https://www.goldmansachs.com/        | -80 | left  | assessed
-gpts      | Eloundou et al., "GPTs are GPTs" | arXiv                   | https://arxiv.org/abs/2303.10130     | -62 | left
-frey      | Frey & Osborne lineage           | Oxford Martin           | https://www.oxfordmartin.ox.ac.uk/   | -70 | left
-acemoglu  | Acemoglu, the "task" view        | NBER                    | https://www.nber.org/                | -10 | mid
-brookings | Brookings, freelance market | Brookings Institution | https://www.brookings.edu/articles/is-generative-ai-a-job-killer-evidence-from-the-freelance-market/ | 6 | mid | assessed
-nberwork  | Brynjolfsson et al., "Generative AI at Work" | arXiv | https://arxiv.org/abs/2304.11771 | 45 | right
-mckinsey  | McKinsey, 800 agencies           | McKinsey Digital        | https://www.mckinsey.com/            |  72 | right | assessed
-hbr       | HBR, augmentation                | Harvard Business Review | https://hbr.org/                     |  80 | right
+::positions
+gpts      | Eloundou et al., "GPTs are GPTs" | arXiv                   | https://arxiv.org/abs/2303.10130     | -2 | med
+brookings | Brookings, freelance market | Brookings Institution | https://www.brookings.edu/articles/is-generative-ai-a-job-killer-evidence-from-the-freelance-market/ | 0 | med
+nberwork  | Brynjolfsson et al., "Generative AI at Work" | arXiv | https://arxiv.org/abs/2304.11771 | 1 | med
+
+::evidence
+goldman   | Goldman Sachs (300M exposed)     | Goldman Sachs Research  | https://www.goldmansachs.com/        | Headline macro exposure estimate (300M jobs) cited on the displacement side; measures exposure, not confirmed job loss.
+frey      | Frey & Osborne lineage           | Oxford Martin           | https://www.oxfordmartin.ox.ac.uk/   | Pre-generative automation-risk forecasting tradition the displacement case descends from; not specific to generative AI.
+acemoglu  | Acemoglu, the "task" view        | NBER                    | https://www.nber.org/                | Task-level framing of automation that underpins the exposure-vs-jobs distinction; near-neutral on the outcome.
+mckinsey  | McKinsey, 800 agencies           | McKinsey Digital        | https://www.mckinsey.com/            | Industry survey ("800 agencies") cited on the augmentation side; not quoted or audited in this briefing.
+hbr       | HBR, augmentation                | Harvard Business Review | https://hbr.org/                     | Practitioner-press augmentation argument; strongest pro-augmentation entry in the old table, but not quoted or audited here.
 
 ::landscape
 The fight over whether generative AI ends creative work has narrowed from "can the machine do it?" to a quieter question: when production gets cheap, does the market for creative work shrink, hold, or grow?

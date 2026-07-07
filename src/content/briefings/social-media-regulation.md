@@ -4,13 +4,16 @@ category: law
 axisLeft: public utility
 axisRight: private editorial
 publishedDate: 2026-05-25
+otherTakes: none
 ---
 
-::sources
-yalelaw | Platform Governance and the First Amendment | Yale Law Journal, 2024 | https://www.yalelawjournal.org/ | -80 | left
-pewresearch | News Consumption Across Platforms, 2023 | Pew Research Center, 2023 | https://www.pewresearch.org/ | -80 | left
-supremecourt | Moody v. NetChoice, LLC | Supreme Court of the United States, 2024 | https://www.supremecourt.gov/ | 80 | right
-harvardlaw | The First Amendment, Content Moderation, and the Public Square | Harvard Law Review, 2023 | https://harvardlawreview.org/ | 80 | right
+::positions
+yalelaw | Platform Governance and the First Amendment | Yale Law Journal, 2024 | https://www.yalelawjournal.org/ | -2 | med
+supremecourt | Moody v. NetChoice, LLC | Supreme Court of the United States, 2024 | https://www.supremecourt.gov/ | 2 | med
+
+::evidence
+pewresearch | News Consumption Across Platforms, 2023 | Pew Research Center, 2023 | https://www.pewresearch.org/ | Survey data behind the utility position's "roughly 70% of US adults get news from social media" claim — descriptive, takes no policy stance.
+harvardlaw | The First Amendment, Content Moderation, and the Public Square | Harvard Law Review, 2023 | https://harvardlawreview.org/ | Law-review analysis of content moderation as protected editorial activity — argues the private-editorial side but is not separately audited here.
 
 ::landscape
 A two-position audit on platform power and First Amendment jurisprudence in the age of algorithmic curation.

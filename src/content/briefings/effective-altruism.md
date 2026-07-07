@@ -4,13 +4,16 @@ category: philosophy
 axisLeft: coherent framework
 axisRight: structural flaws
 publishedDate: 2026-05-15
+otherTakes: none
 ---
 
-::sources
-effectivealtru | What is Effective Altruism? | effectivealtruism.org, 2023 | https://www.effectivealtruism.org/articles/introduction-to-effective-altruism | -75 | left
-givewell2024 | GiveWell's 2024 Evaluation Methodology | GiveWell, 2024 | https://www.givewell.org/ | -75 | left
-oxforduniversi | The Good It Promises, the Harm It Does | Oxford University Press, 2023 | https://global.oup.com/ | 75 | right
-theboston | What Effective Altruism Gets Wrong | The Boston Review, 2024 | https://www.bostonreview.net/ | 75 | right
+::positions
+effectivealtru | What is Effective Altruism? | effectivealtruism.org, 2023 | https://www.effectivealtruism.org/articles/introduction-to-effective-altruism | -2 | med
+oxforduniversi | The Good It Promises, the Harm It Does | Oxford University Press, 2023 | https://global.oup.com/ | 2 | med
+
+::evidence
+givewell2024 | GiveWell's 2024 Evaluation Methodology | GiveWell, 2024 | https://www.givewell.org/ | Charity-evaluation methodology cited by the pro position as the basis for its 10x per-dollar effectiveness claim — a methods document, not a philosophical argument.
+theboston | What Effective Altruism Gets Wrong | The Boston Review, 2024 | https://www.bostonreview.net/ | Stance-bearing critique of EA that supports the structural-flaws position's case, but is not the subject of an audit card here.
 
 ::landscape
 A two-position audit on philosophical critiques of EA — the strongest case for and against, with all the warrants made visible.

@@ -4,18 +4,21 @@ category: education
 axisLeft: structural ban
 axisRight: taught autonomy
 publishedDate: 2026-05-23
+otherTakes: none
 ---
 
-::sources
-unescoglobal | Technology in Education: A Tool on Whose Terms? | UNESCO Global Education Monitoring Report, 2023 | https://www.unesco.org/en/articles/technology-in-education | -80 | left
-journalof | Smartphones and Student Performance: Evidence from Norwegian Schools | Journal of Human Resources, 2019 | https://jhr.uwpress.org/content/54/1 | -80 | left
-journalof2 | Brain Drain: The Mere Presence of One's Own Smartphone Reduces Available Cognitive Capacity | Journal of the Association for Consumer Research, 2017 | https://www.journals.uchicago.edu/doi/10.1086/691462 | -80 | left
-oecd2023 | PISA 2022 Results: Learning During — and From — Disruption | OECD, 2023 | https://www.oecd.org/en/publications/pisa-2022-results-volume-i_53f23881-en.html | 0 | mid
-oecdeducation | Teachers and Technology: Views from 4,200 Educators Across Twelve Countries | OECD Education Working Papers, 2023 | https://www.oecd.org/en/publications/oecd-education-working-papers.html | 0 | mid
-europeanjourna | The Middle Path: Teacher-Discretion Technology Policies in Scotland and the Netherlands | European Journal of Education, 2024 | https://onlinelibrary.wiley.com/journal/14653435 | 0 | mid
-commonsense | Digital Citizenship and Long-Term Self-Regulation: A Longitudinal Study | Common Sense Media Research Report, 2022 | https://www.commonsensemedia.org/research | 80 | right
-finnishnationa | Finland's National Core Curriculum: Technology Integration Guidelines | Finnish National Agency for Education, 2016 | https://www.oph.fi/en/education-and-qualifications/national-core-curriculum | 80 | right
-britishjournal | What Bans Measure: Examining the Proxy Problem in Smartphone Research | British Journal of Educational Technology, 2023 | https://onlinelibrary.wiley.com/journal/14678535 | 80 | right
+::positions
+unescoglobal | Technology in Education: A Tool on Whose Terms? | UNESCO Global Education Monitoring Report, 2023 | https://www.unesco.org/en/articles/technology-in-education | -2 | med
+oecd2023 | PISA 2022 Results: Learning During — and From — Disruption | OECD, 2023 | https://www.oecd.org/en/publications/pisa-2022-results-volume-i_53f23881-en.html | 0 | med
+commonsense | Digital Citizenship and Long-Term Self-Regulation: A Longitudinal Study | Common Sense Media Research Report, 2022 | https://www.commonsensemedia.org/research | 2 | med
+
+::evidence
+journalof | Smartphones and Student Performance: Evidence from Norwegian Schools | Journal of Human Resources, 2019 | https://jhr.uwpress.org/content/54/1 | Norwegian natural experiment cited by the ban camp — 4.6% exam-score rise after a mandatory ban, gains concentrated among lower achievers.
+journalof2 | Brain Drain: The Mere Presence of One's Own Smartphone Reduces Available Cognitive Capacity | Journal of the Association for Consumer Research, 2017 | https://www.journals.uchicago.edu/doi/10.1086/691462 | Lab result cited by the ban camp — a visible phone reduces working memory 10–15%; takes no school-policy stance.
+oecdeducation | Teachers and Technology: Views from 4,200 Educators Across Twelve Countries | OECD Education Working Papers, 2023 | https://www.oecd.org/en/publications/oecd-education-working-papers.html | Educator survey cited by the discretion camp — 74% say blanket policies block beneficial classroom technology use.
+europeanjourna | The Middle Path: Teacher-Discretion Technology Policies in Scotland and the Netherlands | European Journal of Education, 2024 | https://onlinelibrary.wiley.com/journal/14653435 | Pilot-programme evidence for the discretion camp — exam gains statistically equivalent to bans with higher student autonomy satisfaction.
+finnishnationa | Finland's National Core Curriculum: Technology Integration Guidelines | Finnish National Agency for Education, 2016 | https://www.oph.fi/en/education-and-qualifications/national-core-curriculum | Policy document cited by the no-ban camp — Finland integrates smartphone use into active learning; a worked example, not a study.
+britishjournal | What Bans Measure: Examining the Proxy Problem in Smartphone Research | British Journal of Educational Technology, 2023 | https://onlinelibrary.wiley.com/journal/14678535 | Methodological critique behind the no-ban camp's claim that ban research measures short-term test scores, not long-term capacity.
 
 ::landscape
 A structural logic audit of three competing positions on student device policy — what each gets right, where each argument relies on an unstated assumption, and what all three refuse to examine.
