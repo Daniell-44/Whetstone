@@ -194,6 +194,8 @@ Arguments make claims in different modal registers. A strong empirical claim tha
 - Do not flag every use of confident language. "The earth orbits the sun" is asserted confidently because it is known with certainty. Only flag modal inflation where the degree of certainty asserted *exceeds* what the argument's own evidence would license.
 - Do not confuse modal scope with Slippery Slope: Slippery Slope is about *sequence* (A will lead to B will lead to C) without justification; modal scope inflation is about *certainty level* (presenting what might happen as what will happen).
 - Do not flag modal language that is explicitly hedged throughout ("this strongly suggests", "the evidence indicates"). Only flag where the hedge is absent or quietly dropped.
+- Do not flag strength the argument has earned. A strong conclusion that is explicitly conditioned on evidenced premises, or whose scope limits the text has already conceded, is not inflation — inflation requires the certainty asserted to *exceed* the support shown. ("Unequivocally X" after three quantified premises and a stated scope concession is earned; "undeniably X" from one observational study is not.)
+- Do not flag definitional or openly normative statements ("ultra-processed foods are, by definition, …"; "…that must be the goal" as a declared value). Certainty is appropriate to definitions and stated norms; modal inflation concerns empirical claims outrunning empirical support.
 
 ### Verbatim quote requirement (critical)
 
@@ -341,6 +343,27 @@ These three patterns are superficially similar but identify different problems.
 
 - **Texas Sharpshooter**: a pattern is identified after examining data, not predicted in advance. The conclusion is drawn around a non-representative cluster found after the fact. Example: "Sales peaked in 2009, 2014, and 2019 — all post-election years. Therefore elections drive consumer spending." The author found a cluster and drew the target around it post-hoc, ignoring the many non-election years with high or low sales. Distinguish from Confirmation Bias (about the search strategy) and Hasty Generalisation (about sample size).
 - **Hasty Generalisation**: the sample is too small regardless of how it was found. The issue is sample size or representativeness in the forward direction, not post-hoc pattern-fitting.
+
+### False Dichotomy vs valid dilemma (exhaustiveness check)
+
+A dilemma ("either A or B") is only a False Dichotomy when a genuinely available alternative has been excluded. Constructive dilemmas are VALID when the disjunction is exhaustive — by logical form (A or not-A), by definition, or because the text explicitly argues the alternatives away.
+
+Before flagging False Dichotomy, enumerate your candidate third options and test each:
+1. Is it genuinely distinct from the stated horns, or a rephrasing of one of them? (If one horn is "the internal reporting process is broken" and your third option is "the author was incompetent", that is the same horn.)
+2. Has the text already addressed or foreclosed it — on evidence, by definition, or by argument? An alternative the author has eliminated does not make the dilemma false.
+
+Only flag if at least one candidate alternative survives both tests, and NAME that surviving alternative in your explanation. If none survives, the dilemma is valid: do not flag.
+
+This generalises to every named fallacy: your explanation must say why the reasoning fails *in this text* — a passage that merely resembles a fallacy's surface form is not an instance of it. If you cannot articulate the specific failure, omit the finding.
+
+## Loaded-language discipline — apply before EVERY loadedLanguage flag
+
+Loaded language is rhetoric doing work that evidence should be doing. It is NOT the mere presence of strong words.
+
+1. **The earned-emphasis test.** Mentally replace the emphatic wording with a neutral equivalent. If the argument loses only colour — and the colour is proportionate to specific evidence the text has already presented (a quantified figure, a named study, a documented event) — the emphasis is earned: do NOT flag it. Flag only where the evaluation is carried by the word choice itself, in place of support. ("A collapse, and the word is not too strong" immediately after citing a greater-than-half revenue fall is earned emphasis; "a wrecking ball aimed at every quiet street" with no account of what the ordinance permits is loading.)
+2. **The ownership test.** Attribute every candidate phrase before flagging. Words the text quotes or reports from opponents, officials, or sources — including predictions the author is rebutting and terms inside attributive quotation marks — are NOT the author's loaded language. Flag only rhetoric the author deploys in their own voice.
+3. **Do not re-flag the thesis.** A conclusion stated strongly is not automatically "emotionally charged"; if the conclusion's defect is overreach, that belongs to modal scope or a named fallacy — one finding, in the right lens, not the same sentence flagged three ways.
+4. **Volume discipline.** Report the few phrases where rhetoric carries genuine argumentative load, not every vivid word. A flag that would apply to any persuasive prose is noise. Factual sentences whose force comes from their content ("Children drank that water for eleven more weeks") are not loaded language — the emotion there comes from the facts, not the diction.
 
 ## Loaded language — guidance for the three newer techniques
 
