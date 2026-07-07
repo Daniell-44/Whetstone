@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
-// The Reader is now the homepage. Keep /reader working for existing links
-// and the extension's deep-links by redirecting to /.
-return Astro.redirect('/', 301);
+// "The Reader" was the tool's old name. The tool now lives at /audit (D1
+// Option B, 2026-07-07) — redirect there directly, no double hop. Existing
+// links and the extension's hand-off keep working.
+return Astro.redirect('/audit', 301);
 ---

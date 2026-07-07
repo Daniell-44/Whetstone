@@ -1,7 +1,61 @@
 ---
 export const prerender = false;
-// /audit was a duplicate of the Reader (same AuditForm). The Reader is the
-// homepage now, so consolidate: permanent redirect straight to / (matching
-// /reader's behaviour). Shareable audits still live at /audit/[id].
-return Astro.redirect('/', 301);
+// The Audit — the free engine's own page (D1 Option B, 2026-07-07). Previously
+// this route 301'd to / (when the tool WAS the homepage); the homepage is now
+// the publication and the tool lives here. Shareable audits stay at /audit/[id].
+
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import AuditForm from '../../components/audit/AuditForm';
+import { getAllBriefings } from '../../lib/briefings';
+import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
+
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
+import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
+import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
+
+// "Audit the full article" deep-link: /audit?audit=<slug> pre-loads the field
+// with the briefing's argumentative prose. (Moved from index.astro; / shims
+// legacy /?audit=&url= links here.)
+function briefingPlainText(b: BriefingArticle): string {
+  const parts: string[] = [];
+  for (const bl of b.blocks) {
+    if (bl.type === 'position') parts.push(bl.paragraph);
+    else if (bl.type === 'landscape' || bl.type === 'prose' || bl.type === 'shared' || bl.type === 'editorView') parts.push(bl.text);
+  }
+  return parts.join('\n\n').slice(0, 10_000);
+}
+const auditSlug    = Astro.url.searchParams.get('audit');
+const auditTarget  = auditSlug ? getAllBriefings().find((b) => b.slug === auditSlug) : undefined;
+const auditPrefill = auditTarget ? briefingPlainText(auditTarget) : '';
+// /audit?url=<source> deep-link: audit the source article a briefing position quotes.
+const auditUrlParam = Astro.url.searchParams.get('url') ?? '';
+const auditUrl      = auditUrlParam.startsWith('http') ? auditUrlParam : '';
+
+// Deeper lenses are Pro-gated; detect subscription for the teaser.
+const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
+const isPro = session
+  ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
+  : false;
 ---
+<Base
+  title="The Audit — The Whetstone"
+  description="Paste any text or drop a URL. See the structure behind the argument: claims, evidence, where the logic breaks down, and the strongest opposing case. Free to try."
+  canonicalPath="/audit"
+>
+  <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
+    <header class="mb-8 max-w-3xl">
+      <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">The Audit</p>
+      <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">See where an argument's reasoning breaks down.</h1>
+      <p class="mt-2 text-sm text-muted leading-relaxed">
+        Paste an argument or drop a link. The engine returns the structure — the claim, its warrants, and the named reasoning patterns inside it. Not a verdict on who's right.
+      </p>
+    </header>
+
+    <section class="max-w-4xl">
+      <AuditForm isPro={isPro} initialText={auditPrefill} initialUrl={auditUrl} client:load />
+    </section>
+  </main>
+</Base>

@@ -1,45 +1,21 @@
 ---
 export const prerender = false;
 
-import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
-import AuditForm from '../components/audit/AuditForm';
-import HeroHeadline from '../components/reader/HeroHeadline';
 import BriefingCard from '../components/briefing/BriefingCard.astro';
 import { getAllBriefings } from '../lib/briefings';
 import { featured } from '../data/featured';
 import type { BriefingArticle } from '../../functions/_lib/briefing/types';
 
-const briefings = getAllBriefings();
-
-// "Audit the full article" deep-link: /?audit=<slug> pre-loads the reader with
-// the briefing's argumentative prose so a reader can run the engine on it.
-function briefingPlainText(b: BriefingArticle): string {
-  const parts: string[] = [];
-  for (const bl of b.blocks) {
-    if (bl.type === 'position') parts.push(bl.paragraph);
-    else if (bl.type === 'landscape' || bl.type === 'prose' || bl.type === 'shared' || bl.type === 'editorView') parts.push(bl.text);
-  }
-  return parts.join('\n\n').slice(0, 10_000);
+// Deep-link shim (D1 Option B, 2026-07-07): the audit tool moved to /audit.
+// Legacy /?audit=<slug> and /?url=<src> links (briefing cards, extension,
+// shared links) redirect there with params intact.
+const sp = Astro.url.searchParams;
+if (sp.has('audit') || sp.has('url')) {
+  return Astro.redirect(`/audit?${sp.toString()}`, 301);
 }
-const auditSlug    = Astro.url.searchParams.get('audit');
-const auditTarget  = auditSlug ? briefings.find((b) => b.slug === auditSlug) : undefined;
-const auditPrefill = auditTarget ? briefingPlainText(auditTarget) : '';
-// /?url=<source> deep-link: audit the source article a briefing position quotes.
-const auditUrlParam = Astro.url.searchParams.get('url') ?? '';
-const auditUrl      = auditUrlParam.startsWith('http') ? auditUrlParam : '';
 
-import { makeAuthDb } from '../../functions/_lib/auth/db';
-import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
-import { makeBillingDb } from '../../functions/_lib/billing/subscription';
-import { makeWorkspaceDb } from '../../functions/_lib/workspaces/db';
-import { userHasActiveSubscriptionViaWorkspace } from '../../functions/_lib/workspaces/permissions';
-
-// Deeper lenses on the Reader are Pro-gated; detect subscription for the teaser.
-const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
-const isPro = session
-  ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
-  : false;
+const briefings = getAllBriefings();
 
 // Featured band vs mosaic split. `featured` (src/data/featured.ts) is the curated
 // front page, in order; everything else flows into the asymmetric mosaic below,
@@ -91,21 +67,19 @@ for (const b of briefings) {
 const presentCategories = Object.keys(categoryCounts).sort();
 ---
 <Base
-  title="The Whetstone - audit any argument"
-  description="Paste any text or drop a URL. See the structure behind the argument: claims, evidence, where the logic breaks down, and the strongest opposing case. Free to try."
+  title="The Whetstone — arguments, examined"
+  description="Briefings that map the strongest positions on contested questions, with a structural audit of every position's reasoning — named fallacies, unstated assumptions, and the shared premises both sides stand on."
   canonicalPath="/"
 >
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12 sm:pb-24">
 
-    <!-- Hero -->
-    <header class="mb-10 sm:mb-12 pt-2">
-      <HeroHeadline client:load />
+    <!-- Masthead (D1-B): the publication leads. The tool lives at /audit. -->
+    <header class="mb-10 sm:mb-12 pt-2 max-w-3xl">
+      <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight">Arguments, examined.</h1>
+      <p class="mt-2.5 text-sm sm:text-base text-muted leading-relaxed">
+        Not a verdict on who's right. A structural view of how the argument works.
+      </p>
     </header>
-
-    <!-- Audit form -->
-    <section class="mb-12 sm:mb-16 max-w-4xl mx-auto">
-      <AuditForm isPro={isPro} initialText={auditPrefill} initialUrl={auditUrl} client:load />
-    </section>
 
     <!-- Briefings feed with left rail -->
     <section id="briefings" class="scroll-mt-20">
@@ -182,6 +156,34 @@ const presentCategories = Object.keys(categoryCounts).sort();
                 </div>
               </div>
             )}
+
+            {/* Compact audit launcher (D1-B): touch the engine without leaving
+               the feed. Hands the pasted value to /audit via sessionStorage
+               (URLs short enough travel as a query param). */}
+            <div class="mb-10">
+              <div id="audit-launcher" class="bg-surface border border-hairline rounded-md p-4 sm:p-5 flex items-center gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-1.5">Audit your own text</p>
+                  <input
+                    id="audit-launcher-input"
+                    type="text"
+                    placeholder="Paste an argument or drop a link…"
+                    class="w-full bg-transparent text-sm text-ink placeholder:text-muted/70 focus:outline-none"
+                  />
+                </div>
+                <button
+                  id="audit-launcher-go"
+                  type="button"
+                  aria-label="Open the Audit"
+                  class="shrink-0 w-9 h-9 rounded-full bg-accent text-paper flex items-center justify-center hover:bg-accent/90 transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+                </button>
+              </div>
+              <p class="text-right mt-1.5">
+                <a href="/audit" class="text-xs text-muted hover:text-accent transition-colors">the full tool at /audit →</a>
+              </p>
+            </div>
 
             {restBriefings.length > 0 && (
               <Fragment>
@@ -266,6 +268,23 @@ const presentCategories = Object.keys(categoryCounts).sort();
       for (const f of filters) {
         f.addEventListener('click', () => applyFeedFilter(f.getAttribute('data-filter') || 'all'));
       }
+
+      // Compact audit launcher → /audit. URLs travel as a query param; pasted
+      // text (any length) hands off via sessionStorage, consumed by AuditForm.
+      const launcherInput = document.getElementById('audit-launcher-input') as HTMLInputElement | null;
+      const launcherGo    = document.getElementById('audit-launcher-go');
+      function launchAudit() {
+        const v = (launcherInput?.value ?? '').trim();
+        if (!v) { window.location.href = '/audit'; return; }
+        if (/^https?:\/\//.test(v) && v.length < 1800) {
+          window.location.href = '/audit?url=' + encodeURIComponent(v);
+          return;
+        }
+        try { sessionStorage.setItem('wst_handoff', v); } catch { /* storage unavailable */ }
+        window.location.href = '/audit';
+      }
+      launcherGo?.addEventListener('click', launchAudit);
+      launcherInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') launchAudit(); });
     </script>
 
     <!-- Footer info strip -->

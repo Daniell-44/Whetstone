@@ -100,13 +100,19 @@ const currentPath = canonicalPath;
             href="/"
             class={`transition-colors ${currentPath === '/' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
           >
-            Read
+            Briefings
+          </a>
+          <a
+            href="/audit"
+            class={`transition-colors ${currentPath === '/audit' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+          >
+            Audit
           </a>
           <a
             href="/creator"
             class={`transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
           >
-            Create
+            Studio
           </a>
           <a
             href="/about"
@@ -164,33 +170,37 @@ const currentPath = canonicalPath;
     >
       <a
         href="/"
-        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/' || currentPath?.startsWith('/reader') || currentPath?.startsWith('/scorecard') ? 'text-accent' : 'text-muted'}`}
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/' ? 'text-accent' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        <span class="text-xs font-medium">Read</span>
+        <span class="text-xs font-medium">Briefings</span>
+      </a>
+      <a
+        href="/audit"
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/audit') ? 'text-accent' : 'text-muted'}`}
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+        <span class="text-xs font-medium">Audit</span>
       </a>
       <a
         href="/creator"
         class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-        <span class="text-xs font-medium">Create</span>
-      </a>
-      <a
-        href="/about"
-        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/about' ? 'text-accent' : 'text-muted'}`}
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span class="text-xs font-medium">About</span>
+        <span class="text-xs font-medium">Studio</span>
       </a>
     </nav>
 
-    <footer class="hidden sm:block border-t border-hairline mt-24 py-8">
+    <!-- Footer — visible on mobile too (About/Pricing dropped off the tab bar
+         when Audit joined it; the footer is their mobile home). pb clears the
+         fixed tab bar. -->
+    <footer class="border-t border-hairline mt-24 py-8 pb-24 sm:pb-8">
       <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4 text-xs text-muted">
         <a href="/" class="hover:text-accent transition-colors">The Whetstone <span class="text-hairline">·</span> Arguments, examined</a>
-        <nav class="flex gap-5">
-          <a href="/"                        class="hover:text-accent transition-colors">Read</a>
-          <a href="/creator"                 class="hover:text-accent transition-colors">Create</a>
+        <nav class="flex flex-wrap gap-5">
+          <a href="/"        class="hover:text-accent transition-colors">Briefings</a>
+          <a href="/audit"   class="hover:text-accent transition-colors">Audit</a>
+          <a href="/creator" class="hover:text-accent transition-colors">Studio</a>
           <a href="/about"   class="hover:text-accent transition-colors">About</a>
           <a href="/pricing" class="hover:text-accent transition-colors">Pricing</a>
           <a href="/feedback" class="hover:text-accent transition-colors">Feedback</a>

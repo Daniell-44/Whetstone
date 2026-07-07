@@ -153,6 +153,16 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       setInput(initialText);
       setLoadedFromLink(true);
       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      // Homepage compact launcher hand-off (D1-B): the launcher stashes the
+      // pasted value and navigates here; consume it once.
+      try {
+        const h = sessionStorage.getItem('wst_handoff');
+        if (h) {
+          sessionStorage.removeItem('wst_handoff');
+          setInput(h);
+        }
+      } catch { /* storage unavailable */ }
     }
   }, []);
 
@@ -462,7 +472,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             )}
             <button type="button" onClick={() => jumpTo('r-structure')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Structure</button>
             <span class="text-hairline mx-0.5" aria-hidden="true">·</span>
-            <button type="button" onClick={() => jumpTo('briefings')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent-support hover:text-accent-support transition-colors">Briefings ↓</button>
+            <a href="/#briefings" class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent-support hover:text-accent-support transition-colors">Briefings →</a>
           </div>
 
           {/* Three foldable regions — Your text (left), Findings + Argument
