@@ -1,0 +1,1502 @@
+{
+  "version": "e4",
+  "label": "E4+E6 (model-emitted groundedness, temp 0.2)",
+  "stamp": "2026-07-08",
+  "aggregate": {
+    "label": "E4+E6 (model-emitted groundedness, temp 0.2)",
+    "nItems": 15,
+    "nRuns": 19,
+    "cleanControls": {
+      "nItems": 2,
+      "falsePositives": 0,
+      "itemsClean": 2
+    },
+    "detection": {
+      "plantedTotal": 124,
+      "locatedTotal": 91,
+      "locatedRate": 73.4,
+      "perLens": {
+        "namedFallacies": {
+          "planted": 22,
+          "located": 19,
+          "rate": 86.4
+        },
+        "loadedLanguage": {
+          "planted": 30,
+          "located": 30,
+          "rate": 100
+        },
+        "unstatedWarrants": {
+          "planted": 35,
+          "located": 7,
+          "rate": 20
+        },
+        "keyTermScrutiny": {
+          "planted": 1,
+          "located": 1,
+          "rate": 100
+        },
+        "referentChecks": {
+          "planted": 17,
+          "located": 16,
+          "rate": 94.1
+        },
+        "modalScopeChecks": {
+          "planted": 14,
+          "located": 14,
+          "rate": 100
+        },
+        "falsifiabilityChecks": {
+          "planted": 5,
+          "located": 4,
+          "rate": 80
+        }
+      },
+      "nameTotal": 22,
+      "nameLocated": 14,
+      "nameCorrect": 7,
+      "nameRate": 31.8
+    },
+    "verbatim": {
+      "spans": 235,
+      "violations": 0,
+      "passRate": 100
+    },
+    "groundedness": {
+      "structural": 104,
+      "interpretive": 114,
+      "empirical": 6,
+      "total": 224,
+      "pct": {
+        "structural": 46.4,
+        "interpretive": 50.9,
+        "empirical": 2.7
+      }
+    },
+    "severity": {
+      "high": 72,
+      "medium": 131,
+      "low": 21
+    },
+    "contestability": {
+      "high": 75,
+      "medium": 39,
+      "low": 0
+    },
+    "latency": {
+      "meanMs": 24483,
+      "p50Ms": 19809,
+      "p95Ms": 61466
+    },
+    "consistency": {
+      "items": 2,
+      "meanJaccard": 0.26
+    }
+  },
+  "graded": {
+    "recall": {
+      "n": 81,
+      "d": 108,
+      "rate": 75
+    },
+    "groundednessKind": {
+      "n": 149,
+      "d": 171,
+      "rate": 87.1
+    },
+    "nameAccuracy": {
+      "n": 13,
+      "d": 17,
+      "rate": 76.5
+    },
+    "trapResistance": {
+      "n": 37,
+      "d": 41,
+      "rate": 90.2
+    }
+  },
+  "gradedRaw": [
+    {
+      "id": "clean-empirical",
+      "recall": {
+        "planted": 0,
+        "caught": 0,
+        "missed": []
+      },
+      "groundednessKind": {
+        "total": 0,
+        "correct": 0,
+        "miscalls": []
+      },
+      "nameAccuracy": {
+        "total": 0,
+        "correct": 0,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 4,
+        "respected": 4,
+        "violations": []
+      },
+      "notes": "Perfect trap resistance: the engine correctly abstained from flagging all four deliberately misleading passages. The output shows strong calibration on a clean control — no false positives despite trap proximity."
+    },
+    {
+      "id": "clean-valid-argument",
+      "recall": {
+        "planted": 0,
+        "caught": 0,
+        "missed": []
+      },
+      "groundednessKind": {
+        "total": 0,
+        "correct": 0,
+        "miscalls": []
+      },
+      "nameAccuracy": {
+        "total": 0,
+        "correct": 0,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 5,
+        "respected": 5,
+        "violations": []
+      },
+      "notes": "Engine correctly emitted zero findings on this clean-control case and achieved perfect trap resistance (5/5), avoiding false positives on legitimate rhetorical emphasis, evidence-based hedging, and specificity in cited statistics. No structural flaws were present to detect."
+    },
+    {
+      "id": "equivocation-keyterm",
+      "recall": {
+        "planted": 8,
+        "caught": 4,
+        "missed": [
+          "Equivocation fallacy on 'free internet' (speech vs. no-charge senses fused in conclusion)",
+          "keyTermScrutiny defect (no output despite being target lens)",
+          "Unstated warrant: 'ad-funded zero-price model is the only viable way to fund broadly accessible open web'",
+          "Unstated warrant: 'whatever ends zero-price access thereby ends the internet's role as open forum for expression'",
+          "Unstated warrant: 'revenue losses observed under Europe's consent rules would replicate at similar scale under Digital Fairness Act'"
+        ]
+      },
+      "groundednessKind": {
+        "total": 9,
+        "correct": 7,
+        "miscalls": [
+          {
+            "finding": "dressed up in the language of privacy",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "Presupposition smuggling is a logical flaw (the presupposition is implicit in the sentence structure itself), not dependent on interpretation of tone or framing."
+          },
+          {
+            "finding": "Some in Washington",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "Vagueness of referent is a definite property of the text (either the name is specific or unspecified), not a matter of interpretive reading; this is a structural defect in specificity."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 0,
+        "correct": 0,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 3,
+        "respected": 2,
+        "violations": [
+          {
+            "trap": "The emphatic phrase 'a collapse, and the word is not too strong' looks like inflammatory loaded language, but it is anchored to specific cited evidence (programmatic revenue fell by more than half), so the strong word summarizes data rather than substituting for it.",
+            "flaggedAs": "Emotionally charged terms (loaded language) - medium severity"
+          }
+        ]
+      },
+      "notes": "The engine demonstrates moderate surface-level detection but critical gaps: it fails entirely to identify the core equivocation fallacy on 'free internet' and produces no keyTermScrutiny output despite it being a target lens. It miscalibrates groundedness, treating structural presuppositions and vagueness as merely interpretive. Most significantly, it violates the 'collapse' trap by flagging emotionally weighted language without checking whether it is anchored to evidence, suggesting the loaded-language detector lacks evidentiary filtering."
+    },
+    {
+      "id": "falsecause-cherrypick",
+      "recall": {
+        "caught": 7,
+        "planted": 15,
+        "missed": [
+          "Cherry Picking fallacy (the key fallacy, comparing 2023 with 2020 baseline)",
+          "Hasty Generalization fallacy (84% tenant survey lacks demographic / non-respondent analysis)",
+          "False Cause fallacy (Growth does not happen by accident)",
+          "Unstated Warrant: Survivor bias in tenant survey (businesses that closed would have different view)",
+          "Unstated Warrant: Foot traffic translates to increased spending",
+          "Loaded Language: 'asphalt nostalgists' (dismissive caricature)",
+          "Loaded Language: 'treat every parking space as a birthright' (hyperbolic reframing)",
+          "Modal Scope: 'a settled point' (overstated finality)"
+        ]
+      },
+      "groundednessKind": {
+        "correct": 12,
+        "total": 14,
+        "miscalls": [
+          {
+            "finding": "Modal 'does not happen by accident'",
+            "assigned": "interpretive (medium)",
+            "shouldBe": "structural",
+            "why": "This is a modal scope issue (necessity claim: 'does not happen' is stronger than 'is unlikely to happen'). Logic alone can identify the overstatement given the text's earlier mention of confounding factors. Not a tone or intent judgment."
+          },
+          {
+            "finding": "Modal 'beyond reasonable dispute'",
+            "assigned": "interpretive (high)",
+            "shouldBe": "structural",
+            "why": "Modal scope (absolute certainty claim overstated). While 'reasonable dispute' is somewhat evaluative, the core issue is a logical scope error (the evidence does not justify 'beyond' dispute). This is primarily a structural flaw about modal inflation, not an interpretive tone judgment."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "correct": 2,
+        "total": 2,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "respected": 3,
+        "total": 3,
+        "violations": []
+      },
+      "notes": "Engine caught ~47% of planted defects, with conspicuous gaps on Cherry Picking (the core fallacy) and key warrants (survivor bias, foot-traffic causation). Trap handling is flawless. Modal scope findings are mislabeled as interpretive when they are structural (logic-based) issues. Compensating strength: referent and loaded-language detection added value beyond the key, though with uneven calibration of groundedness categories."
+    },
+    {
+      "id": "groundedness-boundary",
+      "recall": {
+        "planted": 5,
+        "caught": 4,
+        "missed": [
+          "The juxtaposition-based inference warrant (payment → prospectus → procurement → 'Readers can draw their own conclusions') — the engine surfaces the pre-commitment warrant but not this specific rhetorical pattern"
+        ]
+      },
+      "groundednessKind": {
+        "total": 8,
+        "correct": 8,
+        "miscalls": []
+      },
+      "nameAccuracy": {
+        "total": 1,
+        "correct": 0,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 3,
+        "respected": 3,
+        "violations": []
+      },
+      "notes": "The engine demonstrates exceptional trap resistance and correct groundedness calibration. It correctly identifies that the 'usual noisy minority' attack is quoted opposition rhetoric, not the author's fallacy, avoiding a critical false-positive. All loaded language is properly marked as interpretive (tone-dependent), and all three traps are correctly respected. The only substantive gap is incomplete capture of the specific juxtaposition-based inference warrant, though the engine's alternative framing of pre-commitment logic is defensible."
+    },
+    {
+      "id": "modal-inflation",
+      "recall": {
+        "planted": 15,
+        "caught": 13,
+        "missed": [
+          "vague referent: 'A growing chorus of researchers' — unspecified source",
+          "vague referent: 'something in the modern diet' — unspecified causal mechanism"
+        ]
+      },
+      "groundednessKind": {
+        "total": 16,
+        "correct": 14,
+        "miscalls": [
+          {
+            "finding": "\"without equivocation\" presupposition (loaded language)",
+            "assigned": "interpretive (medium)",
+            "shouldBe": "structural",
+            "why": "Presuppositions are logical defects derivable by parsing the sentence alone; a reader needs no external facts to identify that the phrase assumes guidelines are equivocating without argument."
+          },
+          {
+            "finding": "Modal check: \"the underlying truth was there all along\" (modal-scope)",
+            "assigned": "interpretive (high)",
+            "shouldBe": "structural",
+            "why": "The transformation of hedged possibility into unhedged fact is a modal inflation logically demonstrable from the quoted text; readers can identify the hedge-stripping without interpretive judgment."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 1,
+        "correct": 0,
+        "misnamed": [
+          {
+            "engineName": "Post Hoc",
+            "keyName": "False Cause (cum hoc)",
+            "defensible": true
+          }
+        ]
+      },
+      "trapResistance": {
+        "total": 3,
+        "respected": 3,
+        "violations": []
+      },
+      "notes": "Engine captures modal-scope defects comprehensively and correctly avoids all traps, but misses vague referents entirely and miscalibrates two groundedness assignments by treating logical/structural defects as interpretive. Fallacy naming (Post Hoc for False Cause) is defensible but suboptimal."
+    },
+    {
+      "id": "real-oped-1",
+      "recall": {
+        "planted": 0,
+        "caught": 0,
+        "missed": []
+      },
+      "groundednessKind": {
+        "total": 10,
+        "correct": 8,
+        "miscalls": [
+          {
+            "finding": "Unstated Warrant: President's conclusion should suffice for removal",
+            "assigned": "structural",
+            "shouldBe": "interpretive",
+            "why": "Whether the author's implicit assumption (that executive judgment overrides judicial process) constitutes a flaw depends on reading normative claims about due process and democratic authority, not logical structure alone. Reasonable legal theorists disagree on whether this warrant is even defective."
+          },
+          {
+            "finding": "Unstated Warrant: Perceived judicial evenhandedness automatically illegitimates decisions",
+            "assigned": "structural",
+            "shouldBe": "interpretive",
+            "why": "Whether motive-seeking in judicial decision-making violates the rule of law is a contested normative claim, not a logically derivable flaw. The text does not structurally force this warrant; it requires interpretive judgment about judicial legitimacy."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 1,
+        "correct": 1,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 0,
+        "respected": 0,
+        "violations": []
+      },
+      "notes": "The engine correctly identified structural defects (equivocation on guilt, unfalsifiable motive, modal collapse) and defensive loaded language, but miscalibrated two unstated warrants as 'structural' when they are normatively contestable and should be 'interpretive'. The answer key itself is malformed (answerKey field is null), preventing full recall and trap-resistance grading—this corpus entry lacks planted defects and traps to measure against."
+    },
+    {
+      "id": "real-oped-2",
+      "recall": {
+        "planted": 0,
+        "caught": 0,
+        "missed": []
+      },
+      "groundednessKind": {
+        "total": 7,
+        "correct": 5,
+        "miscalls": [
+          {
+            "finding": "Slippery Slope fallacy on 'political manipulation → calamities'",
+            "assigned": "structural",
+            "shouldBe": "interpretive",
+            "why": "The engine is quoting the Supreme Court's language, not the author's own argument. Whether the author endorses this modal framing or is simply reporting the Court's reasoning requires interpretive judgment about the author's rhetorical stance—not something derivable by logic alone from the quoted text."
+          },
+          {
+            "finding": "Modal Scope check on 'would come' vs. 'could lead to'",
+            "assigned": "structural",
+            "shouldBe": "interpretive",
+            "why": "Again, this is Court language being quoted. Whether the author is amplifying an overstated modal or faithfully reporting the Court's opinion depends on interpreting authorial intent and framing choice—not purely structural."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 1,
+        "correct": 1,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 0,
+        "respected": 0,
+        "violations": []
+      },
+      "notes": "The engine correctly identified interpretive warrants and loaded language but misclassified two quoted-reasoning findings as structural when they require judgment about authorial intent. The real weakness is treating quoted Court language as the author's original argument — a recurring category error that inflates the structural count. No falsifiability checks were emitted, which is appropriate for this largely qualitative legal commentary."
+    },
+    {
+      "id": "real-oped-3",
+      "recall": {
+        "planted": 0,
+        "caught": 0,
+        "missed": []
+      },
+      "groundednessKind": {
+        "total": 12,
+        "correct": 11,
+        "miscalls": [
+          {
+            "finding": "Straw Man fallacy (\"Uncertainty is not effectively managed by extinguishing risks...\")",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "The passage presents a logical disagreement with the government's position, not a misrepresentation of it. The authors argue the government's logic (that extinguishing liability = managing uncertainty) is flawed economically. This is a structural logical critique, not an interpretive strawman that requires reading the opponent's actual words as maliciously reframed. The kind should be 'structural' because the flaw is the logical invalidity of the equation, not the interpretation of authorial tone or intent."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 1,
+        "correct": 0,
+        "misnamed": [
+          {
+            "engineName": "Straw Man",
+            "keyName": "n/a (no fallacy planted)",
+            "defensible": false
+          }
+        ]
+      },
+      "trapResistance": {
+        "total": 0,
+        "respected": 0,
+        "violations": []
+      },
+      "notes": "Engine identified 12 findings on an uncontrolled real op-ed (no planted defects). Groundedness assignments are sound in 11/12 cases; the fallacy naming and kind classification for the Straw Man finding is indefensible—the passage shows logical disagreement with the government's position, not misrepresentation. Strengths: systematic unstated-warrant extraction and modal-scope inflation detection. Weakness: conflates logical refutation with strawman misrepresentation."
+    },
+    {
+      "id": "referent-weasel",
+      "recall": {
+        "planted": 23,
+        "caught": 18,
+        "missed": [
+          "Appeal to Popularity fallacy on 'when this many people are saying the same thing, the burden of proof has shifted'",
+          "Unstated Warrant: unnamed experts exist and are methodologically sound",
+          "Unstated Warrant: managers' private admissions are truthful and representative",
+          "Loaded Language: 'cost-cutting dressed up as collaboration' imputes bad-faith motive",
+          "Modal Scope inflation: 'tells you everything you need to know' overstates necessity"
+        ]
+      },
+      "groundednessKind": {
+        "total": 25,
+        "correct": 23,
+        "miscalls": [
+          {
+            "finding": "Unstated Warrant: 'A significant reduction in face-to-face interaction...is inherently negative'",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "The flaw is whether the warrant (face-to-face drop = productivity drop) is stated, not the reading of tone or intent. The logical chain itself, not interpretation, reveals the gap. This is a structural missing premise, not an interpretive reading."
+          },
+          {
+            "finding": "Referent: 'the average knowledge worker'",
+            "assigned": "structural",
+            "shouldBe": "interpretive",
+            "why": "The issue is not a logical derivation from the text alone—it's a statistical literacy problem and a framing choice. Whether treating an aggregate as a singular entity is misleading depends on how carefully one reads, not on textual structure. This is interpretive (reader judgment) or empirical (is the statistic real), not structural."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 2,
+        "correct": 2,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 3,
+        "respected": 3,
+        "violations": []
+      },
+      "notes": "The engine achieved strong referent detection (10/9 planted) and perfect trap avoidance, but missed the Appeal to Popularity fallacy and failed to name the critical unstated warrant about expert credibility. Groundedness calibration is mostly sound but conflates the empirical/interpretive distinction on statistical claims. The engine correctly routed Bernstein-Turban as properly cited and avoided the Steelcase source-credibility trap."
+    },
+    {
+      "id": "rhetoric-vs-logic",
+      "recall": {
+        "planted": 5,
+        "caught": 3,
+        "missed": [
+          "'it is a buried one' phrase (evaluative reframing of 'provisional')",
+          "Unstated warrant that regulator's compelled-disclosure/referral powers are the remedy MOST LIKELY to change conduct (engine identifies related gaps but not this specific comparative claim)"
+        ]
+      },
+      "groundednessKind": {
+        "total": 8,
+        "correct": 5,
+        "miscalls": [
+          {
+            "finding": "'grotesque episode' loaded language",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "Emotionally charged epithet is a text-level feature, not dependent on reading tone or charitable interpretation; a reader can verify it by reading the word choice alone"
+          },
+          {
+            "finding": "'shameful conduct' loaded language",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "Explicit moral epithet is derivable from the text without dispute about tone; the label's evaluative force is structural"
+          },
+          {
+            "finding": "'poured assurances into children's cups' loaded language",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "Vivid imagery technique is a concrete textual feature; the pathos construction is identifiable by inspecting the sentence structure and word choice alone"
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 0,
+        "correct": 0,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 4,
+        "respected": 3,
+        "violations": [
+          {
+            "trap": "Trap 4: 'Companies do not learn from apologies...' (normative maxim, not empirical claim)",
+            "flaggedAs": "unfalsifiable-dressed-as-substantive (falsifiabilityChecks)"
+          }
+        ]
+      },
+      "notes": "Engine correctly avoids false-positive fallacy claims and respects 3 of 4 critical traps (validates the sound dilemma, doesn't contaminate structure with tone, avoids presupposition trap). However, it mis-calibrates groundedness on loaded language (assigns interpretive when these are structural text-level features) and flags a normative peroration as a logical flaw, failing to distinguish maxim from empirical claim. Recall is weak on the planted warrant (the specific remedy-comparison gap is missed)."
+    },
+    {
+      "id": "strawman-adhominem",
+      "recall": {
+        "planted": 12,
+        "caught": 10,
+        "missed": [
+          "falsifiability check on 'the character of a neighborhood is not a quantity any study can measure'",
+          "modal scope check on 'will inevitably erode' (flagged as Slippery Slope but not dedicated modal scope lens)"
+        ]
+      },
+      "groundednessKind": {
+        "total": 13,
+        "correct": 13,
+        "miscalls": []
+      },
+      "nameAccuracy": {
+        "total": 2,
+        "correct": 1,
+        "misnamed": [
+          {
+            "engineName": "Genetic Fallacy",
+            "keyName": "Ad Hominem (Circumstantial)",
+            "defensible": true
+          }
+        ]
+      },
+      "trapResistance": {
+        "total": 3,
+        "respected": 3,
+        "violations": []
+      },
+      "notes": "The engine demonstrates perfect calibration on groundedness kinds and flawless trap resistance. It catches 83% of planted defects but misses both dedicated falsifiability and modal scope checks despite encountering relevant text. Naming shows one defensible but suboptimal choice (Genetic Fallacy vs. Ad Hominem Circumstantial); the warrant recovery is strong (3/3). Loaded language detection is comprehensive and confident."
+    },
+    {
+      "id": "subtle-mixed",
+      "recall": {
+        "planted": 3,
+        "caught": 3,
+        "missed": []
+      },
+      "groundednessKind": {
+        "total": 9,
+        "correct": 5,
+        "miscalls": [
+          {
+            "finding": "Unstated warrant: 'Increased output per employee... are the primary and most desirable metrics'",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "The logical gap between the headline metric (output per employee) and the mechanism (mentorship, osmosis, culture) is derivable from the text by logical comparison alone. It does not depend on the reader's interpretation of tone or charitable reading."
+          },
+          {
+            "finding": "Loaded Language: 'settled quietly'",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "Presuppositions are logically detectable from the text itself—the claim assumes a monolithic debate was concluded, which can be checked against the text's logic. This is not tone-dependent; it is a logical claim."
+          },
+          {
+            "finding": "Referent: 'The return-to-office debate'",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "The failed presupposition—that one debate was settled universally—is a logical error derivable from the text, not a matter of interpretive reading or tone."
+          },
+          {
+            "finding": "Referent: 'The lesson for boards weighing the decision'",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "The presupposition that one lesson applies universally across all boards and contexts is logically detectable, not dependent on the reader's interpretation of intent or framing."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 1,
+        "correct": 1,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 4,
+        "respected": 3,
+        "violations": [
+          {
+            "trap": "'for any firm intending to exist in twenty years, that must be the goal' is emphatic and could be flagged as certainty inflation.",
+            "flaggedAs": "Modal Scope violation (necessity-overstated)"
+          }
+        ]
+      },
+      "notes": "Engine achieved perfect recall and defensible fallacy naming, but miscalibrated groundedness by conflating structural and interpretive categories. Critical failure: flagged trap #3 (the modal claim about institutional culture) as a defect when the key correctly identifies it as a legitimate definitional premise. Over-flagged loaded language and presuppositions, showing insufficient respect for the trap design."
+    },
+    {
+      "id": "unfalsifiable-mottebailey",
+      "recall": {
+        "planted": 13,
+        "caught": 11,
+        "missed": [
+          "Begging the Question fallacy (the 'Like attracts like; that is simply how energy operates; so of course aligned energy can only attract aligned circumstances' passage)",
+          "Unstated Warrant 4: 'Energy' is a real causal force capable of reorganising worldly circumstances",
+          "Referent check on 'Science is only beginning to catch up' (engine classified it as Argument from Ignorance fallacy instead of referent/empirical issue)"
+        ]
+      },
+      "groundednessKind": {
+        "total": 17,
+        "correct": 15,
+        "miscalls": [
+          {
+            "finding": "Empty-referent check on 'the countless people who have transformed their lives this way'",
+            "assigned": "empirical",
+            "shouldBe": "structural",
+            "why": "The vagueness and lack of specificity in the referent is observable in the text itself (no data, no names, no scope) without requiring external fact-checking. While verifying the claim would be empirical, identifying that the referent is empty/vague is a structural problem with the text."
+          },
+          {
+            "finding": "Argument from Ignorance fallacy ('Science is only beginning to catch up')",
+            "assigned": "interpretive",
+            "shouldBe": "structural",
+            "why": "The logical form—absence of evidence being reinterpreted as future confirmation rather than present disconfirmation—is structurally observable from the text. However, this is a borderline case; interpretive is defensible if the claim is read charitably as aspirational rather than logically fallacious."
+          }
+        ]
+      },
+      "nameAccuracy": {
+        "total": 2,
+        "correct": 2,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 3,
+        "respected": 3,
+        "violations": []
+      },
+      "notes": "Engine excels at trap resistance and correctly identifies the two primary fallacies with precise structural analysis, but misses Begging the Question entirely and miscategorizes 'Science is only beginning...' as a fallacy rather than a referent issue, reducing recall on planted defects."
+    },
+    {
+      "id": "uni-essay",
+      "recall": {
+        "planted": 9,
+        "caught": 8,
+        "missed": [
+          "Furthermore, studies have shown that misinformation spreads faster than accurate information on social platforms — vague empirical claim without attribution"
+        ]
+      },
+      "groundednessKind": {
+        "total": 23,
+        "correct": 23,
+        "miscalls": []
+      },
+      "nameAccuracy": {
+        "total": 3,
+        "correct": 3,
+        "misnamed": []
+      },
+      "trapResistance": {
+        "total": 3,
+        "respected": 2,
+        "violations": [
+          {
+            "trap": "The concession paragraph ('It could be argued that social media also has democratising effects...') states the opposing view fairly, so flagging it as a flaw misrepresents the actual error, which is unsupported weighing, not mischaracterization of alternatives.",
+            "flaggedAs": "Cherry-Picking — treating the dismissal of benefits as selective focus rather than as an instance of the underlying warrant defect (unsupported claim that harms clearly outweigh benefits)."
+          }
+        ]
+      },
+      "notes": "The engine demonstrates strong modal scope analysis and groundedness calibration across all 23 findings, with perfect accuracy on kind assignments. However, it misidentifies the concession as a framing flaw (Cherry-Picking) rather than recognizing the flaw as residing in the unsupported weighing warrant, causing a trap violation. The engine also misses one vague referent claim about misinformation spread, likely because it prioritized proper-name vagueness over empirical attribution vagueness."
+    }
+  ],
+  "items": [
+    {
+      "id": "clean-empirical",
+      "category": "clean-control",
+      "expectClean": true,
+      "runs": 1,
+      "latencyMs": [
+        14320
+      ],
+      "findingCount": 0,
+      "perLensCount": {
+        "namedFallacies": 0,
+        "loadedLanguage": 0,
+        "keyTermScrutiny": 0,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 0,
+        "unstatedWarrants": 0
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 0,
+      "falsePositives": 0,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 0,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "clean-valid-argument",
+      "category": "clean-control",
+      "expectClean": true,
+      "runs": 1,
+      "latencyMs": [
+        10666
+      ],
+      "findingCount": 0,
+      "perLensCount": {
+        "namedFallacies": 0,
+        "loadedLanguage": 0,
+        "keyTermScrutiny": 0,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 0,
+        "unstatedWarrants": 0
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 0,
+      "falsePositives": 0,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 0,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "equivocation-keyterm",
+      "category": "term-shift",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        20338
+      ],
+      "findingCount": 9,
+      "perLensCount": {
+        "namedFallacies": 0,
+        "loadedLanguage": 5,
+        "keyTermScrutiny": 0,
+        "referentChecks": 1,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 2,
+        "unstatedWarrants": 1
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 9,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 1,
+          "located": 1
+        },
+        "loadedLanguage": {
+          "planted": 1,
+          "located": 1
+        },
+        "unstatedWarrants": {
+          "planted": 3,
+          "located": 0
+        },
+        "keyTermScrutiny": {
+          "planted": 1,
+          "located": 1
+        },
+        "referentChecks": {
+          "planted": 1,
+          "located": 1
+        },
+        "modalScopeChecks": {
+          "planted": 1,
+          "located": 1
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 2,
+        "interpretive": 6,
+        "empirical": 1
+      },
+      "severity": {
+        "high": 3,
+        "medium": 5,
+        "low": 1
+      },
+      "contestability": {
+        "high": 5,
+        "medium": 1,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "falsecause-cherrypick",
+      "category": "urban-policy",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        22401
+      ],
+      "findingCount": 14,
+      "perLensCount": {
+        "namedFallacies": 3,
+        "loadedLanguage": 4,
+        "keyTermScrutiny": 0,
+        "referentChecks": 1,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 4,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 13,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 5,
+          "located": 3
+        },
+        "loadedLanguage": {
+          "planted": 3,
+          "located": 3
+        },
+        "unstatedWarrants": {
+          "planted": 4,
+          "located": 0
+        },
+        "modalScopeChecks": {
+          "planted": 3,
+          "located": 3
+        }
+      },
+      "nameCorrect": 2,
+      "nameLocated": 2,
+      "groundedness": {
+        "structural": 5,
+        "interpretive": 9,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 4,
+        "medium": 10,
+        "low": 0
+      },
+      "contestability": {
+        "high": 6,
+        "medium": 3,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "groundedness-boundary",
+      "category": "boundary",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        17106
+      ],
+      "findingCount": 8,
+      "perLensCount": {
+        "namedFallacies": 0,
+        "loadedLanguage": 4,
+        "keyTermScrutiny": 2,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 0,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 8,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 1,
+          "located": 0
+        },
+        "loadedLanguage": {
+          "planted": 3,
+          "located": 3
+        },
+        "unstatedWarrants": {
+          "planted": 1,
+          "located": 0
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 1,
+        "interpretive": 7,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 4,
+        "medium": 4,
+        "low": 0
+      },
+      "contestability": {
+        "high": 7,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "modal-inflation",
+      "category": "modalScope",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        23537
+      ],
+      "findingCount": 16,
+      "perLensCount": {
+        "namedFallacies": 3,
+        "loadedLanguage": 5,
+        "keyTermScrutiny": 2,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 4,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 16,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 1,
+          "located": 1
+        },
+        "loadedLanguage": {
+          "planted": 2,
+          "located": 2
+        },
+        "unstatedWarrants": {
+          "planted": 4,
+          "located": 0
+        },
+        "referentChecks": {
+          "planted": 2,
+          "located": 2
+        },
+        "modalScopeChecks": {
+          "planted": 6,
+          "located": 6
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 1,
+      "groundedness": {
+        "structural": 9,
+        "interpretive": 7,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 8,
+        "medium": 5,
+        "low": 3
+      },
+      "contestability": {
+        "high": 6,
+        "medium": 1,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "real-oped-1",
+      "category": "real",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        55291
+      ],
+      "findingCount": 10,
+      "perLensCount": {
+        "namedFallacies": 1,
+        "loadedLanguage": 3,
+        "keyTermScrutiny": 1,
+        "referentChecks": 1,
+        "falsifiabilityChecks": 1,
+        "modalScopeChecks": 1,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 10,
+      "falsePositives": null,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 6,
+        "interpretive": 4,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 5,
+        "medium": 4,
+        "low": 1
+      },
+      "contestability": {
+        "high": 3,
+        "medium": 1,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "real-oped-2",
+      "category": "real",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        18023
+      ],
+      "findingCount": 7,
+      "perLensCount": {
+        "namedFallacies": 1,
+        "loadedLanguage": 1,
+        "keyTermScrutiny": 1,
+        "referentChecks": 1,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 1,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 7,
+      "falsePositives": null,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 2,
+        "interpretive": 5,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 0,
+        "medium": 6,
+        "low": 1
+      },
+      "contestability": {
+        "high": 1,
+        "medium": 4,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "real-oped-3",
+      "category": "real",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        19809
+      ],
+      "findingCount": 12,
+      "perLensCount": {
+        "namedFallacies": 1,
+        "loadedLanguage": 3,
+        "keyTermScrutiny": 1,
+        "referentChecks": 1,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 2,
+        "unstatedWarrants": 4
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 10,
+      "falsePositives": null,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 7,
+        "interpretive": 5,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 0,
+        "medium": 11,
+        "low": 1
+      },
+      "contestability": {
+        "high": 2,
+        "medium": 3,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "referent-weasel",
+      "category": "workplace-culture",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        26452
+      ],
+      "findingCount": 25,
+      "perLensCount": {
+        "namedFallacies": 4,
+        "loadedLanguage": 6,
+        "keyTermScrutiny": 0,
+        "referentChecks": 10,
+        "falsifiabilityChecks": 1,
+        "modalScopeChecks": 2,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 33,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 3,
+          "located": 3
+        },
+        "loadedLanguage": {
+          "planted": 4,
+          "located": 4
+        },
+        "unstatedWarrants": {
+          "planted": 4,
+          "located": 2
+        },
+        "referentChecks": {
+          "planted": 9,
+          "located": 9
+        },
+        "falsifiabilityChecks": {
+          "planted": 1,
+          "located": 1
+        },
+        "modalScopeChecks": {
+          "planted": 2,
+          "located": 2
+        }
+      },
+      "nameCorrect": 1,
+      "nameLocated": 2,
+      "groundedness": {
+        "structural": 18,
+        "interpretive": 7,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 7,
+        "medium": 17,
+        "low": 1
+      },
+      "contestability": {
+        "high": 6,
+        "medium": 1,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "rhetoric-vs-logic",
+      "category": "boundary",
+      "expectClean": false,
+      "runs": 3,
+      "latencyMs": [
+        17128,
+        19011,
+        14437
+      ],
+      "findingCount": 9,
+      "perLensCount": {
+        "namedFallacies": 1,
+        "loadedLanguage": 14,
+        "keyTermScrutiny": 3,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 2,
+        "modalScopeChecks": 2,
+        "unstatedWarrants": 4
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 25,
+      "falsePositives": null,
+      "recall": {
+        "loadedLanguage": {
+          "planted": 12,
+          "located": 12
+        },
+        "unstatedWarrants": {
+          "planted": 3,
+          "located": 0
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 11,
+        "interpretive": 15,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 7,
+        "medium": 15,
+        "low": 4
+      },
+      "contestability": {
+        "high": 11,
+        "medium": 4,
+        "low": 0
+      },
+      "consistency": 0.3620915032679739
+    },
+    {
+      "id": "strawman-adhominem",
+      "category": "misrepresentation-and-attack",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        18601
+      ],
+      "findingCount": 13,
+      "perLensCount": {
+        "namedFallacies": 3,
+        "loadedLanguage": 6,
+        "keyTermScrutiny": 0,
+        "referentChecks": 2,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 0,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 13,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 2,
+          "located": 2
+        },
+        "loadedLanguage": {
+          "planted": 4,
+          "located": 4
+        },
+        "unstatedWarrants": {
+          "planted": 3,
+          "located": 0
+        },
+        "referentChecks": {
+          "planted": 1,
+          "located": 1
+        },
+        "falsifiabilityChecks": {
+          "planted": 1,
+          "located": 0
+        },
+        "modalScopeChecks": {
+          "planted": 1,
+          "located": 1
+        }
+      },
+      "nameCorrect": 1,
+      "nameLocated": 2,
+      "groundedness": {
+        "structural": 4,
+        "interpretive": 9,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 3,
+        "medium": 8,
+        "low": 2
+      },
+      "contestability": {
+        "high": 6,
+        "medium": 3,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "subtle-mixed",
+      "category": "hard",
+      "expectClean": false,
+      "runs": 3,
+      "latencyMs": [
+        17941,
+        40842,
+        26295
+      ],
+      "findingCount": 13,
+      "perLensCount": {
+        "namedFallacies": 2,
+        "loadedLanguage": 14,
+        "keyTermScrutiny": 2,
+        "referentChecks": 6,
+        "falsifiabilityChecks": 1,
+        "modalScopeChecks": 7,
+        "unstatedWarrants": 6
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 40,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 3,
+          "located": 3
+        },
+        "unstatedWarrants": {
+          "planted": 6,
+          "located": 3
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 2,
+      "groundedness": {
+        "structural": 15,
+        "interpretive": 21,
+        "empirical": 2
+      },
+      "severity": {
+        "high": 11,
+        "medium": 24,
+        "low": 3
+      },
+      "contestability": {
+        "high": 10,
+        "medium": 11,
+        "low": 0
+      },
+      "consistency": 0.1640873015873016
+    },
+    {
+      "id": "unfalsifiable-mottebailey",
+      "category": "unfalsifiability",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        21505
+      ],
+      "findingCount": 17,
+      "perLensCount": {
+        "namedFallacies": 3,
+        "loadedLanguage": 6,
+        "keyTermScrutiny": 2,
+        "referentChecks": 2,
+        "falsifiabilityChecks": 1,
+        "modalScopeChecks": 1,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 19,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 3,
+          "located": 3
+        },
+        "loadedLanguage": {
+          "planted": 1,
+          "located": 1
+        },
+        "unstatedWarrants": {
+          "planted": 4,
+          "located": 1
+        },
+        "referentChecks": {
+          "planted": 2,
+          "located": 2
+        },
+        "falsifiabilityChecks": {
+          "planted": 3,
+          "located": 3
+        }
+      },
+      "nameCorrect": 2,
+      "nameLocated": 2,
+      "groundedness": {
+        "structural": 9,
+        "interpretive": 7,
+        "empirical": 1
+      },
+      "severity": {
+        "high": 10,
+        "medium": 5,
+        "low": 2
+      },
+      "contestability": {
+        "high": 4,
+        "medium": 3,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "uni-essay",
+      "category": "persona-student",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        61466
+      ],
+      "findingCount": 29,
+      "perLensCount": {
+        "namedFallacies": 6,
+        "loadedLanguage": 9,
+        "keyTermScrutiny": 1,
+        "referentChecks": 5,
+        "falsifiabilityChecks": 1,
+        "modalScopeChecks": 4,
+        "unstatedWarrants": 3
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 32,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 3,
+          "located": 3
+        },
+        "unstatedWarrants": {
+          "planted": 3,
+          "located": 1
+        },
+        "referentChecks": {
+          "planted": 2,
+          "located": 1
+        },
+        "modalScopeChecks": {
+          "planted": 1,
+          "located": 1
+        }
+      },
+      "nameCorrect": 1,
+      "nameLocated": 3,
+      "groundedness": {
+        "structural": 15,
+        "interpretive": 12,
+        "empirical": 2
+      },
+      "severity": {
+        "high": 10,
+        "medium": 17,
+        "low": 2
+      },
+      "contestability": {
+        "high": 8,
+        "medium": 4,
+        "low": 0
+      },
+      "consistency": null
+    }
+  ],
+  "coverage": 15
+}

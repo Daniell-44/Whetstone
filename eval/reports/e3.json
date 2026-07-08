@@ -1,0 +1,902 @@
+{
+  "version": "e3",
+  "label": "E3 (one-finding-per-defect dedup)",
+  "stamp": "2026-07-08",
+  "aggregate": {
+    "label": "E3 (one-finding-per-defect dedup)",
+    "nItems": 15,
+    "nRuns": 19,
+    "cleanControls": {
+      "nItems": 2,
+      "falsePositives": 5,
+      "itemsClean": 0
+    },
+    "detection": {
+      "plantedTotal": 124,
+      "locatedTotal": 74,
+      "locatedRate": 59.7,
+      "perLens": {
+        "namedFallacies": {
+          "planted": 22,
+          "located": 17,
+          "rate": 77.3
+        },
+        "loadedLanguage": {
+          "planted": 30,
+          "located": 28,
+          "rate": 93.3
+        },
+        "unstatedWarrants": {
+          "planted": 35,
+          "located": 2,
+          "rate": 5.7
+        },
+        "keyTermScrutiny": {
+          "planted": 1,
+          "located": 1,
+          "rate": 100
+        },
+        "referentChecks": {
+          "planted": 17,
+          "located": 11,
+          "rate": 64.7
+        },
+        "modalScopeChecks": {
+          "planted": 14,
+          "located": 12,
+          "rate": 85.7
+        },
+        "falsifiabilityChecks": {
+          "planted": 5,
+          "located": 3,
+          "rate": 60
+        }
+      },
+      "nameTotal": 22,
+      "nameLocated": 14,
+      "nameCorrect": 5,
+      "nameRate": 22.7
+    },
+    "verbatim": {
+      "spans": 190,
+      "violations": 0,
+      "passRate": 100
+    },
+    "groundedness": {
+      "structural": 202,
+      "interpretive": 0,
+      "empirical": 0,
+      "total": 202,
+      "pct": {
+        "structural": 100,
+        "interpretive": 0,
+        "empirical": 0
+      }
+    },
+    "severity": {
+      "high": 73,
+      "medium": 111,
+      "low": 18
+    },
+    "contestability": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "latency": {
+      "meanMs": 22480,
+      "p50Ms": 19323,
+      "p95Ms": 39218
+    },
+    "consistency": {
+      "items": 2,
+      "meanJaccard": 0.24
+    }
+  },
+  "graded": null,
+  "gradedRaw": null,
+  "items": [
+    {
+      "id": "clean-empirical",
+      "category": "clean-control",
+      "expectClean": true,
+      "runs": 1,
+      "latencyMs": [
+        15687
+      ],
+      "findingCount": 4,
+      "perLensCount": {
+        "namedFallacies": 0,
+        "loadedLanguage": 2,
+        "keyTermScrutiny": 0,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 0,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 2,
+      "falsePositives": 4,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 4,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 1,
+        "medium": 2,
+        "low": 1
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "clean-valid-argument",
+      "category": "clean-control",
+      "expectClean": true,
+      "runs": 1,
+      "latencyMs": [
+        11209
+      ],
+      "findingCount": 1,
+      "perLensCount": {
+        "namedFallacies": 0,
+        "loadedLanguage": 0,
+        "keyTermScrutiny": 0,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 0,
+        "unstatedWarrants": 1
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 0,
+      "falsePositives": 1,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 1,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 1,
+        "medium": 0,
+        "low": 0
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "equivocation-keyterm",
+      "category": "term-shift",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        20786
+      ],
+      "findingCount": 16,
+      "perLensCount": {
+        "namedFallacies": 3,
+        "loadedLanguage": 6,
+        "keyTermScrutiny": 1,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 3,
+        "unstatedWarrants": 3
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 14,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 1,
+          "located": 1
+        },
+        "loadedLanguage": {
+          "planted": 1,
+          "located": 1
+        },
+        "unstatedWarrants": {
+          "planted": 3,
+          "located": 0
+        },
+        "keyTermScrutiny": {
+          "planted": 1,
+          "located": 1
+        },
+        "referentChecks": {
+          "planted": 1,
+          "located": 0
+        },
+        "modalScopeChecks": {
+          "planted": 1,
+          "located": 1
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 1,
+      "groundedness": {
+        "structural": 16,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 7,
+        "medium": 8,
+        "low": 1
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "falsecause-cherrypick",
+      "category": "urban-policy",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        31990
+      ],
+      "findingCount": 7,
+      "perLensCount": {
+        "namedFallacies": 1,
+        "loadedLanguage": 3,
+        "keyTermScrutiny": 0,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 1,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 5,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 5,
+          "located": 1
+        },
+        "loadedLanguage": {
+          "planted": 3,
+          "located": 2
+        },
+        "unstatedWarrants": {
+          "planted": 4,
+          "located": 0
+        },
+        "modalScopeChecks": {
+          "planted": 3,
+          "located": 1
+        }
+      },
+      "nameCorrect": 1,
+      "nameLocated": 1,
+      "groundedness": {
+        "structural": 7,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 4,
+        "medium": 3,
+        "low": 0
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "groundedness-boundary",
+      "category": "boundary",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        15566
+      ],
+      "findingCount": 11,
+      "perLensCount": {
+        "namedFallacies": 1,
+        "loadedLanguage": 5,
+        "keyTermScrutiny": 0,
+        "referentChecks": 2,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 1,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 11,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 1,
+          "located": 1
+        },
+        "loadedLanguage": {
+          "planted": 3,
+          "located": 2
+        },
+        "unstatedWarrants": {
+          "planted": 1,
+          "located": 0
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 1,
+      "groundedness": {
+        "structural": 11,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 1,
+        "medium": 10,
+        "low": 0
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "modal-inflation",
+      "category": "modalScope",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        19082
+      ],
+      "findingCount": 15,
+      "perLensCount": {
+        "namedFallacies": 3,
+        "loadedLanguage": 3,
+        "keyTermScrutiny": 1,
+        "referentChecks": 1,
+        "falsifiabilityChecks": 1,
+        "modalScopeChecks": 6,
+        "unstatedWarrants": 0
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 17,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 1,
+          "located": 1
+        },
+        "loadedLanguage": {
+          "planted": 2,
+          "located": 2
+        },
+        "unstatedWarrants": {
+          "planted": 4,
+          "located": 0
+        },
+        "referentChecks": {
+          "planted": 2,
+          "located": 2
+        },
+        "modalScopeChecks": {
+          "planted": 6,
+          "located": 6
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 1,
+      "groundedness": {
+        "structural": 15,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 9,
+        "medium": 5,
+        "low": 1
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "real-oped-1",
+      "category": "real",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        27750
+      ],
+      "findingCount": 8,
+      "perLensCount": {
+        "namedFallacies": 2,
+        "loadedLanguage": 3,
+        "keyTermScrutiny": 0,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 1,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 6,
+      "falsePositives": null,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 8,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 5,
+        "medium": 3,
+        "low": 0
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "real-oped-2",
+      "category": "real",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        13256
+      ],
+      "findingCount": 4,
+      "perLensCount": {
+        "namedFallacies": 0,
+        "loadedLanguage": 2,
+        "keyTermScrutiny": 0,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 0,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 2,
+      "falsePositives": null,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 4,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 0,
+        "medium": 3,
+        "low": 1
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "real-oped-3",
+      "category": "real",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        15904
+      ],
+      "findingCount": 9,
+      "perLensCount": {
+        "namedFallacies": 2,
+        "loadedLanguage": 2,
+        "keyTermScrutiny": 0,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 2,
+        "unstatedWarrants": 3
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 6,
+      "falsePositives": null,
+      "recall": {},
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 9,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 4,
+        "medium": 5,
+        "low": 0
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "referent-weasel",
+      "category": "workplace-culture",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        38765
+      ],
+      "findingCount": 18,
+      "perLensCount": {
+        "namedFallacies": 1,
+        "loadedLanguage": 9,
+        "keyTermScrutiny": 0,
+        "referentChecks": 5,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 1,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 21,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 3,
+          "located": 2
+        },
+        "loadedLanguage": {
+          "planted": 4,
+          "located": 4
+        },
+        "unstatedWarrants": {
+          "planted": 4,
+          "located": 0
+        },
+        "referentChecks": {
+          "planted": 9,
+          "located": 6
+        },
+        "falsifiabilityChecks": {
+          "planted": 1,
+          "located": 0
+        },
+        "modalScopeChecks": {
+          "planted": 2,
+          "located": 2
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 1,
+      "groundedness": {
+        "structural": 18,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 5,
+        "medium": 11,
+        "low": 2
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "rhetoric-vs-logic",
+      "category": "boundary",
+      "expectClean": false,
+      "runs": 3,
+      "latencyMs": [
+        16950,
+        17355,
+        27469
+      ],
+      "findingCount": 8,
+      "perLensCount": {
+        "namedFallacies": 1,
+        "loadedLanguage": 14,
+        "keyTermScrutiny": 3,
+        "referentChecks": 0,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 2,
+        "unstatedWarrants": 5
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 23,
+      "falsePositives": null,
+      "recall": {
+        "loadedLanguage": {
+          "planted": 12,
+          "located": 12
+        },
+        "unstatedWarrants": {
+          "planted": 3,
+          "located": 0
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 0,
+      "groundedness": {
+        "structural": 25,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 5,
+        "medium": 18,
+        "low": 2
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": 0.2930938457254247
+    },
+    {
+      "id": "strawman-adhominem",
+      "category": "misrepresentation-and-attack",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        39218
+      ],
+      "findingCount": 12,
+      "perLensCount": {
+        "namedFallacies": 3,
+        "loadedLanguage": 5,
+        "keyTermScrutiny": 0,
+        "referentChecks": 1,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 1,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 11,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 2,
+          "located": 2
+        },
+        "loadedLanguage": {
+          "planted": 4,
+          "located": 4
+        },
+        "unstatedWarrants": {
+          "planted": 3,
+          "located": 0
+        },
+        "referentChecks": {
+          "planted": 1,
+          "located": 0
+        },
+        "falsifiabilityChecks": {
+          "planted": 1,
+          "located": 0
+        },
+        "modalScopeChecks": {
+          "planted": 1,
+          "located": 1
+        }
+      },
+      "nameCorrect": 1,
+      "nameLocated": 2,
+      "groundedness": {
+        "structural": 12,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 7,
+        "medium": 5,
+        "low": 0
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "subtle-mixed",
+      "category": "hard",
+      "expectClean": false,
+      "runs": 3,
+      "latencyMs": [
+        22093,
+        35403,
+        19323
+      ],
+      "findingCount": 13,
+      "perLensCount": {
+        "namedFallacies": 4,
+        "loadedLanguage": 16,
+        "keyTermScrutiny": 0,
+        "referentChecks": 4,
+        "falsifiabilityChecks": 2,
+        "modalScopeChecks": 7,
+        "unstatedWarrants": 7
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 37,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 3,
+          "located": 3
+        },
+        "unstatedWarrants": {
+          "planted": 6,
+          "located": 1
+        }
+      },
+      "nameCorrect": 0,
+      "nameLocated": 1,
+      "groundedness": {
+        "structural": 40,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 8,
+        "medium": 27,
+        "low": 5
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": 0.19651111944027985
+    },
+    {
+      "id": "unfalsifiable-mottebailey",
+      "category": "unfalsifiability",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        19988
+      ],
+      "findingCount": 17,
+      "perLensCount": {
+        "namedFallacies": 3,
+        "loadedLanguage": 6,
+        "keyTermScrutiny": 2,
+        "referentChecks": 1,
+        "falsifiabilityChecks": 1,
+        "modalScopeChecks": 2,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 18,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 3,
+          "located": 3
+        },
+        "loadedLanguage": {
+          "planted": 1,
+          "located": 1
+        },
+        "unstatedWarrants": {
+          "planted": 4,
+          "located": 1
+        },
+        "referentChecks": {
+          "planted": 2,
+          "located": 1
+        },
+        "falsifiabilityChecks": {
+          "planted": 3,
+          "located": 3
+        }
+      },
+      "nameCorrect": 2,
+      "nameLocated": 3,
+      "groundedness": {
+        "structural": 17,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 10,
+        "medium": 4,
+        "low": 3
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    },
+    {
+      "id": "uni-essay",
+      "category": "persona-student",
+      "expectClean": false,
+      "runs": 1,
+      "latencyMs": [
+        19317
+      ],
+      "findingCount": 15,
+      "perLensCount": {
+        "namedFallacies": 4,
+        "loadedLanguage": 3,
+        "keyTermScrutiny": 1,
+        "referentChecks": 3,
+        "falsifiabilityChecks": 0,
+        "modalScopeChecks": 2,
+        "unstatedWarrants": 2
+      },
+      "verbatimViolations": 0,
+      "verbatimSpans": 17,
+      "falsePositives": null,
+      "recall": {
+        "namedFallacies": {
+          "planted": 3,
+          "located": 3
+        },
+        "unstatedWarrants": {
+          "planted": 3,
+          "located": 0
+        },
+        "referentChecks": {
+          "planted": 2,
+          "located": 2
+        },
+        "modalScopeChecks": {
+          "planted": 1,
+          "located": 1
+        }
+      },
+      "nameCorrect": 1,
+      "nameLocated": 3,
+      "groundedness": {
+        "structural": 15,
+        "interpretive": 0,
+        "empirical": 0
+      },
+      "severity": {
+        "high": 6,
+        "medium": 7,
+        "low": 2
+      },
+      "contestability": {
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "consistency": null
+    }
+  ],
+  "coverage": 15
+}
