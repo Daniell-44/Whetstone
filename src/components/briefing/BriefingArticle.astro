@@ -15,6 +15,12 @@ const COLOURS = [
   { rule: '#534AB7', chipBg: '#EEEDFE', chipText: '#3C3489' },
 ];
 const KIND_LABEL: Record<string, string> = { structural: 'Logic', interpretive: 'Judgment call', empirical: 'Factual' };
+// Groundedness chips via semantic tokens (the Instrument wiring — squared, mono).
+const KIND_STYLE: Record<string, string> = {
+  structural:   'bg-logic-bg text-logic border-logic/30',
+  interpretive: 'bg-judgment-bg text-judgment border-judgment/30',
+  empirical:    'bg-factual-bg text-factual border-factual/30',
+};
 
 const leftSources  = briefing.sources.filter((s) => s.side === 'left');
 const rightSources = briefing.sources.filter((s) => s.side === 'right');
@@ -32,10 +38,12 @@ const urlBySourceId = new Map([
   ...posSrc.map((s) => [s.id, s.url] as const),
   ...eviSrc.map((s) => [s.id, s.url] as const),
 ]);
-const stanceCol = (s: number) => (s < 0 ? '#1E5C5A' : s > 0 ? '#9A2B1F' : '#8A8377');
+// Stance poles — the Instrument palette: drafting blue vs oxide rust (never the redline).
+const stanceCol = (s: number) => (s < 0 ? '#345D7E' : s > 0 ? '#8C4A2F' : '#6E7370');
+const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
 ---
 <article class="max-w-2xl mx-auto">
-  <span class={`text-xs font-semibold uppercase tracking-[0.08em] ${isExplainer ? 'text-accent-support' : 'text-accent'}`}>{isExplainer ? 'Explainer' : 'Briefing'}{briefing.category ? ` · ${briefing.category}` : ''}</span>
+  <span class={`font-mono text-[11px] uppercase tracking-[0.1em] ${isExplainer ? 'text-accent-support' : 'text-muted'}`}>{isExplainer ? 'Explainer' : 'Briefing'}{briefing.category ? ` · ${briefing.category}` : ''}</span>
   <h1 id="overview" class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mt-2 mb-2 scroll-mt-24">{briefing.question}</h1>
   <p class="text-xs text-muted mb-6 tabular-nums">{fmtDate}</p>
 
@@ -64,24 +72,30 @@ const stanceCol = (s: number) => (s < 0 ? '#1E5C5A' : s > 0 ? '#9A2B1F' : '#8A83
         return <p class="text-[0.9375rem] text-ink leading-[1.75]">{block.text}</p>;
       }
       if (block.type === 'position') {
-        const c = COLOURS[((block.colourIndex % COLOURS.length) + COLOURS.length) % COLOURS.length];
+        // Stance pole (drafting blue / oxide rust / grey) for migrated briefings;
+        // legacy rainbow only if the source isn't a v2 position.
+        const st = stanceById.get(block.sourceId);
+        const rule = st !== undefined ? stanceCol(st) : COLOURS[((block.colourIndex % COLOURS.length) + COLOURS.length) % COLOURS.length].rule;
         const srcUrl = urlBySourceId.get(block.sourceId);
+        const kindStyle = KIND_STYLE[block.audit.kind] ?? KIND_STYLE.structural;
         return (
           <div id={idx === firstPositionIdx ? 'positions' : undefined} class="scroll-mt-24">
-            <div class="pl-4" style={`border-left:3px solid ${c.rule}`}>
+            <div class="pl-4" style={`border-left:2px solid ${rule}`}>
               <p class="text-[0.9375rem] text-ink leading-[1.75]">{block.paragraph}</p>
             </div>
             {block.audit.name && (
-              <details class="audit-disclosure mt-3 pl-3" open={idx === firstPositionIdx} style={`border-left:2px solid ${c.rule}`}>
-                <summary class="flex items-center gap-2 py-0.5 cursor-pointer">
-                  <span class="text-[0.6875rem] font-semibold uppercase tracking-[0.06em] text-muted shrink-0">Audit</span>
-                  <span class="text-sm font-medium text-ink-strong">{block.audit.name}</span>
-                  <span class="text-[0.6875rem] px-1.5 py-0.5 rounded shrink-0" style={`background:${c.chipBg};color:${c.chipText}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
+              <details class="audit-disclosure mt-3 bg-surface border border-hairline" open={idx === firstPositionIdx}>
+                <div class="instrument-rule"></div>
+                <summary class="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer">
+                  <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted shrink-0">Audit</span>
+                  <span class="font-serif text-[15px] font-semibold text-ink-strong">{block.audit.name}</span>
+                  <span class={`font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border shrink-0 ${kindStyle}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
                   <svg class="audit-chevron ml-auto shrink-0 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </summary>
-                <div class="mt-1.5">
-                  <p class="text-xs text-ink leading-snug mb-2">{block.audit.explanation}</p>
-                  <a href={srcUrl ? `/?url=${encodeURIComponent(srcUrl)}` : `/?audit=${briefing.slug}`} class="inline-flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-support">Audit the full article →</a>
+                <div class="px-3.5 pb-3">
+                  <p class="text-[13px] text-ink leading-relaxed mb-2">{block.audit.explanation}</p>
+                  <a href={srcUrl ? `/audit?url=${encodeURIComponent(srcUrl)}` : `/audit?audit=${briefing.slug}`} class="inline-flex items-center gap-1 text-xs font-medium text-accent-support hover:text-accent">Audit the full article →</a>
+                  <p class="font-mono text-[8.5px] uppercase tracking-[0.08em] text-muted mt-3 pt-2 border-t border-hairline">The Whetstone · thewhetstone.review</p>
                 </div>
               </details>
             )}
@@ -90,8 +104,8 @@ const stanceCol = (s: number) => (s < 0 ? '#1E5C5A' : s > 0 ? '#9A2B1F' : '#8A83
       }
       if (block.type === 'shared') {
         return (
-          <div id="shared" class="pl-4 scroll-mt-24" style="border-left:2px solid #1E5C5A">
-            <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-accent-support mb-1.5">The shared assumption</span>
+          <div id="shared" class="pl-4 scroll-mt-24 border-l-2 border-accent-support">
+            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support mb-1.5">The shared assumption</span>
             <p class="text-base text-ink leading-relaxed">{block.text}</p>
           </div>
         );

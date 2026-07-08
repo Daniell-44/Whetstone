@@ -1,4 +1,5 @@
 ---
+import '@fontsource-variable/besley';
 import '../styles/global.css';
 
 interface Props {
@@ -85,12 +86,12 @@ const currentPath = canonicalPath;
     <header class="hidden sm:block border-b border-hairline bg-surface/90 backdrop-blur-sm sticky top-0 z-10">
       <div class="max-w-[1400px] mx-auto px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
 
-        <!-- Brand — "The Wire" nameplate: indigo mark + compact serif wordmark + sans strapline -->
+        <!-- Brand — instrument nameplate: gauge mark + Besley wordmark + mono strapline -->
         <a href="/" class="group flex items-center gap-2.5 shrink-0">
-          <svg viewBox="4 22 92 57" fill="currentColor" class="h-6 w-auto shrink-0 text-accent transition-colors" aria-hidden="true"><path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z"/><rect x="7.5" y="65" width="85" height="10.5"/></svg>
+          <svg viewBox="4 22 92 57" fill="currentColor" class="h-6 w-auto shrink-0 text-ink-strong transition-colors" aria-hidden="true"><path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z"/><rect x="7.5" y="65" width="85" height="10.5"/></svg>
           <span class="flex flex-col leading-none">
-            <span class="font-serif text-lg text-ink-strong group-hover:text-accent transition-colors">The Whetstone</span>
-            <span class="mt-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-muted">Arguments, examined</span>
+            <span class="font-serif text-lg font-semibold text-ink-strong group-hover:text-accent transition-colors">The Whetstone</span>
+            <span class="mt-1 font-mono text-[9px] uppercase tracking-[0.18em] text-muted">Arguments, examined <span class="text-accent">▮</span></span>
           </span>
         </a>
 

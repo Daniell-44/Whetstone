@@ -61,10 +61,13 @@ const kindMix = (Object.entries(sig.kinds) as [string, number][])
   .map(([k, n]) => `${KIND_LABEL[k]}${n > 1 ? ` ×${n}` : ''}`);
 const showLead = size === 'featured' && !!sig.lead;
 
-const showBanner = !isExplainer && (size === 'featured' || size === 'wide' || !!b.image);
+// The Instrument (2026-07-08): category colour-banners abolished — a real
+// curated image still shows, but the saturated bg-*-600 placeholder is gone.
+const showBanner = !isExplainer && !!b.image;
 const bannerH = size === 'featured' ? 'h-44' : 'h-28';
-const ruleCls = isExplainer ? 'border-t-accent-support' : 'border-t-accent';
-const eyebrowCls = isExplainer ? 'text-accent-support' : 'text-accent';
+// Graphite top-rule (the instrument bar); redline stays reserved for findings.
+const ruleCls = isExplainer ? 'border-t-accent-support' : 'border-t-ink-strong';
+const eyebrowCls = isExplainer ? 'text-accent-support' : 'text-muted';
 const headingCls = size === 'featured'
   ? 'text-xl sm:text-2xl'
   : size === 'wide' ? 'text-lg sm:text-xl' : 'text-base sm:text-lg';
@@ -74,26 +77,16 @@ const headingCls = size === 'featured'
   data-briefing-card
   data-category={b.category ?? ''}
   style={style}
-  class={`group block bg-surface border border-hairline border-t-2 ${ruleCls} rounded-md p-5 sm:p-6 hover:border-accent/40 hover:shadow-sm transition-all ${extraClass}`}
+  class={`group block bg-surface border border-hairline border-t-2 ${ruleCls} p-5 sm:p-6 hover:border-ink-strong/30 hover:shadow-sm transition-all ${extraClass}`}
 >
   {showBanner && (
-    b.image ? (
-      <img src={b.image} alt="" loading="lazy" class={`w-full ${bannerH} object-cover rounded-md mb-4`} />
-    ) : (
-      <div class={`w-full ${bannerH} rounded-md mb-4 flex items-center justify-center ${b.category && CATEGORY_STYLES[b.category] ? CATEGORY_STYLES[b.category] : 'bg-ink'}`}>
-        <span class="font-serif text-paper/70 text-base sm:text-lg capitalize">{b.category ?? 'Briefing'}</span>
-      </div>
-    )
+    <img src={b.image} alt="" loading="lazy" class={`w-full ${bannerH} object-cover mb-4`} />
   )}
-  <div class="flex items-center gap-2 mb-2.5 flex-wrap">
-    <span class={`text-xs font-semibold uppercase tracking-widest ${eyebrowCls}`}>
-      {isExplainer ? 'Explainer' : 'Briefing'}
-    </span>
-    {b.category && (
-      <span class="text-xs font-medium uppercase tracking-wider text-muted">· {b.category}</span>
-    )}
+  <div class="flex items-center gap-2 mb-2.5 flex-wrap font-mono text-[11px] uppercase tracking-[0.08em]">
+    <span class={eyebrowCls}>{isExplainer ? 'Explainer' : 'Briefing'}</span>
+    {b.category && <span class="text-muted">· {b.category}</span>}
     {!isExplainer && (
-      <span class="text-xs text-muted">· {positions.length} positions · {b.sources.length} sources</span>
+      <span class="text-muted">· {positions.length} positions · {b.sources.length} sources</span>
     )}
   </div>
   <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>
@@ -112,13 +105,13 @@ const headingCls = size === 'featured'
   {!isExplainer && chipFallacies.length > 0 && (
     <div class="flex items-center gap-1.5 flex-wrap mb-3">
       {chipFallacies.map((f) => (
-        <span class="text-[11px] font-semibold text-accent border border-accent/35 bg-accent/5 px-1.5 py-0.5 rounded">{f}</span>
+        <span class="font-mono text-[10px] font-medium uppercase tracking-wide text-ink border border-hairline px-1.5 py-0.5">{f}</span>
       ))}
       {kindMix.length > 0 && (
-        <span class="text-[11px] font-medium bg-sky-100 text-sky-800 border border-sky-200 px-1.5 py-0.5 rounded">{kindMix.join(' · ')}</span>
+        <span class="font-mono text-[10px] font-medium uppercase tracking-wide bg-logic-bg text-logic border border-logic/30 px-1.5 py-0.5">{kindMix.join(' · ')}</span>
       )}
-      <span class="text-xs text-muted">
-        {sig.auditedPositions} position{sig.auditedPositions === 1 ? '' : 's'} audited{sig.auditedTakes > 0 ? ` · ${sig.auditedTakes} take${sig.auditedTakes === 1 ? '' : 's'}` : ''}
+      <span class="font-mono text-[10px] uppercase tracking-wide text-muted">
+        <span class="text-accent font-semibold">{sig.auditedPositions}</span> audited{sig.auditedTakes > 0 ? ` · ${sig.auditedTakes} take${sig.auditedTakes === 1 ? '' : 's'}` : ''}
       </span>
     </div>
   )}
@@ -128,7 +121,7 @@ const headingCls = size === 'featured'
       <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
         {positions.map((p, i) => (
           <span class="inline-flex items-center gap-1 text-xs text-muted">
-            <span class={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full text-white text-[8px] font-semibold ${SPECTRUM_DOT[i % SPECTRUM_DOT.length]}`}>{i + 1}</span>
+            <span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-ink-strong text-white text-[8px] font-semibold">{i + 1}</span>
             {p.label}
           </span>
         ))}

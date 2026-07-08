@@ -9,8 +9,8 @@ interface Props { positions: BriefingPositionSource[]; axis: { left: string; rig
 const { positions, axis } = Astro.props;
 
 const PCT: Record<string, number> = { '-2': 10, '-1': 30, '0': 50, '1': 70, '2': 90 };
-// Brand hues: teal = the axisLeft pole, brick = the axisRight pole (sign-derived).
-const COL = (s: number) => (s < 0 ? '#1E5C5A' : s > 0 ? '#9A2B1F' : '#8A8377');
+// Stance poles (The Instrument): drafting blue = axisLeft, oxide rust = axisRight.
+const COL = (s: number) => (s < 0 ? '#345D7E' : s > 0 ? '#8C4A2F' : '#6E7370');
 const W: Record<string, number>  = { high: 15, med: 30, low: 58 };
 const OP: Record<string, number> = { high: 1, med: 0.8, low: 0.5 };
 

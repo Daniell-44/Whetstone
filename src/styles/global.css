@@ -1,41 +1,51 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* System font stacks — no external font requests */
+/* Font stacks. Display = Besley (self-hosted variable via @fontsource-variable,
+   imported in Base.astro) — a Clarendon/slab with instrument-plate letterforms.
+   Body = system grotesque (register-correct, zero request, good on every OS).
+   Apparatus = system mono for kickers, finding codes, serial plates. */
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-serif: 'Iowan Old Style', 'Apple Garamond', Baskerville, 'Times New Roman', 'Droid Serif', Times, 'Source Serif Pro', serif;
+  /* `font-serif` utility → Besley, so every existing headline/wordmark upgrades
+     without touching a component. Georgia/Cambria fallbacks keep it a slab-ish
+     serif before the woff2 swaps in (metric-adjusted, minimal CLS). */
+  --font-serif: 'Besley Variable', 'Besley', Georgia, Cambria, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'SF Mono', 'Roboto Mono', Consolas, monospace;
 
-  /* Direction A — "Ink & Ledger" palette (2026-06-30). Generates text-/bg-/
-     border- utilities (text-ink, bg-paper, border-hairline, text-accent, …).
-     Additive — existing gray/slate/indigo utilities still work while surfaces
-     migrate one at a time. */
-  --color-ink:            #2B2722; /* body ink — near-black warm */
-  --color-ink-strong:     #16130E; /* headlines */
-  --color-muted:          #6B6359; /* metadata ONLY — never body copy */
-  --color-paper:          #FBF7F0; /* page canvas */
-  --color-surface:        #FFFFFF; /* raised cards */
-  --color-hairline:       #E0D8CA; /* 1px rules */
-  --color-accent:         #9A2B1F; /* rationed brick-red — text / 1px border / underline / audit spine */
-  --color-accent-support: #1E5C5A; /* deep teal — secondary links / Pro */
+  /* Direction B — "The Instrument" (2026-07-08). The publication as a calibrated
+     measuring device: cool graphite surfaces, a single reserved "redline" accent
+     that always means the engine detected something, drafting-blue for links.
+     Token names preserved from Ink & Ledger so every bg-paper/text-ink/… utility
+     recolours in place — see Research_Brand_Options_v1.md §4. */
+  --color-ink:            #24272B; /* body ink — cool near-black */
+  --color-ink-strong:     #121417; /* headlines */
+  --color-muted:          #5C6167; /* metadata + apparatus */
+  --color-paper:          #F3F4F1; /* page canvas — cool grey-green */
+  --color-surface:        #FBFBF9; /* raised cards / instrument face */
+  --color-hairline:       #D7D9D3; /* 1px rules + calibration ticks */
+  --color-accent:         #CE2B14; /* THE REDLINE — reserved: a detected finding, severity-high, the count, one masthead tick. Never decoration. */
+  --color-accent-support: #345D7E; /* drafting blue — links / interaction / Pro */
 
-  /* Fixed semantic colours — groundedness */
-  --color-logic:          #3B5566;
-  --color-logic-bg:       #EAEEF1;
-  --color-judgment:       #854F0B;
-  --color-judgment-bg:    #FAEEDA;
-  --color-factual:        #3F6B4A;
-  --color-factual-bg:     #E1F5EE;
-  /* severity ramp */
-  --color-sev-high:       #9A2B1F;
-  --color-sev-med:        #C2410C;
-  --color-sev-low:        #CBA135;
-  /* source spectrum (perceptual, decoupled from party colour) */
-  --color-spec-left:      #2563A8;
-  --color-spec-leanleft:  #7FA8CE;
-  --color-spec-center:    #8A8A8A;
-  --color-spec-leanright: #D88A6A;
-  --color-spec-right:     #C0492E;
+  /* Groundedness — squared chips, mono labels; the instrument declares
+     uncertainty in grey rather than a colour. */
+  --color-logic:          #2C5876;
+  --color-logic-bg:       #E3ECF2;
+  --color-judgment:       #4E5450;
+  --color-judgment-bg:    #ECEDE9;
+  --color-factual:        #2F6B4F;
+  --color-factual-bg:     #E2EFE7;
+  /* Severity gauge — high IS the redline (severity-high is the brand moment). */
+  --color-sev-high:       #CE2B14;
+  --color-sev-med:        #AD6203;
+  --color-sev-low:        #6E7370;
+  /* Stance poles — drafting blue vs oxide rust: warm, but clearly NOT the
+     redline (a position is not a finding). */
+  --color-spec-left:      #345D7E;
+  --color-spec-leanleft:  #6E8CA6;
+  --color-spec-center:    #6E7370;
+  --color-spec-leanright: #B08061;
+  --color-spec-right:     #8C4A2F;
 }
 
 /* Mobile-only: soften the page side padding for `<main>` containers.
@@ -76,6 +86,24 @@
   outline-offset: 2px;
   border-radius: 2px;
 }
+
+/* Instrument motif — a graphite calibration rule terminating in perpendicular
+   ticks, topping every audit card / section head. The card's signature. */
+.instrument-rule {
+  position: relative;
+  border-top: 2px solid var(--color-ink-strong);
+}
+.instrument-rule::before,
+.instrument-rule::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  width: 2px;
+  height: 7px;
+  background: var(--color-ink-strong);
+}
+.instrument-rule::before { left: 0; }
+.instrument-rule::after  { right: 0; }
 
 /* Thin scrollbar utility used by horizontal-scroll pill rows */
 .scrollbar-thin {
