@@ -115,6 +115,80 @@ export function argumentScore(audit: AuditResult): number {
 }
 
 // ---------------------------------------------------------------------------
+// Groundedness mix — how many findings are each KIND. Powers the one-line
+// verdict below; the categorical honesty label (Logic / Judgment call /
+// Factual) is the product's differentiator, so surfacing its distribution in
+// plain language is worth a derived helper.
+// ---------------------------------------------------------------------------
+
+export function groundednessBreakdown(audit: AuditResult): { structural: number; interpretive: number; empirical: number } {
+  const findings = [
+    ...audit.namedFallacies,
+    ...audit.loadedLanguage,
+    ...audit.toulmin.unstatedWarrants,
+    ...(audit.keyTermScrutiny      ?? []),
+    ...(audit.referentChecks       ?? []),
+    ...(audit.falsifiabilityChecks ?? []),
+    ...(audit.modalScopeChecks     ?? []),
+  ];
+  const acc = { structural: 0, interpretive: 0, empirical: 0 };
+  for (const f of findings) {
+    const k = f.groundedness?.kind;
+    if (k === 'structural' || k === 'interpretive' || k === 'empirical') acc[k] += 1;
+  }
+  return acc;
+}
+
+// One-line structural verdict — a plain-language read of the finding shape for
+// a reader who won't open every card. When findings exist the count is shown
+// elsewhere, so this sentence carries the NEW information: which *kind* of
+// finding dominates (logic vs judgment call), which tells the reader how
+// settled the audit's objections are. Derived, not model-emitted.
+export function auditVerdict(audit: AuditResult): string {
+  const total = totalFindingCount(audit);
+  if (total === 0) {
+    return 'Clean bill — no reasoning fallacies or loaded language surfaced. The argument stands on its structure.';
+  }
+  const g      = groundednessBreakdown(audit);
+  const gTotal = g.structural + g.interpretive + g.empirical;
+  let clause   = 'A mix of logic and judgment calls.';
+  if (gTotal > 0) {
+    if (g.structural / gTotal >= 0.6)        clause = 'Mostly matters of logic you can check against the quoted text.';
+    else if (g.interpretive / gTotal >= 0.6) clause = 'Mostly judgment calls that turn on how you read the piece.';
+  }
+  if (g.empirical > 0) clause += ' Some hinge on facts outside the text.';
+  return clause;
+}
+
+// Which lenses the audit checked — the anonymous-transparency "scope" strip.
+// The three base lenses ALWAYS run (shown with their count, including 0 — that
+// is the point: a clean result reads as "checked, nothing found", not "did it
+// run?"). Phase-2 lenses are only listed when they produced a finding, since an
+// empty phase-2 array can't distinguish "ran, found nothing" from "not run"
+// (base-only audits still carry them as `[]` via the schema default) — so we
+// never claim a phase-2 lens ran unless it demonstrably did.
+export interface LensChecked { key: string; label: string; count: number; base: boolean }
+
+export function lensesChecked(audit: AuditResult): LensChecked[] {
+  const out: LensChecked[] = [
+    { key: 'namedFallacies',   label: 'Reasoning fallacies', count: audit.namedFallacies.length,               base: true },
+    { key: 'loadedLanguage',   label: 'Loaded language',     count: audit.loadedLanguage.length,               base: true },
+    { key: 'unstatedWarrants', label: 'Unstated assumptions', count: audit.toulmin.unstatedWarrants.length,    base: true },
+  ];
+  const phase2: Array<[string, string, unknown[] | undefined]> = [
+    ['keyTermScrutiny',      'Key-term consistency',  audit.keyTermScrutiny],
+    ['referentChecks',       'Referential clarity',   audit.referentChecks],
+    ['falsifiabilityChecks', 'Falsifiability',        audit.falsifiabilityChecks],
+    ['modalScopeChecks',     'Modal scope',           audit.modalScopeChecks],
+  ];
+  for (const [key, label, arr] of phase2) {
+    const a = (arr ?? []) as unknown[];
+    if (a.length > 0) out.push({ key, label, count: a.length, base: false });
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // Priority score for individual findings — used to sort the findings list.
 // ---------------------------------------------------------------------------
 

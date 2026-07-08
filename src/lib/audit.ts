@@ -15,7 +15,8 @@ export type {
 } from '../../functions/_lib/audit/types';
 
 export { priorityScore, sortByPriority } from '../../functions/_lib/audit/priority';
-export { wordCount, avgSentenceLength, fleschKincaidGradeLevel, severityBreakdown, totalFindingCount, argumentScore } from '../../functions/_lib/audit/stats';
+export { wordCount, avgSentenceLength, fleschKincaidGradeLevel, severityBreakdown, totalFindingCount, argumentScore, groundednessBreakdown, auditVerdict, lensesChecked } from '../../functions/_lib/audit/stats';
+export type { LensChecked } from '../../functions/_lib/audit/stats';
 export {
   fallacyMatchKey,
   loadedLanguageMatchKey,

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
-import { totalFindingCount } from '../../lib/audit';
+import { totalFindingCount, auditVerdict, lensesChecked } from '../../lib/audit';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
 import AuditResults from './AuditResults';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
@@ -443,7 +443,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         <div class="space-y-4">
 
           {/* Verdict bar */}
-          <div class="rounded-lg border border-hairline bg-surface px-4 py-3">
+          <div class="rounded-lg border border-hairline bg-surface px-4 py-3 space-y-2">
             <div class="flex items-center gap-2 flex-wrap">
               <span class="text-sm font-medium text-ink-strong">
                 {counts.total} {counts.total === 1 ? 'issue' : 'issues'} found
@@ -455,9 +455,24 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                 </span>
               )}
             </div>
-            <p class="text-xs text-muted mt-1 line-clamp-1">
+            {/* One-line structural verdict — the plain-language read of the
+               finding shape (which KIND of objection dominates). */}
+            <p class="text-xs text-ink leading-relaxed">{auditVerdict(displayResult)}</p>
+            <p class="text-xs text-muted line-clamp-1">
               <span class="font-medium text-ink">Weakest link:</span> {result.toulmin.weakestLink}
             </p>
+            {/* Scope strip — what the audit checked (its lenses). Shows base
+               checks always, with counts, so a clean result reads as
+               "checked, nothing found" rather than "did it run?". */}
+            <div class="flex items-center gap-x-3 gap-y-1 flex-wrap pt-2 border-t border-hairline">
+              <span class="text-[0.625rem] font-mono uppercase tracking-wider text-muted shrink-0">Checked</span>
+              {lensesChecked(displayResult).map(l => (
+                <span key={l.key} class="inline-flex items-center gap-1 text-xs text-muted">
+                  {l.label}
+                  <span class={`font-mono ${l.count > 0 ? 'text-ink font-medium' : 'text-muted/70'}`}>{l.count}</span>
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Jump tabs — teleport within the page (not content-hiding panes) */}
