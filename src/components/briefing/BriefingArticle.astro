@@ -33,11 +33,6 @@ const posSrc = briefing.positionSources ?? [];
 const eviSrc = briefing.evidenceSources ?? [];
 const v2 = posSrc.length > 0;
 const hasTakes = briefing.blocks.some((b) => b.type === 'takes');
-const urlBySourceId = new Map([
-  ...briefing.sources.map((s) => [s.id, s.url] as const),
-  ...posSrc.map((s) => [s.id, s.url] as const),
-  ...eviSrc.map((s) => [s.id, s.url] as const),
-]);
 // Stance poles — the Instrument palette: drafting blue vs oxide rust (never the redline).
 const stanceCol = (s: number) => (s < 0 ? '#345D7E' : s > 0 ? '#8C4A2F' : '#6E7370');
 const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
@@ -76,7 +71,6 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
         // legacy rainbow only if the source isn't a v2 position.
         const st = stanceById.get(block.sourceId);
         const rule = st !== undefined ? stanceCol(st) : COLOURS[((block.colourIndex % COLOURS.length) + COLOURS.length) % COLOURS.length].rule;
-        const srcUrl = urlBySourceId.get(block.sourceId);
         const kindStyle = KIND_STYLE[block.audit.kind] ?? KIND_STYLE.structural;
         return (
           <div id={idx === firstPositionIdx ? 'positions' : undefined} class="scroll-mt-24">
@@ -94,7 +88,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
                 </summary>
                 <div class="px-3.5 pb-3">
                   <p class="text-[13px] text-ink leading-relaxed mb-2">{block.audit.explanation}</p>
-                  <a href={srcUrl ? `/audit?url=${encodeURIComponent(srcUrl)}` : `/audit?audit=${briefing.slug}`} class="inline-flex items-center gap-1 text-xs font-medium text-accent-support hover:text-accent">Audit the full article →</a>
+                  <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1 text-xs font-medium text-accent-support hover:text-accent">Audit this argument →</a>
                   <p class="font-mono text-[8.5px] uppercase tracking-[0.08em] text-muted mt-3 pt-2 border-t border-hairline">The Whetstone · thewhetstone.review</p>
                 </div>
               </details>

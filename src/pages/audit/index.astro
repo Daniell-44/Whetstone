@@ -27,9 +27,23 @@ function briefingPlainText(b: BriefingArticle): string {
   }
   return parts.join('\n\n').slice(0, 10_000);
 }
+// A `pos=<sourceId>` narrows the prefill to ONE position's argument text — the
+// exact text the briefing's audit card assessed. This is what a per-position
+// "Audit this argument" link carries, so the tool opens on the same words the
+// reader just saw audited (no re-fetching the remote source, which often fails
+// to extract). Falls back to the whole-briefing prose if the position is absent.
+function positionText(b: BriefingArticle, sourceId: string): string {
+  for (const bl of b.blocks) {
+    if (bl.type === 'position' && bl.sourceId === sourceId) return bl.paragraph;
+  }
+  return '';
+}
 const auditSlug    = Astro.url.searchParams.get('audit');
+const auditPosId   = Astro.url.searchParams.get('pos');
 const auditTarget  = auditSlug ? getAllBriefings().find((b) => b.slug === auditSlug) : undefined;
-const auditPrefill = auditTarget ? briefingPlainText(auditTarget) : '';
+const auditPrefill = auditTarget
+  ? ((auditPosId && positionText(auditTarget, auditPosId)) || briefingPlainText(auditTarget))
+  : '';
 // /audit?url=<source> deep-link: audit the source article a briefing position quotes.
 const auditUrlParam = Astro.url.searchParams.get('url') ?? '';
 const auditUrl      = auditUrlParam.startsWith('http') ? auditUrlParam : '';
