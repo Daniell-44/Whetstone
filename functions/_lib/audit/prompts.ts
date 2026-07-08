@@ -203,7 +203,17 @@ Arguments make claims in different modal registers. A strong empirical claim tha
 - If you cannot find a single contiguous span (≥ 20 characters) that exemplifies the modal inflation, OMIT the finding rather than fabricate one. Empty arrays are valid and expected — fabricated quotes cause hard failures downstream.
 - The \`inflatedModal\` field should be a single word or short phrase from the input (verbatim). The \`impliedModal\` field is your own suggested replacement — that one can be your own wording.
 
-The same verbatim-substring rule applies to every "evidence" and "quote" field elsewhere in this prompt. Treat it as inviolable.`;
+The same verbatim-substring rule applies to every "evidence" and "quote" field elsewhere in this prompt. Treat it as inviolable.
+
+## One finding per defect — the Phase-2 lenses
+
+The one-finding-per-defect rule from the base instructions extends to these lenses. Each has one home: a term whose *meaning* shifts between uses → keyTermScrutiny; a vague authority/study/quantifier standing in for evidence → referentChecks; a claim built to be compatible with any evidence → falsifiabilityChecks; hedged evidence hardening into certainty → modalScopeChecks. Do not echo the same defect across several of these, or between them and the base lenses (namedFallacies / loadedLanguage / unstatedWarrants).
+
+- **Correlation treated as causation.** Pick the single most precise home: the named fallacy (Post Hoc / False Cause) when the defect is the inference itself, OR modalScope when the defect is specifically a hedged "associated with" hardening to "causes". Do NOT also file the same defect as a key-term shift ("associated" vs "causes") and a loaded-language flag. One defect, one finding.
+- **A conclusion whose certainty outruns its evidence** belongs to modalScope (or a named fallacy) — not also to loadedLanguage for being "emphatic".
+- **A vague reference that is also the seat of a named fallacy** (e.g. an unnamed "experts" that is an Appeal to Authority) is reported once, in whichever lens most precisely names the defect — not in both.
+
+If fixing one finding would fix the other, they are the same defect: keep one.`;
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -425,8 +435,26 @@ Example 3 — "Professor Vasquez, a leading economist, says minimum wage increas
   Unstated warrant WRONG to list: "Expert claims are reliable" — that is just the Appeal to Authority assumption restated; do not include it.
   Correct analysis: The Appeal to Authority already accounts for the credibility gap. A genuinely additive gap here is the jump from "causes unemployment" to "therefore do not raise it" without stating why job losses outweigh wage gains for employed workers. That unspoken premise is a real unstated warrant because it bridges a gap no named fallacy has covered. If no such additive gap exists, return \`"unstatedWarrants": []\`.
 
+## One finding per defect — do not report the same problem through multiple lenses
+
+The lenses are different QUESTIONS about the argument, not multiple chances to flag the same words. When a single passage exhibits what looks like several issues that are really ONE underlying defect, report it ONCE, in the single lens that most precisely names it, and omit the echoes. A reader should see each real problem once, in its best home — not the same problem restated as a fallacy and then again as a loaded phrase.
+
+Each defect has one home lens — the one that most precisely describes it:
+- A specific reasoning error with a standard name → **namedFallacies** (the most precise home; if the defect is a named fallacy, name it there and nowhere else).
+- A load-bearing *assumption the argument omits* (a gap, not an error) → **unstatedWarrants**, only when not already implied by a flagged fallacy.
+- Rhetoric doing evaluative work in place of evidence → **loadedLanguage** — the lowest-priority framing: never re-report here a logical defect a fallacy already names.
+
+Common collisions to resolve (pick ONE, drop the rest):
+- **A named fallacy's own quote.** The phrase a fallacy rests on is already reported by that fallacy. Do not additionally flag fragments of it as loadedLanguage.
+- **A conclusion stated too strongly.** Report the overreach once, as the named fallacy where one fits. Do not also flag the same sentence two or three times as loadedLanguage for being "emphatic" — that is the same observation re-counted.
+- **Correlation treated as causation.** Report it once, as the named fallacy (Post Hoc / False Cause). Do not also file the same defect as a loaded-language flag.
+- **Warrants.** Never list an assumption already implied by a flagged fallacy.
+
+Two genuinely distinct defects in the same passage may each be flagged — a phrase can be both loaded AND rest on a real fallacy. The rule targets the SAME defect re-reported, not two different defects that happen to co-locate. When unsure whether two findings are the same defect: if fixing one would fix the other, they are the same defect — keep one.
+
 ## Rules
 - Every "quote" and "phrase" field MUST be a verbatim substring of the input text. Do not paraphrase.
+- One defect, one finding: before adding a finding, check it is not the same underlying problem another finding already reports in a more precise lens (see above).
 - Every finding (namedFallacy, loadedLanguage, unstatedWarrant) MUST include both "confidence" (integer 50–100) and "severity" ("high", "medium", or "low"). Do not include findings with confidence below 50.
 - If no fallacies are present, return an empty array for namedFallacies.
 - If no loaded language is present, return an empty array for loadedLanguage.
