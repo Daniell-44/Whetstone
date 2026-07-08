@@ -364,14 +364,14 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           </p>
         ) : (
           <div class="flex justify-between text-xs">
-            <span class={charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600' : charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
+            <span class={charCount > 0 && charCount < MIN_CHARS ? 'text-sev-med' : charCount > MAX_CHARS ? 'text-accent' : 'text-muted'}>
               {charCount > 0 && charCount < MIN_CHARS
                 ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
                 : charCount > MAX_CHARS
                 ? 'Too long - please trim to 10,000 characters'
                 : ''}
             </span>
-            <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
+            <span class={charCount > MAX_CHARS ? 'text-accent' : 'text-muted'}>
               {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
             </span>
           </div>
@@ -410,7 +410,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                       <p class="text-[0.6875rem] text-muted leading-snug mt-0.5 line-clamp-1">{s.title}</p>
                       <div class="flex flex-wrap gap-1 mt-1.5">
                         {s.failureModes.slice(0, 2).map(mode => (
-                          <span key={mode} class="text-[0.625rem] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">{mode}</span>
+                          <span key={mode} class="text-[0.625rem] font-mono px-1.5 py-0.5 rounded-[2px] border border-hairline bg-paper text-muted font-medium">{mode}</span>
                         ))}
                         {s.failureModes.length > 2 && (
                           <span class="text-[0.625rem] px-1.5 py-0.5 rounded bg-hairline/40 text-muted font-medium">+{s.failureModes.length - 2}</span>
@@ -430,8 +430,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       {loading && <AuditLoading />}
 
       {error && !loading && (
-        <div class="rounded-xl bg-red-50 border border-red-200 p-4">
-          <p class="text-sm text-red-700">{error}</p>
+        <div class="rounded-xl bg-accent/5 border border-accent/30 p-4">
+          <p class="text-sm text-accent">{error}</p>
         </div>
       )}
 
@@ -450,7 +450,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               </span>
               {counts.critical > 0 && (
                 <span class="inline-flex items-center gap-1 text-xs text-muted">
-                  <span class="w-1.5 h-1.5 rounded-full bg-red-500" aria-hidden="true" />
+                  <span class="w-1.5 h-1.5 rounded-full bg-sev-high" aria-hidden="true" />
                   {counts.critical} critical
                 </span>
               )}

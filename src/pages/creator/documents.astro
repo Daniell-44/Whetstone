@@ -69,7 +69,7 @@ function formatDate(epochMs: number): string {
         <WorkspaceSwitcher currentWorkspaceId={workspaceIdParam} client:load />
         <a
           href="/creator/studio"
-          class="shrink-0 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+          class="shrink-0 rounded-xl bg-accent-support px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
         >
           New draft
         </a>
@@ -79,7 +79,7 @@ function formatDate(epochMs: number): string {
     {documents.length === 0 ? (
       <div class="rounded-xl border border-hairline bg-paper p-12 text-center">
         <p class="text-muted mb-4">No saved drafts yet.</p>
-        <a href="/creator/studio" class="text-sm text-amber-600 hover:text-amber-700 underline">
+        <a href="/creator/studio" class="text-sm text-accent-support hover:text-accent underline">
           Start your first draft →
         </a>
       </div>
@@ -90,7 +90,7 @@ function formatDate(epochMs: number): string {
             <div class="min-w-0">
               <a
                 href={`/creator/studio?doc=${doc.id}`}
-                class="block text-sm font-medium text-ink-strong hover:text-amber-700 truncate transition-colors"
+                class="block text-sm font-medium text-ink-strong hover:text-accent-support truncate transition-colors"
               >
                 {doc.title}
               </a>
@@ -98,7 +98,7 @@ function formatDate(epochMs: number): string {
                 <p class="text-xs text-muted">Updated {formatDate(doc.updated_at)}</p>
                 <a
                   href={`/creator/documents/${doc.id}/versions`}
-                  class="text-xs text-muted hover:text-amber-600 transition-colors"
+                  class="text-xs text-muted hover:text-accent-support transition-colors"
                 >
                   {versionCounts[doc.id] ?? 0} version{(versionCounts[doc.id] ?? 0) === 1 ? '' : 's'}
                 </a>
@@ -106,7 +106,7 @@ function formatDate(epochMs: number): string {
             </div>
             <a
               href={`/creator/studio?doc=${doc.id}`}
-              class="shrink-0 text-xs text-muted hover:text-amber-600 transition-colors"
+              class="shrink-0 text-xs text-muted hover:text-accent-support transition-colors"
             >
               Open →
             </a>

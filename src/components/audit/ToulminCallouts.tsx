@@ -14,9 +14,9 @@ import GroundednessChip from '../grounded/GroundednessChip';
 // shaky each one is). Kept as a complementary callout, not merged into the chain.
 
 const SEV_DOT: Record<string, string> = {
-  high:   'bg-red-500',
-  medium: 'bg-amber-500',
-  low:    'bg-muted',
+  high:   'bg-sev-high',
+  medium: 'bg-sev-med',
+  low:    'bg-sev-low',
 };
 
 export default function ToulminCallouts({ toulmin, terminologyPreference }: {
@@ -30,7 +30,7 @@ export default function ToulminCallouts({ toulmin, terminologyPreference }: {
     <div class="space-y-3">
       {warrants.length > 0 && (
         <div class="rounded-lg border border-hairline bg-paper p-3">
-          <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-2.5">
+          <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2.5">
             Load-bearing assumptions
           </p>
           <ul class="space-y-2.5">
@@ -51,7 +51,7 @@ export default function ToulminCallouts({ toulmin, terminologyPreference }: {
       )}
       {toulmin.weakestLink && (
         <div class="rounded-lg bg-paper border border-hairline border-l-2 border-l-accent p-3">
-          <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-1">
+          <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-1">
             <LabelWithTooltip label="weakestLink" preference={terminologyPreference} />
           </p>
           <p class="text-sm text-ink leading-relaxed">{toulmin.weakestLink}</p>

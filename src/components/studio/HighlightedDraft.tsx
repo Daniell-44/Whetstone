@@ -39,15 +39,15 @@ interface Props {
 // ---------------------------------------------------------------------------
 
 const SEVERITY_BG: Record<string, string> = {
-  high:   'bg-red-200/60 hover:bg-red-300/70 border-b-2 border-red-400',
-  medium: 'bg-amber-200/50 hover:bg-amber-300/60 border-b-2 border-amber-400',
-  low:    'bg-gray-200/50 hover:bg-gray-300/60 border-b-2 border-gray-400',
+  high:   'bg-sev-high/20 hover:bg-sev-high/30 border-b-2 border-sev-high',
+  medium: 'bg-sev-med/15 hover:bg-sev-med/25 border-b-2 border-sev-med',
+  low:    'bg-sev-low/15 hover:bg-sev-low/25 border-b-2 border-sev-low',
 };
 
 const SEVERITY_ACTIVE: Record<string, string> = {
-  high:   'bg-red-300/80 ring-2 ring-red-400',
-  medium: 'bg-amber-300/70 ring-2 ring-amber-400',
-  low:    'bg-gray-300/70 ring-2 ring-gray-400',
+  high:   'bg-sev-high/30 ring-2 ring-sev-high',
+  medium: 'bg-sev-med/25 ring-2 ring-sev-med',
+  low:    'bg-sev-low/25 ring-2 ring-sev-low',
 };
 
 // ---------------------------------------------------------------------------
@@ -221,9 +221,9 @@ function resolveOverlaps(highlights: Highlight[]): Highlight[] {
 
 function HoverCard({ highlight, x, y }: { highlight: Highlight; x: number; y: number }) {
   const severityColour: Record<string, string> = {
-    high:   'border-red-300 bg-red-50',
-    medium: 'border-amber-300 bg-amber-50',
-    low:    'border-gray-300 bg-gray-50',
+    high:   'border-sev-high/40 bg-sev-high/5',
+    medium: 'border-sev-med/40 bg-sev-med/5',
+    low:    'border-sev-low/40 bg-sev-low/5',
   };
 
   return (
@@ -234,10 +234,10 @@ function HoverCard({ highlight, x, y }: { highlight: Highlight; x: number; y: nu
       <p class="font-semibold text-ink-strong mb-1">{highlight.label}</p>
       <p class="text-ink">{highlight.explanation}</p>
       <div class="flex items-center gap-2 mt-2">
-        <span class={`px-1.5 py-0.5 rounded-full text-xs font-medium ${
-          highlight.severity === 'high' ? 'bg-red-100 text-red-700' :
-          highlight.severity === 'medium' ? 'bg-amber-100 text-amber-700' :
-          'bg-gray-100 text-gray-600'
+        <span class={`px-1.5 py-0.5 rounded-[2px] font-mono text-xs font-medium ${
+          highlight.severity === 'high' ? 'bg-sev-high/10 text-sev-high' :
+          highlight.severity === 'medium' ? 'bg-sev-med/10 text-sev-med' :
+          'bg-sev-low/10 text-sev-low'
         }`}>{highlight.severity}</span>
         <span class="text-muted">structural</span>
       </div>
@@ -289,7 +289,7 @@ export default function HighlightedDraft({ text, audit, activeFindingKey, flashK
     segments.push(
       <mark
         key={`h-${h.start}`}
-        class={`cursor-pointer rounded-sm px-0.5 transition-all duration-150 ${cls} ${isFlash ? 'ring-2 ring-amber-400 ring-offset-1' : ''}`}
+        class={`cursor-pointer rounded-sm px-0.5 transition-all duration-150 ${cls} ${isFlash ? 'ring-2 ring-accent ring-offset-1' : ''}`}
         data-match-key={h.matchKey}
         onClick={() => onHighlightClick(h.matchKey)}
         onMouseEnter={(e: MouseEvent) => handleMouseEnter(h, e)}
@@ -322,19 +322,19 @@ export default function HighlightedDraft({ text, audit, activeFindingKey, flashK
           <span>{highlightCount} finding{highlightCount !== 1 ? 's' : ''} highlighted</span>
           {highCount > 0 && (
             <span class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-red-400" />
+              <span class="w-2 h-2 rounded-full bg-sev-high" />
               {highCount} high
             </span>
           )}
           {mediumCount > 0 && (
             <span class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-amber-400" />
+              <span class="w-2 h-2 rounded-full bg-sev-med" />
               {mediumCount} medium
             </span>
           )}
           {lowCount > 0 && (
             <span class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-gray-400" />
+              <span class="w-2 h-2 rounded-full bg-sev-low" />
               {lowCount} low
             </span>
           )}

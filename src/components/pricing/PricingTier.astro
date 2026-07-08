@@ -14,10 +14,10 @@ interface Props {
 const { label, labelColour, price, priceUnit, subtext, features, featureColour, highlighted, accentBar } = Astro.props;
 const tierKey = label.toLowerCase().replace(/[^a-z0-9]/g, '-');
 ---
-<div class={`relative p-6 sm:p-8 ${highlighted ? 'bg-amber-50/30' : ''}`}>
+<div class={`relative p-6 sm:p-8 ${highlighted ? 'bg-accent-support/5' : ''}`}>
   {accentBar && <div class={`absolute top-0 left-0 right-0 h-1 ${accentBar}`} />}
 
-  <p class={`text-xs font-bold uppercase tracking-wider ${labelColour} mb-2`}>{label}</p>
+  <p class={`text-xs font-bold uppercase tracking-wider font-mono ${labelColour} mb-2`}>{label}</p>
   <div class="flex items-baseline gap-1 mb-1">
     <span class="font-serif text-4xl text-ink-strong">{price}</span>
     {priceUnit && <span class="text-muted text-sm">{priceUnit}</span>}
@@ -28,7 +28,7 @@ const tierKey = label.toLowerCase().replace(/[^a-z0-9]/g, '-');
   <input type="checkbox" id={`tier-toggle-${tierKey}`} class="peer/tier hidden" />
   <label
     for={`tier-toggle-${tierKey}`}
-    class="sm:hidden w-full flex items-center justify-between py-2 mb-2 text-xs font-semibold text-muted uppercase tracking-wider cursor-pointer"
+    class="sm:hidden w-full flex items-center justify-between py-2 mb-2 text-xs font-semibold font-mono text-muted uppercase tracking-wider cursor-pointer"
   >
     <span>{features.length} features</span>
     <svg

@@ -16,22 +16,24 @@ const placed = positions
 
 const hasData = !!axis && placed.length > 0;
 
-const DOT = ['bg-sky-600', 'bg-rose-600', 'bg-amber-600', 'bg-emerald-600', 'bg-violet-600'];
+// Graphite index markers — a numbered dot's position on the axis already carries
+// its leaning, so the marker itself stays neutral (ink-strong) rather than
+// cycling saturated hues. The axis rail + end-labels supply the stance poles.
 const toPct = (leaning: number) => ((leaning + 100) / 200) * 100;
 ---
 {hasData && (
   <div class={`relative ${compact ? 'h-10' : 'h-12'} mx-2`}>
-    <div class="absolute left-0 right-0 top-3 h-0.5 bg-hairline rounded-full" />
+    <div class="absolute left-0 right-0 top-3 h-0.5 bg-hairline rounded-none" />
     {placed.map((p) => (
       <span
-        class={`absolute top-3 -translate-y-1/2 -translate-x-1/2 ${compact ? 'w-4 h-4' : 'w-[18px] h-[18px]'} rounded-full ${DOT[p.index % DOT.length]} text-white text-[9px] font-semibold flex items-center justify-center`}
+        class={`absolute top-3 -translate-y-1/2 -translate-x-1/2 ${compact ? 'w-4 h-4' : 'w-[18px] h-[18px]'} rounded-[2px] bg-ink-strong text-white text-[9px] font-mono font-semibold flex items-center justify-center`}
         style={`left:${toPct(p.leaning)}%`}
         title={p.label}
       >
         {p.index + 1}
       </span>
     ))}
-    <span class="absolute top-6 left-0 text-[9px] text-muted">{axis!.left}</span>
-    <span class="absolute top-6 right-0 text-[9px] text-muted">{axis!.right}</span>
+    <span class="absolute top-6 left-0 text-[9px] font-mono text-spec-left">{axis!.left}</span>
+    <span class="absolute top-6 right-0 text-[9px] font-mono text-spec-right">{axis!.right}</span>
   </div>
 )}

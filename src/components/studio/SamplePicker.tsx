@@ -47,7 +47,7 @@ export default function SamplePicker({ onPick, disabled }: Props) {
                 <button
                   type="button"
                   onClick={() => { track('sample_picked', { sample_id: s.id }); onPick(s); setOpen(false); }}
-                  class="w-full text-left px-4 py-3 hover:bg-amber-50 transition-colors"
+                  class="w-full text-left px-4 py-3 hover:bg-paper transition-colors"
                 >
                   <div class="flex items-baseline justify-between gap-2">
                     <p class="text-sm font-semibold text-ink-strong">{s.shortLabel}</p>
@@ -56,12 +56,12 @@ export default function SamplePicker({ onPick, disabled }: Props) {
                   <p class="text-xs text-muted mt-1 leading-snug">{s.title}</p>
                   <div class="flex flex-wrap gap-1 mt-2">
                     {s.failureModes.slice(0, 3).map((mode) => (
-                      <span class="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">
+                      <span class="text-xs px-1.5 py-0.5 rounded-[2px] font-mono bg-hairline/40 text-muted font-medium">
                         {mode}
                       </span>
                     ))}
                     {s.failureModes.length > 3 && (
-                      <span class="text-xs px-1.5 py-0.5 rounded bg-hairline/40 text-muted font-medium">
+                      <span class="text-xs px-1.5 py-0.5 rounded-[2px] font-mono bg-hairline/40 text-muted font-medium">
                         +{s.failureModes.length - 3} more
                       </span>
                     )}

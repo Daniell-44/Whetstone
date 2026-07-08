@@ -54,7 +54,7 @@ export default function ShareFindingButton({ label, quote, severity, source }: P
             onClick={(e) => e.stopPropagation()}
           >
             <div class="rounded-md overflow-hidden border border-hairline">
-              <img src={cardUrl} alt="Shareable card preview" loading="lazy" style="width: 100%; aspect-ratio: 1200/675; background: #f9fafb;" />
+              <img src={cardUrl} alt="Shareable card preview" loading="lazy" style="width: 100%; aspect-ratio: 1200/675; background: #F3F4F1;" />
             </div>
 
             <div class="flex gap-2">

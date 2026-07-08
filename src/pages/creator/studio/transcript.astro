@@ -47,13 +47,13 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
     </header>
 
     {!hasActiveSubscription ? (
-      <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
-        <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
+      <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
+        <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
         <p class="text-sm text-ink max-w-sm mx-auto leading-relaxed">
           Transcript audits run the full audit suite on each segment plus a cross-segment synthesis pass.
           Subscribe to unlock it.
         </p>
-        <a href="/pricing" class="inline-block rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors">
+        <a href="/pricing" class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors">
           See plans →
         </a>
       </div>

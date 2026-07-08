@@ -41,7 +41,7 @@ export default function GoalSelector({ audience, intent, onAudienceChange, onInt
               title={opt.hint}
               class={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 audience === opt.value
-                  ? 'bg-accent/10 text-accent ring-1 ring-accent'
+                  ? 'bg-accent-support/10 text-accent-support ring-1 ring-accent-support'
                   : 'bg-hairline/40 text-muted hover:bg-hairline hover:text-ink'
               } disabled:opacity-50`}
             >
@@ -66,7 +66,7 @@ export default function GoalSelector({ audience, intent, onAudienceChange, onInt
               title={opt.hint}
               class={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 intent === opt.value
-                  ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300'
+                  ? 'bg-accent-support/10 text-accent-support ring-1 ring-accent-support'
                   : 'bg-hairline/40 text-muted hover:bg-hairline hover:text-ink'
               } disabled:opacity-50`}
             >

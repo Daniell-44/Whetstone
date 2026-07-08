@@ -137,15 +137,15 @@ const CITATION_ERROR_MESSAGES: Record<string, string> = {
 
 function CitationUpsell() {
   return (
-    <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
-      <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
+    <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
+      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
       <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
         Source Match fetches every cited URL in your draft and checks whether the source
         actually supports the claim. Subscribe to unlock it.
       </p>
       <a
         href="/pricing"
-        class="inline-block rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+        class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
       >
         See plans →
       </a>
@@ -155,15 +155,15 @@ function CitationUpsell() {
 
 function CounterargUpsell() {
   return (
-    <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center space-y-4">
-      <p class="text-xs font-semibold uppercase tracking-widest text-amber-600">Studio Pro feature</p>
+    <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
+      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
       <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
         The opposing-cases engine surfaces the strongest objections your draft fails
         to engage with. Subscribe for $22/mo to unlock it.
       </p>
       <a
         href="/pricing"
-        class="inline-block rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
+        class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
       >
         See plans →
       </a>
@@ -174,7 +174,7 @@ function CounterargUpsell() {
 function SectionError({ code, message }: { code: string; message: string }) {
   if (code === 'UNAUTHORIZED') {
     return (
-      <div class="rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+      <div class="rounded-xl bg-accent/5 border-l-2 border-accent p-4 text-sm text-accent">
         Your session has expired.{' '}
         <a href="/login?returnTo=/creator/studio" class="underline font-medium">
           Sign in again →
@@ -183,8 +183,8 @@ function SectionError({ code, message }: { code: string; message: string }) {
     );
   }
   return (
-    <div class="rounded-xl bg-red-50 border border-red-200 p-4">
-      <p class="text-sm text-red-700">{message}</p>
+    <div class="rounded-xl bg-accent/5 border-l-2 border-accent p-4">
+      <p class="text-sm text-accent">{message}</p>
     </div>
   );
 }
@@ -224,7 +224,7 @@ function LensButton({
       aria-label={isDone ? `${label} — done` : isLoading ? `Running ${label}…` : `Run ${label}`}
       class={`group flex items-center gap-2 w-full text-xs font-medium px-3 py-2.5 rounded-lg border transition-colors text-left
         focus:outline-none focus-visible:ring-2 focus-visible:ring-accent
-        ${isDone     ? 'bg-emerald-50 border-emerald-300 text-emerald-800 cursor-default' :
+        ${isDone     ? 'bg-factual-bg border-factual/30 text-factual cursor-default' :
           isLoading  ? 'bg-accent/5  border-accent  text-accent  cursor-wait'    :
                        'bg-surface      border-hairline    text-ink    cursor-pointer hover:bg-accent/5 hover:border-accent hover:text-accent'}`}
     >
@@ -234,7 +234,7 @@ function LensButton({
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
       ) : (
-        <span class={`shrink-0 text-[13px] leading-none ${isDone ? 'text-emerald-600' : 'text-accent/70 group-hover:text-accent'}`} aria-hidden="true">
+        <span class={`shrink-0 text-[13px] leading-none ${isDone ? 'text-factual' : 'text-accent/70 group-hover:text-accent'}`} aria-hidden="true">
           {isDone ? '✓' : '▸'}
         </span>
       )}
@@ -740,7 +740,7 @@ export default function StudioEditor({
           maxLength={200}
           placeholder="Untitled draft"
           disabled={isRunning}
-          class="w-full sm:flex-1 sm:w-auto rounded-lg border border-hairline bg-surface px-3 py-2.5 text-base sm:text-sm font-medium text-ink placeholder-muted focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
+          class="w-full sm:flex-1 sm:w-auto rounded-lg border border-hairline bg-surface px-3 py-2.5 text-base sm:text-sm font-medium text-ink placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors disabled:opacity-60"
         />
         {docId && (
           <a
@@ -764,20 +764,20 @@ export default function StudioEditor({
 
       {/* Cached sample banner */}
       {loadedSample && !isSampleDirty && (
-        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
+        <div class="rounded-lg border border-hairline bg-paper px-4 py-3 flex items-start gap-3">
           <span class="text-base shrink-0">📚</span>
           <div class="flex-1 min-w-0">
-            <p class="text-xs font-semibold text-amber-800">
+            <p class="text-xs font-semibold text-ink-strong">
               Pre-cached sample · {loadedSample.shortLabel}
             </p>
-            <p class="text-xs text-amber-700 leading-snug mt-0.5">
+            <p class="text-xs text-muted leading-snug mt-0.5">
               This argument contains: {loadedSample.failureModes.join(', ')}. Edit the text or pick a new example to dismiss.
             </p>
           </div>
           <button
             type="button"
             onClick={handleNewDraft}
-            class="shrink-0 text-xs text-amber-700 hover:text-amber-900 font-medium underline"
+            class="shrink-0 text-xs text-muted hover:text-ink font-medium underline"
           >
             Clear
           </button>
@@ -804,12 +804,12 @@ export default function StudioEditor({
          (we deliberately don't auto-rerun; these change the model's judgement). */}
       {showResults && !isRunning && lastRunGoals &&
         (audience !== lastRunGoals.audience || intent !== lastRunGoals.intent) && (
-        <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 flex items-center justify-between gap-3">
-          <p class="text-xs text-amber-800">Audience or intent changed. The analysis below still reflects the previous settings.</p>
+        <div class="rounded-lg border border-hairline bg-paper px-4 py-2.5 flex items-center justify-between gap-3">
+          <p class="text-xs text-muted">Audience or intent changed. The analysis below still reflects the previous settings.</p>
           <button
             type="button"
             onClick={handleAnalyse}
-            class="shrink-0 text-xs font-semibold rounded-md bg-amber-500 text-white px-3 py-1.5 hover:bg-amber-600 transition-colors"
+            class="shrink-0 text-xs font-semibold rounded-md bg-accent-support text-white px-3 py-1.5 hover:bg-accent transition-colors"
           >
             Re-analyse
           </button>
@@ -855,7 +855,7 @@ export default function StudioEditor({
               <button
                 type="button"
                 onClick={() => { setIsEditing(true); setActiveFindingKey(null); }}
-                class="text-xs text-accent hover:text-accent-support font-medium transition-colors"
+                class="text-xs text-accent-support hover:text-accent font-medium transition-colors"
               >
                 ✎ Edit draft
               </button>
@@ -881,7 +881,7 @@ export default function StudioEditor({
           <button
             type="button"
             onClick={() => { setIsEditing(true); }}
-            class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+            class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold bg-accent-support text-white hover:bg-accent transition-colors"
           >
             Revise & re-analyse
           </button>
@@ -896,12 +896,12 @@ export default function StudioEditor({
               placeholder="Paste your draft here - any argumentative text, essay, or opinion piece (50-10,000 characters)."
               disabled={isRunning}
               data-tour-anchor="studio-textarea"
-              class="w-full flex-1 min-h-[50vh] sm:min-h-[50vh] xl:min-h-[calc(100vh-22rem)] border border-hairline bg-surface px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-sm text-ink placeholder-muted leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-amber-300 focus:border-amber-300 transition-colors disabled:opacity-60"
+              class="w-full flex-1 min-h-[50vh] sm:min-h-[50vh] xl:min-h-[calc(100vh-22rem)] border border-hairline bg-surface px-4 py-3 sm:px-5 sm:py-4 text-base sm:text-sm text-ink placeholder-muted leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors disabled:opacity-60"
             />
             <div class="flex justify-between mt-1.5 text-xs">
               <span class={
-                charCount > 0 && charCount < MIN_CHARS ? 'text-amber-600'
-                : charCount > MAX_CHARS               ? 'text-red-500'
+                charCount > 0 && charCount < MIN_CHARS ? 'text-sev-med'
+                : charCount > MAX_CHARS               ? 'text-accent'
                 :                                       'text-muted'
               }>
                 {charCount > 0 && charCount < MIN_CHARS
@@ -910,7 +910,7 @@ export default function StudioEditor({
                   ? 'Too long - please trim to 10,000 characters'
                   : ''}
               </span>
-              <span class={charCount > MAX_CHARS ? 'text-red-500' : 'text-muted'}>
+              <span class={charCount > MAX_CHARS ? 'text-accent' : 'text-muted'}>
                 {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
               </span>
             </div>
@@ -925,7 +925,7 @@ export default function StudioEditor({
               data-tour-anchor="studio-analyse"
               class={`flex-1 py-2.5 px-6 rounded-lg text-sm font-semibold transition-colors ${
                 canSubmit
-                  ? 'bg-amber-500 text-white hover:bg-amber-600'
+                  ? 'bg-accent-support text-white hover:bg-accent'
                   : 'bg-hairline/40 text-muted cursor-not-allowed'
               }`}
             >
@@ -972,7 +972,7 @@ export default function StudioEditor({
   // the old Overview panel duplicated the skeleton (central claim + the ★
   // implicit premises that are the hidden assumptions), so it was retired.
   const skeletonPanel = extractionState.status !== 'idle' ? (
-    <div class="rounded-lg border border-emerald-200 bg-surface p-4">
+    <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Argument Skeleton</h3>
       {extractionState.status === 'loading' && <SectionLoading label="Mapping structure…" />}
       {extractionState.status === 'error' && <SectionError code={extractionState.code} message={extractionState.message} />}
@@ -993,7 +993,7 @@ export default function StudioEditor({
 
   // Framework check.
   const frameworkPanel = commitmentsState.status !== 'idle' ? (
-    <div class="rounded-lg border border-purple-200 bg-surface p-4">
+    <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="commitments" preference={terminologyPreference} />
       </h3>
@@ -1007,7 +1007,7 @@ export default function StudioEditor({
 
   // Counterarguments.
   const counterargPanel = (
-    <div class="rounded-lg border border-violet-200 bg-surface p-4">
+    <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
       </h3>
@@ -1070,7 +1070,7 @@ export default function StudioEditor({
       {/* Cui bono - sharp-edged lens, visually separated + always-shown caveat in display */}
       <div class="border-t border-hairline pt-3">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-xs font-semibold uppercase tracking-widest text-amber-700">
+          <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted">
             Structural-incentive analysis
           </p>
           <p class="text-xs text-muted italic">structural, not personal</p>
@@ -1090,7 +1090,7 @@ export default function StudioEditor({
       {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
       {presupState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Presuppositions</h4>
+          <h4 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Presuppositions</h4>
           <PresuppositionDisplay result={presupState.data} />
         </div>
       )}
@@ -1099,7 +1099,7 @@ export default function StudioEditor({
       {rhetState.status === 'error' && <SectionError code={rhetState.code} message={rhetState.message} />}
       {rhetState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Rhetorical mode</h4>
+          <h4 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Rhetorical mode</h4>
           <RhetoricalModeDisplay result={rhetState.data} />
         </div>
       )}
@@ -1108,7 +1108,7 @@ export default function StudioEditor({
       {humilityState.status === 'error' && <SectionError code={humilityState.code} message={humilityState.message} />}
       {humilityState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Epistemic humility</h4>
+          <h4 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Epistemic humility</h4>
           <EpistemicHumilityDisplay result={humilityState.data} />
         </div>
       )}
@@ -1117,7 +1117,7 @@ export default function StudioEditor({
       {disagreeState.status === 'error' && <SectionError code={disagreeState.code} message={disagreeState.message} />}
       {disagreeState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Engagement quality</h4>
+          <h4 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Engagement quality</h4>
           <DisagreementEngagementDisplay result={disagreeState.data} />
         </div>
       )}
@@ -1126,7 +1126,7 @@ export default function StudioEditor({
       {siState.status === 'error' && <SectionError code={siState.code} message={siState.message} />}
       {siState.status === 'done' && (
         <div>
-          <h4 class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">Structural-incentive analysis</h4>
+          <h4 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Structural-incentive analysis</h4>
           <StructuralIncentiveDisplay result={siState.data} />
         </div>
       )}
@@ -1157,7 +1157,7 @@ export default function StudioEditor({
 
   // Citation audit (RIGHT).
   const citationPanel = (
-    <div class="rounded-lg border border-sky-200 bg-surface p-4">
+    <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
       </h3>
@@ -1186,7 +1186,7 @@ export default function StudioEditor({
 
   // Evidence check (RIGHT, Studio Pro).
   const evidencePanel = hasActiveSubscription && evidenceState.status !== 'idle' ? (
-    <div class="rounded-lg border border-emerald-200 bg-surface p-4">
+    <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         Evidence Check
       </h3>
@@ -1229,13 +1229,13 @@ export default function StudioEditor({
         {inputSection}
         {!hasActiveSubscription && (
           <div class="grid sm:grid-cols-2 gap-4">
-            <div class="rounded-lg border border-violet-200 bg-surface p-4">
+            <div class="rounded-lg border border-hairline bg-surface p-4">
               <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
                 <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
               </h3>
               <CounterargUpsell />
             </div>
-            <div class="rounded-lg border border-sky-200 bg-surface p-4">
+            <div class="rounded-lg border border-hairline bg-surface p-4">
               <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
                 <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
               </h3>

@@ -129,7 +129,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
                 onClick={() => setActiveTab(tab.id)}
                 class={`shrink-0 px-3 py-2.5 text-xs font-medium transition-colors border-b-2 ${
                   tab.id === active.id
-                    ? 'text-accent border-accent'
+                    ? 'text-ink-strong border-accent-support'
                     : 'text-muted border-transparent hover:text-ink'
                 }`}
               >

@@ -46,16 +46,16 @@ const SEVERITY_CARD: Record<string, string> = {
 };
 
 const SEVERITY_BADGE: Record<string, string> = {
-  high:   'border border-red-300 text-red-700',
-  medium: 'border border-amber-300 text-amber-700',
-  low:    'border border-hairline text-muted',
+  high:   'border border-accent/40 text-sev-high',
+  medium: 'border border-sev-med/40 text-sev-med',
+  low:    'border border-hairline text-sev-low',
 };
 
 // The remaining colour signal after the card fills were calmed.
 const SEVERITY_DOT: Record<string, string> = {
-  high:   'bg-red-500',
-  medium: 'bg-amber-500',
-  low:    'bg-hairline',
+  high:   'bg-sev-high',
+  medium: 'bg-sev-med',
+  low:    'bg-sev-low',
 };
 
 // Plain-language severity: "how much this hurts the argument".
@@ -108,7 +108,7 @@ function SeverityBadge({ severity }: { severity: string }) {
   const dot = SEVERITY_DOT[severity] ?? 'bg-hairline';
   return (
     <span
-      class={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium shrink-0 bg-surface ${cls}`}
+      class={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-[2px] font-mono font-medium shrink-0 bg-surface ${cls}`}
       title="How much this weakens the argument"
     >
       <span class={`w-1.5 h-1.5 rounded-full ${dot}`} aria-hidden="true" />
@@ -122,7 +122,7 @@ function SeverityBadge({ severity }: { severity: string }) {
 
 function AddressedBadge() {
   return (
-    <span class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0 bg-emerald-100 text-emerald-700">
+    <span class="text-xs px-2 py-0.5 rounded-[2px] font-mono font-medium shrink-0 bg-factual-bg text-factual border border-factual/30">
       ✓ addressed
     </span>
   );
@@ -204,7 +204,7 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
           disabled={submitting}
           class={`p-1 rounded transition-colors disabled:opacity-40 ${
             vote === 'up'
-              ? 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'
+              ? 'text-factual bg-factual-bg hover:bg-factual-bg/70'
               : 'text-muted hover:text-ink hover:bg-paper'
           }`}
         >
@@ -223,7 +223,7 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
           disabled={submitting}
           class={`p-1 rounded transition-colors disabled:opacity-40 ${
             vote === 'down'
-              ? 'text-rose-500 bg-rose-50 hover:bg-rose-100'
+              ? 'text-accent bg-accent/10 hover:bg-accent/15'
               : 'text-muted hover:text-ink hover:bg-paper'
           }`}
         >
@@ -243,14 +243,14 @@ function FeedbackBtns({ documentId, versionId, targetLens, matchKey, findingSnap
             maxLength={500}
             rows={2}
             placeholder="e.g. The quote is taken out of context…"
-            class="w-full text-xs border border-hairline rounded-lg px-3 py-2 text-ink resize-none focus:outline-none focus:ring-1 focus:ring-rose-300"
+            class="w-full text-xs border border-hairline rounded-lg px-3 py-2 text-ink resize-none focus:outline-none focus:ring-1 focus:ring-accent"
           />
           <div class="flex items-center gap-2">
             <button
               type="button"
               disabled={submitting}
               onClick={() => submitDown(reason)}
-              class="text-xs px-2.5 py-1 rounded bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 transition-colors disabled:opacity-40"
+              class="text-xs px-2.5 py-1 rounded bg-accent/10 border border-accent/30 text-accent hover:bg-accent/15 transition-colors disabled:opacity-40"
             >
               Submit feedback
             </button>
@@ -409,7 +409,7 @@ function FindingActionBtns({
           type="button"
           disabled={busy}
           onClick={() => setAction(lens, matchKey, 'addressed')}
-          class="text-xs px-2.5 py-1 rounded-md border border-emerald-600 bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors disabled:opacity-40"
+          class="text-xs px-2.5 py-1 rounded-md border border-factual bg-factual text-white font-medium hover:bg-factual/90 transition-colors disabled:opacity-40"
         >
           ✓ Mark addressed
         </button>
@@ -428,7 +428,7 @@ function FindingActionBtns({
   if (actionRecord.action === 'addressed') {
     return (
       <div class="flex items-center gap-2 mt-2">
-        <span class="text-xs text-emerald-600 font-medium">✓ Marked as addressed</span>
+        <span class="text-xs text-factual font-medium">✓ Marked as addressed</span>
         <button
           type="button"
           disabled={busy}
@@ -461,7 +461,7 @@ function FindingActionBtns({
 function ToulminRow({ label, text }: { label: ComponentChildren; text: string }) {
   return (
     <div class="pl-4 border-l-2 border-accent/30">
-      <dt class="text-xs font-semibold text-muted uppercase tracking-wide mb-1">{label}</dt>
+      <dt class="text-xs font-mono font-semibold text-muted uppercase tracking-wide mb-1">{label}</dt>
       <dd class="text-sm text-ink leading-relaxed">{text}</dd>
     </div>
   );
@@ -493,7 +493,7 @@ function FallacyCard({ fallacy, lens, documentId, versionId, actionRecord, busy,
       onClick={makeNavClick(matchKey, onFindingNavigate)}
     >
       <div class="flex items-start justify-between gap-2 mb-3">
-        <p class="text-sm font-semibold text-ink-strong">{fallacy.name}</p>
+        <p class="text-sm font-serif font-semibold text-ink-strong">{fallacy.name}</p>
         <div class="flex items-center gap-1.5 shrink-0">
           {addressed && <AddressedBadge />}
           <GroundednessChip groundedness={fallacy.groundedness} compact />
@@ -559,7 +559,7 @@ function LoadedLanguageRow({ item, lens, documentId, versionId, actionRecord, bu
     >
       <div class="flex items-start gap-2 mb-1 flex-wrap">
         <span class="text-sm font-medium text-ink-strong">"{item.phrase}"</span>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-paper text-ink shrink-0 mt-0.5">
+        <span class="text-xs font-mono px-2 py-0.5 rounded-[2px] border border-hairline bg-paper text-ink shrink-0 mt-0.5">
           {item.technique}
         </span>
         <div class="flex items-center gap-1 shrink-0 mt-0.5">
@@ -887,9 +887,9 @@ function ModalScopeCard({ finding, lens, documentId, versionId, actionRecord, bu
       </div>
       {/* Show the modal inflation inline */}
       <div class="mb-2 flex items-baseline gap-2 flex-wrap">
-        <span class="text-xs font-semibold text-red-600 shrink-0">As stated:</span>
+        <span class="text-xs font-semibold text-accent shrink-0">As stated:</span>
         <span class="text-xs italic text-ink">"{finding.inflatedModal}"</span>
-        <span class="text-xs font-semibold text-emerald-600 shrink-0 ml-1">More accurate:</span>
+        <span class="text-xs font-semibold text-factual shrink-0 ml-1">More accurate:</span>
         <span class="text-xs italic text-ink">"{finding.impliedModal}"</span>
       </div>
       <blockquote class="text-xs italic text-ink border-l-2 border-hairline pl-3 mb-2 leading-relaxed">
@@ -1041,8 +1041,8 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
       {/* Central claim */}
       {showOverarching && (
-      <div class="bg-accent/5 border border-accent/30 rounded-xl p-5">
-        <p class="text-xs font-semibold text-accent uppercase tracking-widest mb-2">
+      <div class="bg-surface border border-hairline border-l-2 border-l-accent rounded-xl p-5">
+        <p class="text-xs font-mono font-semibold text-muted uppercase tracking-widest mb-2">
           <LabelWithTooltip label="centralClaim" preference={terminologyPreference} />
         </p>
         <p class="text-ink-strong text-base leading-relaxed">{result.centralClaim}</p>
@@ -1052,7 +1052,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
       {/* Toulmin breakdown */}
       {showOverarching && (
       <section>
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-5">
+        <h2 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-5">
           <LabelWithTooltip label="toulmin" preference={terminologyPreference} />
         </h2>
 
@@ -1065,7 +1065,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
           {(activeWarrants.length > 0 || dismissedWarrants.length > 0) && (
             <div>
-              <dt class="text-xs font-semibold text-muted uppercase tracking-wide mb-3">
+              <dt class="text-xs font-mono font-semibold text-muted uppercase tracking-wide mb-3">
                 <LabelWithTooltip label="unstatedWarrants" preference={terminologyPreference} />
               </dt>
               <dd class="space-y-3">
@@ -1113,7 +1113,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           )}
 
           <div class="rounded-lg bg-paper border border-hairline border-l-2 border-l-accent p-4">
-            <dt class="text-xs font-semibold text-accent uppercase tracking-wide mb-1">
+            <dt class="text-xs font-mono font-semibold text-accent uppercase tracking-wide mb-1">
               <LabelWithTooltip label="weakestLink" preference={terminologyPreference} />
             </dt>
             <dd class="text-sm text-ink leading-relaxed">{result.toulmin.weakestLink}</dd>
@@ -1134,7 +1134,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
         <>
           {(activeFallacies.length > 0 || dismissedFallacies.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <h2 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="namedFallacies" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1185,7 +1185,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
           {(activeLoadedLang.length > 0 || dismissedLoadedLang.length > 0) && (
             <section id="r-language" class="scroll-mt-20">
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <h2 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="loadedLanguage" preference={terminologyPreference} />
               </h2>
               <div class="rounded-xl border border-hairline bg-surface overflow-hidden">
@@ -1239,7 +1239,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {/* Phase-2: Key-Term Scrutiny */}
           {(activeKeyTerms.length > 0 || dismissedKeyTerms.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <h2 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="keyTermScrutiny" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1291,7 +1291,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {/* Phase-2: Referent Checks */}
           {(activeReferents.length > 0 || dismissedReferents.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <h2 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="referentChecks" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1343,7 +1343,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {/* Phase-2: Falsifiability Checks */}
           {(activeFalsifiabil.length > 0 || dismissedFalsifiabil.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <h2 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="falsifiabilityChecks" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1394,7 +1394,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
           {/* Phase-2: Modal Scope Checks */}
           {(activeModal.length > 0 || dismissedModal.length > 0) && (
             <section>
-              <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">
+              <h2 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-4">
                 <LabelWithTooltip label="modalScopeChecks" preference={terminologyPreference} />
               </h2>
               <div class="space-y-3">
@@ -1447,7 +1447,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
 
       {showOverarching && result.notes && (
         <section>
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+          <h2 class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-3">
             Notes
           </h2>
           <p class="text-sm text-ink leading-relaxed">{result.notes}</p>

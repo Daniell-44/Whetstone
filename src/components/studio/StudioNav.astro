@@ -21,7 +21,7 @@ const tabs: { key: Props['current']; label: string; href: string }[] = [
   <div class="flex items-center gap-x-5 gap-y-1.5 flex-wrap">
     <a
       href="/creator"
-      class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors shrink-0"
+      class="inline-flex items-center gap-1 text-xs font-mono font-semibold uppercase tracking-widest text-accent-support hover:text-accent transition-colors shrink-0"
       title="Studio overview"
     >
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
@@ -34,7 +34,7 @@ const tabs: { key: Props['current']; label: string; href: string }[] = [
           aria-current={current === t.key ? 'page' : undefined}
           class={`text-sm pb-0.5 -mb-2 border-b-2 transition-colors ${
             current === t.key
-              ? 'text-ink-strong font-semibold border-accent'
+              ? 'text-ink-strong font-semibold border-accent-support'
               : 'text-muted border-transparent hover:text-ink'
           }`}
         >
@@ -46,7 +46,7 @@ const tabs: { key: Props['current']; label: string; href: string }[] = [
   {!hasActiveSubscription && (
     <a
       href="/pricing"
-      class="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 transition-colors shrink-0"
+      class="inline-flex items-center gap-1.5 rounded-lg border border-accent-support/30 bg-accent-support/5 px-2.5 py-1.5 text-xs font-medium text-accent-support hover:bg-accent-support/10 transition-colors shrink-0"
     >
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
       Subscribe

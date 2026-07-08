@@ -14,7 +14,7 @@ import Base from '../layouts/Base.astro';
 
     <!-- Hero -->
     <header class="mb-14">
-      <p class="text-xs font-semibold tracking-[0.3em] text-accent uppercase mb-4">Devil's Advocate · Chrome Extension</p>
+      <p class="text-xs font-semibold tracking-[0.3em] font-mono text-muted uppercase mb-4">Devil's Advocate · Chrome Extension</p>
       <h1 class="font-serif text-3xl sm:text-5xl text-ink-strong leading-tight mb-5">
         Audit any argument while you read.
       </h1>
@@ -28,12 +28,12 @@ import Base from '../layouts/Base.astro';
     <!-- Side-panel mockup + pitch -->
     <section class="grid lg:grid-cols-[1fr_360px] gap-10 mb-16 items-start">
       <div>
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-accent mb-4">What it does</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-4">What it does</h2>
         <p class="text-base text-ink leading-relaxed mb-4">
           Open the side panel on any web page. Run the audit against the article you're reading, or
           select a passage and audit just that. The same eleven-lens engine that powers
-          <a href="/audit" class="text-accent underline">the Audit</a> and
-          <a href="/creator/studio" class="text-accent underline">Studio</a> - running
+          <a href="/audit" class="text-accent-support underline">the Audit</a> and
+          <a href="/creator/studio" class="text-accent-support underline">Studio</a> - running
           against the page in front of you.
         </p>
         <p class="text-base text-ink leading-relaxed">
@@ -45,14 +45,14 @@ import Base from '../layouts/Base.astro';
 
       <!-- Side-panel UI mockup -->
       <div class="rounded-2xl border border-hairline shadow-lg bg-surface overflow-hidden">
-        <div class="bg-hairline/40 px-3 py-2 border-b border-hairline flex items-center gap-1.5">
-          <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-          <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
-          <span class="ml-2 text-xs text-muted uppercase tracking-wider">Side panel</span>
+        <div class="bg-paper px-3 py-2 border-b border-hairline flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-hairline"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-hairline"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-hairline"></span>
+          <span class="ml-2 text-xs font-mono text-muted uppercase tracking-wider">Side panel</span>
         </div>
         <div class="p-4">
-          <p class="text-xs font-semibold tracking-widest text-accent uppercase mb-2">Devil's Advocate</p>
+          <p class="text-xs font-semibold tracking-widest font-mono text-muted uppercase mb-2">Devil's Advocate</p>
           <p class="font-serif text-sm text-ink-strong mb-3 leading-snug">
             Audit this article?
           </p>
@@ -64,16 +64,16 @@ import Base from '../layouts/Base.astro';
           </button>
 
           <div class="border-t border-hairline pt-3 space-y-2">
-            <div class="rounded-md bg-red-50 border border-red-200 p-2">
-              <p class="text-xs font-bold uppercase tracking-wider text-red-700 mb-0.5">High · 88%</p>
+            <div class="rounded-none bg-surface border border-hairline border-l-2 border-l-accent p-2">
+              <p class="text-xs font-bold uppercase tracking-wider font-mono text-accent mb-0.5">High · 88%</p>
               <p class="text-xs text-ink leading-snug">False dilemma in paragraph 3</p>
             </div>
-            <div class="rounded-md bg-amber-50 border border-amber-200 p-2">
-              <p class="text-xs font-bold uppercase tracking-wider text-amber-700 mb-0.5">Medium · 72%</p>
+            <div class="rounded-none bg-surface border border-hairline border-l-2 border-l-sev-med p-2">
+              <p class="text-xs font-bold uppercase tracking-wider font-mono text-sev-med mb-0.5">Medium · 72%</p>
               <p class="text-xs text-ink leading-snug">Unstated warrant: "expert consensus implies policy"</p>
             </div>
-            <div class="rounded-md bg-paper border border-hairline p-2">
-              <p class="text-xs font-bold uppercase tracking-wider text-ink mb-0.5">Low · 64%</p>
+            <div class="rounded-none bg-surface border border-hairline border-l-2 border-l-sev-low p-2">
+              <p class="text-xs font-bold uppercase tracking-wider font-mono text-sev-low mb-0.5">Low · 64%</p>
               <p class="text-xs text-ink leading-snug">Loaded language: "the so-called experts"</p>
             </div>
           </div>
@@ -83,22 +83,22 @@ import Base from '../layouts/Base.astro';
 
     <!-- Three-feature pitch -->
     <section class="mb-16">
-      <h2 class="text-xs font-semibold uppercase tracking-widest text-accent mb-6">What you get</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-6">What you get</h2>
       <div class="grid sm:grid-cols-3 gap-5">
 
         <div class="rounded-xl border border-hairline p-5">
-          <p class="font-serif text-2xl text-accent mb-2">11</p>
+          <p class="font-mono text-2xl text-ink-strong mb-2">11</p>
           <p class="text-sm font-semibold text-ink-strong mb-2">Analytical lenses</p>
           <p class="text-sm text-ink leading-relaxed">
             The same engine that runs on the web. Toulmin decomposition, 26 named fallacies, loaded
             language, unstated warrants, key-term consistency, referential clarity,
             empirical testability, modal-scope check, and more.
-            <a href="/how-it-works" class="text-accent hover:text-accent-support underline">Full breakdown →</a>
+            <a href="/how-it-works" class="text-accent-support hover:text-accent underline">Full breakdown →</a>
           </p>
         </div>
 
         <div class="rounded-xl border border-hairline p-5">
-          <p class="font-serif text-2xl text-accent mb-2">Toulmin</p>
+          <p class="font-serif text-2xl text-ink-strong mb-2">Toulmin</p>
           <p class="text-sm font-semibold text-ink-strong mb-2">Structural decomposition</p>
           <p class="text-sm text-ink leading-relaxed">
             Every audit returns the argument's claim, grounds, warrant, qualifier, and rebuttal -
@@ -108,7 +108,7 @@ import Base from '../layouts/Base.astro';
         </div>
 
         <div class="rounded-xl border border-hairline p-5">
-          <p class="font-serif text-2xl text-accent mb-2">∅</p>
+          <p class="font-mono text-2xl text-ink-strong mb-2">∅</p>
           <p class="text-sm font-semibold text-ink-strong mb-2">Persistence-free reader mode</p>
           <p class="text-sm text-ink leading-relaxed">
             No account, no history, no server-side storage of what you're reading. The audit runs
@@ -122,7 +122,7 @@ import Base from '../layouts/Base.astro';
 
     <!-- Install -->
     <section class="mb-16">
-      <h2 class="text-xs font-semibold uppercase tracking-widest text-accent mb-4">Install</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-4">Install</h2>
       <div class="rounded-xl border border-hairline bg-paper p-6">
         <p class="text-sm font-semibold text-ink-strong mb-2">Coming to the Chrome Web Store.</p>
         <p class="text-sm text-ink leading-relaxed">

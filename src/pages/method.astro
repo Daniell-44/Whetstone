@@ -49,7 +49,7 @@ const BRIEFING_PARTS = [
 
     <!-- Header -->
     <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-10">
-      <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-3">Method</p>
+      <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-3">Method</p>
       <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-4 max-w-3xl">How the audit works</h1>
       <p class="text-base sm:text-lg text-muted leading-relaxed max-w-2xl">
         Every position in a briefing, and every text run through <a href="/audit" class="text-accent hover:text-accent-support">the Audit</a>,
@@ -60,7 +60,7 @@ const BRIEFING_PARTS = [
     <!-- The lenses -->
     <section class="border-t border-hairline bg-surface">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">What the engine analyses</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">What the engine analyses</h2>
         <p class="text-sm text-muted mb-8 max-w-2xl">Eleven lenses, each grounded in a real tradition of logic and argument analysis: from Toulmin's argument model to key-term, referential, and testability scrutiny. Six of the headline outputs:</p>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-0 border border-hairline rounded-xl overflow-hidden bg-surface">
           {FEATURES.map((f) => (
@@ -79,7 +79,7 @@ const BRIEFING_PARTS = [
     <!-- The discipline: verbatim quotes + groundedness -->
     <section class="border-t border-hairline">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">Two rules the findings live by</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-8">Two rules the findings live by</h2>
         <div class="grid md:grid-cols-2 gap-8 max-w-5xl">
           <div class="pl-4 border-l-2 border-accent">
             <p class="text-sm font-semibold text-ink-strong mb-1.5">Every finding quotes its evidence, verbatim.</p>
@@ -104,7 +104,7 @@ const BRIEFING_PARTS = [
     <!-- How a briefing is built -->
     <section id="briefings" class="border-t border-hairline bg-surface">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">How a briefing is built</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">How a briefing is built</h2>
         <p class="text-sm text-muted mb-8 max-w-2xl">
           A briefing maps the argument space of one question — it does not sample the media coverage. See a live example:
           <a href="/briefing/minimum-wage-jobs" class="text-accent hover:text-accent-support font-medium">Does raising the minimum wage cost jobs? →</a>
@@ -123,7 +123,7 @@ const BRIEFING_PARTS = [
     <!-- How positions are placed (D2 Option A rubric) -->
     <section id="placement" class="border-t border-hairline">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">How positions are placed on the map</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">How positions are placed on the map</h2>
         <p class="text-sm text-muted mb-8 max-w-2xl">
           Only sources that <em>argue a stance</em> are plotted — every plotted point carries an audit card.
           Sources cited as factual input (a measurement, a dataset, a technical result) are listed as evidence
@@ -133,11 +133,11 @@ const BRIEFING_PARTS = [
           <div>
             <p class="text-sm font-semibold text-ink-strong mb-3">The stance bands</p>
             <ul class="space-y-2 text-sm text-muted">
-              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums" style="color:#1E5C5A">−2</span> argues strongly for the left-hand pole of the question's axis</li>
-              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums" style="color:#1E5C5A">−1</span> leans toward the left-hand pole</li>
-              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums text-muted">0</span> genuinely mixed or split</li>
-              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums" style="color:#9A2B1F">+1</span> leans toward the right-hand pole</li>
-              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums" style="color:#9A2B1F">+2</span> argues strongly for the right-hand pole</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums font-mono" style="color:var(--color-spec-left)">−2</span> argues strongly for the left-hand pole of the question's axis</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums font-mono" style="color:var(--color-spec-leanleft)">−1</span> leans toward the left-hand pole</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums font-mono" style="color:var(--color-spec-center)">0</span> genuinely mixed or split</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums font-mono" style="color:var(--color-spec-leanright)">+1</span> leans toward the right-hand pole</li>
+              <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums font-mono" style="color:var(--color-spec-right)">+2</span> argues strongly for the right-hand pole</li>
             </ul>
             <p class="text-xs text-muted mt-3 leading-relaxed">Five bands, not a 0–100 number: a two-digit coordinate would claim a precision the judgment doesn't have. The axis itself is named per question — what actually divides the positions, not left vs right.</p>
           </div>
@@ -157,7 +157,7 @@ const BRIEFING_PARTS = [
     <!-- What it won't do -->
     <section class="border-t border-hairline bg-surface"
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">What it won't do</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-8">What it won't do</h2>
         <div class="grid sm:grid-cols-2 gap-6 lg:gap-8 max-w-4xl">
           {WONT.map(w => (
             <div class="pl-4 border-l-2 border-hairline">
@@ -173,7 +173,7 @@ const BRIEFING_PARTS = [
     <section class="border-t border-hairline">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         <div class="max-w-3xl">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Open and inspectable</h2>
+          <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-3">Open and inspectable</h2>
           <p class="text-base text-ink leading-relaxed mb-4">
             Every prompt, schema, and analytical framework is in the public repository. A tool that shapes how people
             read arguments should itself be transparent: if a finding seems off, you can read the prompt that produced it.

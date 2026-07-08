@@ -40,8 +40,8 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
     </header>
 
     {checkoutCanceled && (
-      <div class="mb-8 rounded-lg bg-amber-50 border border-amber-200 px-5 py-4 max-w-md mx-auto">
-        <p class="text-sm text-amber-800">Checkout was cancelled - no charge was made.</p>
+      <div class="mb-8 rounded-lg bg-surface border border-hairline border-l-2 border-l-sev-med px-5 py-4 max-w-md mx-auto">
+        <p class="text-sm text-sev-med">Checkout was cancelled - no charge was made.</p>
       </div>
     )}
 
@@ -70,12 +70,12 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 
       <PricingTier
         label="Studio Solo"
-        labelColour="text-amber-600"
+        labelColour="text-accent-support"
         price="A$33"
         priceUnit="/mo"
         subtext="Cancel anytime"
         highlighted={true}
-        accentBar="bg-amber-500"
+        accentBar="bg-accent-support"
         features={[
           'Everything in Free',
           'Counterargument generation (steelman)',
@@ -89,17 +89,17 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
           '100 audits per month (add blocks for more)',
           'API access',
         ]}
-        featureColour="text-amber-500"
+        featureColour="text-accent-support"
       >
         <Fragment slot="cta">
           {!isLoggedIn ? (
-            <a href="/login?returnTo=/pricing" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center bg-amber-500 text-white hover:bg-amber-600 transition-colors">
+            <a href="/login?returnTo=/pricing" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center bg-accent-support text-white hover:bg-accent-support/90 transition-colors">
               Sign in to subscribe
             </a>
           ) : hasSubscription ? (
             <div class="space-y-2">
-              <div class="rounded-lg bg-green-50 border border-green-200 px-4 py-2.5 text-center">
-                <p class="text-sm font-medium text-green-800">Subscribed</p>
+              <div class="rounded-lg bg-factual-bg border border-factual/30 px-4 py-2.5 text-center">
+                <p class="text-sm font-medium text-factual">Subscribed</p>
               </div>
               <button id="pricing-portal-btn" type="button" class="w-full py-2 px-6 rounded-lg text-sm text-ink border border-hairline hover:bg-paper transition-colors">
                 Manage →
@@ -113,7 +113,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 
       <PricingTier
         label="Studio Team"
-        labelColour="text-violet-600"
+        labelColour="text-accent-support"
         price="A$95"
         priceUnit="/mo"
         subtext="Up to 5 seats"
@@ -124,9 +124,9 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
           'Priority API access',
           'Higher monthly audit limit',
         ]}
-        featureColour="text-violet-500"
+        featureColour="text-accent-support"
       >
-        <a slot="cta" href="mailto:daniel.livingstone44@gmail.com?subject=Whetstone Studio tier" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-violet-700 border border-violet-200 hover:bg-violet-50 transition-colors">
+        <a slot="cta" href="mailto:daniel.livingstone44@gmail.com?subject=Whetstone Studio tier" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-accent-support border border-accent-support/30 hover:bg-accent-support/5 transition-colors">
           Contact us
         </a>
       </PricingTier>

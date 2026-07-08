@@ -52,15 +52,15 @@ import Base from '../layouts/Base.astro';
             <div class="p-4 space-y-3">
               <p class="text-xs text-ink leading-relaxed font-serif">
                 The experts who got us here are
-                <mark class="bg-amber-200/60 border-b-2 border-amber-400 rounded-sm px-0.5">now telling us not to trust our own eyes</mark>.
-                <mark class="bg-red-200/60 border-b-2 border-red-400 rounded-sm px-0.5">At what point do reasonable people simply stop listening?</mark>
+                <mark class="bg-sev-med/10 border-b-2 border-sev-med rounded-none px-0.5">now telling us not to trust our own eyes</mark>.
+                <mark class="bg-accent/10 border-b-2 border-accent rounded-none px-0.5">At what point do reasonable people simply stop listening?</mark>
               </p>
-              <div class="rounded-xl border border-red-200 bg-red-50 p-3">
+              <div class="rounded-none border border-hairline border-l-2 border-l-accent bg-surface p-3">
                 <div class="flex items-center justify-between gap-2 mb-1.5">
-                  <p class="text-xs font-semibold text-ink-strong">Ad Hominem</p>
+                  <p class="font-serif text-xs font-semibold text-ink-strong">Ad Hominem</p>
                   <div class="flex items-center gap-1.5">
-                    <span class="text-xs font-medium px-1.5 py-0.5 rounded border bg-sky-100 text-sky-800 border-sky-200">Logic</span>
-                    <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700">Critical</span>
+                    <span class="font-mono text-xs font-medium px-1.5 py-0.5 rounded-[2px] border bg-logic-bg text-logic border-logic/30">Logic</span>
+                    <span class="font-mono text-xs font-medium px-2 py-0.5 rounded-[2px] text-accent">Critical</span>
                   </div>
                 </div>
                 <p class="text-xs text-ink leading-relaxed">
@@ -80,7 +80,7 @@ import Base from '../layouts/Base.astro';
     <!-- What a briefing is -->
     <section class="border-t border-hairline bg-surface">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">What a briefing is</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-3">What a briefing is</h2>
         <div class="max-w-3xl">
           <p class="text-base text-ink leading-relaxed mb-4">
             One contested question. The strongest positions on it, quoted verbatim from real sources and mapped on an
@@ -99,22 +99,22 @@ import Base from '../layouts/Base.astro';
     <!-- Three ways to use the engine -->
     <section class="border-t border-hairline">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">The same engine, three ways</h2>
+        <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-8">The same engine, three ways</h2>
         <div class="grid md:grid-cols-3 gap-6">
-          <a href="/audit" class="group block rounded-xl border border-hairline p-6 hover:border-accent hover:shadow-sm transition-all">
-            <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">The Audit · free</p>
-            <h3 class="font-serif text-xl text-ink-strong group-hover:text-accent transition-colors mb-2">Audit any argument</h3>
+          <a href="/audit" class="group block rounded-xl border border-hairline p-6 hover:border-accent-support hover:shadow-sm transition-all">
+            <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit · free</p>
+            <h3 class="font-serif text-xl text-ink-strong group-hover:text-accent-support transition-colors mb-2">Audit any argument</h3>
             <p class="text-sm text-muted leading-relaxed mb-3">Paste text or a URL. The full lens suite minus the Studio-tier engines. No account required.</p>
-            <p class="text-sm font-semibold text-accent group-hover:text-accent-support">Open the Audit →</p>
+            <p class="text-sm font-semibold text-accent-support group-hover:text-accent">Open the Audit →</p>
           </a>
-          <a href="/creator" class="group block rounded-xl border border-hairline p-6 hover:border-amber-300 hover:shadow-sm transition-all">
-            <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 mb-2">Studio · from A$33/mo</p>
-            <h3 class="font-serif text-xl text-ink-strong group-hover:text-amber-700 transition-colors mb-2">Stress-test your writing</h3>
+          <a href="/creator" class="group block rounded-xl border border-hairline p-6 hover:border-accent-support hover:shadow-sm transition-all">
+            <p class="text-xs font-semibold uppercase tracking-widest font-mono text-accent-support mb-2">Studio · from A$33/mo</p>
+            <h3 class="font-serif text-xl text-ink-strong group-hover:text-accent-support transition-colors mb-2">Stress-test your writing</h3>
             <p class="text-sm text-muted leading-relaxed mb-3">Full suite, counterarguments, citation audit, evidence-weighted likelihood, revision tracking, inline highlights.</p>
-            <p class="text-sm font-semibold text-amber-600 group-hover:text-amber-800">Open Studio →</p>
+            <p class="text-sm font-semibold text-accent-support group-hover:text-accent">Open Studio →</p>
           </a>
           <div class="rounded-xl border border-hairline p-6">
-            <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">Chrome extension</p>
+            <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">Chrome extension</p>
             <h3 class="font-serif text-xl text-ink-strong mb-2">Audit as you read</h3>
             <p class="text-sm text-muted leading-relaxed mb-3">Select a claim on any page and audit it in place. Highlights overlay the page itself. Coming to the Web Store.</p>
             <p class="text-sm font-semibold text-muted">Coming soon</p>
@@ -130,7 +130,7 @@ import Base from '../layouts/Base.astro';
     <section class="border-t border-hairline bg-surface">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         <div class="max-w-3xl">
-          <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">The method, in the open</h2>
+          <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-3">The method, in the open</h2>
           <p class="text-base text-ink leading-relaxed mb-4">
             The lenses, the labels, the verbatim-quote discipline, and what the engine deliberately won't do are
             documented on the method page — and every prompt and schema behind them is in the public repository.

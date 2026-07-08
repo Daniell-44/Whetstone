@@ -87,23 +87,23 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
 
       {/* Findings summary */}
       <div class="flex items-center gap-3 flex-wrap flex-1">
-        <span class="text-sm font-medium text-ink">
+        <span class="text-sm font-medium text-accent">
           {total} finding{total !== 1 ? 's' : ''}
         </span>
         {breakdown.high > 0 && (
-          <span class="flex items-center gap-1 text-red-600 text-xs">
+          <span class="flex items-center gap-1 text-sev-high text-xs">
             <span class="text-base leading-none">●</span>
             {breakdown.high} high
           </span>
         )}
         {breakdown.medium > 0 && (
-          <span class="flex items-center gap-1 text-amber-500 text-xs">
+          <span class="flex items-center gap-1 text-sev-med text-xs">
             <span class="text-base leading-none">●</span>
             {breakdown.medium} medium
           </span>
         )}
         {breakdown.low > 0 && (
-          <span class="flex items-center gap-1 text-muted text-xs">
+          <span class="flex items-center gap-1 text-sev-low text-xs">
             <span class="text-base leading-none">●</span>
             {breakdown.low} low
           </span>
@@ -151,9 +151,9 @@ export default function SummaryToolbar({ result, draftText, draftTitle }: Props)
           disabled={share.status === 'sharing'}
           class={`px-2 py-1 rounded text-xs font-medium transition-colors ${
             share.status === 'shared'
-              ? 'text-emerald-600 bg-emerald-50'
+              ? 'text-factual bg-factual-bg'
               : share.status === 'error'
-                ? 'text-red-600 bg-red-50'
+                ? 'text-accent bg-accent/10'
                 : 'text-muted hover:text-ink hover:bg-hairline/40'
           } disabled:opacity-60`}
           title="Create a shareable permalink (30-day expiry). Auto-copies to clipboard."

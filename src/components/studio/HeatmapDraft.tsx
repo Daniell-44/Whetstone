@@ -160,19 +160,21 @@ function buildRuns(text: string, contributions: Contribution[]): Run[] {
 }
 
 // ---------------------------------------------------------------------------
-// Colour scale - transparent at 0, then yellow → orange → red → deep red
+// Colour scale - the Instrument severity ramp: transparent at 0, warming
+// through sev-med amber (#AD6203, hue ~33°) up to the sev-high redline
+// (#CE2B14, hue ~9°) at peak density.
 // ---------------------------------------------------------------------------
 
 function heatColour(weight: number, max: number): string {
   if (weight === 0 || max === 0) return 'transparent';
   const ratio = Math.min(1, weight / max);
 
-  // hue 50° (yellow) → 0° (red); saturation high, lightness drops with intensity
-  const hue       = 50 - (ratio * 50);          // 50 → 0
-  const lightness = 80 - (ratio * 30);          // 80% → 50%
+  // hue 33° (sev-med amber) → 9° (sev-high redline); lightness drops with intensity
+  const hue       = 33 - (ratio * 24);          // 33 → 9
+  const lightness = 78 - (ratio * 30);          // 78% → 48%
   const alpha     = 0.25 + (ratio * 0.55);      // 0.25 → 0.80
 
-  return `hsla(${hue}, 95%, ${lightness}%, ${alpha.toFixed(2)})`;
+  return `hsla(${hue}, 82%, ${lightness}%, ${alpha.toFixed(2)})`;
 }
 
 // ---------------------------------------------------------------------------
@@ -192,9 +194,9 @@ function HeatTooltip({ run, x, y }: { run: Run; x: number; y: number }) {
         {run.contributions.map((c, i) => (
           <li key={i} class="flex items-start gap-2">
             <span class={`shrink-0 inline-block w-1.5 h-1.5 rounded-full mt-1 ${
-              c.severity === 'high'   ? 'bg-red-500' :
-              c.severity === 'medium' ? 'bg-amber-500' :
-                                        'bg-gray-400'
+              c.severity === 'high'   ? 'bg-sev-high' :
+              c.severity === 'medium' ? 'bg-sev-med' :
+                                        'bg-sev-low'
             }`} />
             <div class="flex-1 min-w-0">
               <p class="font-medium text-ink">{c.label}</p>

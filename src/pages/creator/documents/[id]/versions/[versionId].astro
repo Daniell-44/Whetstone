@@ -69,7 +69,7 @@ function formatDate(epochMs: number): string {
 
     <header class="mb-10 flex items-start justify-between gap-6">
       <div>
-        <p class="text-xs font-semibold tracking-widest text-amber-600 uppercase mb-3">Version {version.version_number}</p>
+        <p class="text-xs font-mono font-semibold tracking-widest text-muted uppercase mb-3">Version {version.version_number}</p>
         <h1 class="font-serif text-4xl sm:text-5xl text-ink-strong leading-tight mb-2">{doc.title}</h1>
         <p class="text-sm text-muted">Saved {formatDate(version.created_at)}</p>
       </div>
@@ -100,7 +100,7 @@ function formatDate(epochMs: number): string {
 
     {/* Counterargument results */}
     {counterargResult && (
-      <section class="rounded-xl border border-violet-200 bg-surface p-6 mb-8">
+      <section class="rounded-xl border border-hairline bg-surface p-6 mb-8">
         <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-6">Counterarguments</h2>
         <CounterargumentResultDisplay result={counterargResult} terminologyPreference={terminology} />
       </section>
@@ -111,7 +111,7 @@ function formatDate(epochMs: number): string {
         <p class="text-sm text-muted">No analysis has been run on this version.</p>
         <a
           href={`/creator/studio?doc=${docId}`}
-          class="inline-block mt-3 text-sm text-amber-600 hover:text-amber-700 underline"
+          class="inline-block mt-3 text-sm text-accent-support hover:text-accent underline"
         >
           Open in Studio to run analysis →
         </a>

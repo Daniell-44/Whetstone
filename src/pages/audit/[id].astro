@@ -41,12 +41,12 @@ const description = draftSnippet.length > 0
   <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 pb-16">
 
     <nav class="mb-6 flex items-center justify-between text-xs">
-      <a href="/audit" class="text-muted hover:text-accent transition-colors">← The Audit</a>
-      <span class="text-muted">Shared audit · {savedDate}</span>
+      <a href="/audit" class="text-muted hover:text-accent-support transition-colors">← The Audit</a>
+      <span class="font-mono text-muted">Shared audit · {savedDate}</span>
     </nav>
 
     <header class="mb-8">
-      <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Audit · Shared link</p>
+      <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">Audit · Shared link</p>
       <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-tight mb-3">
         {draftTitle ?? 'Audited argument'}
       </h1>
@@ -71,7 +71,7 @@ const description = draftSnippet.length > 0
     <div class="mt-10 rounded-xl border border-hairline bg-paper p-5 text-center space-y-3">
       <p class="text-sm font-semibold text-ink-strong">Audit your own argument</p>
       <p class="text-xs text-muted leading-relaxed max-w-md mx-auto">
-        The same engine that produced this audit is free at <a href="/audit" class="text-accent underline font-medium hover:text-accent-support">the Audit</a>.
+        The same engine that produced this audit is free at <a href="/audit" class="text-accent-support underline font-medium hover:text-accent">the Audit</a>.
         No account required. Paste any text or URL.
       </p>
       <a href="/audit" class="inline-block px-5 py-2 rounded-lg bg-accent text-white text-xs font-semibold hover:bg-accent-support transition-colors">

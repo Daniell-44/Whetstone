@@ -49,13 +49,13 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
     </header>
 
     {!hasActiveSubscription ? (
-      <div class="rounded-xl border border-violet-200 bg-violet-50 p-6 text-center space-y-4">
-        <p class="text-xs font-semibold uppercase tracking-widest text-violet-600">Studio Pro feature</p>
+      <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
+        <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
         <p class="text-sm text-ink max-w-sm mx-auto leading-relaxed">
           Cross-document audit runs the full audit suite on each document plus a cross-document
           synthesis pass. Subscribe to unlock it.
         </p>
-        <a href="/pricing" class="inline-block rounded-xl bg-violet-500 px-6 py-2.5 text-sm font-semibold text-white hover:bg-violet-600 transition-colors">
+        <a href="/pricing" class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors">
           See plans →
         </a>
       </div>

@@ -21,13 +21,9 @@ interface Props {
 }
 const { b, size = 'standard', style, class: extraClass = '' } = Astro.props;
 
-const CATEGORY_STYLES: Record<string, string> = {
-  politics: 'bg-red-600', economics: 'bg-emerald-600', science: 'bg-blue-600',
-  technology: 'bg-violet-600', health: 'bg-pink-600', culture: 'bg-amber-600',
-  philosophy: 'bg-indigo-600', law: 'bg-gray-700', environment: 'bg-green-600',
-  education: 'bg-sky-600',
-};
-const SPECTRUM_DOT = ['bg-sky-600', 'bg-rose-600', 'bg-amber-600', 'bg-emerald-600', 'bg-violet-600'];
+// Category colour-banners + the rainbow spectrum-dot cycle were abolished under
+// The Instrument (2026-07-08) — category is now a mono kicker, legend markers
+// are graphite. The old maps are gone.
 
 function landscapeText(a: BriefingArticle): string {
   const l = a.blocks.find((bl) => bl.type === 'landscape');

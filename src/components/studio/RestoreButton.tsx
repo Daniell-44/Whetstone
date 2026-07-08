@@ -25,12 +25,12 @@ export default function RestoreButton({ docId, versionId }: Props) {
 
   if (state === 'error') {
     return (
-      <p class="text-sm text-red-600">
+      <p class="text-sm text-accent">
         Restore failed.{' '}
         <button
           type="button"
           onClick={() => setState('idle')}
-          class="underline hover:text-red-700"
+          class="underline hover:text-accent/80"
         >
           Try again
         </button>
@@ -46,7 +46,7 @@ export default function RestoreButton({ docId, versionId }: Props) {
       class={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors ${
         state === 'loading'
           ? 'bg-hairline/40 text-muted cursor-not-allowed'
-          : 'bg-amber-500 text-white hover:bg-amber-600'
+          : 'bg-accent-support text-white hover:bg-accent'
       }`}
     >
       {state === 'loading' ? 'Restoring…' : 'Restore this version'}

@@ -10,21 +10,23 @@ import type { TerminologyPreference } from '../../lib/labels';
 // ---------------------------------------------------------------------------
 
 const SEVERITY_BADGE: Record<string, string> = {
-  high:   'bg-red-100 text-red-700',
-  medium: 'bg-amber-100 text-amber-700',
-  low:    'bg-hairline/40 text-ink',
+  high:   'bg-sev-high/10 text-sev-high',
+  medium: 'bg-sev-med/10 text-sev-med',
+  low:    'bg-sev-low/10 text-sev-low',
 };
 
 function FallacyPill({ fallacy, variant }: { fallacy: NamedFallacy; variant: 'removed' | 'added' | 'persisted' }) {
-  const border = variant === 'removed' ? 'border-red-200 bg-red-50'
-               : variant === 'added'   ? 'border-emerald-200 bg-emerald-50'
+  // removed = fixed in the newer draft (an improvement → factual);
+  // added   = a new problem the newer draft introduced (a regression → redline).
+  const border = variant === 'removed' ? 'border-factual/30 bg-factual-bg'
+               : variant === 'added'   ? 'border-accent/40 bg-accent/5'
                :                         'border-hairline bg-paper';
   const badge = SEVERITY_BADGE[fallacy.severity] ?? 'bg-hairline/40 text-ink';
   return (
     <div class={`rounded-xl border p-4 ${border}`}>
       <div class="flex items-start justify-between gap-2 mb-2">
         <p class="text-sm font-semibold text-ink-strong">{fallacy.name}</p>
-        <span class={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${badge}`}>
+        <span class={`text-xs px-2 py-0.5 rounded-[2px] font-mono font-medium shrink-0 ${badge}`}>
           {fallacy.severity}
         </span>
       </div>
@@ -37,14 +39,14 @@ function FallacyPill({ fallacy, variant }: { fallacy: NamedFallacy; variant: 're
 }
 
 function LoadedLanguagePill({ item, variant }: { item: LoadedLanguage; variant: 'removed' | 'added' | 'persisted' }) {
-  const cls = variant === 'removed' ? 'bg-red-50 border-red-200'
-            : variant === 'added'   ? 'bg-emerald-50 border-emerald-200'
+  const cls = variant === 'removed' ? 'bg-factual-bg border-factual/30'
+            : variant === 'added'   ? 'bg-accent/5 border-accent/40'
             :                         'bg-paper border-hairline';
   return (
     <div class={`rounded-lg border px-4 py-3 ${cls}`}>
       <div class="flex items-start gap-2 flex-wrap mb-1">
         <span class="text-sm font-medium text-ink-strong">"{item.phrase}"</span>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-hairline/40 text-ink shrink-0 mt-0.5">
+        <span class="text-xs px-2 py-0.5 rounded-[2px] font-mono bg-hairline/40 text-ink shrink-0 mt-0.5">
           {item.technique}
         </span>
       </div>
@@ -55,9 +57,9 @@ function LoadedLanguagePill({ item, variant }: { item: LoadedLanguage; variant: 
 
 function CounterargCard({ c, preference }: { c: Counterargument; preference?: TerminologyPreference }) {
   return (
-    <div class="rounded-xl border border-violet-200 bg-violet-50 p-4 space-y-3">
-      <p class="text-sm font-semibold text-violet-900 leading-snug">{c.position}</p>
-      <div class="space-y-1.5 pl-4 border-l-2 border-violet-300">
+    <div class="rounded-xl border border-hairline bg-paper p-4 space-y-3">
+      <p class="text-sm font-semibold text-ink-strong leading-snug">{c.position}</p>
+      <div class="space-y-1.5 pl-4 border-l-2 border-hairline">
         <div>
           <p class="text-xs font-semibold text-muted uppercase tracking-wide mb-0.5">
             <LabelWithTooltip label="toulminClaim" preference={preference} />
@@ -77,8 +79,8 @@ function CounterargCard({ c, preference }: { c: Counterargument; preference?: Te
           <p class="text-sm text-ink leading-relaxed">{c.strongestCase.warrant}</p>
         </div>
       </div>
-      <div class="rounded-lg bg-surface border border-violet-200 p-3">
-        <p class="text-xs font-semibold text-violet-600 uppercase tracking-wide mb-1">
+      <div class="rounded-lg bg-surface border border-hairline p-3">
+        <p class="text-xs font-mono font-semibold text-muted uppercase tracking-wide mb-1">
           <LabelWithTooltip label="missedByDraft" preference={preference} />
         </p>
         <p class="text-sm text-ink leading-relaxed">{c.missedByDraft}</p>
@@ -111,8 +113,8 @@ function SideBySide({ labelA, labelB, children }: {
 // ---------------------------------------------------------------------------
 
 function StatPill({ label, value, tone }: { label: string; value: string | number; tone: 'good' | 'bad' | 'neutral' }) {
-  const cls = tone === 'good'    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-            : tone === 'bad'     ? 'bg-red-50 border-red-200 text-red-700'
+  const cls = tone === 'good'    ? 'bg-factual-bg border-factual/30 text-factual'
+            : tone === 'bad'     ? 'bg-accent/5 border-accent/40 text-accent'
             :                      'bg-paper border-hairline text-ink';
   return (
     <div class={`rounded-xl border px-4 py-3 text-center ${cls}`}>
@@ -229,8 +231,8 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
           </h2>
 
           {auditDiff.centralClaim.changed && (
-            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-2">
-              <p class="text-xs font-semibold text-amber-700 uppercase tracking-wide">
+            <div class="rounded-xl border border-hairline bg-paper p-4 space-y-2">
+              <p class="text-xs font-mono font-semibold text-muted uppercase tracking-wide">
                 <LabelWithTooltip label="centralClaim" preference={terminologyPreference} /> changed
               </p>
               <SideBySide labelA={`v${from.version_number}`} labelB={`v${to.version_number}`}>
@@ -284,7 +286,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
             <>
               {auditDiff.fallacies.removed.length > 0 && (
                 <div>
-                  <p class="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-3">
+                  <p class="text-xs font-mono font-semibold text-factual uppercase tracking-widest mb-3">
                     <LabelWithTooltip label="diffRemoved" preference={terminologyPreference} /> ({auditDiff.fallacies.removed.length})
                   </p>
                   <div class="space-y-3">
@@ -297,7 +299,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
               {auditDiff.fallacies.added.length > 0 && (
                 <div>
-                  <p class="text-xs font-semibold text-red-600 uppercase tracking-widest mb-3">
+                  <p class="text-xs font-mono font-semibold text-accent uppercase tracking-widest mb-3">
                     <LabelWithTooltip label="diffAdded" preference={terminologyPreference} /> ({auditDiff.fallacies.added.length})
                   </p>
                   <div class="space-y-3">
@@ -340,7 +342,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
             <>
               {auditDiff.loadedLanguage.removed.length > 0 && (
                 <div>
-                  <p class="text-xs font-semibold text-emerald-700 uppercase tracking-widest mb-3">
+                  <p class="text-xs font-mono font-semibold text-factual uppercase tracking-widest mb-3">
                     <LabelWithTooltip label="diffRemoved" preference={terminologyPreference} /> ({auditDiff.loadedLanguage.removed.length})
                   </p>
                   <div class="space-y-2">
@@ -353,7 +355,7 @@ export default function ComparisonView({ from, to, auditDiff, counterargDiff, te
 
               {auditDiff.loadedLanguage.added.length > 0 && (
                 <div>
-                  <p class="text-xs font-semibold text-red-600 uppercase tracking-widest mb-3">
+                  <p class="text-xs font-mono font-semibold text-accent uppercase tracking-widest mb-3">
                     <LabelWithTooltip label="diffAdded" preference={terminologyPreference} /> ({auditDiff.loadedLanguage.added.length})
                   </p>
                   <div class="space-y-2">

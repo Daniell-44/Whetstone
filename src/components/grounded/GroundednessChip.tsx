@@ -8,18 +8,18 @@ import {
 // ---------------------------------------------------------------------------
 // GroundednessChip - always-on visual indicator of finding type.
 //
-// Colours:
-//   structural   → blue       (verifiable in text)
-//   interpretive → grey       (depends on reading)
-//   empirical    → emerald    (backed by external sources)
+// Colours (Instrument tokens — squared, mono):
+//   structural   → Logic    (verifiable in text)
+//   interpretive → Judgment (depends on reading)
+//   empirical    → Factual  (backed by external sources)
 //
 // Hover tooltip explains what the kind means.
 // ---------------------------------------------------------------------------
 
 const KIND_STYLE = {
-  structural:   'bg-sky-100      text-sky-800      border-sky-200',
-  interpretive: 'bg-hairline/40     text-ink     border-hairline',
-  empirical:    'bg-emerald-100  text-emerald-800  border-emerald-200',
+  structural:   'bg-logic-bg     text-logic     border-logic/30',
+  interpretive: 'bg-judgment-bg  text-judgment  border-judgment/30',
+  empirical:    'bg-factual-bg   text-factual   border-factual/30',
 } as const;
 
 function signalText(g: GroundednessSignal): string {
@@ -53,7 +53,7 @@ export default function GroundednessChip({
   const desc = GROUNDEDNESS_DESCRIPTION[groundedness.kind];
   return (
     <span
-      class={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-xs font-medium ${cls}`}
+      class={`inline-flex items-center gap-1 px-2 py-0.5 rounded-[2px] border text-xs font-mono font-medium ${cls}`}
       title={desc}
     >
       {compact ? GROUNDEDNESS_LABEL[groundedness.kind] : signalText(groundedness)}
