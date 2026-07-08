@@ -120,7 +120,7 @@ function AuditLoading() {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function AuditForm({ isPro = false, initialText = '', initialUrl = '' }: { isPro?: boolean; initialText?: string; initialUrl?: string }) {
+export default function AuditForm({ isPro = false, initialText = '', initialUrl = '', initialSampleId = '' }: { isPro?: boolean; initialText?: string; initialUrl?: string; initialSampleId?: string }) {
   const [input, setInput]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
@@ -145,6 +145,13 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // and bring it into view. We deliberately don't auto-run — the reader presses
   // the button — so a crawler or accidental prefetch can't burn audit quota.
   useEffect(() => {
+    // Home-feed launcher example chip → /audit?sample=<id>: load the pre-cached
+    // sample immediately (worked result, no API call). Takes precedence over the
+    // text/URL prefills, which are mutually exclusive with it in practice.
+    if (initialSampleId) {
+      const s = SAMPLES.find((x) => x.id === initialSampleId);
+      if (s) { loadSample(s); return; }
+    }
     if (initialUrl && initialUrl.startsWith('http')) {
       setInput(initialUrl);
       setLoadedFromLink(true);

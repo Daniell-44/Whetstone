@@ -47,6 +47,9 @@ const auditPrefill = auditTarget
 // /audit?url=<source> deep-link: audit the source article a briefing position quotes.
 const auditUrlParam = Astro.url.searchParams.get('url') ?? '';
 const auditUrl      = auditUrlParam.startsWith('http') ? auditUrlParam : '';
+// /audit?sample=<id> deep-link (home-feed launcher chips): auto-load a
+// pre-cached sample so the reader sees a worked result instantly, no API call.
+const auditSampleId = Astro.url.searchParams.get('sample') ?? '';
 
 // Deeper lenses are Pro-gated; detect subscription for the teaser.
 const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
@@ -69,7 +72,7 @@ const isPro = session
     </header>
 
     <section class="max-w-4xl">
-      <AuditForm isPro={isPro} initialText={auditPrefill} initialUrl={auditUrl} client:load />
+      <AuditForm isPro={isPro} initialText={auditPrefill} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
     </section>
   </main>
 </Base>

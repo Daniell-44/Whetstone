@@ -5,6 +5,7 @@ import Base from '../layouts/Base.astro';
 import BriefingCard from '../components/briefing/BriefingCard.astro';
 import { getAllBriefings } from '../lib/briefings';
 import { featured } from '../data/featured';
+import { SAMPLES } from '../data/samples';
 import type { BriefingArticle } from '../../functions/_lib/briefing/types';
 
 // Deep-link shim (D1 Option B, 2026-07-07): the audit tool moved to /audit.
@@ -73,12 +74,23 @@ const presentCategories = Object.keys(categoryCounts).sort();
 >
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12 sm:pb-24">
 
-    <!-- Masthead (D1-B): the publication leads. The tool lives at /audit. -->
-    <header class="mb-10 sm:mb-12 pt-2 max-w-3xl">
-      <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight">Arguments, examined.</h1>
-      <p class="mt-2.5 text-sm sm:text-base text-muted leading-relaxed">
-        Not a verdict on who's right. A structural view of how the argument works.
-      </p>
+    <!-- Masthead (D1-B): the publication leads. The tool lives at /audit; a
+         direct shortcut fills the right-hand whitespace on wide screens. -->
+    <header class="mb-10 sm:mb-12 pt-2 flex items-start justify-between gap-8">
+      <div class="max-w-3xl">
+        <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight">Arguments, examined.</h1>
+        <p class="mt-2.5 text-sm sm:text-base text-muted leading-relaxed">
+          Not a verdict on who's right. A structural view of how the argument works.
+        </p>
+      </div>
+      <a
+        href="/audit"
+        class="hidden lg:inline-flex shrink-0 self-center items-center gap-2.5 rounded-md border border-hairline bg-surface px-4 py-2.5 hover:border-accent transition-colors group/tool"
+      >
+        <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted">The tool</span>
+        <span class="text-sm text-ink group-hover/tool:text-accent transition-colors">Audit an argument</span>
+        <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+      </a>
     </header>
 
     <!-- Briefings feed with left rail -->
@@ -151,38 +163,50 @@ const presentCategories = Object.keys(categoryCounts).sort();
                   <span class="text-xs font-semibold uppercase tracking-widest text-muted shrink-0">Featured</span>
                   <div class="h-px flex-1 bg-hairline" />
                 </div>
-                <div class="grid md:grid-cols-2 gap-4 items-start">
+                <div class="grid md:grid-cols-2 gap-4 items-stretch">
                   {featuredBriefings.map((b) => <BriefingCard b={b} size="featured" />)}
                 </div>
               </div>
             )}
 
-            {/* Compact audit launcher (D1-B): touch the engine without leaving
-               the feed. Hands the pasted value to /audit via sessionStorage
-               (URLs short enough travel as a query param). */}
+            {/* Compact audit launcher (D1-B, iteration B): a clearly-bordered
+               field + inline example chips. The field hands its value to /audit
+               via sessionStorage (short URLs travel as a query param); the
+               example chips deep-link to /audit with a pre-cached sample that
+               loads instantly (no API call). */}
             <div class="mb-10">
-              <div id="audit-launcher" class="bg-surface border border-hairline rounded-md p-4 sm:p-5 flex items-center gap-3">
-                <div class="flex-1 min-w-0">
-                  <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-1.5">Audit your own text</p>
+              <div id="audit-launcher" class="bg-surface border border-hairline rounded-md p-4 sm:p-5">
+                <div class="flex items-baseline gap-2 mb-2 flex-wrap">
+                  <span class="text-xs font-semibold uppercase tracking-widest font-mono text-muted">Audit your own text</span>
+                  <span class="text-xs text-muted">— paste an argument, get its structure</span>
+                </div>
+                <div class="relative">
                   <input
                     id="audit-launcher-input"
                     type="text"
-                    placeholder="Paste an argument or drop a link…"
-                    class="w-full bg-transparent text-sm text-ink placeholder:text-muted/70 focus:outline-none"
+                    placeholder="Paste an argument, or drop a link…"
+                    class="w-full bg-paper border border-hairline rounded-lg pl-3.5 pr-14 py-3 text-sm text-ink placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition-colors"
                   />
+                  <button
+                    id="audit-launcher-go"
+                    type="button"
+                    aria-label="Run the audit"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-accent text-paper flex items-center justify-center hover:bg-accent/90 transition-colors"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+                  </button>
                 </div>
-                <button
-                  id="audit-launcher-go"
-                  type="button"
-                  aria-label="Open the Audit"
-                  class="shrink-0 w-9 h-9 rounded-full bg-accent text-paper flex items-center justify-center hover:bg-accent/90 transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
-                </button>
+                <div class="flex items-center gap-2 mt-3 flex-wrap">
+                  <span class="text-[11px] font-mono uppercase tracking-wider text-muted/80 shrink-0">Try</span>
+                  {SAMPLES.map((s) => (
+                    <a
+                      href={`/audit?sample=${s.id}`}
+                      class="text-xs border border-hairline rounded px-2.5 py-1 text-accent-support hover:border-accent-support/50 hover:text-accent transition-colors"
+                    >{s.shortLabel}</a>
+                  ))}
+                  <a href="/audit" class="text-xs text-muted hover:text-accent transition-colors ml-auto shrink-0">Full tool →</a>
+                </div>
               </div>
-              <p class="text-right mt-1.5">
-                <a href="/audit" class="text-xs text-muted hover:text-accent transition-colors">the full tool at /audit →</a>
-              </p>
             </div>
 
             {restBriefings.length > 0 && (
@@ -226,7 +250,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
          BriefingCard component, so they carry its scope id, not this page's.
          Without :global() Astro would scope the child selector to this page and
          the span rule would never match the card. */
-      .feed-mosaic { display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: start; }
+      .feed-mosaic { display: grid; grid-template-columns: 1fr; gap: 1rem; align-items: stretch; }
       .feed-mosaic > :global([data-briefing-card]) { grid-column: auto; }
       @media (min-width: 768px) {
         .feed-mosaic { grid-template-columns: repeat(6, minmax(0, 1fr)); }

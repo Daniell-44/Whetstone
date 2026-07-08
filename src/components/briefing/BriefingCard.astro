@@ -73,7 +73,7 @@ const headingCls = size === 'featured'
   data-briefing-card
   data-category={b.category ?? ''}
   style={style}
-  class={`group block bg-surface border border-hairline border-t-2 ${ruleCls} p-5 sm:p-6 hover:border-ink-strong/30 hover:shadow-sm transition-all ${extraClass}`}
+  class={`group flex flex-col h-full bg-surface border border-hairline border-t-2 ${ruleCls} p-5 sm:p-6 hover:border-ink-strong/30 hover:shadow-sm transition-all ${extraClass}`}
 >
   {showBanner && (
     <img src={b.image} alt="" loading="lazy" class={`w-full ${bannerH} object-cover mb-4`} />
@@ -112,7 +112,7 @@ const headingCls = size === 'featured'
     </div>
   )}
   {positions.length > 0 && (
-    <div>
+    <div class="mt-auto pt-1">
       <PositionSpectrum positions={positions} axis={b.spectrumAxis} compact />
       <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
         {positions.map((p, i) => (
