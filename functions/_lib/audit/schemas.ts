@@ -16,30 +16,42 @@ const severityField        = z.enum(['high', 'medium', 'low']);
 const confidenceField      = z.number().int().min(0).max(100);
 const groundednessField    = GroundednessSignalSchema;
 const debugConfidenceField = confidenceField.optional();
+// E4 (2026-07-08): the model now classifies each finding's groundedness KIND
+// and, for interpretive findings, how contestable the reading is. Both default
+// so a model that omits them can't cause a validation retry — an omission just
+// falls back to the old hardcoded 'structural'. The prompt drives real emission.
+const groundednessKindField = z.enum(['structural', 'interpretive', 'empirical']).default('structural');
+const contestabilityField   = z.enum(['low', 'medium', 'high']).optional();
 
 // --- Raw model-output schemas ------------------------------------------------
 
 export const RawUnstatedWarrantSchema = z.object({
-  warrant:    z.string().min(1),
-  necessity:  z.string().min(1),
-  severity:   severityField,
-  confidence: confidenceField,
+  warrant:        z.string().min(1),
+  necessity:      z.string().min(1),
+  severity:       severityField,
+  groundedness:   groundednessKindField,
+  contestability: contestabilityField,
+  confidence:     confidenceField,
 });
 
 export const RawNamedFallacySchema = z.object({
-  name:        z.enum(FALLACY_NAMES),
-  quote:       z.string().min(1),
-  explanation: z.string().min(1),
-  severity:    severityField,
-  confidence:  confidenceField,
+  name:           z.enum(FALLACY_NAMES),
+  quote:          z.string().min(1),
+  explanation:    z.string().min(1),
+  severity:       severityField,
+  groundedness:   groundednessKindField,
+  contestability: contestabilityField,
+  confidence:     confidenceField,
 });
 
 export const RawLoadedLanguageSchema = z.object({
-  phrase:      z.string().min(1),
-  technique:   z.enum(LOADED_LANGUAGE_TECHNIQUES),
-  explanation: z.string().min(1),
-  severity:    severityField,
-  confidence:  confidenceField,
+  phrase:         z.string().min(1),
+  technique:      z.enum(LOADED_LANGUAGE_TECHNIQUES),
+  explanation:    z.string().min(1),
+  severity:       severityField,
+  groundedness:   groundednessKindField,
+  contestability: contestabilityField,
+  confidence:     confidenceField,
 });
 
 const KEY_TERM_ISSUES        = ['stipulative-smuggling','cross-language-game-equivocation','family-resemblance-overreach'] as const;
@@ -51,39 +63,47 @@ export const RawKeyTermScrutinyFindingSchema = z.object({
   term:        z.string().min(1),
   usage_a:     z.string().min(1),
   usage_b:     z.string().min(1),
-  issue:       z.enum(KEY_TERM_ISSUES),
-  explanation: z.string().min(1),
-  severity:    severityField,
-  confidence:  confidenceField,
+  issue:          z.enum(KEY_TERM_ISSUES),
+  explanation:    z.string().min(1),
+  severity:       severityField,
+  groundedness:   groundednessKindField,
+  contestability: contestabilityField,
+  confidence:     confidenceField,
 });
 
 export const RawReferentCheckFindingSchema = z.object({
   phrase:      z.string().min(1),
-  issue:       z.enum(REFERENT_ISSUES),
-  explanation: z.string().min(1),
-  evidence:    z.string().min(1),
-  severity:    severityField,
-  confidence:  confidenceField,
+  issue:          z.enum(REFERENT_ISSUES),
+  explanation:    z.string().min(1),
+  evidence:       z.string().min(1),
+  severity:       severityField,
+  groundedness:   groundednessKindField,
+  contestability: contestabilityField,
+  confidence:     confidenceField,
 });
 
 export const RawFalsifiabilityFindingSchema = z.object({
   claim:       z.string().min(1),
-  issue:       z.enum(FALSIFIABILITY_ISSUES),
-  explanation: z.string().min(1),
-  evidence:    z.string().min(1),
-  severity:    severityField,
-  confidence:  confidenceField,
+  issue:          z.enum(FALSIFIABILITY_ISSUES),
+  explanation:    z.string().min(1),
+  evidence:       z.string().min(1),
+  severity:       severityField,
+  groundedness:   groundednessKindField,
+  contestability: contestabilityField,
+  confidence:     confidenceField,
 });
 
 export const RawModalScopeCheckFindingSchema = z.object({
   claim:         z.string().min(1),
   inflatedModal: z.string().min(1),
   impliedModal:  z.string().min(1),
-  issue:         z.enum(MODAL_SCOPE_ISSUES),
-  explanation:   z.string().min(1),
-  evidence:      z.string().min(1),
-  severity:      severityField,
-  confidence:    confidenceField,
+  issue:          z.enum(MODAL_SCOPE_ISSUES),
+  explanation:    z.string().min(1),
+  evidence:       z.string().min(1),
+  severity:       severityField,
+  groundedness:   groundednessKindField,
+  contestability: contestabilityField,
+  confidence:     confidenceField,
 });
 
 // The model occasionally returns null/empty for `grounds` when an argument

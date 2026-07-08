@@ -5,30 +5,37 @@ import { buildSystemPrompt, buildAuditPrompt } from './prompts';
 import { buildGoalsPreamble } from './goals';
 import { AUDIT_MODEL, AUDIT_THINKING_BUDGET, AUDIT_READER_THINKING_BUDGET, AUDIT_TEMPERATURE, AUDIT_MAX_TOKENS } from './constants';
 import type { AuditResult, AuditDeps } from './types';
-import { structural, bandFromLegacyConfidence, interpretive } from '../grounded/types';
-import type { GroundednessSignal } from '../grounded/types';
+import { structural, interpretive, empirical, bandFromContestability } from '../grounded/types';
+import type { GroundednessSignal, GroundednessKind, ReadingContestability } from '../grounded/types';
 
 // ---------------------------------------------------------------------------
 // Two shapes:
-//   - RawAuditResult: what the schema validates (model still emits `confidence`).
-//   - AuditResult   : what the engine returns (`groundedness` + optional
-//                     `_debugConfidence` preserved for calibration).
+//   - RawAuditResult: what the schema validates (model emits `groundedness`,
+//     `contestability`, and a `confidence` number kept only for calibration).
+//   - AuditResult   : what the engine returns (a `groundedness` GroundednessSignal
+//     + optional `_debugConfidence`).
 //
-// `applyGroundedness` is the transform. Audit findings are all structural —
-// the model's emitted confidence number is irrelevant for kind assignment.
-// We preserve it as `_debugConfidence` so calibration work can still inspect.
+// `applyGroundedness` is the transform. Per E4 (2026-07-08) the model now
+// classifies each finding's kind rather than everything being hardcoded
+// structural; `injectGroundedness` builds the signal from that judgement.
+// Empirical findings get zero counts here — the evidence-weighted module
+// (Pro tier) fills them downstream if it runs.
 // ---------------------------------------------------------------------------
 
 type RawAuditResult = z.infer<typeof RawAuditResultSchema>;
 
-function injectStructural<T extends { confidence?: number }>(
+function injectGroundedness<T extends { confidence?: number; groundedness?: GroundednessKind; contestability?: ReadingContestability }>(
   raw: T,
-): Omit<T, 'confidence'> & { groundedness: GroundednessSignal; _debugConfidence?: number } {
-  const { confidence, ...rest } = raw;
+): Omit<T, 'confidence' | 'groundedness' | 'contestability'> & { groundedness: GroundednessSignal; _debugConfidence?: number } {
+  const { confidence, groundedness: kind, contestability, ...rest } = raw;
+  let signal: GroundednessSignal;
+  if (kind === 'interpretive')   signal = interpretive(bandFromContestability(contestability ?? 'medium'));
+  else if (kind === 'empirical') signal = empirical(0, 0, null);
+  else                           signal = structural();
   return {
-    ...(rest as Omit<T, 'confidence'>),
-    groundedness:      structural(),
-    _debugConfidence:  confidence,
+    ...(rest as Omit<T, 'confidence' | 'groundedness' | 'contestability'>),
+    groundedness:     signal,
+    _debugConfidence: confidence,
   };
 }
 
@@ -37,15 +44,15 @@ function applyGroundedness(raw: RawAuditResult): AuditResult {
     centralClaim: raw.centralClaim,
     toulmin: {
       ...raw.toulmin,
-      unstatedWarrants: raw.toulmin.unstatedWarrants.map(injectStructural),
+      unstatedWarrants: raw.toulmin.unstatedWarrants.map(injectGroundedness),
     },
-    namedFallacies:       raw.namedFallacies.map(injectStructural),
-    loadedLanguage:       raw.loadedLanguage.map(injectStructural),
+    namedFallacies:       raw.namedFallacies.map(injectGroundedness),
+    loadedLanguage:       raw.loadedLanguage.map(injectGroundedness),
     notes:                raw.notes,
-    keyTermScrutiny:      raw.keyTermScrutiny.map(injectStructural),
-    referentChecks:       raw.referentChecks.map(injectStructural),
-    falsifiabilityChecks: raw.falsifiabilityChecks.map(injectStructural),
-    modalScopeChecks:     raw.modalScopeChecks.map(injectStructural),
+    keyTermScrutiny:      raw.keyTermScrutiny.map(injectGroundedness),
+    referentChecks:       raw.referentChecks.map(injectGroundedness),
+    falsifiabilityChecks: raw.falsifiabilityChecks.map(injectGroundedness),
+    modalScopeChecks:     raw.modalScopeChecks.map(injectGroundedness),
   };
 }
 
@@ -206,8 +213,3 @@ export async function auditText(
 
   return { audit: filtered, inputTokens, outputTokens };
 }
-
-// Silence the unused-import warning — interpretive/bandFromLegacyConfidence are
-// kept for the upcoming prompt update that will let the model directly emit
-// a kind label.
-export { interpretive, bandFromLegacyConfidence };

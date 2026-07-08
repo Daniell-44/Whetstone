@@ -15,8 +15,10 @@ const BASE_OUTPUT_FORMAT = `{
       {
         "warrant":    "<an implicit assumption the argument relies on>",
         "necessity":  "<why this assumption is required for the argument to hold>",
-        "severity":   "high" | "medium" | "low",
-        "confidence": <integer 50–100>
+        "severity":       "high" | "medium" | "low",
+        "groundedness":   "structural" | "interpretive" | "empirical",
+        "contestability": "low" | "medium" | "high",
+        "confidence":     <integer 50–100>
       }
     ],
     "weakestLink": "<which of claim / grounds / statedWarrant / unstatedWarrants is least supported, and why>"
@@ -26,8 +28,10 @@ const BASE_OUTPUT_FORMAT = `{
       "name":        "<one of the allowed fallacy names listed below>",
       "quote":       "<verbatim substring from the input that exemplifies this fallacy>",
       "explanation": "<why this passage commits the fallacy>",
-      "severity":    "high" | "medium" | "low",
-      "confidence":  <integer 50–100>
+      "severity":       "high" | "medium" | "low",
+      "groundedness":   "structural" | "interpretive" | "empirical",
+      "contestability": "low" | "medium" | "high",
+      "confidence":     <integer 50–100>
     }
   ],
   "loadedLanguage": [
@@ -35,8 +39,10 @@ const BASE_OUTPUT_FORMAT = `{
       "phrase":      "<verbatim word or phrase from the input>",
       "technique":   "<one of the allowed technique names listed below>",
       "explanation": "<how this phrase manipulates rather than informs>",
-      "severity":    "high" | "medium" | "low",
-      "confidence":  <integer 50–100>
+      "severity":       "high" | "medium" | "low",
+      "groundedness":   "structural" | "interpretive" | "empirical",
+      "contestability": "low" | "medium" | "high",
+      "confidence":     <integer 50–100>
     }
   ],
   "notes": "<any observations that don't fit the above categories, or null>"`;
@@ -53,8 +59,10 @@ const PHASE2_OUTPUT_FORMAT = `,
       "usage_b":     "<verbatim second use showing the shift>",
       "issue":       "stipulative-smuggling" | "cross-language-game-equivocation" | "family-resemblance-overreach",
       "explanation": "<why the inconsistency matters for the argument>",
-      "severity":    "high" | "medium" | "low",
-      "confidence":  <integer 50–100>
+      "severity":       "high" | "medium" | "low",
+      "groundedness":   "structural" | "interpretive" | "empirical",
+      "contestability": "low" | "medium" | "high",
+      "confidence":     <integer 50–100>
     }
   ],
   "referentChecks": [
@@ -63,8 +71,10 @@ const PHASE2_OUTPUT_FORMAT = `,
       "issue":       "empty-referent" | "vague-proper-name" | "failed-presupposition",
       "explanation": "<why the referent is empty, contested, or presupposes something unestablished>",
       "evidence":    "<verbatim substring from the input>",
-      "severity":    "high" | "medium" | "low",
-      "confidence":  <integer 50–100>
+      "severity":       "high" | "medium" | "low",
+      "groundedness":   "structural" | "interpretive" | "empirical",
+      "contestability": "low" | "medium" | "high",
+      "confidence":     <integer 50–100>
     }
   ],
   "falsifiabilityChecks": [
@@ -73,8 +83,10 @@ const PHASE2_OUTPUT_FORMAT = `,
       "issue":       "no-truth-conditions" | "circular-truth-conditions" | "unfalsifiable-dressed-as-substantive",
       "explanation": "<why the claim fails the falsifiability test>",
       "evidence":    "<verbatim substring from the input>",
-      "severity":    "high" | "medium" | "low",
-      "confidence":  <integer 50–100>
+      "severity":       "high" | "medium" | "low",
+      "groundedness":   "structural" | "interpretive" | "empirical",
+      "contestability": "low" | "medium" | "high",
+      "confidence":     <integer 50–100>
     }
   ],
   "modalScopeChecks": [
@@ -85,8 +97,10 @@ const PHASE2_OUTPUT_FORMAT = `,
       "issue":         "necessity-overstated" | "possibility-treated-as-fact" | "contingency-obscured" | "hedge-stripped-in-conclusion",
       "explanation":   "<why the modal inflation matters — what the reader is being led to believe that the evidence does not establish>",
       "evidence":      "<verbatim substring from the input>",
-      "severity":      "high" | "medium" | "low",
-      "confidence":    <integer 50–100>
+      "severity":       "high" | "medium" | "low",
+      "groundedness":   "structural" | "interpretive" | "empirical",
+      "contestability": "low" | "medium" | "high",
+      "confidence":     <integer 50–100>
     }
   ]`;
 
@@ -284,11 +298,31 @@ ${opts?.fewShot ? FEW_SHOT_LIBRARY : ''}
 ## Loaded-language technique names (use exactly these strings)
 ${LOADED_LANGUAGE_TECHNIQUES.map(t => `- "${t}"`).join('\n')}
 
-## Assigning confidence and severity
+## Assigning groundedness, severity, and confidence
 
-Every finding — named fallacy, loaded-language item, and unstated warrant — must carry both a confidence score and a severity rating.
+Every finding — named fallacy, loaded-language item, unstated warrant, and every Phase-2 finding — must carry a **groundedness** kind, a **severity** rating, and a **confidence** score. Groundedness and severity are independent axes: groundedness is *what kind of judgement the finding is*; severity is *how much it matters*.
+
+### Groundedness ('structural' | 'interpretive' | 'empirical')
+
+What KIND of judgement is this finding — how would a reader verify it? This is the most important field: it tells the reader whether they're looking at a matter of logic, a reading they can contest, or a claim about the world. Classify each finding honestly:
+
+- **structural** — the flaw is derivable from the quoted text itself, by the rules of logic and argument. A reader who checks the quote against your explanation can confirm it without knowing anything outside the text. Most named fallacies, equivocations, unfalsifiable constructions, and modal inflations are structural. (Example: a Post Hoc — the temporal-then-causal move is visible in the words.)
+- **interpretive** — whether it is a flaw depends on a *reading* of tone, intent, or framing that careful, informed readers could reasonably dispute. You are inferring what the author is doing, not pointing at a formal error. Most loaded-language findings, sarcasm/irony, insinuation, and charitable-vs-uncharitable construals are interpretive — even when the *sentence* you quote is definite, the claim that it does evaluative work is a reading. When a finding is interpretive you MUST also give **contestability** (below).
+- **empirical** — whether it is a flaw depends on a *fact about the world* beyond the text: does the cited source actually say what it is cited for, does the named study exist, is the statistic real. The reader verifies by checking an external source, not the text.
+
+Do not default everything to structural. A finding whose force comes from how you read the author's tone is interpretive, and labelling it structural overstates how settled it is.
+
+### Contestability ('low' | 'medium' | 'high') — interpretive findings only
+
+For interpretive findings, how much would careful, informed readers disagree about whether your reading is fair? (Omit for structural/empirical findings.)
+
+- **low** — most careful readers would accept this reading; the interpretation is on strong footing.
+- **medium** — reasonable readers could go either way.
+- **high** — very much a judgement call; the passage is easy to read otherwise.
 
 ### Confidence (integer 50–100)
+
+An internal calibration signal (not shown to the reader) — how certain you are the finding is accurate.
 
 How certain you are that the finding is accurate.
 
@@ -455,7 +489,7 @@ Two genuinely distinct defects in the same passage may each be flagged — a phr
 ## Rules
 - Every "quote" and "phrase" field MUST be a verbatim substring of the input text. Do not paraphrase.
 - One defect, one finding: before adding a finding, check it is not the same underlying problem another finding already reports in a more precise lens (see above).
-- Every finding (namedFallacy, loadedLanguage, unstatedWarrant) MUST include both "confidence" (integer 50–100) and "severity" ("high", "medium", or "low"). Do not include findings with confidence below 50.
+- Every finding MUST include "groundedness" ("structural" | "interpretive" | "empirical"), "severity" ("high" | "medium" | "low"), and "confidence" (integer 50–100); interpretive findings MUST also include "contestability" ("low" | "medium" | "high"). Do not include findings with confidence below 50.
 - If no fallacies are present, return an empty array for namedFallacies.
 - If no loaded language is present, return an empty array for loadedLanguage.
 - Do not add fallacy or loaded-language entries you are not confident about.
