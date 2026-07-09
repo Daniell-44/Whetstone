@@ -12,6 +12,7 @@
 import PositionSpectrum from '../scorecard/PositionSpectrum.astro';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 import { auditSignature } from '../../../functions/_lib/briefing/signature';
+import { categoryColour } from '../../lib/category-colour';
 
 interface Props {
   b: BriefingArticle;
@@ -65,8 +66,10 @@ const showLead = size === 'featured' && !!sig.lead;
 // only wide/featured cells carry images — a side image on a narrow card is a
 // cramped thumbnail. Explainers stay text-only.
 const sideImage = !isExplainer && !!b.image;
-// Graphite top-rule (the instrument bar); redline stays reserved for findings.
-const ruleCls = isExplainer ? 'border-t-accent-support' : 'border-t-ink-strong';
+// Top rule: image cards keep the graphite instrument bar (the image carries the
+// colour); text cards get a 3px muted category-colour tick (Daniel signed off
+// 2026-07-09). Redline stays reserved for findings.
+const topBorder = sideImage ? '2px solid var(--color-ink-strong)' : `3px solid ${categoryColour(b.category)}`;
 const eyebrowCls = isExplainer ? 'text-accent-support' : 'text-muted';
 const headingCls = size === 'featured'
   ? 'text-xl sm:text-2xl'
@@ -76,8 +79,8 @@ const headingCls = size === 'featured'
   href={`/briefing/${b.slug}`}
   data-briefing-card
   data-category={b.category ?? ''}
-  style={style}
-  class={`group flex h-full bg-surface border border-hairline border-t-2 ${ruleCls} hover:border-ink-strong/30 hover:shadow-sm transition-all ${sideImage ? 'flex-row' : 'flex-col'} ${extraClass}`}
+  style={`${style ?? ''}; border-top: ${topBorder};`}
+  class={`group flex h-full bg-surface border border-hairline hover:border-ink-strong/30 hover:shadow-sm transition-all ${sideImage ? 'flex-row' : 'flex-col'} ${extraClass}`}
 >
   {sideImage && (
     <img src={b.image} alt="" loading="lazy" class="w-2/5 shrink-0 h-full self-stretch object-cover" />

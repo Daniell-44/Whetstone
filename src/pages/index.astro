@@ -6,6 +6,7 @@ import BriefingCard from '../components/briefing/BriefingCard.astro';
 import { getAllBriefings } from '../lib/briefings';
 import { featured } from '../data/featured';
 import { SAMPLES } from '../data/samples';
+import { categoryColour, CATEGORY_COLOUR_FALLBACK } from '../lib/category-colour';
 import type { BriefingArticle } from '../../functions/_lib/briefing/types';
 
 // Deep-link shim (D1 Option B, 2026-07-07): the audit tool moved to /audit.
@@ -139,7 +140,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
             <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Browse</p>
             <nav class="space-y-1">
               <button type="button" data-filter="all" aria-pressed="true" class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left transition-colors">
-                <span>All</span>
+                <span class="flex items-center gap-2.5"><span class="w-2 h-2 rounded-full shrink-0" style={`background:${CATEGORY_COLOUR_FALLBACK}`} aria-hidden="true"></span>All</span>
                 <span class="feed-filter-count text-xs">{briefings.length}</span>
               </button>
               {presentCategories.map(cat => (
@@ -147,9 +148,9 @@ const presentCategories = Object.keys(categoryCounts).sort();
                   type="button"
                   data-filter={cat}
                   aria-pressed="false"
-                  class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left capitalize transition-colors"
+                  class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left transition-colors"
                 >
-                  <span>{cat}</span>
+                  <span class="flex items-center gap-2.5"><span class="w-2 h-2 rounded-full shrink-0" style={`background:${categoryColour(cat)}`} aria-hidden="true"></span><span class="capitalize">{cat}</span></span>
                   <span class="feed-filter-count text-xs">{categoryCounts[cat]}</span>
                 </button>
               ))}
@@ -168,12 +169,12 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
           <!-- Mobile category strip -->
           <div class="lg:hidden flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-2 scrollbar-thin">
-            <button type="button" data-filter="all" aria-pressed="true" class="feed-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
-              All ({briefings.length})
+            <button type="button" data-filter="all" aria-pressed="true" class="feed-chip shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
+              <span class="w-1.5 h-1.5 rounded-full shrink-0" style={`background:${CATEGORY_COLOUR_FALLBACK}`} aria-hidden="true"></span>All ({briefings.length})
             </button>
             {presentCategories.map(cat => (
-              <button type="button" data-filter={cat} aria-pressed="false" class="feed-chip shrink-0 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
-                {cat} ({categoryCounts[cat]})
+              <button type="button" data-filter={cat} aria-pressed="false" class="feed-chip shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
+                <span class="w-1.5 h-1.5 rounded-full shrink-0" style={`background:${categoryColour(cat)}`} aria-hidden="true"></span>{cat} ({categoryCounts[cat]})
               </button>
             ))}
           </div>
