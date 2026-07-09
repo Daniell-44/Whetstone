@@ -16,12 +16,25 @@ interface Props {
   tabs:           Tab[];
   scoreBadge?:    ComponentChildren;
   totalFindings?: number;
+  /** Optional controlled mode (Reader): parent owns open state so a highlight
+     tap in the page body can open the sheet. Omitted (Studio) = uncontrolled,
+     behaviour unchanged. */
+  open?:          boolean;
+  onOpenChange?:  (open: boolean) => void;
+  /** When set and the sheet opens, scroll the matching [data-finding-key]
+     card into view inside the sheet's scroll container. */
+  scrollToKey?:   string | null;
 }
 
 const SWIPE_DISMISS_THRESHOLD_PX = 80;
 
-export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }: Props) {
-  const [open, setOpen] = useState(false);
+export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, open: controlledOpen, onOpenChange, scrollToKey }: Props) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = (v: boolean) => {
+    onOpenChange?.(v);
+    if (controlledOpen === undefined) setInternalOpen(v);
+  };
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
   const [dragY, setDragY] = useState(0);
@@ -49,6 +62,17 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
   }, [open]);
+
+  // Opened with a target finding (highlight tap in the page body): bring its
+  // card into view inside the sheet once the slide-in transition settles.
+  useEffect(() => {
+    if (!open || !scrollToKey) return;
+    const t = setTimeout(() => {
+      sheetRef.current?.querySelector(`[data-finding-key="${CSS.escape(scrollToKey)}"]`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [open, scrollToKey, mounted]);
 
   if (tabs.length === 0) return null;
   const active = tabs.find(t => t.id === activeTab) ?? tabs[0]!;

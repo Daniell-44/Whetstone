@@ -6,6 +6,7 @@ import AuditResults from './AuditResults';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import ToulminCallouts from './ToulminCallouts';
 import HighlightedDraft from '../studio/HighlightedDraft';
+import MobileFindingsSheet from '../studio/MobileFindingsSheet';
 import DeeperLensPanel from '../lens-panel/DeeperLensPanel';
 import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
 import { applyContextualSeverity } from '../../../functions/_lib/audit/contextual-severity';
@@ -142,6 +143,9 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // severity marks inert on touch, where hover doesn't exist). Mirrors Studio's
   // wiring: the key drives the card's active ring via data-finding-key.
   const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
+  // Below xl the findings live in the bottom sheet (Stage 1 of the shell
+  // backport): the Reader controls the sheet so a highlight tap can open it.
+  const [sheetOpen, setSheetOpen] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const [showExamples, setShowExamples] = useState(false);
 
@@ -203,15 +207,21 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     if (det) det.open = true;
     requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
-  // Highlight tap → open the findings fold and bring that card into view.
+  // Highlight tap → the finding. Desktop (xl+): open the findings fold and
+  // scroll to the card. Below xl: open the bottom sheet (the sheet scrolls to
+  // the card itself via scrollToKey).
   function goToFinding(key: string) {
     setActiveFindingKey(key);
-    const det = document.getElementById('r-findings') as HTMLDetailsElement | null;
-    if (det) det.open = true;
-    requestAnimationFrame(() => {
-      document.querySelector(`[data-finding-key="${CSS.escape(key)}"]`)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+    if (typeof window !== 'undefined' && window.matchMedia('(min-width: 1280px)').matches) {
+      const det = document.getElementById('r-findings') as HTMLDetailsElement | null;
+      if (det) det.open = true;
+      requestAnimationFrame(() => {
+        document.querySelector(`[data-finding-key="${CSS.escape(key)}"]`)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    } else {
+      setSheetOpen(true);
+    }
   }
 
   // Reset to the pre-audit state (from the collapsed input bar's "New audit").
@@ -497,11 +507,10 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             </div>
           </div>
 
-          {/* Jump tabs — teleport within the page (not content-hiding panes).
-             Mobile: a no-wrap horizontal scroll strip stuck below the top bar,
-             so the nav survives the long results scroll (measured ~8 screens).
-             Desktop: unchanged inline wrap row. */}
-          <div class="sticky top-12 sm:static z-20 py-2 sm:py-0 bg-paper sm:bg-transparent flex items-center gap-1.5 flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-visible text-xs">
+          {/* Jump tabs — desktop only. Below xl the findings/structure live in
+             the bottom sheet (one thumb-tap away at all times), so an in-scroll
+             jump row has no job there. */}
+          <div class="hidden xl:flex items-center gap-1.5 flex-wrap text-xs">
             <span class="text-muted mr-0.5 shrink-0">Jump to</span>
             <button type="button" onClick={() => jumpTo('r-findings')} class="shrink-0 whitespace-nowrap px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Findings</button>
             {result.loadedLanguage.length > 0 && (
@@ -524,12 +533,13 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             .rd-fold .rd-chevron { transition: transform .15s ease; }
             .rd-fold[open] > summary .rd-chevron { transform: rotate(180deg); }
           `}</style>
-          {/* Below xl the columns stack; findings go FIRST (the payoff), the
-             audited text second (reference). Measured: with text first, the
-             findings started 1.7 screens down on a phone. Desktop unchanged. */}
+          {/* Below xl: the highlighted text is the canvas and the findings live
+             in the bottom sheet (Studio's mobile shell, backported) — the old
+             8-screen linear scroll is gone. Desktop (xl+): the two-column
+             folds layout, unchanged. */}
           <div class="flex flex-col xl:flex-row gap-4 items-start">
             {hasLeftContent && (
-              <details id="r-text" open class="rd-fold scroll-mt-24 order-2 xl:order-1 w-full xl:w-[55%] rounded-lg border border-hairline bg-surface">
+              <details id="r-text" open class="rd-fold scroll-mt-24 w-full xl:w-[55%] rounded-lg border border-hairline bg-surface">
                 <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
                   <span class="text-xs font-semibold uppercase tracking-widest text-muted">Your text</span>
                   <svg class="rd-chevron ml-auto w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
@@ -546,7 +556,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                 </div>
               </details>
             )}
-            <div class={`w-full space-y-4 order-1 xl:order-2 ${hasLeftContent ? 'xl:w-[45%]' : ''}`}>
+            <div class={`hidden xl:block w-full space-y-4 ${hasLeftContent ? 'xl:w-[45%]' : ''}`}>
               <details id="r-findings" open class="rd-fold scroll-mt-24 rounded-lg border border-hairline bg-surface">
                 <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
                   <span class="text-xs font-semibold uppercase tracking-widest text-muted">Findings</span>
@@ -571,6 +581,36 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             </div>
           </div>
         </div>
+      )}
+
+      {/* Below xl the findings + structure live here: the floating pill and
+         drag-dismissible bottom sheet (Studio's mobile shell, now shared).
+         Controlled so a highlight tap in the text opens it at that finding. */}
+      {result && !loading && displayResult && (
+        <MobileFindingsSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          scrollToKey={activeFindingKey}
+          totalFindings={counts.total}
+          tabs={[
+            {
+              id:    'findings',
+              label: 'Findings',
+              count: counts.total,
+              body:  <AuditResults result={displayResult} scope="span" flush activeFindingKey={activeFindingKey} />,
+            },
+            {
+              id:    'structure',
+              label: 'Structure',
+              body:  (
+                <div class="space-y-4">
+                  {extraction && <ArgumentExtraction result={extraction} />}
+                  <ToulminCallouts toulmin={displayResult.toulmin} />
+                </div>
+              ),
+            },
+          ]}
+        />
       )}
 
       {/* Strongest opposing case (free, on-demand) — the merged home of the
