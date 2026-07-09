@@ -32,7 +32,10 @@ const workspaceDb = makeWorkspaceDb(env.DB);
 const session     = await getSessionFromRequest(Astro.request, authDb);
 
 if (!session) {
-  return Astro.redirect('/login?returnTo=/creator/studio');
+  // Signed-out visitors get the Studio sell page (what Studio is + sign-in /
+  // pricing / the free Reader), NOT a bare /login dead-end. /creator is
+  // session-aware and routes them on from there.
+  return Astro.redirect('/creator');
 }
 
 const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, session.user_id);

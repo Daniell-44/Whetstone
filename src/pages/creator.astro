@@ -1,5 +1,15 @@
 ---
+export const prerender = false;
+import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
+import { makeAuthDb } from '../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
+
+// Session-aware so the CTA offers the right next step: a signed-in user opens
+// Studio; a signed-out user is invited to sign in (returning to Studio after) or
+// try the free Reader — instead of the old bare-/login dead-end.
+const session  = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
+const signedIn = !!session;
 ---
 <Base
   title="Studio - The Whetstone"
@@ -27,10 +37,10 @@ import Base from '../layouts/Base.astro';
     <!-- CTA -->
     <section class="mb-14 flex flex-wrap items-center gap-4">
       <a
-        href="/creator/studio"
+        href={signedIn ? '/creator/studio' : '/login?returnTo=/creator/studio'}
         class="inline-flex items-center gap-2 px-6 py-3 bg-accent-support text-white text-sm font-semibold rounded-lg hover:bg-accent transition-colors"
       >
-        Open the Studio
+        {signedIn ? 'Open the Studio' : 'Sign in to Studio'}
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
@@ -41,6 +51,11 @@ import Base from '../layouts/Base.astro';
       >
         View pricing →
       </a>
+      {!signedIn && (
+        <a href="/audit" class="text-sm text-muted hover:text-ink transition-colors">
+          Or try the free Reader →
+        </a>
+      )}
     </section>
 
     <!-- What the studio returns - editorial layout -->
