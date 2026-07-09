@@ -16,7 +16,9 @@ test('briefing deep-link pre-fills the reader after hydration', async ({ page })
 });
 
 test('plain reader (no deep-link) starts empty', async ({ page }) => {
-  await page.goto('/');
+  // The tool lives at /audit since 2026-07-07 (the homepage is the publication
+  // with a compact launcher input, not the audit textarea).
+  await page.goto('/audit');
   const textarea = page.locator('textarea').first();
   await expect(textarea).toHaveValue('');
   await expect(page.getByText('Loaded from a briefing')).toHaveCount(0);

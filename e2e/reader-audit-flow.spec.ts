@@ -38,7 +38,8 @@ test('reader audits pasted text (mocked engine) and renders a finding', async ({
     route.fulfill({ json: { ok: false, error: { code: 'MOCK', message: 'mocked in test' } } }),
   );
 
-  await page.goto('/');
+  // The tool lives at /audit since 2026-07-07.
+  await page.goto('/audit');
   const textarea = page.locator('textarea').first();
   const submit = page.getByRole('button', { name: /Audit this argument/i });
 
