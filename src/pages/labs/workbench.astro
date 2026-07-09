@@ -1,0 +1,27 @@
+---
+// PROTOTYPE — never linked, never indexed, lives on the iteration branch only.
+// The Read/Create workbench from the merge exploration (spec §6): one surface,
+// a mode toggle, tier-gated features, all engine calls resolved from cached
+// samples. Exists so Daniel can judge the mode model by hand before Stage 3
+// of the merge is decided. Delete freely.
+import Base from '../../layouts/Base.astro';
+import Workbench from '../../components/labs/Workbench';
+---
+<Base
+  title="Workbench (labs) - The Whetstone"
+  description="Internal prototype."
+  canonicalPath="/labs/workbench"
+>
+  <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12">
+    <header class="mb-6">
+      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Labs · prototype · nothing here is live</p>
+      <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-tight">The Audit, with a Read / Create toggle</h1>
+      <p class="mt-2 text-sm text-muted leading-relaxed max-w-2xl">
+        One surface, two postures: Read audits someone else's argument, Create audits your own draft.
+        The dev tier switcher (top right) flips every gate so all six auth-and-tier states can be felt.
+        Engine calls resolve from cached samples; nothing is saved and nothing costs quota.
+      </p>
+    </header>
+    <Workbench client:load />
+  </main>
+</Base>
