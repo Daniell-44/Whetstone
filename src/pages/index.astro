@@ -75,10 +75,11 @@ const presentCategories = Object.keys(categoryCounts).sort();
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12 sm:pb-24">
 
     <!-- Masthead (D1-B): the publication leads. The differentiation fix
-         (Fable assessment B2 §2, 2026-07-08): the front door now (a) STATES the
-         category via the three-way contrast, and (b) SHOWS the audit artifact
-         above the fold — a real specimen from the ai-creative-jobs briefing, so
-         a first-time reader sees the mechanic, not just a benefit claim. -->
+         (Fable assessment B2 §2): the front door now (a) STATES the category via
+         the three-way contrast (left), and (b) DESCRIBES the audit's anatomy
+         above the fold (right) — what every audit produces + the groundedness
+         vocabulary (Logic / Judgment call / Factual), so a first-time reader
+         sees the method, not just a benefit claim. -->
     <header class="mb-10 sm:mb-12 pt-2 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
       <div class="max-w-2xl">
         <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight">Arguments, examined.</h1>
@@ -93,20 +94,23 @@ const presentCategories = Object.keys(categoryCounts).sort();
         </dl>
       </div>
 
-      <!-- Specimen audit card — the artifact above the fold (desktop). -->
-      <aside class="hidden lg:block shrink-0 w-[21rem]">
-        <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-2">What every position gets</p>
+      <!-- Structural description — the audit's anatomy, above the fold (desktop). -->
+      <aside class="hidden lg:block shrink-0 w-[17rem]">
+        <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-2">Inside every audit</p>
         <div class="bg-surface border border-hairline">
           <div class="instrument-rule"></div>
           <div class="px-4 py-3.5">
-            <blockquote class="text-xs italic text-muted leading-relaxed border-l-2 border-hairline pl-3 mb-2.5">&ldquo;around 80% of the U.S. workforce could have at least 10% of their work tasks affected by the introduction of LLMs&rdquo;</blockquote>
-            <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted">Audit</span>
-              <span class="font-serif text-[15px] font-semibold text-ink-strong">Texas Sharpshooter</span>
+            <ul class="space-y-2 text-[13px] text-ink leading-snug">
+              <li class="flex gap-2"><span class="text-accent-support font-semibold shrink-0">—</span><span>The claim, and the assumptions it hides.</span></li>
+              <li class="flex gap-2"><span class="text-accent-support font-semibold shrink-0">—</span><span>Named fallacies, with the exact quote.</span></li>
+              <li class="flex gap-2"><span class="text-accent-support font-semibold shrink-0">—</span><span>Loaded language, split from the substance.</span></li>
+            </ul>
+            <p class="text-[11px] text-muted mt-3 pt-2.5 border-t border-hairline mb-2">Each finding labelled by how you'd check it:</p>
+            <div class="flex gap-1.5 flex-wrap">
               <span class="font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border bg-logic-bg text-logic border-logic/30">Logic</span>
+              <span class="font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border bg-judgment-bg text-judgment border-judgment/30">Judgment call</span>
+              <span class="font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border bg-factual-bg text-factual border-factual/30">Factual</span>
             </div>
-            <p class="text-[13px] text-ink leading-relaxed">A task being &ldquo;affected&rdquo; is not a worker being replaced — and the study never measured whole occupations.</p>
-            <p class="font-mono text-[8.5px] uppercase tracking-[0.08em] text-muted mt-3 pt-2 border-t border-hairline">The Whetstone · every position, audited</p>
           </div>
         </div>
         <a href="/audit" class="inline-flex items-center gap-1.5 mt-2.5 text-xs text-accent-support hover:text-accent transition-colors">
