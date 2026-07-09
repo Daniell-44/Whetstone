@@ -80,10 +80,13 @@ const headingCls = size === 'featured'
   data-briefing-card
   data-category={b.category ?? ''}
   style={`${style ?? ''}; border-top: ${topBorder};`}
-  class={`group flex h-full bg-surface border border-hairline hover:border-ink-strong/30 hover:shadow-sm transition-all ${sideImage ? 'flex-row' : 'flex-col'} ${extraClass}`}
+  class={`group flex h-full bg-surface border border-hairline hover:border-ink-strong/30 hover:shadow-sm transition-all ${sideImage ? 'flex-col sm:flex-row' : 'flex-col'} ${extraClass}`}
 >
+  {/* Below sm the side image stacks on top (the universal mobile editorial-
+     card pattern): at 375px a side image left the text ~165px of measure -
+     exactly the "cramped thumbnail" the comment above warns about. */}
   {sideImage && (
-    <img src={b.image} alt="" loading="lazy" class="w-2/5 shrink-0 h-full self-stretch object-cover" />
+    <img src={b.image} alt="" loading="lazy" class="w-full h-36 object-cover sm:w-2/5 sm:shrink-0 sm:h-full sm:self-stretch" />
   )}
   <div class="flex flex-col flex-1 min-w-0 p-5 sm:p-6">
     <div class="flex items-center gap-2 mb-2.5 flex-wrap font-mono text-[11px] uppercase tracking-[0.08em]">
