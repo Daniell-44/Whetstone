@@ -51,4 +51,24 @@ describe('collectQuoteChecks', () => {
     expect(checks.find((c) => c.where.startsWith('position'))?.url).toBe('https://wsj.example/x');
     expect(checks.find((c) => c.where.startsWith('takes'))?.url).toBe('https://cato.example/y');
   });
+
+  // Regression: v2 briefings keep source URLs in positionSources/evidenceSources,
+  // not the legacy `sources` list. Before the fix, collectQuoteChecks looked only
+  // at `sources`, so every v2 position quote was silently skipped (the fabrication
+  // guard's blind spot on the modern format).
+  it('resolves v2 position-source urls, not just the legacy sources list', () => {
+    const v2: BriefingArticle = {
+      slug: 'v2', question: 'q', publishedDate: '2026-01-01',
+      spectrumAxis: { left: 'l', right: 'r' },
+      sources: [],
+      positionSources: [{ id: 'gpts', label: 'GPTs', url: 'https://arxiv.example/abs', stance: -2, confidence: 'med' }],
+      blocks: [
+        { type: 'position', colourIndex: 0, label: 'Mass displacement', sourceId: 'gpts', quote: 'around 80% of the workforce', paragraph: '...', audit: { name: 'X', kind: 'structural', explanation: '.' } },
+      ],
+    };
+    const checks = collectQuoteChecks(v2);
+    expect(checks).toHaveLength(1);
+    expect(checks[0].url).toBe('https://arxiv.example/abs');
+    expect(checks[0].quote).toBe('around 80% of the workforce');
+  });
 });

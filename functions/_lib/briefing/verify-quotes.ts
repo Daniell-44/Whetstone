@@ -47,7 +47,17 @@ export function quoteMatch(quote: string, body: string): MatchMethod {
 // Every (quote, url) worth verifying: each ::takes item, plus any ::position
 // that carries an explicit quote= attr (its url comes from the linked source).
 export function collectQuoteChecks(b: BriefingArticle): QuoteCheck[] {
-  const urlById = new Map(b.sources.map((s) => [s.id, s.url]));
+  // Source URLs live in three places: the legacy `::sources` table (b.sources)
+  // AND the v2 `::positions` / `::evidence` pipe-tables (positionSources /
+  // evidenceSources). Position quotes resolve their URL by sourceId, so ALL
+  // three must be in the map — otherwise every v2 briefing's position quotes
+  // are silently skipped and the fabrication guard has a blind spot exactly
+  // where the modern format lives.
+  const urlById = new Map<string, string>([
+    ...b.sources.map((s) => [s.id, s.url] as const),
+    ...(b.positionSources ?? []).map((s) => [s.id, s.url] as const),
+    ...(b.evidenceSources ?? []).map((s) => [s.id, s.url] as const),
+  ]);
   const checks: QuoteCheck[] = [];
   for (const block of b.blocks) {
     if (block.type === 'takes') {
