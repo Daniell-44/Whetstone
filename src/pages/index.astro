@@ -95,15 +95,15 @@ const presentCategories = Object.keys(categoryCounts).sort();
       </div>
 
       <!-- Structural description — the audit's anatomy, above the fold (desktop). -->
-      <aside class="hidden lg:block shrink-0 w-[17rem]">
+      <aside class="hidden lg:block shrink-0 w-[22rem]">
         <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-2">Inside every audit</p>
         <div class="bg-surface border border-hairline">
           <div class="instrument-rule"></div>
           <div class="px-4 py-3.5">
             <ul class="space-y-2 text-[13px] text-ink leading-snug">
-              <li class="flex gap-2"><span class="text-accent-support font-semibold shrink-0">—</span><span>The claim, and the assumptions it hides.</span></li>
-              <li class="flex gap-2"><span class="text-accent-support font-semibold shrink-0">—</span><span>Named fallacies, with the exact quote.</span></li>
-              <li class="flex gap-2"><span class="text-accent-support font-semibold shrink-0">—</span><span>Loaded language, split from the substance.</span></li>
+              <li class="flex gap-2.5"><span class="text-accent-support shrink-0 leading-relaxed" aria-hidden="true">•</span><span>The claim, and the assumptions it hides.</span></li>
+              <li class="flex gap-2.5"><span class="text-accent-support shrink-0 leading-relaxed" aria-hidden="true">•</span><span>Named fallacies, with the exact quote.</span></li>
+              <li class="flex gap-2.5"><span class="text-accent-support shrink-0 leading-relaxed" aria-hidden="true">•</span><span>Loaded language, split from the substance.</span></li>
             </ul>
             <p class="text-[11px] text-muted mt-3 pt-2.5 border-t border-hairline mb-2">Each finding labelled by how you'd check it:</p>
             <div class="flex gap-1.5 flex-wrap">
@@ -158,7 +158,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
             <div class="mt-6 pt-6 border-t border-hairline">
               <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">About</p>
               <p class="text-xs text-muted leading-relaxed">
-                Each briefing takes one contested question and audits every position — claim, evidence, and where the reasoning breaks down.
+                Each briefing takes one contested question and audits every position: its claim, its evidence, and where the reasoning breaks down.
               </p>
               <a href="/method#briefings" class="block mt-3 text-xs text-accent hover:text-accent-support font-medium">
                 How briefings work →
@@ -205,7 +205,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
               <div id="audit-launcher" class="bg-surface border border-hairline rounded-md p-4 sm:p-5">
                 <div class="flex items-baseline gap-2 mb-2 flex-wrap">
                   <span class="text-xs font-semibold uppercase tracking-widest font-mono text-muted">Audit your own text</span>
-                  <span class="text-xs text-muted">— paste an argument, get its structure</span>
+                  <span class="text-xs text-muted">Paste an argument, get its structure.</span>
                 </div>
                 <div class="relative">
                   <input

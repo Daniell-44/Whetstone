@@ -147,7 +147,7 @@ export function groundednessBreakdown(audit: AuditResult): { structural: number;
 export function auditVerdict(audit: AuditResult): string {
   const total = totalFindingCount(audit);
   if (total === 0) {
-    return 'Clean bill — no reasoning fallacies or loaded language surfaced. The argument stands on its structure.';
+    return 'Clean bill: no reasoning fallacies or loaded language surfaced. The argument stands on its structure.';
   }
   const g      = groundednessBreakdown(audit);
   const gTotal = g.structural + g.interpretive + g.empirical;
