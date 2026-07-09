@@ -482,19 +482,22 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             </div>
           </div>
 
-          {/* Jump tabs — teleport within the page (not content-hiding panes) */}
-          <div class="flex items-center gap-1.5 flex-wrap text-xs">
-            <span class="text-muted mr-0.5">Jump to</span>
-            <button type="button" onClick={() => jumpTo('r-findings')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Findings</button>
+          {/* Jump tabs — teleport within the page (not content-hiding panes).
+             Mobile: a no-wrap horizontal scroll strip stuck below the top bar,
+             so the nav survives the long results scroll (measured ~8 screens).
+             Desktop: unchanged inline wrap row. */}
+          <div class="sticky top-12 sm:static z-20 py-2 sm:py-0 bg-paper sm:bg-transparent flex items-center gap-1.5 flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-visible text-xs">
+            <span class="text-muted mr-0.5 shrink-0">Jump to</span>
+            <button type="button" onClick={() => jumpTo('r-findings')} class="shrink-0 whitespace-nowrap px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Findings</button>
             {result.loadedLanguage.length > 0 && (
-              <button type="button" onClick={() => jumpTo('r-language')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Language</button>
+              <button type="button" onClick={() => jumpTo('r-language')} class="shrink-0 whitespace-nowrap px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Language</button>
             )}
             {hasLeftContent && (
-              <button type="button" onClick={() => jumpTo('r-text')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Your text</button>
+              <button type="button" onClick={() => jumpTo('r-text')} class="shrink-0 whitespace-nowrap px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Your text</button>
             )}
-            <button type="button" onClick={() => jumpTo('r-structure')} class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Structure</button>
-            <span class="text-hairline mx-0.5" aria-hidden="true">·</span>
-            <a href="/#briefings" class="px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent-support hover:text-accent-support transition-colors">Briefings →</a>
+            <button type="button" onClick={() => jumpTo('r-structure')} class="shrink-0 whitespace-nowrap px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent hover:text-accent transition-colors">Structure</button>
+            <span class="text-hairline mx-0.5 shrink-0" aria-hidden="true">·</span>
+            <a href="/#briefings" class="shrink-0 whitespace-nowrap px-2.5 py-1 rounded-md border border-hairline text-muted hover:border-accent-support hover:text-accent-support transition-colors">Briefings →</a>
           </div>
 
           {/* Three foldable regions — Your text (left), Findings + Argument
@@ -506,9 +509,12 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             .rd-fold .rd-chevron { transition: transform .15s ease; }
             .rd-fold[open] > summary .rd-chevron { transform: rotate(180deg); }
           `}</style>
+          {/* Below xl the columns stack; findings go FIRST (the payoff), the
+             audited text second (reference). Measured: with text first, the
+             findings started 1.7 screens down on a phone. Desktop unchanged. */}
           <div class="flex flex-col xl:flex-row gap-4 items-start">
             {hasLeftContent && (
-              <details id="r-text" open class="rd-fold scroll-mt-20 w-full xl:w-[55%] rounded-lg border border-hairline bg-surface">
+              <details id="r-text" open class="rd-fold scroll-mt-24 order-2 xl:order-1 w-full xl:w-[55%] rounded-lg border border-hairline bg-surface">
                 <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
                   <span class="text-xs font-semibold uppercase tracking-widest text-muted">Your text</span>
                   <svg class="rd-chevron ml-auto w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
@@ -525,8 +531,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                 </div>
               </details>
             )}
-            <div class={`w-full space-y-4 ${hasLeftContent ? 'xl:w-[45%]' : ''}`}>
-              <details id="r-findings" open class="rd-fold scroll-mt-20 rounded-lg border border-hairline bg-surface">
+            <div class={`w-full space-y-4 order-1 xl:order-2 ${hasLeftContent ? 'xl:w-[45%]' : ''}`}>
+              <details id="r-findings" open class="rd-fold scroll-mt-24 rounded-lg border border-hairline bg-surface">
                 <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
                   <span class="text-xs font-semibold uppercase tracking-widest text-muted">Findings</span>
                   <span class="text-xs text-muted ml-auto">{counts.total} {counts.total === 1 ? 'issue' : 'issues'}</span>
@@ -536,7 +542,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                   <AuditResults result={displayResult} scope="span" flush />
                 </div>
               </details>
-              <details id="r-structure" open class="rd-fold scroll-mt-20 rounded-lg border border-hairline bg-surface">
+              <details id="r-structure" open class="rd-fold scroll-mt-24 rounded-lg border border-hairline bg-surface">
                 <summary class="flex items-center gap-2 px-4 py-3 cursor-pointer">
                   <span class="text-xs font-semibold uppercase tracking-widest text-muted">Argument structure</span>
                   <span class="text-xs text-muted normal-case tracking-normal hidden sm:inline">skeleton · assumptions · weakest link</span>
