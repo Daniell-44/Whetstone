@@ -138,6 +138,10 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // After a successful audit the input collapses to a summary bar; "Edit" flips
   // this back to the full field.
   const [editing, setEditing] = useState(false);
+  // Tap-a-highlight → its finding card (was a no-op in the Reader, leaving the
+  // severity marks inert on touch, where hover doesn't exist). Mirrors Studio's
+  // wiring: the key drives the card's active ring via data-finding-key.
+  const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const [showExamples, setShowExamples] = useState(false);
 
@@ -199,6 +203,17 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     if (det) det.open = true;
     requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
+  // Highlight tap → open the findings fold and bring that card into view.
+  function goToFinding(key: string) {
+    setActiveFindingKey(key);
+    const det = document.getElementById('r-findings') as HTMLDetailsElement | null;
+    if (det) det.open = true;
+    requestAnimationFrame(() => {
+      document.querySelector(`[data-finding-key="${CSS.escape(key)}"]`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
   // Reset to the pre-audit state (from the collapsed input bar's "New audit").
   function newAudit() {
     setInput('');
@@ -339,7 +354,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             placeholder="Paste an argument, or drop a link to audit…"
             aria-label="Argument text or URL to audit"
             rows={loadedFromLink ? 6 : 2}
-            class="w-full rounded-xl border border-hairline bg-surface pl-4 pr-16 py-3 text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+            class="w-full rounded-xl border border-hairline bg-surface pl-4 pr-16 py-3 text-base sm:text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
             style={`min-height:${loadedFromLink ? 180 : 64}px;`}
           />
           <button
@@ -394,7 +409,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             <button
               type="button"
               onClick={() => setShowExamples(v => !v)}
-              class="flex items-center gap-1 text-xs text-muted hover:text-ink transition-colors"
+              class="flex items-center gap-1 text-xs text-muted hover:text-ink transition-colors py-2 -my-1"
             >
               New here? Try an example
               <svg class={`w-3 h-3 transition-transform ${showExamples ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
@@ -524,8 +539,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                     <HighlightedDraft
                       text={sourceText}
                       audit={displayResult}
-                      activeFindingKey={null}
-                      onHighlightClick={() => {}}
+                      activeFindingKey={activeFindingKey}
+                      onHighlightClick={goToFinding}
                     />
                   )}
                 </div>
@@ -539,7 +554,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                   <svg class="rd-chevron w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 </summary>
                 <div class="px-4 pb-4">
-                  <AuditResults result={displayResult} scope="span" flush />
+                  <AuditResults result={displayResult} scope="span" flush activeFindingKey={activeFindingKey} />
                 </div>
               </details>
               <details id="r-structure" open class="rd-fold scroll-mt-24 rounded-lg border border-hairline bg-surface">

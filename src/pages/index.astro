@@ -209,17 +209,20 @@ const presentCategories = Object.keys(categoryCounts).sort();
                   <span class="text-xs text-muted">Paste an argument, get its structure.</span>
                 </div>
                 <div class="relative">
+                  {/* text-base on mobile: sub-16px inputs trigger iOS Safari's
+                     zoom-on-focus at the funnel's very first interaction. The
+                     go button is 44px (Apple HIG minimum), was 36px. */}
                   <input
                     id="audit-launcher-input"
                     type="text"
                     placeholder="Paste an argument, or drop a link…"
-                    class="w-full bg-paper border border-hairline rounded-lg pl-3.5 pr-14 py-3 text-sm text-ink placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition-colors"
+                    class="w-full bg-paper border border-hairline rounded-lg pl-3.5 pr-16 py-3 text-base sm:text-sm text-ink placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition-colors"
                   />
                   <button
                     id="audit-launcher-go"
                     type="button"
                     aria-label="Run the audit"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-accent text-paper flex items-center justify-center hover:bg-accent/90 transition-colors"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-accent text-paper flex items-center justify-center hover:bg-accent/90 transition-colors"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
                   </button>

@@ -88,10 +88,12 @@ function ClampText({ text, class: cls = 'text-xs text-ink leading-relaxed' }: { 
   return (
     <div>
       <p class={`${cls} ${expanded ? '' : 'line-clamp-2'}`}>{text}</p>
+      {/* py-2/-my-1.5 grows the tap area past the WCAG 24px floor without
+         moving the layout — this toggle gates the full finding reasoning. */}
       <button
         type="button"
         onClick={() => setExpanded(v => !v)}
-        class="mt-0.5 text-xs font-medium text-accent hover:text-accent-support transition-colors"
+        class="mt-0.5 py-2 -my-1.5 text-xs font-medium text-accent hover:text-accent-support transition-colors"
       >
         {expanded ? 'Less' : 'More'}
       </button>
