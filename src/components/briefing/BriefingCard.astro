@@ -59,8 +59,12 @@ const showLead = size === 'featured' && !!sig.lead;
 
 // The Instrument (2026-07-08): category colour-banners abolished — a real
 // curated image still shows, but the saturated bg-*-600 placeholder is gone.
-const showBanner = !isExplainer && !!b.image;
-const bannerH = size === 'featured' ? 'h-44' : 'h-28';
+// Images sit on the SIDE (left), not as a top banner: a side image fills the
+// card's existing height (set by the text) instead of adding a band, so it
+// never inflates the row (see Card_Image_Treatments_v1.md). Recommendation:
+// only wide/featured cells carry images — a side image on a narrow card is a
+// cramped thumbnail. Explainers stay text-only.
+const sideImage = !isExplainer && !!b.image;
 // Graphite top-rule (the instrument bar); redline stays reserved for findings.
 const ruleCls = isExplainer ? 'border-t-accent-support' : 'border-t-ink-strong';
 const eyebrowCls = isExplainer ? 'text-accent-support' : 'text-muted';
@@ -73,55 +77,57 @@ const headingCls = size === 'featured'
   data-briefing-card
   data-category={b.category ?? ''}
   style={style}
-  class={`group flex flex-col h-full bg-surface border border-hairline border-t-2 ${ruleCls} p-5 sm:p-6 hover:border-ink-strong/30 hover:shadow-sm transition-all ${extraClass}`}
+  class={`group flex h-full bg-surface border border-hairline border-t-2 ${ruleCls} hover:border-ink-strong/30 hover:shadow-sm transition-all ${sideImage ? 'flex-row' : 'flex-col'} ${extraClass}`}
 >
-  {showBanner && (
-    <img src={b.image} alt="" loading="lazy" class={`w-full ${bannerH} object-cover mb-4`} />
+  {sideImage && (
+    <img src={b.image} alt="" loading="lazy" class="w-2/5 shrink-0 h-full self-stretch object-cover" />
   )}
-  <div class="flex items-center gap-2 mb-2.5 flex-wrap font-mono text-[11px] uppercase tracking-[0.08em]">
-    <span class={eyebrowCls}>{isExplainer ? 'Explainer' : 'Briefing'}</span>
-    {b.category && <span class="text-muted">· {b.category}</span>}
+  <div class="flex flex-col flex-1 min-w-0 p-5 sm:p-6">
+    <div class="flex items-center gap-2 mb-2.5 flex-wrap font-mono text-[11px] uppercase tracking-[0.08em]">
+      <span class={eyebrowCls}>{isExplainer ? 'Explainer' : 'Briefing'}</span>
+      {b.category && <span class="text-muted">· {b.category}</span>}
+      {!isExplainer && (
+        <span class="text-muted">· {positions.length} positions · {b.sources.length} sources</span>
+      )}
+    </div>
+    <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>
+      {b.question}
+    </h3>
     {!isExplainer && (
-      <span class="text-muted">· {positions.length} positions · {b.sources.length} sources</span>
+      <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
+        <span class="font-medium text-muted">Audit found</span>: {dek}
+      </p>
+    )}
+    {showLead && sig.lead && (
+      <p class="text-sm italic text-muted border-l-2 border-accent pl-3 leading-relaxed mb-3">
+        &ldquo;{sig.lead.quote}&rdquo; <span class="not-italic text-xs">flagged <span class="font-semibold text-accent">{sig.lead.fallacy}</span></span>
+      </p>
+    )}
+    {!isExplainer && chipFallacies.length > 0 && (
+      <div class="flex items-center gap-1.5 flex-wrap mb-3">
+        {chipFallacies.map((f) => (
+          <span class="font-mono text-[10px] font-medium uppercase tracking-wide text-ink border border-hairline px-1.5 py-0.5">{f}</span>
+        ))}
+        {kindMix.length > 0 && (
+          <span class="font-mono text-[10px] font-medium uppercase tracking-wide bg-logic-bg text-logic border border-logic/30 px-1.5 py-0.5">{kindMix.join(' · ')}</span>
+        )}
+        <span class="font-mono text-[10px] uppercase tracking-wide text-muted">
+          <span class="text-accent font-semibold">{sig.auditedPositions}</span> audited{sig.auditedTakes > 0 ? ` · ${sig.auditedTakes} take${sig.auditedTakes === 1 ? '' : 's'}` : ''}
+        </span>
+      </div>
+    )}
+    {positions.length > 0 && (
+      <div class="mt-auto pt-1">
+        <PositionSpectrum positions={positions} axis={b.spectrumAxis} compact />
+        <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
+          {positions.map((p, i) => (
+            <span class="inline-flex items-center gap-1 text-xs text-muted">
+              <span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-ink-strong text-white text-[8px] font-semibold">{i + 1}</span>
+              {p.label}
+            </span>
+          ))}
+        </div>
+      </div>
     )}
   </div>
-  <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>
-    {b.question}
-  </h3>
-  {!isExplainer && (
-    <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
-      <span class="font-medium text-muted">Audit found</span>: {dek}
-    </p>
-  )}
-  {showLead && sig.lead && (
-    <p class="text-sm italic text-muted border-l-2 border-accent pl-3 leading-relaxed mb-3">
-      &ldquo;{sig.lead.quote}&rdquo; <span class="not-italic text-xs">— flagged <span class="font-semibold text-accent">{sig.lead.fallacy}</span></span>
-    </p>
-  )}
-  {!isExplainer && chipFallacies.length > 0 && (
-    <div class="flex items-center gap-1.5 flex-wrap mb-3">
-      {chipFallacies.map((f) => (
-        <span class="font-mono text-[10px] font-medium uppercase tracking-wide text-ink border border-hairline px-1.5 py-0.5">{f}</span>
-      ))}
-      {kindMix.length > 0 && (
-        <span class="font-mono text-[10px] font-medium uppercase tracking-wide bg-logic-bg text-logic border border-logic/30 px-1.5 py-0.5">{kindMix.join(' · ')}</span>
-      )}
-      <span class="font-mono text-[10px] uppercase tracking-wide text-muted">
-        <span class="text-accent font-semibold">{sig.auditedPositions}</span> audited{sig.auditedTakes > 0 ? ` · ${sig.auditedTakes} take${sig.auditedTakes === 1 ? '' : 's'}` : ''}
-      </span>
-    </div>
-  )}
-  {positions.length > 0 && (
-    <div class="mt-auto pt-1">
-      <PositionSpectrum positions={positions} axis={b.spectrumAxis} compact />
-      <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
-        {positions.map((p, i) => (
-          <span class="inline-flex items-center gap-1 text-xs text-muted">
-            <span class="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-ink-strong text-white text-[8px] font-semibold">{i + 1}</span>
-            {p.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  )}
 </a>

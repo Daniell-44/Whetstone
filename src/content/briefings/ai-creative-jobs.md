@@ -5,6 +5,7 @@ axisLeft: mass displacement
 axisRight: pure augmentation
 publishedDate: 2026-06-24
 otherTakes: none
+image: /briefing-images/placeholder-slate.svg
 ---
 
 ::positions
