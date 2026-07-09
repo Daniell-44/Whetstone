@@ -26,7 +26,11 @@ const currentPath = canonicalPath;
 <html lang="en" class="bg-paper">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* viewport-fit=cover makes env(safe-area-inset-*) actually resolve on
+       notched iPhones — without it the tab bar's safe-area padding is dead
+       code, and in standalone/PWA mode the bar would sit under the home
+       indicator. The bar + clearances below grow by the inset. */}
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content={description} />
     <link rel="canonical" href={pageUrl} />
     <title>{title}</title>
@@ -80,7 +84,7 @@ const currentPath = canonicalPath;
       })();
     </script>
   </head>
-  <body class="min-h-screen text-ink font-sans antialiased pb-16 sm:pb-0">
+  <body class="min-h-screen text-ink font-sans antialiased pb-[calc(4rem+env(safe-area-inset-bottom,0px))] sm:pb-0">
 
     <!-- Site navigation — desktop -->
     <header class="hidden sm:block border-b border-hairline bg-surface/90 backdrop-blur-sm sticky top-0 z-10">
@@ -99,7 +103,8 @@ const currentPath = canonicalPath;
         <nav class="flex items-center gap-5 text-sm">
           <a
             href="/"
-            class={`transition-colors ${currentPath === '/' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+            aria-current={currentPath === '/' || currentPath?.startsWith('/briefing') ? 'page' : undefined}
+            class={`transition-colors ${currentPath === '/' || currentPath?.startsWith('/briefing') ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
           >
             Briefings
           </a>
@@ -154,30 +159,39 @@ const currentPath = canonicalPath;
           <svg viewBox="4 22 92 57" fill="currentColor" class="h-[1.15rem] w-auto shrink-0 text-accent" aria-hidden="true"><path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z"/><rect x="7.5" y="65" width="85" height="10.5"/></svg>
           <span>The Whetstone</span>
         </a>
+        {/* Full-bar-height hit area (~48px) — the bare text anchor was a
+           ~40x16px target on the only persistent auth entry on mobile. */}
         {isLoggedIn ? (
-          <a href="/account" class="text-xs text-ink">Account</a>
+          <a href="/account" class="text-xs text-ink flex items-center h-12 px-4 -mr-4">Account</a>
         ) : (
-          <a href="/login" class="text-xs text-ink">Sign in</a>
+          <a href="/login" class="text-xs text-ink flex items-center h-12 px-4 -mr-4">Sign in</a>
         )}
       </div>
     </header>
 
     <slot />
 
-    <!-- Mobile bottom tab bar — primary navigation -->
+    <!-- Mobile bottom tab bar — primary navigation. Height GROWS by the
+         safe-area inset (bar h-16 + inset) so the 64px tab targets are never
+         crushed by the home-indicator padding on notched iPhones/PWA. The
+         Briefings tab stays lit through /briefing/* (iOS HIG: the originating
+         tab owns its navigation stack). -->
     <nav
-      class="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-paper border-t border-hairline grid grid-cols-3 h-16"
-      style="padding-bottom: env(safe-area-inset-bottom, 0);"
+      aria-label="Primary"
+      class="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-paper border-t border-hairline grid grid-cols-3"
+      style="height: calc(4rem + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px);"
     >
       <a
         href="/"
-        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/' ? 'text-accent' : 'text-muted'}`}
+        aria-current={currentPath === '/' || currentPath?.startsWith('/briefing') ? 'page' : undefined}
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/' || currentPath?.startsWith('/briefing') ? 'text-accent' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
         <span class="text-xs font-medium">Briefings</span>
       </a>
       <a
         href="/audit"
+        aria-current={currentPath?.startsWith('/audit') ? 'page' : undefined}
         class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/audit') ? 'text-accent' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
@@ -185,6 +199,7 @@ const currentPath = canonicalPath;
       </a>
       <a
         href="/creator"
+        aria-current={currentPath?.startsWith('/creator') ? 'page' : undefined}
         class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -195,18 +210,20 @@ const currentPath = canonicalPath;
     <!-- Footer — visible on mobile too (About/Pricing dropped off the tab bar
          when Audit joined it; the footer is their mobile home). pb clears the
          fixed tab bar. -->
-    <footer class="border-t border-hairline mt-24 py-8 pb-24 sm:pb-8">
-      <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4 text-xs text-muted">
-        <a href="/" class="hover:text-accent transition-colors">The Whetstone <span class="text-hairline">·</span> Arguments, examined</a>
-        <nav class="flex flex-wrap gap-5">
-          <a href="/"        class="hover:text-accent transition-colors">Briefings</a>
-          <a href="/audit"   class="hover:text-accent transition-colors">Audit</a>
-          <a href="/creator" class="hover:text-accent transition-colors">Studio</a>
-          <a href="/about"   class="hover:text-accent transition-colors">About</a>
-          <a href="/pricing" class="hover:text-accent transition-colors">Pricing</a>
-          <a href="/feedback" class="hover:text-accent transition-colors">Feedback</a>
-          <a href="/account" class="hover:text-accent transition-colors">Account</a>
-          <a href="/privacy" class="hover:text-accent transition-colors">Privacy</a>
+    <footer class="border-t border-hairline mt-24 py-8 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] sm:pb-8">
+      {/* py-2 on each link lifts the tap targets past the WCAG 2.5.8 24px
+         floor — this list is the only mobile home for About/Pricing/etc. */}
+      <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-muted">
+        <a href="/" class="inline-block py-2 hover:text-accent transition-colors">The Whetstone <span class="text-hairline">·</span> Arguments, examined</a>
+        <nav class="flex flex-wrap gap-x-5" aria-label="Footer">
+          <a href="/"        class="inline-block py-2 hover:text-accent transition-colors">Briefings</a>
+          <a href="/audit"   class="inline-block py-2 hover:text-accent transition-colors">Audit</a>
+          <a href="/creator" class="inline-block py-2 hover:text-accent transition-colors">Studio</a>
+          <a href="/about"   class="inline-block py-2 hover:text-accent transition-colors">About</a>
+          <a href="/pricing" class="inline-block py-2 hover:text-accent transition-colors">Pricing</a>
+          <a href="/feedback" class="inline-block py-2 hover:text-accent transition-colors">Feedback</a>
+          <a href="/account" class="inline-block py-2 hover:text-accent transition-colors">Account</a>
+          <a href="/privacy" class="inline-block py-2 hover:text-accent transition-colors">Privacy</a>
         </nav>
       </div>
     </footer>

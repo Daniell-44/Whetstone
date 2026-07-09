@@ -79,8 +79,8 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
         <button
           type="button"
           onClick={() => setOpen(true)}
-          class="sm:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-ink-strong text-white text-sm font-semibold shadow-lg hover:bg-ink active:scale-95 transition-all duration-150"
-          style="padding-bottom: calc(0.625rem + env(safe-area-inset-bottom, 0) / 4);"
+          class="xl:hidden fixed left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-ink-strong text-white text-sm font-semibold shadow-lg hover:bg-ink active:scale-95 transition-all duration-150"
+          style="bottom: calc(5rem + env(safe-area-inset-bottom, 0px));"
         >
           {scoreBadge}
           <span>View findings{totalFindings !== undefined ? ` (${totalFindings})` : ''}</span>
@@ -91,7 +91,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
       {/* Backdrop - fades in/out */}
       {mounted && (
         <div
-          class="sm:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-[280ms]"
+          class="xl:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-[280ms]"
           style={`opacity: ${closing ? 0 : 1};`}
           onClick={() => setOpen(false)}
         />
@@ -101,7 +101,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
       {mounted && (
         <div
           ref={sheetRef}
-          class="sm:hidden fixed inset-x-0 bottom-0 z-50 bg-surface rounded-t-2xl shadow-2xl flex flex-col"
+          class="xl:hidden fixed inset-x-0 bottom-0 z-50 bg-surface rounded-t-2xl shadow-2xl flex flex-col"
           style={`
             max-height: 85vh;
             padding-bottom: env(safe-area-inset-bottom, 0);
@@ -111,7 +111,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
         >
           {/* Grab handle - also the touch target for drag */}
           <div
-            class="w-full pt-2.5 pb-2 flex justify-center cursor-pointer"
+            class="w-full py-3.5 flex justify-center cursor-pointer"
             onTouchStart={handleTouchStart as unknown as EventListener}
             onTouchMove={handleTouchMove as unknown as EventListener}
             onTouchEnd={handleTouchEnd}
@@ -127,7 +127,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings }:
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                class={`shrink-0 px-3 py-2.5 text-xs font-medium transition-colors border-b-2 ${
+                class={`shrink-0 px-3 py-3 min-h-11 text-xs font-medium transition-colors border-b-2 ${
                   tab.id === active.id
                     ? 'text-ink-strong border-accent-support'
                     : 'text-muted border-transparent hover:text-ink'
