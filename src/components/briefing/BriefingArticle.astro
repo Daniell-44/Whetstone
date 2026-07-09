@@ -86,10 +86,14 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
                   <span class={`font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border shrink-0 ${kindStyle}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
                   <svg class="audit-chevron ml-auto shrink-0 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </summary>
-                <div class="px-3.5 pb-3">
-                  <p class="text-[13px] text-ink leading-relaxed mb-2">{block.audit.explanation}</p>
-                  <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1 text-xs font-medium text-accent-support hover:text-accent">Audit this argument →</a>
-                  <p class="font-mono text-[8.5px] uppercase tracking-[0.08em] text-muted mt-3 pt-2 border-t border-hairline">The Whetstone · thewhetstone.review</p>
+                {/* The audit body matches the position paragraph's size (15px):
+                   the per-claim audit is the differentiator, it must not read
+                   as a footnote to the text it audits. The per-card watermark
+                   line was in-page noise (8.5px) and now lives only on share
+                   exports. The deep-link is a chip, not a footnote link. */}
+                <div class="px-3.5 pb-3.5">
+                  <p class="text-[0.9375rem] text-ink leading-relaxed mb-2.5">{block.audit.explanation}</p>
+                  <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1.5 text-xs font-medium text-accent-support hover:text-accent hover:border-accent-support/50 border border-hairline rounded px-3 py-2 transition-colors">Audit this argument →</a>
                 </div>
               </details>
             )}
@@ -128,7 +132,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
                       ? <a href={t.url} target="_blank" rel="noopener noreferrer" class="hover:text-accent">{t.source}</a>
                       : t.source}
                   </p>
-                  <p class="text-xs text-muted mt-2 pl-2.5" style="border-left:2px solid #1E5C5A"><span class="font-medium text-ink">Audit:</span> {t.audit}</p>
+                  <p class="text-[13px] text-muted mt-2 pl-2.5 leading-relaxed" style="border-left:2px solid #1E5C5A"><span class="font-medium text-ink">Audit:</span> {t.audit}</p>
                 </div>
               ))}
             </div>
