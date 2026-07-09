@@ -30,7 +30,7 @@ const error = Astro.url.searchParams.get('error');
         </div>
         <h1 class="text-2xl font-semibold text-ink-strong">Extension connected</h1>
         <p class="text-sm text-muted leading-relaxed">
-          Your Whetstone account is now linked to the Devil's Advocate extension. You can close this tab and return to the extension's side panel.
+          Your Whetstone account is now linked to the Chrome extension. You can close this tab and return to the extension's side panel.
         </p>
         <p class="text-xs text-muted">
           Signed in as {(await db.findUserById(session.user_id))?.email ?? 'your account'}.

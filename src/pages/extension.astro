@@ -14,7 +14,7 @@ import Base from '../layouts/Base.astro';
 
     <!-- Hero -->
     <header class="mb-14">
-      <p class="text-xs font-semibold tracking-[0.3em] font-mono text-muted uppercase mb-4">Devil's Advocate · Chrome Extension</p>
+      <p class="text-xs font-semibold tracking-[0.3em] font-mono text-muted uppercase mb-4">The Whetstone · Chrome Extension</p>
       <h1 class="font-serif text-3xl sm:text-5xl text-ink-strong leading-tight mb-5">
         Audit any argument while you read.
       </h1>
@@ -52,7 +52,7 @@ import Base from '../layouts/Base.astro';
           <span class="ml-2 text-xs font-mono text-muted uppercase tracking-wider">Side panel</span>
         </div>
         <div class="p-4">
-          <p class="text-xs font-semibold tracking-widest font-mono text-muted uppercase mb-2">Devil's Advocate</p>
+          <p class="text-xs font-semibold tracking-widest font-mono text-muted uppercase mb-2">The Whetstone</p>
           <p class="font-serif text-sm text-ink-strong mb-3 leading-snug">
             Audit this article?
           </p>
@@ -63,21 +63,34 @@ import Base from '../layouts/Base.astro';
             Audit selected text
           </button>
 
+          {/* Mockup rows show what the product actually ships: severity +
+             categorical groundedness. The 0-100 confidence was removed from
+             the product; advertising it here contradicted the shipped UI. */}
           <div class="border-t border-hairline pt-3 space-y-2">
             <div class="rounded-none bg-surface border border-hairline border-l-2 border-l-accent p-2">
-              <p class="text-xs font-bold uppercase tracking-wider font-mono text-accent mb-0.5">High · 88%</p>
+              <p class="text-xs font-bold uppercase tracking-wider font-mono text-accent mb-0.5">Critical · Logic</p>
               <p class="text-xs text-ink leading-snug">False dilemma in paragraph 3</p>
             </div>
             <div class="rounded-none bg-surface border border-hairline border-l-2 border-l-sev-med p-2">
-              <p class="text-xs font-bold uppercase tracking-wider font-mono text-sev-med mb-0.5">Medium · 72%</p>
+              <p class="text-xs font-bold uppercase tracking-wider font-mono text-sev-med mb-0.5">Medium · Logic</p>
               <p class="text-xs text-ink leading-snug">Unstated warrant: "expert consensus implies policy"</p>
             </div>
             <div class="rounded-none bg-surface border border-hairline border-l-2 border-l-sev-low p-2">
-              <p class="text-xs font-bold uppercase tracking-wider font-mono text-sev-low mb-0.5">Low · 64%</p>
+              <p class="text-xs font-bold uppercase tracking-wider font-mono text-sev-low mb-0.5">Low · Judgment call</p>
               <p class="text-xs text-ink leading-snug">Loaded language: "the so-called experts"</p>
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Mobile visitors can't install a desktop-Chrome extension; say so up
+         front and hand them the working alternative instead of a 4-screen
+         scroll to a dead end. -->
+    <section class="sm:hidden mb-10">
+      <div class="rounded-xl border border-hairline bg-paper p-4">
+        <p class="text-sm text-ink leading-relaxed mb-3">The extension runs in desktop Chrome. On your phone, the same engine is free at the Audit.</p>
+        <a href="/audit" class="inline-flex items-center justify-center px-4 py-2.5 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-colors">Open the Audit →</a>
       </div>
     </section>
 

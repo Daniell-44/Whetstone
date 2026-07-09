@@ -76,7 +76,7 @@ const signedIn = !!session;
           <h3 class="text-base font-semibold text-ink-strong mb-2">26 reasoning patterns + 8 rhetorical techniques</h3>
           <p class="text-sm text-ink leading-relaxed">
             From Ad Hominem to Motte-and-Bailey, Selection Bias to Presupposition Smuggling.
-            Each flagged with verbatim quotes, severity, and confidence. Inline highlights show exactly where.
+            Each flagged with verbatim quotes, severity, and groundedness. Inline highlights show exactly where.
           </p>
         </div>
         <div class="p-6 border-b md:border-b-0 md:border-r border-hairline">
@@ -95,7 +95,7 @@ const signedIn = !!session;
             Well-cited, weakly-cited, mismatched, or uncited - before your readers check for you.
           </p>
         </div>
-        <div class="p-6 md:border-r border-hairline">
+        <div class="p-6 border-b md:border-b-0 md:border-r border-hairline">
           <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Framework</p>
           <h3 class="text-base font-semibold text-ink-strong mb-2">Philosophical commitments</h3>
           <p class="text-sm text-ink leading-relaxed">
@@ -132,7 +132,7 @@ const signedIn = !!session;
             Solo or multi-seat for newsrooms.
           </p>
         </div>
-        <div class="p-6 sm:border-r border-hairline">
+        <div class="p-6 border-b sm:border-b-0 sm:border-r border-hairline">
           <h3 class="text-sm font-semibold text-ink-strong mb-2">YouTubers & Substackers</h3>
           <p class="text-sm text-ink leading-relaxed">
             Pre-publish audit for essay and analysis content.
@@ -145,6 +145,26 @@ const signedIn = !!session;
             Multi-seat workspace, shared document library, API access.{' '}
             <a href="mailto:daniel.livingstone44@gmail.com" class="text-accent-support hover:text-accent font-medium">Get in touch →</a>
           </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- End-of-read CTA: the only conversion affordances were at the top and
+         scroll away ~3 phone screens before the pitch ends. -->
+    <section>
+      <div class="rounded-xl border border-hairline p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <p class="text-sm font-semibold text-ink-strong mb-1">Ready to stress-test a draft?</p>
+          <p class="text-sm text-muted leading-relaxed">Sign in free; the paid engines unlock when you need them.</p>
+        </div>
+        <div class="shrink-0 flex items-center gap-3">
+          <a
+            href={signedIn ? '/creator/studio' : '/login?returnTo=/creator/studio'}
+            class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-accent-support text-white text-sm font-semibold hover:bg-accent-support/90 transition-colors"
+          >
+            {signedIn ? 'Open the Studio' : 'Sign in to Studio'}
+          </a>
+          <a href="/pricing" class="text-sm font-medium text-ink hover:text-accent transition-colors">Pricing →</a>
         </div>
       </div>
     </section>
