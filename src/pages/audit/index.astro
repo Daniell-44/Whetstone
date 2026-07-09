@@ -45,8 +45,16 @@ const auditPrefill = auditTarget
   ? ((auditPosId && positionText(auditTarget, auditPosId)) || briefingPlainText(auditTarget))
   : '';
 // /audit?url=<source> deep-link: audit the source article a briefing position quotes.
-const auditUrlParam = Astro.url.searchParams.get('url') ?? '';
-const auditUrl      = auditUrlParam.startsWith('http') ? auditUrlParam : '';
+// ALSO the Web Share Target landing (manifest.webmanifest share_target): many
+// Android apps put the shared link in the `text` field rather than `url`, so
+// fall back to extracting an http(s) URL from `text`; non-URL shared text is
+// treated as pasted argument text.
+const auditUrlParam  = Astro.url.searchParams.get('url') ?? '';
+const auditTextParam = Astro.url.searchParams.get('text') ?? '';
+const urlFromText    = auditTextParam.match(/https?:\/\/\S+/)?.[0] ?? '';
+const auditUrl       = auditUrlParam.startsWith('http') ? auditUrlParam : urlFromText;
+// Shared plain text (no URL in it) lands as the pasted argument.
+const sharedText     = !auditUrl && auditTextParam.length >= 50 ? auditTextParam.slice(0, 10_000) : '';
 // /audit?sample=<id> deep-link (home-feed launcher chips): auto-load a
 // pre-cached sample so the reader sees a worked result instantly, no API call.
 const auditSampleId = Astro.url.searchParams.get('sample') ?? '';
@@ -72,7 +80,7 @@ const isPro = session
     </header>
 
     <section class="max-w-4xl">
-      <AuditForm isPro={isPro} initialText={auditPrefill} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
+      <AuditForm isPro={isPro} initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
     </section>
   </main>
 </Base>

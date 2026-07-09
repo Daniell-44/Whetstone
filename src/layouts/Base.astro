@@ -35,6 +35,13 @@ const currentPath = canonicalPath;
     <link rel="canonical" href={pageUrl} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* PWA on-ramp: the manifest (with an Android share-target into /audit)
+       makes the site installable; icons already lived in public/ unreferenced.
+       Everything here is origin-relative — the domain decision gates
+       PROMOTING installs, not this wiring. */}
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#F3F4F1" />
 
     <!-- Open Graph -->
     <meta property="og:type"        content="website" />
