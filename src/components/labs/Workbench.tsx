@@ -79,7 +79,9 @@ export default function Workbench() {
   }
 
   function fakeRun(text: string) {
-    if (text.trim().length < 20) { say('Prototype: paste or type at least a sentence.'); return; }
+    // Cold-open friendliness: an empty submit demos the first sample rather
+    // than scolding - the prototype's job is showing the shell.
+    if (text.trim().length < 20) { say('Nothing pasted - showing a cached demo.'); text = ''; }
     setLoading(true);
     setActiveFindingKey(null);
     const s = cannedFor(text);

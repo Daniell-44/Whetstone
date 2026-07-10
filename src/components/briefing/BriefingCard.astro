@@ -66,6 +66,15 @@ const showLead = size === 'featured' && !!sig.lead;
 // only wide/featured cells carry images — a side image on a narrow card is a
 // cramped thumbnail. Explainers stay text-only.
 const sideImage = !isExplainer && !!b.image;
+// Mobile feed compaction (2026-07-10, Daniel: "slightly cluttered... less
+// vertical height"). The editorial-app norm (Apple News / NYT / Ground News)
+// is one hero + compact list rows: headline, small right thumbnail, ONE meta
+// line, no dek. Non-featured briefing cards follow that below sm: dek +
+// spectrum become desktop-only, the fallacy-chip row stays as the meta line
+// (the differentiator), and an image renders as a ~88px right thumb instead
+// of a banner. Featured keeps the hero treatment; explainers were compact.
+const compact      = !isExplainer && size !== 'featured';
+const compactThumb = sideImage && compact;
 // Top rule: image cards keep the graphite instrument bar (the image carries the
 // colour); text cards get a 3px muted category-colour tick (Daniel signed off
 // 2026-07-09). Redline stays reserved for findings.
@@ -80,29 +89,38 @@ const headingCls = size === 'featured'
   data-briefing-card
   data-category={b.category ?? ''}
   style={`${style ?? ''}; border-top: ${topBorder};`}
-  class={`group flex h-full bg-surface border border-hairline hover:border-ink-strong/30 hover:shadow-sm transition-all ${sideImage ? 'flex-col sm:flex-row' : 'flex-col'} ${extraClass}`}
+  class={`group flex h-full bg-surface border border-hairline hover:border-ink-strong/30 hover:shadow-sm transition-all ${sideImage ? (compactThumb ? 'flex-row' : 'flex-col sm:flex-row') : 'flex-col'} ${extraClass}`}
 >
-  {/* Below sm the side image stacks on top (the universal mobile editorial-
-     card pattern): at 375px a side image left the text ~165px of measure -
-     exactly the "cramped thumbnail" the comment above warns about. */}
+  {/* Featured + image: full-width banner on mobile (the hero), side image at
+     sm+. Non-featured + image: a small right thumb on mobile (order-2), the
+     side treatment at sm+ (order back to DOM = left). */}
   {sideImage && (
-    <img src={b.image} alt="" loading="lazy" class="w-full h-36 object-cover sm:w-2/5 sm:shrink-0 sm:h-full sm:self-stretch" />
+    <img
+      src={b.image}
+      alt=""
+      loading="lazy"
+      class={compactThumb
+        ? 'order-2 sm:order-none w-[88px] h-[88px] shrink-0 self-center mr-4 rounded-[2px] object-cover sm:w-2/5 sm:h-full sm:self-stretch sm:mr-0 sm:rounded-none'
+        : 'w-full h-36 object-cover sm:w-2/5 sm:shrink-0 sm:h-full sm:self-stretch'}
+    />
   )}
-  <div class="flex flex-col flex-1 min-w-0 p-5 sm:p-6">
+  <div class={`flex flex-col flex-1 min-w-0 ${compact ? 'p-4 sm:p-6' : 'p-5 sm:p-6'}`}>
     <div class="flex items-center gap-2 mb-2.5 flex-wrap font-mono text-[11px] uppercase tracking-[0.08em]">
       <span class={eyebrowCls}>{isExplainer ? 'Explainer' : 'Briefing'}</span>
       {b.category && <span class="text-muted">· {b.category}</span>}
       {!isExplainer && (
-        <span class="text-muted">· {positions.length} positions · {b.sources.length} sources</span>
+        <span class={`text-muted ${compact ? 'hidden sm:inline' : ''}`}>· {positions.length} positions · {b.sources.length} sources</span>
       )}
     </div>
     <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>
       {b.question}
     </h3>
     {!isExplainer && (
-      <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
-        <span class="font-medium text-muted">Audit found</span>: {dek}
-      </p>
+      <div class={compact ? 'hidden sm:block' : ''}>
+        <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
+          <span class="font-medium text-muted">Audit found</span>: {dek}
+        </p>
+      </div>
     )}
     {showLead && sig.lead && (
       <p class="text-sm italic text-muted border-l-2 border-accent pl-3 leading-relaxed mb-3">
@@ -123,7 +141,7 @@ const headingCls = size === 'featured'
       </div>
     )}
     {positions.length > 0 && (
-      <div class="mt-auto pt-1">
+      <div class={`mt-auto pt-1 ${compact ? 'hidden sm:block' : ''}`}>
         <PositionSpectrum positions={positions} axis={b.spectrumAxis} compact />
         <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
           {positions.map((p, i) => (

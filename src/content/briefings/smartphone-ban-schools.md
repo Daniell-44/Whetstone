@@ -5,6 +5,7 @@ axisLeft: structural ban
 axisRight: taught autonomy
 publishedDate: 2026-05-23
 otherTakes: none
+image: /briefing-images/placeholder-sand.svg
 ---
 
 ::positions
