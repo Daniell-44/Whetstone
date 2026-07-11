@@ -183,4 +183,56 @@ describe('handleCitationAuditRequest', () => {
     const res = await handleCitationAuditRequest(postReq({ text: DUMMY_TEXT }), d2); // user-2 unaffected
     expect(res.status).toBe(200);
   });
+
+  // --- Server-side persistence (the phone-lock fix): the handler writes the
+  // result onto the version itself when documentId+versionId are supplied, so
+  // the client's old follow-up persist fetch (which died with a suspended tab)
+  // is no longer load-bearing. ---
+
+  it('persists the result server-side when documentId + versionId are supplied', async () => {
+    const persistResult = vi.fn().mockResolvedValue(true);
+    const res = await handleCitationAuditRequest(
+      postReq({ text: DUMMY_TEXT, documentId: 'doc-1', versionId: 'ver-1' }),
+      deps({ persistResult }),
+    );
+    expect(res.status).toBe(200);
+    expect(persistResult).toHaveBeenCalledTimes(1);
+    const [userId, docId, verId, resultJson] = persistResult.mock.calls[0]!;
+    expect(userId).toBe('u1');
+    expect(docId).toBe('doc-1');
+    expect(verId).toBe('ver-1');
+    expect(() => JSON.parse(resultJson as string)).not.toThrow();
+  });
+
+  it('does not attempt persistence without a version target', async () => {
+    const persistResult = vi.fn().mockResolvedValue(true);
+    const res = await handleCitationAuditRequest(
+      postReq({ text: DUMMY_TEXT }),
+      deps({ persistResult }),
+    );
+    expect(res.status).toBe(200);
+    expect(persistResult).not.toHaveBeenCalled();
+  });
+
+  it('a persistence failure never fails the run', async () => {
+    const persistResult = vi.fn().mockRejectedValue(new Error('D1 exploded'));
+    const res = await handleCitationAuditRequest(
+      postReq({ text: DUMMY_TEXT, documentId: 'doc-1', versionId: 'ver-1' }),
+      deps({ persistResult }),
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json() as { ok: boolean };
+    expect(body.ok).toBe(true);
+  });
+
+  it('registers the run with waitUntil so a client disconnect cannot kill it', async () => {
+    const waitUntil = vi.fn();
+    const res = await handleCitationAuditRequest(
+      postReq({ text: DUMMY_TEXT, documentId: 'doc-1', versionId: 'ver-1' }),
+      deps({ persistResult: vi.fn().mockResolvedValue(true), waitUntil }),
+    );
+    expect(res.status).toBe(200);
+    expect(waitUntil).toHaveBeenCalledTimes(1);
+    expect(waitUntil.mock.calls[0]![0]).toBeInstanceOf(Promise);
+  });
 });
