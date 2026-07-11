@@ -297,6 +297,10 @@ export default function StudioEditor({
   // severities by argument context for A/B evaluation — never on in production.
   const ctxSev = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('ctxsev') === '1';
   const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
+  // Mobile bottom sheet is CONTROLLED so the draft<->findings navigation can
+  // choreograph it (open at a card / close then flash the span).
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetTab, setSheetTab] = useState('specific');
   // Transient flash on a span when the user jumps to it from a right-hand card.
   const [flashKey, setFlashKey] = useState<string | null>(null);
   const flashTimer = useRef<number | null>(null);
@@ -604,25 +608,23 @@ export default function StudioEditor({
         .catch(() => setCommitmentsState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
         .finally(() => { commitmentsDone = true; checkDone(); });
 
-      // Citation audit - external URL fetching costs.
+      // Citation audit - external URL fetching costs. The SERVER persists the
+      // result onto the version (documentId/versionId in the body), so a phone
+      // locking or the tab suspending mid-run no longer loses Source Match -
+      // the old client-side follow-up persist fetch died with the tab.
       fetch('/api/citation-audit', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ text }),
+        body:    JSON.stringify({
+          text,
+          documentId: currentDocId ?? undefined,
+          versionId:  currentVersionId ?? undefined,
+        }),
       })
         .then(r => r.json() as Promise<CitationAuditApiResponse>)
         .then(data => {
           if (data.ok) {
             setCitationState({ status: 'done', data: data.result });
-            // Persist onto the version so a reopened draft rehydrates Source
-            // Match (citation runs via a non-version endpoint, so save explicitly).
-            if (currentDocId && currentVersionId) {
-              void fetch(`/api/documents/${currentDocId}/versions/${currentVersionId}/citation`, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ result: data.result }),
-              }).catch(() => {});
-            }
           } else {
             const code = data.error.code;
             setCitationState({ status: 'error', code, message: CITATION_ERROR_MESSAGES[code] ?? data.error.message });
@@ -705,10 +707,25 @@ export default function StudioEditor({
   // its card share one id.
   // ---------------------------------------------------------------------------
 
+  // Below xl the finding cards exist only INSIDE the bottom sheet (which is
+  // unmounted until opened), so both navigation directions must choreograph
+  // the sheet: highlight tap opens it at the card; card tap closes it, then
+  // reveals + flashes the span once the 280ms exit has run. Before this, a
+  // highlight tap on a phone silently did nothing and a card tap scrolled a
+  // draft hidden behind the scroll-locked sheet.
+  const isBelowDesktop = () =>
+    typeof window !== 'undefined' && !window.matchMedia('(min-width: 1280px)').matches;
+
   // Centre -> right: a draft highlight (or heatmap run) was clicked; select it
-  // and scroll its card into view.
+  // and scroll its card into view (desktop: the sticky rail; mobile: the sheet).
   const handleNavigateToCard = useCallback((key: string) => {
     setActiveFindingKey(key);
+    if (isBelowDesktop()) {
+      setSheetTab('specific');
+      setSheetOpen(true);
+      // The sheet's scrollToKey brings the card into view once mounted.
+      return;
+    }
     const el = document.querySelector(`[data-finding-key="${key}"]`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, []);
@@ -717,11 +734,20 @@ export default function StudioEditor({
   // into view in the draft, and flash it briefly.
   const handleNavigateToSpan = useCallback((key: string) => {
     setActiveFindingKey(key);
-    setFlashKey(key);
-    if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
-    flashTimer.current = window.setTimeout(() => setFlashKey(null), 1100);
-    const el = document.querySelector(`[data-match-key="${key}"]`);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const revealAndFlash = () => {
+      setFlashKey(key);
+      if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
+      flashTimer.current = window.setTimeout(() => setFlashKey(null), 1100);
+      const el = document.querySelector(`[data-match-key="${key}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+    if (isBelowDesktop()) {
+      // Dismiss the sheet (it scroll-locks the body) before revealing the span.
+      setSheetOpen(false);
+      window.setTimeout(revealAndFlash, 320);
+      return;
+    }
+    revealAndFlash();
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -823,8 +849,8 @@ export default function StudioEditor({
           <div class="flex items-center justify-between flex-wrap gap-2">
             <p class="text-xs text-muted">
               {draftViewMode === 'highlights'
-                ? 'Click a highlight to jump to the finding. Hover for details.'
-                : 'Hover for finding details. Click any colour to jump to the top finding. Darker = more density.'}
+                ? 'Tap or click a highlight to open its finding.'
+                : 'Tap or click any colour to jump to the top finding. Darker = more density.'}
             </p>
             <div class="flex items-center gap-3">
               {/* View toggle */}
@@ -941,6 +967,7 @@ export default function StudioEditor({
           {isRunning && hasActiveSubscription && (
             <p class="text-xs text-center text-muted">
               ~60-90s - fetching cited sources and finding opposing cases takes longer than a simple audit.
+              The analysis continues on our side, so you can leave and come back to this draft.
             </p>
           )}
         </div>
@@ -1297,6 +1324,11 @@ export default function StudioEditor({
           tabs={mobileTabs}
           totalFindings={findingsCount}
           scoreBadge={scoreBadge}
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          activeTab={sheetTab}
+          onActiveTabChange={setSheetTab}
+          scrollToKey={activeFindingKey}
         />
       )}
     </>

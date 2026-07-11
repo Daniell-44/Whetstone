@@ -24,11 +24,16 @@ interface Props {
   /** When set and the sheet opens, scroll the matching [data-finding-key]
      card into view inside the sheet's scroll container. */
   scrollToKey?:   string | null;
+  /** Optional controlled active tab — needed when the parent opens the sheet
+     to a SPECIFIC tab (only the active tab's body is mounted, so scrollToKey
+     can only find cards on the tab that is showing). */
+  activeTab?:        string;
+  onActiveTabChange?: (id: string) => void;
 }
 
 const SWIPE_DISMISS_THRESHOLD_PX = 80;
 
-export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, open: controlledOpen, onOpenChange, scrollToKey }: Props) {
+export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, open: controlledOpen, onOpenChange, scrollToKey, activeTab: controlledTab, onActiveTabChange }: Props) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = (v: boolean) => {
@@ -36,7 +41,12 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, o
     if (controlledOpen === undefined) setInternalOpen(v);
   };
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
+  const [internalTab, setInternalTab] = useState(tabs[0]?.id ?? '');
+  const activeTab = controlledTab !== undefined ? controlledTab : internalTab;
+  const setActiveTab = (id: string) => {
+    onActiveTabChange?.(id);
+    if (controlledTab === undefined) setInternalTab(id);
+  };
   const [dragY, setDragY] = useState(0);
   const dragStartY = useRef<number | null>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
