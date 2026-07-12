@@ -7,6 +7,7 @@ interface Props {
   description?:   string;
   canonicalPath?: string;
   isLoggedIn?:    boolean;
+  ogType?:        string;   // 'website' (default) | 'article' for briefings
 }
 
 const {
@@ -14,6 +15,7 @@ const {
   description = "The Whetstone: a tool for thinking more carefully about arguments.",
   canonicalPath = '/',
   isLoggedIn = false,
+  ogType = 'website',
 } = Astro.props;
 
 const siteUrl = 'https://thewhetstone.review';
@@ -44,7 +46,7 @@ const currentPath = canonicalPath;
     <meta name="theme-color" content="#F3F4F1" />
 
     <!-- Open Graph -->
-    <meta property="og:type"        content="website" />
+    <meta property="og:type"        content={ogType} />
     <meta property="og:url"         content={pageUrl} />
     <meta property="og:title"       content={title} />
     <meta property="og:description" content={description} />
@@ -90,6 +92,10 @@ const currentPath = canonicalPath;
         } catch (_) {}
       })();
     </script>
+
+    {/* Page-specific head tags (e.g. per-briefing JSON-LD structured data,
+       article:published_time). Injected via <... slot="head">. */}
+    <slot name="head" />
   </head>
   <body class="min-h-screen text-ink font-sans antialiased pb-[calc(4rem+env(safe-area-inset-bottom,0px))] sm:pb-0">
 
