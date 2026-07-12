@@ -9,6 +9,7 @@ import ToulminCallouts from '../audit/ToulminCallouts';
 import HighlightedDraft from '../studio/HighlightedDraft';
 import MobileFindingsSheet from '../studio/MobileFindingsSheet';
 import GoalSelector from '../studio/GoalSelector';
+import AuditLoading from '../tool/AuditLoading';
 import { SAMPLES, type Sample } from '../../data/samples';
 
 // ---------------------------------------------------------------------------
@@ -35,18 +36,6 @@ interface RunState {
 function cannedFor(input: string): Sample {
   const bySample = SAMPLES.find(s => s.text === input);
   return bySample ?? SAMPLES[0]!;
-}
-
-function Loading() {
-  return (
-    <div class="rounded-xl border border-accent/20 bg-accent/5 p-4">
-      <p class="text-sm font-medium text-accent mb-2">Reading and analysing the argument…</p>
-      <div class="h-1.5 w-full rounded-full bg-accent/10 overflow-hidden">
-        <div class="h-full w-2/3 rounded-full bg-accent animate-pulse" />
-      </div>
-      <p class="text-xs text-accent/70 mt-2">Prototype: cached result, no API call.</p>
-    </div>
-  );
 }
 
 export default function Workbench() {
@@ -240,7 +229,7 @@ export default function Workbench() {
         </div>
       )}
 
-      {loading && <Loading />}
+      {loading && <AuditLoading />}
 
       {/* ---- Anonymous-Create banner (spec §2): dismissible, non-modal ---- */}
       {mode === 'create' && !signedIn && createRun && banner && !loading && (
