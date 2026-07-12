@@ -726,7 +726,9 @@ export default function StudioEditor({
       // The sheet's scrollToKey brings the card into view once mounted.
       return;
     }
-    const el = document.querySelector(`[data-finding-key="${key}"]`);
+    // CSS.escape: finding keys embed the quoted span text, which can contain
+    // quotes/colons that break a raw attribute selector (returns null → no scroll).
+    const el = document.querySelector(`[data-finding-key="${CSS.escape(key)}"]`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, []);
 
@@ -738,8 +740,11 @@ export default function StudioEditor({
       setFlashKey(key);
       if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
       flashTimer.current = window.setTimeout(() => setFlashKey(null), 1100);
-      const el = document.querySelector(`[data-match-key="${key}"]`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const el = document.querySelector(`[data-match-key="${CSS.escape(key)}"]`);
+      // behavior:'auto' (instant): smooth scrollIntoView is silently dropped in
+      // some environments (verified: it no-ops here while 'auto' scrolls). A
+      // jump-to-span is fine instant, and this is reliable everywhere.
+      if (el) el.scrollIntoView({ behavior: 'auto', block: 'center' });
     };
     if (isBelowDesktop()) {
       // Dismiss the sheet (it scroll-locks the body) before revealing the span.

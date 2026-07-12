@@ -75,12 +75,19 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, o
 
   // Opened with a target finding (highlight tap in the page body): bring its
   // card into view inside the sheet once the slide-in transition settles.
+  // The sheet is position:fixed, so scrollIntoView() would scroll the WINDOW,
+  // not this container — scroll the sheet's own scroll body directly (offset-
+  // parent-independent: by the card's delta from the scroller's top).
   useEffect(() => {
     if (!open || !scrollToKey) return;
     const t = setTimeout(() => {
-      sheetRef.current?.querySelector(`[data-finding-key="${CSS.escape(scrollToKey)}"]`)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
+      const root = sheetRef.current;
+      const card = root?.querySelector(`[data-finding-key="${CSS.escape(scrollToKey)}"]`) as HTMLElement | null;
+      const scroller = root?.querySelector('[data-sheet-scroll]') as HTMLElement | null;
+      if (card && scroller) {
+        scroller.scrollTop += card.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 12;
+      }
+    }, 320);
     return () => clearTimeout(t);
   }, [open, scrollToKey, mounted]);
 
@@ -178,7 +185,7 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, o
           </div>
 
           {/* Active tab body */}
-          <div class="overflow-y-auto p-4 flex-1 overscroll-contain">
+          <div data-sheet-scroll class="overflow-y-auto p-4 flex-1 overscroll-contain">
             {active.body}
           </div>
         </div>
