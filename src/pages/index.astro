@@ -195,8 +195,9 @@ const presentCategories = Object.keys(categoryCounts).sort();
             </div>
           </aside>
 
-          <!-- Mobile category strip -->
-          <div class="lg:hidden flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-2 scrollbar-thin">
+          <!-- Mobile category strip — sticky under the 48px top bar so
+               re-filtering a long feed doesn't mean scrolling back up. -->
+          <div class="lg:hidden sticky top-12 z-20 bg-paper flex gap-1.5 overflow-x-auto -mx-4 px-4 pt-2 pb-2 border-b border-hairline scrollbar-thin">
             <button type="button" data-filter="all" aria-pressed="true" class="feed-chip shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
               <span class="w-1.5 h-1.5 rounded-full shrink-0" style={`background:${CATEGORY_COLOUR_FALLBACK}`} aria-hidden="true"></span>All ({briefings.length})
             </button>
