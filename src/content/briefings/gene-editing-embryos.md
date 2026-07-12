@@ -5,6 +5,7 @@ axisLeft: permit
 axisRight: prohibit
 publishedDate: 2026-05-20
 otherTakes: none
+image: /briefing-images/placeholder-slate.svg
 ---
 
 ::positions

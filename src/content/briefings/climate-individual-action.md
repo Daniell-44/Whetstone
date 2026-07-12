@@ -5,6 +5,7 @@ axisLeft: individual action
 axisRight: systemic change
 publishedDate: 2026-05-27
 otherTakes: none
+image: /briefing-images/placeholder-slate.svg
 ---
 
 ::positions

@@ -5,6 +5,7 @@ axisLeft: coherent framework
 axisRight: structural flaws
 publishedDate: 2026-05-15
 otherTakes: none
+image: /briefing-images/placeholder-sand.svg
 ---
 
 ::positions

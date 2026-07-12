@@ -5,6 +5,7 @@ axisLeft: public utility
 axisRight: private editorial
 publishedDate: 2026-05-25
 otherTakes: none
+image: /briefing-images/placeholder-sand.svg
 ---
 
 ::positions
