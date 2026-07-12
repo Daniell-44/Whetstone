@@ -73,7 +73,11 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
         const rule = st !== undefined ? stanceCol(st) : COLOURS[((block.colourIndex % COLOURS.length) + COLOURS.length) % COLOURS.length].rule;
         const kindStyle = KIND_STYLE[block.audit.kind] ?? KIND_STYLE.structural;
         return (
-          <div id={idx === firstPositionIdx ? 'positions' : undefined} class="scroll-mt-24">
+          <div id={`pos-${block.sourceId}`} class="scroll-mt-24">
+            {/* Keeps the ToC "#positions" anchor working on the first position
+               (a block can't carry two ids; the spectrum markers jump here by
+               `pos-<sourceId>`). Zero-height, no layout impact. */}
+            {idx === firstPositionIdx && <span id="positions" class="block scroll-mt-24" aria-hidden="true"></span>}
             <div class="pl-4" style={`border-left:2px solid ${rule}`}>
               <p class="text-[0.9375rem] text-ink leading-[1.75]">{block.paragraph}</p>
             </div>
