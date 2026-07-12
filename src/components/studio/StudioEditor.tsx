@@ -36,6 +36,7 @@ import LabelWithTooltip from '../ui/LabelWithTooltip';
 import type { TerminologyPreference } from '../../lib/labels';
 import SummaryToolbar from '../audit/SummaryToolbar';
 import { track } from '../../lib/analytics/track';
+import { MIN_CHARS, MAX_CHARS } from '../tool/constants';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -95,8 +96,7 @@ type StructuralIncentiveApiResponse =
 // Constants
 // ---------------------------------------------------------------------------
 
-const MIN_CHARS = 50;
-const MAX_CHARS = 10_000;
+// MIN_CHARS / MAX_CHARS now come from ../tool/constants (shared with the Reader).
 
 // Threshold for treating an edited sample as a new draft (signature mismatch threshold)
 const SAMPLE_DIRTY_CHAR_THRESHOLD = 50;

@@ -12,6 +12,7 @@ import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
 import { applyContextualSeverity } from '../../../functions/_lib/audit/contextual-severity';
 import { track } from '../../lib/analytics/track';
 import { SAMPLES, type Sample } from '../../data/samples';
+import { MIN_CHARS, MAX_CHARS, URL_RE } from '../tool/constants';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,10 +30,8 @@ type ExtractionApiResponse =
 // Constants
 // ---------------------------------------------------------------------------
 
-const MIN_CHARS = 50;
-const MAX_CHARS = 10_000;
-
-// First-time-visitor examples now come from the shared Studio sample set
+// MIN_CHARS / MAX_CHARS / URL_RE now come from ../tool/constants (shared with
+// Studio). First-time-visitor examples come from the shared Studio sample set
 // (src/data/samples) — pre-cached audits, loaded instantly with no API call.
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -44,10 +43,6 @@ const ERROR_MESSAGES: Record<string, string> = {
   AUDIT_FAILED:      'The analysis failed. Please try again in a moment.',
   INVALID_INPUT:     'Please check your input and try again.',
 };
-
-// A single pasted token starting with http(s) and containing no whitespace is
-// treated as a URL to fetch; anything else is treated as argument text.
-const URL_RE = /^https?:\/\/\S+$/i;
 
 // Count span-level findings for the results verdict bar. The Reader has no
 // dismissed state (no document), so the raw arrays are the active set.
