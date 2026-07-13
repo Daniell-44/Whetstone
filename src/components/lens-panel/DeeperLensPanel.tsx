@@ -24,28 +24,7 @@ import RhetoricalModeDisplay from '../rhetorical-mode/RhetoricalModeDisplay';
 import EpistemicHumilityDisplay from '../epistemic-humility/EpistemicHumilityDisplay';
 import DisagreementEngagementDisplay from '../disagreement-engagement/DisagreementEngagementDisplay';
 import StructuralIncentiveDisplay from '../structural-incentive/StructuralIncentiveDisplay';
-import { track } from '../../lib/analytics/track';
-
-type SectionState<T> =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'done'; data: T }
-  | { status: 'error'; code: string; message: string };
-
-type LensName =
-  | 'presupposition'
-  | 'rhetorical-mode'
-  | 'epistemic-humility'
-  | 'disagreement-engagement'
-  | 'structural-incentive';
-
-type AnyLensResponse =
-  | { ok: true; result: PresuppositionResult }
-  | { ok: true; result: RhetoricalModeResult }
-  | { ok: true; result: EpistemicHumilityResult }
-  | { ok: true; result: DisagreementEngagementResult }
-  | { ok: true; result: StructuralIncentiveResult }
-  | { ok: false; error: { code: string; message: string } };
+import { runLens as runLensShared, type SectionState, type LensName } from '../tool/engine';
 
 interface Props {
   /** Text to analyse with each lens. */
@@ -131,31 +110,7 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
     lens:   LensName,
     setter: (s: SectionState<any>) => void,
   ) => {
-    setter({ status: 'loading' });
-
-    const eventName =
-      lens === 'presupposition'         ? 'presupposition_requested' :
-      lens === 'rhetorical-mode'        ? 'rhetorical_mode_requested' :
-      lens === 'epistemic-humility'     ? 'epistemic_humility_requested' :
-      lens === 'disagreement-engagement'? 'disagreement_engagement_requested' :
-                                          'structural_incentive_requested';
-    track(eventName as any, { surface });
-
-    try {
-      const res = await fetch(`/api/${lens}`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ text }),
-      });
-      const data = await res.json() as AnyLensResponse;
-      if (data.ok) {
-        setter({ status: 'done', data: data.result });
-      } else {
-        setter({ status: 'error', code: data.error.code, message: data.error.message });
-      }
-    } catch {
-      setter({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' });
-    }
+    await runLensShared({ lens, text, surface, setter });
   }, [text, surface]);
 
   return (

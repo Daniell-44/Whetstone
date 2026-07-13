@@ -35,62 +35,8 @@ import CitationAuditDisplay from '../citation-audit/CitationAuditDisplay';
 import LabelWithTooltip from '../ui/LabelWithTooltip';
 import type { TerminologyPreference } from '../../lib/labels';
 import SummaryToolbar from '../audit/SummaryToolbar';
-import { track } from '../../lib/analytics/track';
 import { MIN_CHARS, MAX_CHARS } from '../tool/constants';
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type SectionState<T> =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'done'; data: T }
-  | { status: 'error'; code: string; message: string };
-
-type AuditApiResponse =
-  | { ok: true;  audit: AuditResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type CounterargApiResponse =
-  | { ok: true;  result: CounterargumentResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type ExtractionApiResponse =
-  | { ok: true;  extraction: ArgumentExtractionResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type CommitmentsApiResponse =
-  | { ok: true;  result: PhilosophicalCommitmentsResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type CitationAuditApiResponse =
-  | { ok: true;  result: CitationAuditResult; usage: { inputTokens: number; outputTokens: number; citationsFetched: number; citationsFailed: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type EvidenceApiResponse =
-  | { ok: true;  result: EvidenceWeightedResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type PresupApiResponse =
-  | { ok: true;  result: PresuppositionResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type RhetApiResponse =
-  | { ok: true;  result: RhetoricalModeResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type HumilityApiResponse =
-  | { ok: true;  result: EpistemicHumilityResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type DisagreeApiResponse =
-  | { ok: true;  result: DisagreementEngagementResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
-
-type StructuralIncentiveApiResponse =
-  | { ok: true;  result: StructuralIncentiveResult; usage: { inputTokens: number; outputTokens: number } }
-  | { ok: false; error: { code: string; message: string } };
+import { runEngine, runLens as runLensShared, type SectionState, type LensName } from '../tool/engine';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -527,178 +473,90 @@ export default function StudioEditor({
 
     const versionPath = `/api/documents/${currentDocId}/versions/${currentVersionId}`;
 
-    fetch(`${versionPath}/extraction`, { method: 'POST' })
-      .then(r => r.json() as Promise<ExtractionApiResponse>)
-      .then(data => {
-        if (data.ok) {
-          setExtractionState({ status: 'done', data: data.extraction });
-
-          // Fire evidence-weighted assessment for empirical_contested claims (subscription only)
-          if (hasActiveSubscription) {
-            const empiricalClaims = data.extraction.statements
-              .filter(s => s.claimType === 'empirical_contested' || s.claimType === 'empirical_uncontested')
-              .map(s => ({ id: s.id, text: s.text, claimType: s.claimType }));
-            if (empiricalClaims.length > 0) {
-              setEvidenceState({ status: 'loading' });
-              fetch('/api/evidence-weighted', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ claims: empiricalClaims }),
-              })
-                .then(r => r.json() as Promise<EvidenceApiResponse>)
-                .then(d => {
-                  if (d.ok) setEvidenceState({ status: 'done', data: d.result });
-                  else setEvidenceState({ status: 'error', code: d.error.code, message: d.error.message });
-                })
-                .catch(() => setEvidenceState({ status: 'error', code: 'NETWORK', message: 'Evidence check failed.' }));
-            }
+    void runEngine<ArgumentExtractionResult>({
+      url:           `${versionPath}/extraction`,
+      setter:        setExtractionState,
+      pick:          d => d.extraction,
+      errorMessages: EXTRACTION_ERROR_MESSAGES,
+      onOk: (data) => {
+        // Fire evidence-weighted assessment for empirical claims (subscription only)
+        if (hasActiveSubscription) {
+          const empiricalClaims = (data.extraction as ArgumentExtractionResult).statements
+            .filter(s => s.claimType === 'empirical_contested' || s.claimType === 'empirical_uncontested')
+            .map(s => ({ id: s.id, text: s.text, claimType: s.claimType }));
+          if (empiricalClaims.length > 0) {
+            void runEngine<EvidenceWeightedResult>({
+              url:            '/api/evidence-weighted',
+              body:           { claims: empiricalClaims },
+              setter:         setEvidenceState,
+              pick:           d => d.result,
+              networkMessage: 'Evidence check failed.',
+            });
           }
-        } else {
-          const code = data.error.code;
-          setExtractionState({ status: 'error', code, message: EXTRACTION_ERROR_MESSAGES[code] ?? data.error.message });
         }
-      })
-      .catch(() => setExtractionState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
-      .finally(() => { extractionDone = true; checkDone(); });
+      },
+      onSettled: () => { extractionDone = true; checkDone(); },
+    });
 
-    fetch(`${versionPath}/audit`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ audience, intent }),
-    })
-      .then(r => r.json() as Promise<AuditApiResponse>)
-      .then(data => {
-        if (data.ok) {
-          setAuditState({ status: 'done', data: data.audit });
-        } else {
-          const code = data.error.code;
-          setAuditState({ status: 'error', code, message: AUDIT_ERROR_MESSAGES[code] ?? data.error.message });
-        }
-      })
-      .catch(() => setAuditState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
-      .finally(() => { auditDone = true; checkDone(); });
+    void runEngine<AuditResult>({
+      url:           `${versionPath}/audit`,
+      body:          { audience, intent },
+      setter:        setAuditState,
+      pick:          d => d.audit,
+      errorMessages: AUDIT_ERROR_MESSAGES,
+      onSettled:     () => { auditDone = true; checkDone(); },
+    });
 
     // Counterargument, commitments + citation are Pro-tier (Pro-model / external
     // fetch cost). They auto-fire only for subscribers; free users see the
     // upsell panel pointing to Studio Pro.
     if (hasActiveSubscription) {
-      fetch(`${versionPath}/counterargument`, { method: 'POST' })
-        .then(r => r.json() as Promise<CounterargApiResponse>)
-        .then(data => {
-          if (data.ok) {
-            setCounterargState({ status: 'done', data: data.result });
-          } else {
-            const code = data.error.code;
-            setCounterargState({ status: 'error', code, message: COUNTERARG_ERROR_MESSAGES[code] ?? data.error.message });
-          }
-        })
-        .catch(() => setCounterargState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
-        .finally(() => { counterargDone = true; checkDone(); });
+      void runEngine<CounterargumentResult>({
+        url:           `${versionPath}/counterargument`,
+        setter:        setCounterargState,
+        pick:          d => d.result,
+        errorMessages: COUNTERARG_ERROR_MESSAGES,
+        onSettled:     () => { counterargDone = true; checkDone(); },
+      });
 
-      fetch(`${versionPath}/commitments`, { method: 'POST' })
-        .then(r => r.json() as Promise<CommitmentsApiResponse>)
-        .then(data => {
-          if (data.ok) {
-            setCommitmentsState({ status: 'done', data: data.result });
-          } else {
-            const code = data.error.code;
-            setCommitmentsState({ status: 'error', code, message: COMMITMENTS_ERROR_MESSAGES[code] ?? data.error.message });
-          }
-        })
-        .catch(() => setCommitmentsState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
-        .finally(() => { commitmentsDone = true; checkDone(); });
+      void runEngine<PhilosophicalCommitmentsResult>({
+        url:           `${versionPath}/commitments`,
+        setter:        setCommitmentsState,
+        pick:          d => d.result,
+        errorMessages: COMMITMENTS_ERROR_MESSAGES,
+        onSettled:     () => { commitmentsDone = true; checkDone(); },
+      });
 
       // Citation audit - external URL fetching costs. The SERVER persists the
       // result onto the version (documentId/versionId in the body), so a phone
       // locking or the tab suspending mid-run no longer loses Source Match -
       // the old client-side follow-up persist fetch died with the tab.
-      fetch('/api/citation-audit', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
+      void runEngine<CitationAuditResult>({
+        url:  '/api/citation-audit',
+        body: {
           text,
           documentId: currentDocId ?? undefined,
           versionId:  currentVersionId ?? undefined,
-        }),
-      })
-        .then(r => r.json() as Promise<CitationAuditApiResponse>)
-        .then(data => {
-          if (data.ok) {
-            setCitationState({ status: 'done', data: data.result });
-          } else {
-            const code = data.error.code;
-            setCitationState({ status: 'error', code, message: CITATION_ERROR_MESSAGES[code] ?? data.error.message });
-          }
-        })
-        .catch(() => setCitationState({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' }))
-        .finally(() => { citationDone = true; checkDone(); });
+        },
+        setter:        setCitationState,
+        pick:          d => d.result,
+        errorMessages: CITATION_ERROR_MESSAGES,
+        onSettled:     () => { citationDone = true; checkDone(); },
+      });
     }
   }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
 
   // ---------------------------------------------------------------------------
-  // runLens - on-demand deeper-lens caller.
-  // Each lens hits its own endpoint with the current draft text. Subscription
-  // and rate-limiting are enforced server-side; we just dispatch.
+  // runLens - on-demand deeper-lens caller (shared plumbing in tool/engine.ts).
+  // Subscription and rate-limiting are enforced server-side; we just dispatch.
   // ---------------------------------------------------------------------------
-
-  type LensName =
-    | 'presupposition'
-    | 'rhetorical-mode'
-    | 'epistemic-humility'
-    | 'disagreement-engagement'
-    | 'structural-incentive';
-
-  type AnyLensResponse =
-    | PresupApiResponse
-    | RhetApiResponse
-    | HumilityApiResponse
-    | DisagreeApiResponse
-    | StructuralIncentiveApiResponse;
 
   const runLens = useCallback(async (
     lens:   LensName,
     text:   string,
     setter: (s: SectionState<any>) => void,
   ) => {
-    setter({ status: 'loading' });
-
-    // Map lens name to analytics event name
-    const startedEvent =
-      lens === 'presupposition'         ? 'presupposition_requested' :
-      lens === 'rhetorical-mode'        ? 'rhetorical_mode_requested' :
-      lens === 'epistemic-humility'     ? 'epistemic_humility_requested' :
-      lens === 'disagreement-engagement'? 'disagreement_engagement_requested' :
-                                          'structural_incentive_requested';
-    track(startedEvent as any, { surface: 'studio' });
-
-    try {
-      const res = await fetch(`/api/${lens}`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ text }),
-      });
-      const data = await res.json() as AnyLensResponse;
-      if (data.ok) {
-        setter({ status: 'done', data: data.result });
-        // Fire completion event with lens-specific metadata where useful
-        const r = data.result as any;
-        if (lens === 'presupposition') {
-          track('presupposition_requested', { surface: 'studio_done', finding_count: r.presuppositions?.length ?? 0 });
-        } else if (lens === 'rhetorical-mode') {
-          track('rhetorical_mode_requested', { surface: 'studio_done', dominant_appeal: r.dominantAppeal ?? 'unknown' });
-        } else if (lens === 'epistemic-humility') {
-          track('epistemic_humility_requested', { surface: 'studio_done', verdict: r.overallVerdict ?? 'unknown' });
-        } else if (lens === 'disagreement-engagement') {
-          track('disagreement_engagement_requested', { surface: 'studio_done', verdict: r.overallVerdict ?? 'unknown' });
-        } else if (lens === 'structural-incentive') {
-          track('structural_incentive_requested', { surface: 'studio_done', alignment_count: r.alignments?.length ?? 0 });
-        }
-      } else {
-        setter({ status: 'error', code: data.error.code, message: data.error.message });
-      }
-    } catch {
-      setter({ status: 'error', code: 'NETWORK', message: 'Network error - check your connection.' });
-    }
+    await runLensShared({ lens, text, surface: 'studio', setter, emitDoneEvent: true });
   }, []);
 
   // ---------------------------------------------------------------------------
