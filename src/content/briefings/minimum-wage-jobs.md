@@ -4,19 +4,22 @@ category: economics
 axisLeft: competitive market
 axisRight: monopsony power
 publishedDate: 2026-06-25
+image: /briefing-images/placeholder-sand.svg
 ---
 
-::sources
-wsj | WSJ column | Wall Street Journal | https://www.wsj.com/ | -75 | left | assessed
-neumark | Neumark & Wascher | NBER | https://www.nber.org/ | -82 | left
-cbo | CBO, 2019 | Congressional Budget Office | https://www.cbo.gov/ | -55 | left
-jardim | Jardim et al. (Seattle) | NBER | https://www.nber.org/papers/w23532 | -48 | left
-autor | Autor et al. | Review of Economics | https://direct.mit.edu/rest | 2 | mid
-manning | Manning, monopsony survey | JEL | https://www.aeaweb.org/journals/jel | 28 | mid
-cengiz | Cengiz et al. | NBER | https://www.nber.org/papers/w25434 | 64 | right
-card | Card & Krueger (1994) | American Economic Review | https://www.aeaweb.org/journals/aer | 78 | right
-atlantic | The Atlantic piece | The Atlantic | https://www.theatlantic.com/ | 72 | right | assessed
-dube | Dube et al. | IRLE | https://irle.berkeley.edu/ | 84 | right
+::positions
+jardim | Jardim et al. (Seattle) | NBER | https://www.nber.org/papers/w23532 | -1 | med
+cengiz | Cengiz et al. | NBER | https://www.nber.org/papers/w25434 | 1 | med
+
+::evidence
+wsj      | WSJ column | Wall Street Journal | https://www.wsj.com/ | Opinion column on the disemployment side; cited as commentary, not quoted or audited here.
+neumark  | Neumark & Wascher | NBER | https://www.nber.org/papers/w12663 | Survey concluding the most credible studies show negative employment effects; audited briefly under Other takes.
+cbo      | CBO, 2019 | Congressional Budget Office | https://www.cbo.gov/ | Projection of job losses from a federal increase, cited on the disemployment side; not audited here.
+autor    | Autor et al. | Review of Economics and Statistics | https://direct.mit.edu/rest | Near-neutral labour-economics work on wage effects, cited for context; not audited here.
+manning  | Manning, monopsony survey | Journal of Economic Literature | https://www.aeaweb.org/journals/jel | Survey of monopsony evidence in low-wage labour markets underpinning the monopsony case; not quoted or audited here.
+card     | Card & Krueger (1994) | American Economic Review | https://www.nber.org/papers/w4509 | The founding monopsony-side result (New Jersey); audited briefly under Other takes.
+atlantic | The Atlantic piece | The Atlantic | https://www.theatlantic.com/ | Magazine argument on the monopsony side, cited as commentary; not audited here.
+dube     | Dube et al. | IRLE, Berkeley | https://irle.berkeley.edu/ | Meta-analysis finding minimal employment effects, the strongest monopsony-side empirical entry; not quoted or audited here.
 
 ::landscape
 Thirty years after Card and Krueger, the question still splits economists — and it has narrowed to one point: how competitively does the low-wage market actually clear?
@@ -40,3 +43,7 @@ Both sides, though, stand on the same floor. Each treats today's labour market a
 If forced to bet, the monopsony read is stronger at the wage levels actually proposed — but I hold it loosely, because those proposals keep drifting past the range we've studied.
 ::why-wrong
 A large enough jump leaves that studied range, and the textbook result could reassert itself.
+
+::takes
+Card & Krueger (1994) · NBER | https://www.nber.org/papers/w4509 | Our empirical findings challenge the prediction that a rise in the minimum reduces employment. | One industry, one state border, one small step ($4.25 to $5.05) — a null result there is read as a general verdict, yet it says nothing about the large increases now on the table. Absence of an effect at the bottom of the range is not its absence across it.
+Neumark & Wascher (2006) · NBER | https://www.nber.org/papers/w12663 | among the papers we view as providing the most credible evidence, almost all point to negative employment effects | The weight of the literature is doing the work, but the weighing is theirs — "the papers we view as providing the most credible evidence" — so the count turns on which studies were let in. A consistent negative sign still fixes neither the size of the effect nor whether it survives at the wages actually proposed.
