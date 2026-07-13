@@ -14,8 +14,11 @@ test('briefing page renders question, audit link, and takes', async ({ page }) =
   await expect(auditLink).toBeVisible();
   await expect(auditLink).toHaveAttribute('href', /^\/audit\?audit=/);
 
-  // The audited external takes (Piece 3) render.
-  await expect(page.getByText('Other takes')).toBeVisible();
+  // The audited external takes (Piece 3) render. Match the section kicker
+  // exactly - evidence-note prose may also contain the words "Other takes"
+  // (e.g. "audited briefly under Other takes"), which breaks a bare
+  // substring locator under strict mode.
+  await expect(page.getByText('Other takes · audited')).toBeVisible();
 });
 
 test('explainer renders without a spectrum or deeper-reading shelf', async ({ page }) => {
