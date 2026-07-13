@@ -29,30 +29,28 @@ export type LensName =
 
 export const NETWORK_MESSAGE = 'Network error - check your connection.';
 
-export interface RunEngineOpts<T> {
+export interface CallEngineOpts<T> {
   url: string;
   /** JSON body; omit for a bare POST (the version-scoped endpoints). */
   body?: unknown;
-  setter: (s: SectionState<T>) => void;
   /** Pull the payload out of the ok envelope (d.audit / d.extraction / d.result). */
   pick: (data: any) => T;
   /** Friendly overrides by error code; unmapped codes fall through to the server message. */
   errorMessages?: Record<string, string>;
   /** Message shown when the fetch itself throws; defaults to NETWORK_MESSAGE. */
   networkMessage?: string;
-  /** Runs on ok with the full envelope - follow-up engines, analytics. */
-  onOk?: (data: any) => void;
-  /** Always runs last, success or failure (the checkDone bookkeeping slot). */
-  onSettled?: () => void;
 }
 
+export type EngineOutcome<T> =
+  | { ok: true;  data: T; envelope: any }
+  | { ok: false; code: string; message: string };
+
 /**
- * Run one engine call: sets loading, POSTs, and lands the section in
- * done/error. Never throws. Callers wanting concurrency just don't await it.
+ * One engine call as a promise: POST, parse the ok/error envelope, map error
+ * codes to friendly copy. Never throws - a network failure is an outcome.
  */
-export async function runEngine<T>(opts: RunEngineOpts<T>): Promise<void> {
-  const { url, body, setter, pick, errorMessages, networkMessage, onOk, onSettled } = opts;
-  setter({ status: 'loading' });
+export async function callEngine<T>(opts: CallEngineOpts<T>): Promise<EngineOutcome<T>> {
+  const { url, body, pick, errorMessages, networkMessage } = opts;
   try {
     const res = await fetch(url, body === undefined
       ? { method: 'POST' }
@@ -60,15 +58,39 @@ export async function runEngine<T>(opts: RunEngineOpts<T>): Promise<void> {
     const data = await res.json() as
       | ({ ok: true } & Record<string, unknown>)
       | { ok: false; error: { code: string; message: string } };
-    if (data.ok) {
-      setter({ status: 'done', data: pick(data) });
-      onOk?.(data);
-    } else {
-      setter({ status: 'error', code: data.error.code, message: errorMessages?.[data.error.code] ?? data.error.message });
-    }
+    if (data.ok) return { ok: true, data: pick(data), envelope: data };
+    return { ok: false, code: data.error.code, message: errorMessages?.[data.error.code] ?? data.error.message };
   } catch {
-    setter({ status: 'error', code: 'NETWORK', message: networkMessage ?? NETWORK_MESSAGE });
+    return { ok: false, code: 'NETWORK', message: networkMessage ?? NETWORK_MESSAGE };
+  }
+}
+
+export interface RunEngineOpts<T> extends CallEngineOpts<T> {
+  setter: (s: SectionState<T>) => void;
+  /** Runs on ok with the full envelope - follow-up engines, analytics. */
+  onOk?: (data: any) => void;
+  /** Always runs last, success or failure (the checkDone bookkeeping slot). */
+  onSettled?: () => void;
+}
+
+/**
+ * callEngine driving a SectionState setter: sets loading, POSTs, and lands
+ * the section in done/error. Callers wanting concurrency just don't await it.
+ */
+export async function runEngine<T>(opts: RunEngineOpts<T>): Promise<void> {
+  const { setter, onOk, onSettled, ...callOpts } = opts;
+  setter({ status: 'loading' });
+  const outcome = await callEngine<T>(callOpts);
+  try {
+    if (outcome.ok) {
+      setter({ status: 'done', data: outcome.data });
+      onOk?.(outcome.envelope);
+    } else {
+      setter({ status: 'error', code: outcome.code, message: outcome.message });
+    }
   } finally {
+    // Bookkeeping must survive a throwing setter/onOk - a stuck "running"
+    // flag is worse than a lost result.
     onSettled?.();
   }
 }
@@ -101,7 +123,7 @@ export async function runLens({ lens, text, surface, setter, emitDoneEvent = fal
     pick:   d => d.result,
     onOk:   emitDoneEvent ? (data) => {
       const r = data.result as any;
-      const meta =
+      const meta: Record<string, string | number> =
         lens === 'presupposition'          ? { finding_count: r.presuppositions?.length ?? 0 } :
         lens === 'rhetorical-mode'         ? { dominant_appeal: r.dominantAppeal ?? 'unknown' } :
         lens === 'epistemic-humility'      ? { verdict: r.overallVerdict ?? 'unknown' } :

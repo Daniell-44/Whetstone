@@ -11,15 +11,21 @@ import MobileFindingsSheet from '../studio/MobileFindingsSheet';
 import GoalSelector from '../studio/GoalSelector';
 import AuditLoading from '../tool/AuditLoading';
 import { SAMPLES, type Sample } from '../../data/samples';
+import { callEngine } from '../tool/engine';
+import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES } from '../tool/constants';
 
 // ---------------------------------------------------------------------------
-// PROTOTYPE — the Read/Create workbench (merge-exploration spec §6).
+// The Read/Create workbench — graduating from prototype to production
+// (Stage 3 port, per the merge adjudication: Workbench + satellites).
 //
-// Purpose: let Daniel FEEL the mode model before Stage 3 is decided. Everything
-// engine-shaped resolves to the cached SAMPLES (no API calls, no quota spend);
-// persistence and auth are stubbed behind a dev-only tier switcher.
-// It answers exactly one question: is Read/Create the right mental model on
-// this surface, at 375px and at desktop width?
+// Port slice 1: READ posture runs the real free engines — /api/audit
+// (+ /api/extract-argument for pasted text) through the shared tool/engine
+// plumbing, with the Reader's validation bounds and error copy. Sample chips
+// stay cached demos (no API call). CREATE still resolves to cached samples:
+// its real run needs the documents/versioning bootstrap (slice 2).
+// Auth stays stubbed behind the dev tier switcher until the page graduates
+// off /labs. No analytics fire from here — the labs page is dropped or gated
+// before any production deploy.
 // ---------------------------------------------------------------------------
 
 type Mode = 'read' | 'create';
@@ -28,7 +34,7 @@ type Tier = 'anonymous' | 'free' | 'pro';
 interface RunState {
   text:       string;              // the audited text (the buffer at run time)
   audit:      AuditResult;
-  extraction: ArgumentExtractionResult;
+  extraction: ArgumentExtractionResult | null;  // best-effort — audit renders without it
 }
 
 // Any live input resolves to the first sample's cached result — the prototype
@@ -52,6 +58,7 @@ export default function Workbench() {
   const [intent, setIntent]           = useState<Intent>('persuade');
 
   const [loading, setLoading]         = useState(false);
+  const [readError, setReadError]     = useState<string | null>(null);
   const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen]     = useState(false);
   const [bridgeConfirm, setBridgeConfirm] = useState(false);
@@ -59,7 +66,6 @@ export default function Workbench() {
   const [toast, setToast]             = useState<string | null>(null);
 
   const run     = mode === 'read' ? readRun : createRun;
-  const setRun  = mode === 'read' ? setReadRun : setCreateRun;
   const signedIn = tier !== 'anonymous';
 
   function say(msg: string) {
@@ -67,22 +73,77 @@ export default function Workbench() {
     window.setTimeout(() => setToast(null), 2600);
   }
 
-  function fakeRun(text: string) {
-    // Cold-open friendliness: an empty submit demos the first sample rather
-    // than scolding - the prototype's job is showing the shell.
+  // READ posture: the real engines. Audit + (for pasted text) the argument
+  // skeleton run in parallel; extraction is best-effort exactly as in the
+  // Reader - a failed skeleton never blocks the audit.
+  async function realRead(raw: string) {
+    const t = raw.trim();
+    // Cold-open friendliness survives the port: an EMPTY submit demos a
+    // cached sample rather than scolding.
+    if (!t) { say('Nothing pasted - showing a cached demo.'); loadSample(SAMPLES[0]!); return; }
+
+    const isUrl = URL_RE.test(t);
+    if (!isUrl && raw.length < MIN_CHARS) {
+      setReadError(`Audits need at least ${MIN_CHARS} characters - ${MIN_CHARS - raw.length} more to go.`);
+      return;
+    }
+    if (!isUrl && raw.length > MAX_CHARS) {
+      setReadError(`That's over the ${MAX_CHARS.toLocaleString()}-character limit - trim it down.`);
+      return;
+    }
+
+    setReadError(null);
+    setLoading(true);
+    setActiveFindingKey(null);
+
+    const [auditOut, extractionOut] = await Promise.all([
+      callEngine<AuditResult>({
+        url:           '/api/audit',
+        body:          isUrl ? { url: t } : { text: raw },
+        pick:          d => d.audit,
+        errorMessages: READER_AUDIT_ERROR_MESSAGES,
+      }),
+      isUrl
+        ? Promise.resolve(null)
+        : callEngine<ArgumentExtractionResult>({
+            url:  '/api/extract-argument',
+            body: { text: raw },
+            pick: d => d.extraction,
+          }),
+    ]);
+
+    if (auditOut.ok) {
+      // URL audits highlight the server-extracted article body; if the server
+      // sent none, the findings render full-width with no canvas.
+      const sourceText = (auditOut.envelope.sourceText as string | undefined) ?? (isUrl ? '' : raw);
+      setReadRun({
+        text:       sourceText,
+        audit:      auditOut.data,
+        extraction: extractionOut && extractionOut.ok ? extractionOut.data : null,
+      });
+    } else {
+      setReadError(auditOut.message);
+    }
+    setLoading(false);
+  }
+
+  // CREATE posture: still the cached-sample stub - the real run needs the
+  // document/version bootstrap (port slice 2).
+  function fakeCreateRun(text: string) {
     if (text.trim().length < 20) { say('Nothing pasted - showing a cached demo.'); text = ''; }
     setLoading(true);
     setActiveFindingKey(null);
     const s = cannedFor(text);
     window.setTimeout(() => {
-      setRun({ text: s.text, audit: s.cached.audit as AuditResult, extraction: s.cached.extraction as ArgumentExtractionResult });
-      if (mode === 'read') setReadInput(s.text); else setCreateDraft(s.text);
+      setCreateRun({ text: s.text, audit: s.cached.audit as AuditResult, extraction: s.cached.extraction as ArgumentExtractionResult });
+      setCreateDraft(s.text);
       setLoading(false);
     }, 1200);
   }
 
   function loadSample(s: Sample) {
     setLoading(true);
+    setReadError(null);
     setActiveFindingKey(null);
     window.setTimeout(() => {
       setReadRun({ text: s.text, audit: s.cached.audit as AuditResult, extraction: s.cached.extraction as ArgumentExtractionResult });
@@ -177,7 +238,7 @@ export default function Workbench() {
             />
             <button
               type="button"
-              onClick={() => fakeRun(readInput)}
+              onClick={() => void realRead(readInput)}
               aria-label="Audit this argument"
               class="absolute right-2.5 bottom-2.5 w-11 h-11 rounded-full bg-accent text-paper flex items-center justify-center hover:bg-accent/90 transition-colors"
             >
@@ -220,12 +281,21 @@ export default function Workbench() {
             <span class="text-xs text-muted">{createDraft.trim() ? `${createDraft.trim().split(/\s+/).length.toLocaleString()} words` : ''}</span>
             <button
               type="button"
-              onClick={() => fakeRun(createDraft)}
+              onClick={() => fakeCreateRun(createDraft)}
               class="rounded-lg bg-accent-support px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-support/90 transition-colors"
             >
               Analyse my draft
             </button>
           </div>
+        </div>
+      )}
+
+      {mode === 'read' && readError && !loading && (
+        <div class="rounded-lg border border-hairline bg-surface px-4 py-2.5" role="alert">
+          <p class="text-xs text-ink leading-relaxed">
+            <span class="font-mono uppercase tracking-wider text-muted mr-2">Couldn't run</span>
+            {readError}
+          </p>
         </div>
       )}
 
@@ -282,21 +352,24 @@ export default function Workbench() {
             )}
           </div>
 
-          {/* Canvas + desktop rail */}
+          {/* Canvas + desktop rail. A URL audit with no extracted body has no
+             canvas - findings take the full width. */}
           <div class="flex flex-col xl:flex-row gap-4 items-start">
-            <div class="w-full xl:w-[55%] rounded-lg border border-hairline bg-surface p-4">
-              <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">{mode === 'read' ? 'The text' : 'Your draft'}</p>
-              <HighlightedDraft text={run.text} audit={run.audit} activeFindingKey={activeFindingKey} onHighlightClick={goToFinding} />
-            </div>
+            {run.text && (
+              <div class="w-full xl:w-[55%] rounded-lg border border-hairline bg-surface p-4">
+                <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">{mode === 'read' ? 'The text' : 'Your draft'}</p>
+                <HighlightedDraft text={run.text} audit={run.audit} activeFindingKey={activeFindingKey} onHighlightClick={goToFinding} />
+              </div>
+            )}
 
-            <div class="hidden xl:block w-full xl:w-[45%] space-y-4 xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto">
+            <div class={`hidden xl:block w-full space-y-4 xl:sticky xl:top-20 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto ${run.text ? 'xl:w-[45%]' : ''}`}>
               <div class="rounded-lg border border-hairline bg-surface p-4">
                 <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Findings</p>
                 <AuditResults result={run.audit} scope="span" flush activeFindingKey={activeFindingKey} />
               </div>
               <div class="rounded-lg border border-hairline bg-surface p-4 space-y-4">
                 <p class="text-xs font-semibold uppercase tracking-widest text-muted">Argument structure</p>
-                <ArgumentExtraction result={run.extraction} />
+                {run.extraction && <ArgumentExtraction result={run.extraction} />}
                 <ToulminCallouts toulmin={run.audit.toulmin} />
               </div>
             </div>
@@ -365,7 +438,7 @@ export default function Workbench() {
           totalFindings={counts.total}
           tabs={[
             { id: 'findings', label: 'Findings', count: counts.total, body: <AuditResults result={run.audit} scope="span" flush activeFindingKey={activeFindingKey} /> },
-            { id: 'structure', label: 'Structure', body: <div class="space-y-4"><ArgumentExtraction result={run.extraction} /><ToulminCallouts toulmin={run.audit.toulmin} /></div> },
+            { id: 'structure', label: 'Structure', body: <div class="space-y-4">{run.extraction && <ArgumentExtraction result={run.extraction} />}<ToulminCallouts toulmin={run.audit.toulmin} /></div> },
           ]}
         />
       )}

@@ -12,7 +12,7 @@ import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
 import { applyContextualSeverity } from '../../../functions/_lib/audit/contextual-severity';
 import { track } from '../../lib/analytics/track';
 import { SAMPLES, type Sample } from '../../data/samples';
-import { MIN_CHARS, MAX_CHARS, URL_RE } from '../tool/constants';
+import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES as ERROR_MESSAGES } from '../tool/constants';
 import AuditLoading from '../tool/AuditLoading';
 
 // ---------------------------------------------------------------------------
@@ -35,15 +35,8 @@ type ExtractionApiResponse =
 // Studio). First-time-visitor examples come from the shared Studio sample set
 // (src/data/samples) — pre-cached audits, loaded instantly with no API call.
 
-const ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:      "You've reached the daily audit limit. Come back tomorrow to run more audits.",
-  EXTRACTION_FAILED: "Couldn't extract the article text from that URL. Try pasting the text directly instead.",
-  TOO_SHORT:         'The extracted text was too short to audit. Try pasting the full article text directly.',
-  NOT_HTML:          "That URL doesn't point to an HTML page. Try pasting the text directly instead.",
-  FETCH_FAILED:      "Couldn't reach that URL - check it's publicly accessible, or paste the text directly.",
-  AUDIT_FAILED:      'The analysis failed. Please try again in a moment.',
-  INVALID_INPUT:     'Please check your input and try again.',
-};
+// ERROR_MESSAGES comes from ../tool/constants (READER_AUDIT_ERROR_MESSAGES),
+// shared with the workbench.
 
 // Count span-level findings for the results verdict bar. The Reader has no
 // dismissed state (no document), so the raw arrays are the active set.

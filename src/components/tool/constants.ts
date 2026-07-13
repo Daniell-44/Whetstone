@@ -19,3 +19,18 @@ export const URL_RE = /^https?:\/\/\S+$/i;
 export function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
+
+/**
+ * Friendly copy for the anonymous audit endpoint's error codes (/api/audit,
+ * which also owns the URL-fetch failure modes). Shared by the Reader and the
+ * workbench so the two can't drift on error wording.
+ */
+export const READER_AUDIT_ERROR_MESSAGES: Record<string, string> = {
+  RATE_LIMITED:      "You've reached the daily audit limit. Come back tomorrow to run more audits.",
+  EXTRACTION_FAILED: "Couldn't extract the article text from that URL. Try pasting the text directly instead.",
+  TOO_SHORT:         'The extracted text was too short to audit. Try pasting the full article text directly.',
+  NOT_HTML:          "That URL doesn't point to an HTML page. Try pasting the text directly instead.",
+  FETCH_FAILED:      "Couldn't reach that URL - check it's publicly accessible, or paste the text directly.",
+  AUDIT_FAILED:      'The analysis failed. Please try again in a moment.',
+  INVALID_INPUT:     'Please check your input and try again.',
+};
