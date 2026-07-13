@@ -12,6 +12,8 @@ import Workbench from '../../components/labs/Workbench';
   description="Internal prototype."
   canonicalPath="/labs/workbench"
 >
+  {/* Prototype must never be indexed even though it's reachable in production. */}
+  <meta slot="head" name="robots" content="noindex, nofollow" />
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12">
     <header class="mb-6">
       <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Labs · prototype · nothing here is live</p>
