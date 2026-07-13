@@ -1,29 +1,47 @@
 ---
-// PROTOTYPE — never linked, never indexed, lives on the iteration branch only.
-// The Read/Create workbench from the merge exploration (spec §6): one surface,
-// a mode toggle, tier-gated features, all engine calls resolved from cached
-// samples. Exists so Daniel can judge the mode model by hand before Stage 3
-// of the merge is decided. Delete freely.
+// The Read/Create workbench — graduating from prototype to production
+// (Stage 3 port: "Workbench + satellites"). Never linked, never indexed;
+// must be dropped or gated before any production deploy.
+//
+// The page now reads the REAL session (port slice 2) so Create can persist
+// documents/versions for signed-in users. The dev tier switcher inside the
+// island initialises from the real tier and stays as a display override for
+// feeling the gates.
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import Workbench from '../../components/labs/Workbench';
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
+import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
+import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+const realSignedIn = session !== null;
+const realPro = session
+  ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
+  : false;
 ---
 <Base
   title="Workbench (labs) - The Whetstone"
   description="Internal prototype."
   canonicalPath="/labs/workbench"
 >
-  {/* Prototype must never be indexed even though it's reachable in production. */}
+  {/* Must never be indexed even though it's reachable in production. */}
   <meta slot="head" name="robots" content="noindex, nofollow" />
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12">
     <header class="mb-6">
-      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Labs · prototype · nothing here is live</p>
+      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Labs · the merge workbench · not linked anywhere</p>
       <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-tight">The Audit, with a Read / Create toggle</h1>
       <p class="mt-2 text-sm text-muted leading-relaxed max-w-2xl">
         One surface, two postures: Read audits someone else's argument, Create audits your own draft.
-        The dev tier switcher (top right) flips every gate so all six auth-and-tier states can be felt.
-        Engine calls resolve from cached samples; nothing is saved and nothing costs quota.
+        Both postures now run the real engines; signed-in Create saves documents and versions.
+        The dev tier switcher (top right) still overrides the display gates.
       </p>
     </header>
-    <Workbench client:load />
+    <Workbench client:load realSignedIn={realSignedIn} realPro={realPro} />
   </main>
 </Base>

@@ -11,7 +11,7 @@ import MobileFindingsSheet from '../studio/MobileFindingsSheet';
 import GoalSelector from '../studio/GoalSelector';
 import AuditLoading from '../tool/AuditLoading';
 import { SAMPLES, type Sample } from '../../data/samples';
-import { callEngine } from '../tool/engine';
+import { callEngine, NETWORK_MESSAGE } from '../tool/engine';
 import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES } from '../tool/constants';
 
 // ---------------------------------------------------------------------------
@@ -21,11 +21,19 @@ import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES } from '../to
 // Port slice 1: READ posture runs the real free engines — /api/audit
 // (+ /api/extract-argument for pasted text) through the shared tool/engine
 // plumbing, with the Reader's validation bounds and error copy. Sample chips
-// stay cached demos (no API call). CREATE still resolves to cached samples:
-// its real run needs the documents/versioning bootstrap (slice 2).
-// Auth stays stubbed behind the dev tier switcher until the page graduates
-// off /labs. No analytics fire from here — the labs page is dropped or gated
-// before any production deploy.
+// stay cached demos (no API call).
+//
+// Port slice 2: CREATE posture runs for real too. Signed-in (a REAL session,
+// via the page's server props): the document/version bootstrap ported from
+// StudioEditor — first Analyse creates the document, later Analyses with
+// changed content append versions, engines run version-scoped so results
+// persist server-side. Anonymous: the free engines on the draft, nothing
+// saved, the banner explains. The dev tier switcher initialises from the
+// real tier and remains a DISPLAY override (persistence always requires the
+// real session — the server enforces it regardless of the switcher).
+// Still deferred: Pro auto-fire panels, ?doc= rehydration, title autosave.
+// No analytics fire from here — the labs page is dropped or gated before any
+// production deploy.
 // ---------------------------------------------------------------------------
 
 type Mode = 'read' | 'create';
@@ -44,9 +52,16 @@ function cannedFor(input: string): Sample {
   return bySample ?? SAMPLES[0]!;
 }
 
-export default function Workbench() {
+interface Props {
+  /** Whether a real session cookie authenticated (server-read, not the dev switcher). */
+  realSignedIn?: boolean;
+  /** Whether that session has an active Studio subscription. */
+  realPro?: boolean;
+}
+
+export default function Workbench({ realSignedIn = false, realPro = false }: Props) {
   const [mode, setMode] = useState<Mode>('read');
-  const [tier, setTier] = useState<Tier>('anonymous');
+  const [tier, setTier] = useState<Tier>(realPro ? 'pro' : realSignedIn ? 'free' : 'anonymous');
 
   // Two independent buffers — toggling never clears, never re-runs (spec §1.4).
   const [readInput, setReadInput]     = useState('');
@@ -57,8 +72,15 @@ export default function Workbench() {
   const [audience, setAudience]       = useState<Audience>('general');
   const [intent, setIntent]           = useState<Intent>('persuade');
 
+  // Create-side persistence (slice 2): the document/version chain a signed-in
+  // Analyse creates, mirroring StudioEditor's bootstrap.
+  const [createDocId, setCreateDocId]           = useState<string | null>(null);
+  const [createVersionId, setCreateVersionId]   = useState<string | null>(null);
+  const [lastSavedContent, setLastSavedContent] = useState<string | null>(null);
+
   const [loading, setLoading]         = useState(false);
   const [readError, setReadError]     = useState<string | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [activeFindingKey, setActiveFindingKey] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen]     = useState(false);
   const [bridgeConfirm, setBridgeConfirm] = useState(false);
@@ -67,6 +89,10 @@ export default function Workbench() {
 
   const run     = mode === 'read' ? readRun : createRun;
   const signedIn = tier !== 'anonymous';
+  // Persistence needs the REAL session, whatever the display switcher says -
+  // the document endpoints 401 without a cookie. Switching the display to
+  // "anonymous" also runs Create unsaved, so that cell can be felt too.
+  const canPersist = realSignedIn && tier !== 'anonymous';
 
   function say(msg: string) {
     setToast(msg);
@@ -127,18 +153,122 @@ export default function Workbench() {
     setLoading(false);
   }
 
-  // CREATE posture: still the cached-sample stub - the real run needs the
-  // document/version bootstrap (port slice 2).
-  function fakeCreateRun(text: string) {
-    if (text.trim().length < 20) { say('Nothing pasted - showing a cached demo.'); text = ''; }
+  // CREATE posture, cold-open only: an empty Analyse demos a cached sample.
+  function fakeCreateRun() {
     setLoading(true);
     setActiveFindingKey(null);
-    const s = cannedFor(text);
+    const s = cannedFor('');
     window.setTimeout(() => {
       setCreateRun({ text: s.text, audit: s.cached.audit as AuditResult, extraction: s.cached.extraction as ArgumentExtractionResult });
       setCreateDraft(s.text);
       setLoading(false);
     }, 1200);
+  }
+
+  // CREATE posture: the real engines (slice 2). Signed-in Analyse persists
+  // first - create the document (or append a version when the content
+  // changed), then run the version-scoped engines so results land on the
+  // saved version server-side. Anonymous runs the free engines unsaved.
+  async function realCreate() {
+    const raw = createDraft;
+    if (!raw.trim()) { say('Nothing written yet - showing a cached demo.'); fakeCreateRun(); return; }
+    if (raw.length < MIN_CHARS) {
+      setCreateError(`Analyses need at least ${MIN_CHARS} characters - ${MIN_CHARS - raw.length} more to go.`);
+      return;
+    }
+    if (raw.length > MAX_CHARS) {
+      setCreateError(`That's over the ${MAX_CHARS.toLocaleString()}-character limit - trim it down.`);
+      return;
+    }
+
+    setCreateError(null);
+    setLoading(true);
+    setActiveFindingKey(null);
+
+    let auditUrl      = '/api/audit';
+    let auditBody: unknown      = { text: raw };
+    let extractionUrl = '/api/extract-argument';
+    let extractionBody: unknown = { text: raw };
+
+    if (canPersist) {
+      // --- ensure document + version exist (ported from StudioEditor) ---
+      let doc = createDocId;
+      let ver = createVersionId;
+      try {
+        if (!doc) {
+          const res  = await fetch('/api/documents', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ title: createTitle || 'Untitled draft', content: raw }),
+          });
+          const data = await res.json() as { ok: boolean; docId?: string; versionId?: string };
+          if (!data.ok || !data.docId) {
+            setCreateError("Couldn't save the draft - try again in a moment.");
+            setLoading(false);
+            return;
+          }
+          doc = data.docId;
+          ver = data.versionId ?? null;
+          setCreateDocId(doc);
+          setCreateVersionId(ver);
+          setLastSavedContent(raw);
+          const url = new URL(window.location.href);
+          url.searchParams.set('doc', doc);
+          window.history.replaceState({}, '', url.toString());
+        } else if (raw !== lastSavedContent) {
+          const res  = await fetch(`/api/documents/${doc}/versions`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ content: raw }),
+          });
+          const data = await res.json() as { ok: boolean; versionId?: string };
+          if (!data.ok || !data.versionId) {
+            setCreateError("Couldn't save this version - try again in a moment.");
+            setLoading(false);
+            return;
+          }
+          ver = data.versionId;
+          setCreateVersionId(ver);
+          setLastSavedContent(raw);
+        }
+      } catch {
+        setCreateError(NETWORK_MESSAGE);
+        setLoading(false);
+        return;
+      }
+      if (!doc || !ver) { setLoading(false); return; }
+      const versionPath = `/api/documents/${doc}/versions/${ver}`;
+      auditUrl       = `${versionPath}/audit`;
+      auditBody      = { audience, intent };  // goals feed the engine on the saved path
+      extractionUrl  = `${versionPath}/extraction`;
+      extractionBody = undefined;             // bare POST - the version holds the content
+    }
+
+    const [auditOut, extractionOut] = await Promise.all([
+      callEngine<AuditResult>({
+        url:           auditUrl,
+        body:          auditBody,
+        pick:          d => d.audit,
+        errorMessages: READER_AUDIT_ERROR_MESSAGES,
+      }),
+      callEngine<ArgumentExtractionResult>({
+        url:  extractionUrl,
+        body: extractionBody,
+        pick: d => d.extraction,
+      }),
+    ]);
+
+    if (auditOut.ok) {
+      setCreateRun({
+        text:       raw,
+        audit:      auditOut.data,
+        extraction: extractionOut.ok ? extractionOut.data : null,
+      });
+      setBanner(true);
+    } else {
+      setCreateError(auditOut.message);
+    }
+    setLoading(false);
   }
 
   function loadSample(s: Sample) {
@@ -281,7 +411,7 @@ export default function Workbench() {
             <span class="text-xs text-muted">{createDraft.trim() ? `${createDraft.trim().split(/\s+/).length.toLocaleString()} words` : ''}</span>
             <button
               type="button"
-              onClick={() => fakeCreateRun(createDraft)}
+              onClick={() => void realCreate()}
               class="rounded-lg bg-accent-support px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-support/90 transition-colors"
             >
               Analyse my draft
@@ -290,11 +420,11 @@ export default function Workbench() {
         </div>
       )}
 
-      {mode === 'read' && readError && !loading && (
+      {(mode === 'read' ? readError : createError) && !loading && (
         <div class="rounded-lg border border-hairline bg-surface px-4 py-2.5" role="alert">
           <p class="text-xs text-ink leading-relaxed">
             <span class="font-mono uppercase tracking-wider text-muted mr-2">Couldn't run</span>
-            {readError}
+            {mode === 'read' ? readError : createError}
           </p>
         </div>
       )}
@@ -309,7 +439,7 @@ export default function Workbench() {
             <span class="mx-2 text-hairline">·</span>
             This draft is not saved. Sign in free to save drafts and versions.
           </p>
-          <button type="button" onClick={() => say('Prototype: sign-in is stubbed.')} class="text-xs font-medium text-accent-support hover:text-accent shrink-0 py-1">Sign in</button>
+          <a href="/login?returnTo=/labs/workbench" class="text-xs font-medium text-accent-support hover:text-accent shrink-0 py-1">Sign in</a>
           <button type="button" onClick={() => setBanner(false)} aria-label="Dismiss" class="text-muted hover:text-ink shrink-0 px-1 py-1">✕</button>
         </div>
       )}
