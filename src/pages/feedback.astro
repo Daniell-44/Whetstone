@@ -82,7 +82,8 @@ const isLoggedIn = !!session;
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ message, email: emailEl?.value.trim() ?? '', path: document.referrer || location.pathname }),
         });
-        const data = await res.json().catch(() => ({}));
+        type ApiEnvelope = { ok?: boolean; error?: { message?: string } };
+        const data = (await res.json().catch(() => ({}))) as ApiEnvelope;
         if (res.ok && data.ok) {
           form?.reset();
           status.textContent = 'Thanks — your feedback was sent.';

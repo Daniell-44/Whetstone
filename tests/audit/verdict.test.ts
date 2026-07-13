@@ -5,8 +5,13 @@ import type { GroundednessSignal } from '../../functions/_lib/grounded/types';
 import type { AuditResult } from '../../functions/_lib/audit/types';
 
 // Minimal finding — the stats helpers only read `severity` + `groundedness`.
-function f(severity: 'high' | 'medium' | 'low', g: GroundednessSignal) {
-  return { severity, groundedness: g } as unknown as AuditResult['namedFallacies'][number];
+// Cast to the intersection of the lens finding types so one stub fits every array.
+type AnyFinding = AuditResult['namedFallacies'][number] &
+  AuditResult['loadedLanguage'][number] &
+  AuditResult['referentChecks'][number];
+
+function f(severity: 'high' | 'medium' | 'low', g: GroundednessSignal): AnyFinding {
+  return { severity, groundedness: g } as unknown as AnyFinding;
 }
 
 function audit(parts: Partial<AuditResult> & { warrants?: AuditResult['toulmin']['unstatedWarrants'] }): AuditResult {
