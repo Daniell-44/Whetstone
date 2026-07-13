@@ -10,6 +10,7 @@ import HighlightedDraft from '../studio/HighlightedDraft';
 import MobileFindingsSheet from '../studio/MobileFindingsSheet';
 import GoalSelector from '../studio/GoalSelector';
 import AuditLoading from '../tool/AuditLoading';
+import StudioTag from '../tool/StudioTag';
 import { SAMPLES, type Sample } from '../../data/samples';
 import { callEngine, NETWORK_MESSAGE } from '../tool/engine';
 import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES } from '../tool/constants';
@@ -532,7 +533,7 @@ export default function Workbench({ realSignedIn = false, realPro = false }: Pro
             <div class="rounded-xl border border-hairline bg-paper p-5">
               <div class="flex items-center gap-2 mb-2">
                 <p class="text-xs font-semibold uppercase tracking-widest text-accent">Counterargument</p>
-                <span class="font-mono text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border border-hairline text-muted">Studio</span>
+                <StudioTag />
               </div>
               <p class="text-sm text-ink leading-relaxed mb-3">The objections a careful opponent would raise against your draft, each with its own structure. Part of Studio.</p>
               <button type="button" onClick={() => say('Prototype: upgrade flow is stubbed.')} class="rounded-lg bg-accent-support px-4 py-2 text-xs font-semibold text-white hover:bg-accent-support/90 transition-colors">See plans</button>

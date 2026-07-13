@@ -16,6 +16,17 @@ import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
 import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
 import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
 
+// The reserved URL contract (merge adjudication 2026-07-13). These params are
+// honoured at the tool's canonical address from now on, so the eventual
+// Workbench consolidation is a redirect flip, not a link-breaking migration.
+// Today each forwards to the room that owns the capability. Deliberately 302
+// (temporary): the destinations change at cutover and must not be cached.
+const typeParam = Astro.url.searchParams.get('type');
+if (typeParam === 'transcript') return Astro.redirect('/creator/studio/transcript', 302);
+if (Astro.url.searchParams.get('compare') === '1') return Astro.redirect('/creator/studio/cross-document', 302);
+const docParam = Astro.url.searchParams.get('doc');
+if (docParam) return Astro.redirect(`/creator/studio?doc=${encodeURIComponent(docParam)}`, 302);
+
 // "Audit the full article" deep-link: /audit?audit=<slug> pre-loads the field
 // with the briefing's argumentative prose. (Moved from index.astro; / shims
 // legacy /?audit=&url= links here.)

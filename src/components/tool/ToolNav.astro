@@ -1,0 +1,57 @@
+---
+// The suite strip for the merged workbench (Stage 3 port, "Workbench +
+// satellites"): the merged Read/Create surface plus the three rooms that
+// keep their own doors - Transcript and Cross-document take different input
+// objects (the Ahrefs different-input test), Documents is the library.
+// Modeled on StudioNav, which keeps serving the existing /creator pages
+// until cutover; at cutover the Workbench entry takes over /audit and the
+// satellite links flip to the reserved URL contract (/audit?type=transcript,
+// /audit?compare=1 - already honoured by /audit as redirects).
+//
+// Gating grammar: Pro rooms carry the ONE mono StudioTag for non-
+// subscribers - visible-but-locked, never hidden, never redline.
+import StudioTag from './StudioTag';
+
+interface Props {
+  current: 'workbench' | 'transcript' | 'cross-document' | 'documents';
+  isPro?: boolean;
+}
+const { current, isPro = false } = Astro.props;
+
+const tabs: { key: Props['current']; label: string; href: string; pro: boolean }[] = [
+  { key: 'workbench',      label: 'Workbench',      href: '/labs/workbench',                pro: false },
+  { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript',     pro: true  },
+  { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document', pro: true  },
+  { key: 'documents',      label: 'Documents',      href: '/creator/documents',             pro: false },
+];
+---
+{/* Same mobile pattern as StudioNav: single-row horizontal scroll with ~44px
+   targets; sm+ wraps. Anonymous/free users see the locked rooms at reduced
+   weight (muted text + tag) so the strip stays quiet beside the paste box. */}
+<nav class="mb-4 flex items-center justify-between gap-3 flex-nowrap sm:flex-wrap border-b border-hairline pb-0 sm:pb-2" aria-label="Workbench tools">
+  <div class="flex items-center gap-1 sm:gap-4 flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-visible min-w-0">
+    {tabs.map((t) => (
+      <a
+        href={t.href}
+        aria-current={current === t.key ? 'page' : undefined}
+        class={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 text-sm px-2 py-2.5 sm:px-0 sm:py-0 sm:pb-0.5 sm:-mb-2 border-b-2 transition-colors ${
+          current === t.key
+            ? 'text-ink-strong font-semibold border-accent-support'
+            : 'text-muted border-transparent hover:text-ink'
+        }`}
+      >
+        {t.label}
+        {t.pro && !isPro && <StudioTag />}
+      </a>
+    ))}
+  </div>
+  {!isPro && (
+    <a
+      href="/pricing"
+      class="inline-flex items-center gap-1.5 rounded-lg border border-accent-support/30 bg-accent-support/5 px-2.5 py-1.5 text-xs font-medium text-accent-support hover:bg-accent-support/10 transition-colors shrink-0"
+    >
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+      Subscribe
+    </a>
+  )}
+</nav>
