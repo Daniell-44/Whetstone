@@ -1,6 +1,11 @@
 /// <reference types="astro/client" />
 /// <reference types="@cloudflare/workers-types" />
 
+// @fontsource packages are CSS-only side-effect imports with no type
+// declarations; without this, `astro check` flags the import in Base.astro
+// (ts2882). Same fix as the extension's vite-env.d.ts.
+declare module '@fontsource-variable/besley';
+
 // Extend Cloudflare.Env so that `import { env } from "cloudflare:workers"` is
 // correctly typed for all KV bindings used by server-rendered Astro pages.
 declare namespace Cloudflare {
