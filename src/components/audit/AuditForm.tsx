@@ -84,7 +84,10 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // backport): the Reader controls the sheet so a highlight tap can open it.
   const [sheetOpen, setSheetOpen] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
-  const [showExamples, setShowExamples] = useState(false);
+  // Examples are the highest-leverage first-run comprehension aid, so show them
+  // by default for a cold arrival (no deep-link prefill). They auto-collapse
+  // once the visitor commits real text (see the onInput handler).
+  const [showExamples, setShowExamples] = useState(!initialText && !initialUrl && !initialSampleId);
 
   // /?audit=<slug> or /?url=<src> deep-link from a briefing: pre-load the field
   // and bring it into view. We deliberately don't auto-run — the reader presses
@@ -119,7 +122,11 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   }, []);
 
   const trimmed   = input.trim();
-  const looksUrl  = URL_RE.test(trimmed);
+  // A URL is auditable even when wrapped in a short label (see runAudit): a
+  // pasted link with a trailing space or "Check this: <url>" should enable the
+  // button, not sit blocked under the 50-char text minimum.
+  const urlHit    = trimmed.match(/https?:\/\/\S+/);
+  const looksUrl  = !!urlHit && trimmed.replace(urlHit[0], '').trim().length <= 20;
   const charCount = input.length;
   const textValid = charCount >= MIN_CHARS && charCount <= MAX_CHARS;
   const canSubmit = !loading && (looksUrl || textValid);
@@ -175,8 +182,17 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // Core audit runner, shared by the form submit and the example chips.
   async function runAudit(raw: string) {
     const t      = raw.trim();
-    const isUrl  = URL_RE.test(t);
-    const isText = !isUrl;
+    // Detect a URL even when it isn't the whole input: a trailing space from an
+    // autocomplete drop, or a short wrapper ("Check this: https://…", an Android
+    // share sheet's "Look at this — https://…") used to fall through to text
+    // mode and error as "too short". Treat it as a URL audit only when the
+    // non-URL remainder is negligible (just a label), so a real argument that
+    // merely quotes a link still audits as text.
+    const urlMatch  = t.match(/https?:\/\/\S+/);
+    const remainder = urlMatch ? t.replace(urlMatch[0], '').trim() : t;
+    const isUrl     = !!urlMatch && remainder.length <= 20;
+    const url       = isUrl ? urlMatch![0] : '';
+    const isText    = !isUrl;
     // Guard: text needs to clear the length bounds; URLs always pass.
     if (isText && !(raw.length >= MIN_CHARS && raw.length <= MAX_CHARS)) return;
 
@@ -186,7 +202,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     setResult(null);
     setExtraction(null);
 
-    const body      = isText ? { text: raw } : { url: t };
+    const body      = isText ? { text: raw } : { url };
     const startedAt = performance.now();
     track('audit_started', { surface: 'reader', source_kind: isText ? 'text' : 'url' });
 
@@ -287,7 +303,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           <span class="text-sm text-ink">Audited <span class="font-medium">{auditedWords.toLocaleString()} words</span></span>
           <div class="ml-auto flex items-center gap-2">
             <button type="button" onClick={() => setEditing(true)} class="text-xs px-3 py-1 rounded-md border border-hairline text-ink hover:border-accent hover:text-accent transition-colors">Edit</button>
-            <button type="button" onClick={newAudit} class="text-xs px-3 py-1 rounded-md bg-accent text-paper hover:bg-accent/90 transition-colors">New audit</button>
+            <button type="button" onClick={newAudit} class="text-xs px-3 py-1 rounded-md bg-accent-support text-paper hover:bg-accent-support/90 transition-colors">New audit</button>
           </div>
         </div>
       ) : (
@@ -297,11 +313,15 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         <div class="relative">
           <textarea
             value={input}
-            onInput={e => setInput((e.target as HTMLTextAreaElement).value)}
+            onInput={e => {
+              const v = (e.target as HTMLTextAreaElement).value;
+              setInput(v);
+              if (v.length >= MIN_CHARS && showExamples) setShowExamples(false);
+            }}
             placeholder="Paste an argument, or drop a link to audit…"
             aria-label="Argument text or URL to audit"
             rows={loadedFromLink ? 6 : 2}
-            class="w-full rounded-xl border border-hairline bg-surface pl-4 pr-16 py-3 text-base sm:text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+            class="w-full rounded-xl border border-hairline bg-surface pl-4 pr-24 py-3 text-base sm:text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
             style={`min-height:${loadedFromLink ? 180 : 64}px;`}
           />
           <button
@@ -309,8 +329,8 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             disabled={!canSubmit}
             aria-label="Audit this argument"
             title="Audit this argument"
-            class={`absolute right-2.5 bottom-2.5 w-11 h-11 rounded-full flex items-center justify-center transition-colors ${
-              canSubmit ? 'bg-accent text-paper hover:bg-accent/90' : 'bg-hairline/50 text-muted cursor-not-allowed'
+            class={`absolute right-2.5 bottom-2.5 inline-flex items-center gap-1.5 min-h-11 px-4 rounded-lg text-sm font-semibold transition-colors ${
+              canSubmit ? 'bg-accent-support text-paper hover:bg-accent-support/90' : 'bg-hairline/50 text-muted cursor-not-allowed'
             }`}
           >
             {loading ? (
@@ -319,9 +339,12 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             ) : (
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              <>
+                Audit
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </>
             )}
           </button>
         </div>
@@ -562,27 +585,32 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         <DeeperLensPanel text={sourceText} surface="reader" isPro={isPro} />
       )}
 
-      {/* Studio conversion panel - names the Pro features the Reader doesn't
-         include. Naming the locked features is the upsell. */}
+      {/* Two next steps, both shown: the FREE extension is the higher-probability
+         activation for a low-intent visitor who liked the tool (no signup, keeps
+         the engine in front of them daily); Studio is the paid path. Redline is
+         reserved for findings — these use drafting-blue (accent-support). */}
       {result && !loading && (
-        <div class="rounded-xl border border-hairline bg-paper p-5">
-          <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Go deeper in Studio</p>
-          <p class="text-sm text-ink leading-relaxed mb-3">
-            The Reader gives you the full structural audit free. Studio adds the tools for working on your own writing:
-          </p>
-          <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-ink mb-4">
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Counterargument (steelman the other side)</li>
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Citation audit - checks your sources</li>
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Evidence-weighted likelihood</li>
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Cross-document self-contradiction check</li>
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Save drafts with version history</li>
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Inline highlights as you edit</li>
-          </ul>
-          <div class="flex flex-wrap items-center gap-3">
-            <a href="/creator/studio" class="inline-block rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent/90 transition-colors">
-              Open Studio →
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="rounded-xl border border-hairline bg-paper p-5 flex flex-col">
+            <p class="text-xs font-semibold uppercase tracking-widest text-accent-support mb-2">Audit as you read</p>
+            <p class="text-sm text-ink leading-relaxed mb-4 flex-1">
+              The free Chrome extension audits any article, on any site, from a side panel — no copy-paste.
+            </p>
+            <a href="/extension" class="inline-block self-start rounded-lg border border-accent-support/40 px-4 py-2 text-sm font-semibold text-accent-support hover:bg-accent-support/5 transition-colors">
+              Get the free extension →
             </a>
-            <a href="/pricing" class="text-xs text-muted hover:text-ink underline">See plans</a>
+          </div>
+          <div class="rounded-xl border border-hairline bg-paper p-5 flex flex-col">
+            <p class="text-xs font-semibold uppercase tracking-widest text-accent-support mb-2">Work on your own drafts</p>
+            <p class="text-sm text-ink leading-relaxed mb-3">
+              Studio adds counterargument, citation audit, evidence-weighted likelihood, cross-document checks, and saved drafts with version history.
+            </p>
+            <div class="flex flex-wrap items-center gap-3 mt-auto">
+              <a href="/creator/studio" class="inline-block rounded-lg bg-accent-support px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent-support/90 transition-colors">
+                Open Studio →
+              </a>
+              <a href="/pricing" class="text-xs text-muted hover:text-ink underline">See plans</a>
+            </div>
           </div>
         </div>
       )}

@@ -26,7 +26,10 @@ export function wordCount(text: string): number {
  * workbench so the two can't drift on error wording.
  */
 export const READER_AUDIT_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:      "You've reached the daily audit limit. Come back tomorrow to run more audits.",
+  // RATE_LIMITED is deliberately NOT overridden here: the /api/audit handler
+  // crafts a state-aware message for anonymous users ("Sign in for more daily
+  // audits…") — the highest-intent conversion moment on the free tier. A
+  // client override here made that server copy unreachable. Let it win.
   EXTRACTION_FAILED: "Couldn't extract the article text from that URL. Try pasting the text directly instead.",
   TOO_SHORT:         'The extracted text was too short to audit. Try pasting the full article text directly.',
   NOT_HTML:          "That URL doesn't point to an HTML page. Try pasting the text directly instead.",
