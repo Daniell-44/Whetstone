@@ -43,10 +43,22 @@ const positions = b.blocks.flatMap((bl) =>
 );
 const shared = b.blocks.find((bl) => bl.type === 'shared');
 const firstProse = b.blocks.find((bl) => bl.type === 'prose');
-// Explainers have no audit verdict — lead with the opening line instead.
+// Explainers have no audit verdict — lead with the opening line instead. For
+// briefings the dek falls back landscape→shared; label it honestly for what it
+// is (a shared premise is NOT an audit finding — it's the thing neither side
+// questioned).
+const usingShared = !isExplainer && !!(shared && 'text' in shared);
 const dek = isExplainer
   ? (firstProse && 'text' in firstProse ? firstProse.text : landscapeText(b))
-  : (shared && 'text' in shared ? shared.text : landscapeText(b));
+  : (usingShared ? (shared as any).text : landscapeText(b));
+const dekLabel = usingShared ? 'Both sides assume' : 'The landscape';
+
+// Source count for the meta line. v2 briefings carry positionSources +
+// evidenceSources; legacy carries `sources`. Counting the v1 field alone
+// rendered "0 sources" on every card (all 8 briefings are v2).
+const sourceCount = b.sources.length
+  + (b.positionSources?.length ?? 0)
+  + (b.evidenceSources?.length ?? 0);
 
 // Audit signature — the differentiator, visible at feed level (D1-B, 2026-07-07).
 const sig = auditSignature(b);
@@ -65,7 +77,15 @@ const showLead = size === 'featured' && !!sig.lead;
 // never inflates the row (see Card_Image_Treatments_v1.md). Recommendation:
 // only wide/featured cells carry images — a side image on a narrow card is a
 // cramped thumbnail. Explainers stay text-only.
-const sideImage = !isExplainer && !!b.image;
+//
+// A `/placeholder-*` cover is a DEBUG asset (it literally renders the word
+// PLACEHOLDER); treat it as absent so the text-first branch takes over rather
+// than shipping a broken-image glyph on the front door. Real covers get wired
+// per-briefing later; until then no card carries a placeholder. Also honour the
+// component's own long-standing recommendation: side images only on the wide
+// hero cells, never a cramped thumb on a narrow standard card.
+const hasRealImage = !!b.image && !b.image.includes('/placeholder-');
+const sideImage = !isExplainer && hasRealImage && (size === 'featured' || size === 'wide');
 // Mobile feed compaction (2026-07-10, Daniel: "slightly cluttered... less
 // vertical height"). The editorial-app norm (Apple News / NYT / Ground News)
 // is one hero + compact list rows: headline, small right thumbnail, ONE meta
@@ -109,7 +129,7 @@ const headingCls = size === 'featured'
       <span class={eyebrowCls}>{isExplainer ? 'Explainer' : 'Briefing'}</span>
       {b.category && <span class="text-muted">· {b.category}</span>}
       {!isExplainer && (
-        <span class={`text-muted ${compact ? 'hidden sm:inline' : ''}`}>· {positions.length} positions · {b.sources.length} sources</span>
+        <span class={`text-muted ${compact ? 'hidden sm:inline' : ''}`}>· {positions.length} positions · {sourceCount} sources</span>
       )}
     </div>
     <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>
@@ -118,7 +138,7 @@ const headingCls = size === 'featured'
     {!isExplainer && (
       <div class={compact ? 'hidden sm:block' : ''}>
         <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
-          <span class="font-medium text-muted">Audit found</span>: {dek}
+          <span class="font-medium text-muted">{dekLabel}</span>: {dek}
         </p>
       </div>
     )}
