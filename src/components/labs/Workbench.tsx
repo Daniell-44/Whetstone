@@ -9,6 +9,8 @@ import ToulminCallouts from '../audit/ToulminCallouts';
 import HighlightedDraft from '../studio/HighlightedDraft';
 import MobileFindingsSheet from '../studio/MobileFindingsSheet';
 import GoalSelector from '../studio/GoalSelector';
+import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
+import DeeperLensPanel from '../lens-panel/DeeperLensPanel';
 import AuditLoading from '../tool/AuditLoading';
 import StudioTag from '../tool/StudioTag';
 import { SAMPLES, type Sample } from '../../data/samples';
@@ -294,6 +296,18 @@ export default function Workbench({ realSignedIn = false, realPro = false }: Pro
     if (!readRun) return;
     setCreateDraft(readRun.text);
     setCreateRun(null);
+    // Bridging a DIFFERENT text into Create must start a fresh document, or the
+    // next Analyse would append the bridged article as a new VERSION of the
+    // document already open under a foreign title. Null the doc chain and clear
+    // the ?doc so a new document is created.
+    setCreateDocId(null);
+    setCreateVersionId(null);
+    setLastSavedContent(null);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('doc');
+      window.history.replaceState({}, '', url.toString());
+    }
     setBridgeConfirm(false);
     setMode('create');
   }
@@ -340,19 +354,23 @@ export default function Workbench({ realSignedIn = false, realPro = false }: Pro
           ))}
         </div>
 
-        {/* Dev-only tier switcher — how all six matrix cells get felt. */}
-        <label class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-muted shrink-0">
-          Dev tier
-          <select
-            value={tier}
-            onChange={e => { setTier((e.target as HTMLSelectElement).value as Tier); setBanner(true); }}
-            class="border border-hairline bg-surface rounded px-2 py-1.5 font-mono text-xs text-ink"
-          >
-            <option value="anonymous">Anonymous</option>
-            <option value="free">Signed-in free</option>
-            <option value="pro">Studio Pro</option>
-          </select>
-        </label>
+        {/* Dev-only tier switcher — how all six matrix cells get felt. Gated to
+           DEV so it can never ship to production when the workbench takes over
+           /audit; in prod the tier is the real session's tier only. */}
+        {import.meta.env.DEV && (
+          <label class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-muted shrink-0">
+            Dev tier
+            <select
+              value={tier}
+              onChange={e => { setTier((e.target as HTMLSelectElement).value as Tier); setBanner(true); }}
+              class="border border-hairline bg-surface rounded px-2 py-1.5 font-mono text-xs text-ink"
+            >
+              <option value="anonymous">Anonymous</option>
+              <option value="free">Signed-in free</option>
+              <option value="pro">Studio Pro</option>
+            </select>
+          </label>
+        )}
       </div>
 
       {/* ---- Input shell (the thing the toggle swaps) ---- */}
@@ -506,56 +524,27 @@ export default function Workbench({ realSignedIn = false, realPro = false }: Pro
             </div>
           </div>
 
-          {/* Counterargument, mode-bound (spec §1.3 / OWNER-CALL counterarg-1) */}
+          {/* Counterargument slot. Read runs the REAL free opposing-case engine
+             on the audited text (no fabricated prose under real findings —
+             CLAUDE.md's cardinal sin). Create's counterargument is a Pro engine
+             that lives in Studio; the workbench points at it honestly rather
+             than inventing objections. */}
           {mode === 'read' ? (
-            <div class="rounded-xl border border-hairline bg-surface p-5">
-              <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">The strongest opposing case</p>
-              <p class="text-sm text-ink leading-relaxed mb-3">What would the most careful person who disagrees say? <span class="font-mono text-[10px] uppercase tracking-wider text-muted">cached demo</span></p>
-              <p class="text-sm text-ink leading-relaxed border-l-2 border-hairline pl-3">
-                The argument's strongest opposition concedes the safety data but rejects the inference: population-level injury statistics do not settle whether the state may compel competent adults, and the seatbelt analogy fails at exactly the point it is doing the work.
-              </p>
-            </div>
-          ) : tier === 'pro' ? (
-            <div class="rounded-xl border border-hairline bg-surface p-5">
-              <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">Objections your draft doesn't engage</p>
-              <div class="space-y-3">
-                <div class="rounded-lg border border-hairline bg-paper p-3">
-                  <p class="text-sm font-serif font-semibold text-ink-strong mb-1">The autonomy objection</p>
-                  <p class="text-xs text-ink leading-relaxed">Your draft never addresses the strongest counter: that individual risk-bearing by competent adults is not the state's to manage. <span class="font-mono text-[10px] uppercase tracking-wider text-muted">cached demo</span></p>
-                </div>
-                <div class="rounded-lg border border-hairline bg-paper p-3">
-                  <p class="text-sm font-serif font-semibold text-ink-strong mb-1">The disanalogy objection</p>
-                  <p class="text-xs text-ink leading-relaxed">The seatbelt comparison is asserted, not argued; an opponent will attack the analogy's load-bearing premise directly.</p>
-                </div>
-              </div>
-            </div>
+            run.text && <ReaderOpposingCase text={run.text} />
           ) : (
             <div class="rounded-xl border border-hairline bg-paper p-5">
               <div class="flex items-center gap-2 mb-2">
-                <p class="text-xs font-semibold uppercase tracking-widest text-accent">Counterargument</p>
+                <p class="text-xs font-semibold uppercase tracking-widest text-accent-support">Counterargument</p>
                 <StudioTag />
               </div>
-              <p class="text-sm text-ink leading-relaxed mb-3">The objections a careful opponent would raise against your draft, each with its own structure. Part of Studio.</p>
-              <button type="button" onClick={() => say('Prototype: upgrade flow is stubbed.')} class="rounded-lg bg-accent-support px-4 py-2 text-xs font-semibold text-white hover:bg-accent-support/90 transition-colors">See plans</button>
+              <p class="text-sm text-ink leading-relaxed mb-3">The objections a careful opponent would raise against your draft, each with its own structure — run it in Studio.</p>
+              <a href="/creator/studio" class="inline-block rounded-lg bg-accent-support px-4 py-2 text-xs font-semibold text-white hover:bg-accent-support/90 transition-colors">Open Studio →</a>
             </div>
           )}
 
-          {/* Deeper lenses: auth-gated per lens (both modes, same rule) */}
-          <div class="rounded-xl border border-hairline bg-surface p-5">
-            <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Deeper lenses</p>
-            <div class="flex gap-2 flex-wrap">
-              {['Presupposition', 'Rhetorical mode', 'Epistemic humility', 'Disagreement engagement', 'Structural incentive'].map(l => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => say(signedIn ? 'Prototype: lens runs are stubbed.' : 'Sign in to use this lens (free).')}
-                  class={`text-xs border rounded px-2.5 py-1.5 transition-colors ${signedIn ? 'border-hairline text-accent-support hover:border-accent-support/50' : 'border-hairline text-muted'}`}
-                >
-                  {l}{!signedIn && ' ·  sign in'}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Deeper lenses: the REAL panel (free with sign-in; the endpoints
+             gate on session only). Needs the audited text. */}
+          {run.text && <DeeperLensPanel text={run.text} surface={mode === 'read' ? 'reader' : 'studio'} isPro={tier === 'pro'} />}
 
         </div>
       )}

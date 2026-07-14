@@ -117,41 +117,30 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
     <div class="rounded-lg border border-hairline bg-surface p-4 space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-xs font-semibold uppercase tracking-widest text-muted">Deeper read</h3>
-        <span class="text-xs text-amber-600 font-medium">Pro</span>
+        <span class="text-xs text-muted font-medium">Free with sign-in</span>
       </div>
 
-      {!isPro ? (
-        /* Pro teaser - the deeper lenses are a Creator (Pro) feature. */
-        <div class="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
-          <p class="text-xs text-amber-800 mb-2">Go past the core audit with three Pro reads:</p>
-          <ul class="text-xs text-ink leading-relaxed space-y-1 mb-3">
-            <li>· <strong>How it's framed</strong>: what it assumes + how it persuades</li>
-            <li>· <strong>How honestly it argues</strong>: overclaiming + fairness to critics</li>
-            <li>· <strong>Whose interests it serves</strong>: who benefits from the framing</li>
-          </ul>
-          <a href="/creator" class="inline-block text-xs font-semibold rounded-md bg-amber-500 text-white px-3 py-1.5 hover:bg-amber-600 transition-colors">
-            Unlock with Studio Pro →
-          </a>
-        </div>
-      ) : (
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <LensButton
-            label="How it's framed"
-            status={combineStatus(presupState.status, rhetState.status)}
-            onClick={() => { void runLens('presupposition', setPresupState); void runLens('rhetorical-mode', setRhetState); }}
-          />
-          <LensButton
-            label="How honestly it argues"
-            status={combineStatus(humilityState.status, disagreeState.status)}
-            onClick={() => { void runLens('epistemic-humility', setHumilityState); void runLens('disagreement-engagement', setDisagreeState); }}
-          />
-          <LensButton
-            label="Whose interests it serves"
-            status={siState.status}
-            onClick={() => void runLens('structural-incentive', setSiState)}
-          />
-        </div>
-      )}
+      {/* The lens endpoints gate on session only (free with a Whetstone
+         account), not on Pro — so the buttons show to everyone and an
+         anonymous click surfaces the "Sign in to use this lens (free)"
+         SectionError, rather than mislabelling the lenses as Studio Pro. */}
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <LensButton
+          label="How it's framed"
+          status={combineStatus(presupState.status, rhetState.status)}
+          onClick={() => { void runLens('presupposition', setPresupState); void runLens('rhetorical-mode', setRhetState); }}
+        />
+        <LensButton
+          label="How honestly it argues"
+          status={combineStatus(humilityState.status, disagreeState.status)}
+          onClick={() => { void runLens('epistemic-humility', setHumilityState); void runLens('disagreement-engagement', setDisagreeState); }}
+        />
+        <LensButton
+          label="Whose interests it serves"
+          status={siState.status}
+          onClick={() => void runLens('structural-incentive', setSiState)}
+        />
+      </div>
 
       {presupState.status === 'loading' && <SectionLoading label="Surfacing presuppositions…" />}
       {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
