@@ -10,6 +10,7 @@ import { makeBillingDb } from '../../functions/_lib/billing/subscription';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
 import { makeWorkspaceDb } from '../../functions/_lib/workspaces/db';
 import { userHasActiveSubscriptionViaWorkspace } from '../../functions/_lib/workspaces/permissions';
+import { STUDIO_SOLO, STUDIO_TEAM } from '../lib/pricing';
 
 const authDb      = makeAuthDb(env.DB);
 const billingDb   = makeBillingDb(env.DB);
@@ -24,7 +25,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
 ---
 <Base
   title="Pricing - The Whetstone"
-  description="Free structural audit for readers. Studio Solo for writers at A$33/month. Studio Team for teams from A$95/month."
+  description="Free structural audit for readers. Studio Solo for writers from US$22/month (A$33, billed in AUD). Studio Team for teams from A$95/month."
   canonicalPath="/pricing"
   isLoggedIn={isLoggedIn}
 >
@@ -71,9 +72,9 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
       <PricingTier
         label="Studio Solo"
         labelColour="text-accent-support"
-        price="A$33"
+        price={STUDIO_SOLO.display}
         priceUnit="/mo"
-        subtext="Cancel anytime"
+        subtext={`~${STUDIO_SOLO.approxUsd} · billed in AUD · cancel anytime`}
         highlighted={true}
         accentBar="bg-accent-support"
         features={[
@@ -86,7 +87,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
           'Cross-document audit (self-contradiction detection)',
           'Document persistence & versions',
           'Inline highlights (Grammarly-style)',
-          '100 audits per month (add blocks for more)',
+          '100 audits per month (need more? email us)',
           'API access',
         ]}
         featureColour="text-accent-support"
@@ -114,7 +115,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
       <PricingTier
         label="Studio Team"
         labelColour="text-accent-support"
-        price="A$95"
+        price={STUDIO_TEAM.display}
         priceUnit="/mo"
         subtext="Up to 5 seats"
         features={[

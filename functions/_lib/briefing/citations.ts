@@ -3,6 +3,11 @@ import type { BriefingArticle, BriefingSource } from './types';
 // Citation export for briefings — BibTeX + RIS, generated from the briefing's
 // question, date, and sources. Mirrors the scorecard citation module; used by
 // /briefing/<slug>/citations.bib | .ris and the briefing share rail.
+//
+// URLs are built from SITE_URL so a citation copied into a permanent reference
+// (a paper, a term-paper bibliography) never carries a dead domain. This was
+// hardcoded to thewhetstone.net — an unwalkbackable error once exported.
+const SITE_URL = 'https://thewhetstone.review';
 
 function escapeBibtex(s: string): string {
   return s.replace(/([{}\\&%$#_])/g, '\\$1');
@@ -30,7 +35,7 @@ export function toBibtex(b: BriefingArticle): string {
   howpublished = {Briefing, The Whetstone},
   year         = {${year}},
   month        = {${month}},
-  url          = {https://thewhetstone.net/briefing/${b.slug}},
+  url          = {${SITE_URL}/briefing/${b.slug}},
   note         = {${escapeBibtex(dek(b))}}
 }`);
 
@@ -57,7 +62,7 @@ export function toRis(b: BriefingArticle): string {
     `TI  - ${b.question}`,
     'PB  - The Whetstone (Briefing)',
     `PY  - ${year}`,
-    `UR  - https://thewhetstone.net/briefing/${b.slug}`,
+    `UR  - ${SITE_URL}/briefing/${b.slug}`,
     `N1  - ${dek(b)}`,
     'ER  - ',
   ].join('\n'));

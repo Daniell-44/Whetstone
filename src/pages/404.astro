@@ -1,0 +1,21 @@
+---
+// Branded 404 — replaces the stock Astro rocket page. Every mis-shared link,
+// renamed slug, or stale search result lands here, so it must read as The
+// Whetstone, not a broken staging server. Astro renders this for any unmatched
+// route on the Cloudflare adapter.
+import Base from '../layouts/Base.astro';
+---
+<Base title="Not found — The Whetstone" description="That page isn't here." canonicalPath="/404">
+  <main class="max-w-2xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28 pb-24 text-center">
+    <p class="font-mono text-xs uppercase tracking-widest text-muted mb-3">Error · 404</p>
+    <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-4">That page isn't here.</h1>
+    <p class="text-sm text-muted leading-relaxed mb-8">
+      The link may be old, or the page may have moved. Here's the way back in.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a href="/" class="rounded-lg bg-ink-strong text-paper px-4 py-2.5 text-sm font-medium hover:bg-ink transition-colors">Briefings</a>
+      <a href="/audit" class="rounded-lg border border-hairline px-4 py-2.5 text-sm font-medium text-ink hover:bg-surface transition-colors">The Audit</a>
+      <a href="/about" class="rounded-lg border border-hairline px-4 py-2.5 text-sm font-medium text-ink hover:bg-surface transition-colors">About</a>
+    </div>
+  </main>
+</Base>

@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { soloPrice } from '../../lib/pricing';
 
 export default function CheckoutButton() {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,10 +45,10 @@ export default function CheckoutButton() {
         class={`w-full py-3 px-6 rounded-xl text-sm font-semibold transition-colors ${
           isLoading
             ? 'bg-hairline/40 text-muted cursor-not-allowed'
-            : 'bg-amber-500 text-white hover:bg-amber-600'
+            : 'bg-accent-support text-white hover:bg-accent-support/90'
         }`}
       >
-        {isLoading ? 'Redirecting to checkout…' : 'Subscribe - A$33/mo'}
+        {isLoading ? 'Redirecting to checkout…' : `Subscribe · ${soloPrice}`}
       </button>
       {error && (
         <p class="text-sm text-red-600 text-center">{error}</p>

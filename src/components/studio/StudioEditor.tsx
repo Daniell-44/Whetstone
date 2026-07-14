@@ -37,6 +37,7 @@ import type { TerminologyPreference } from '../../lib/labels';
 import SummaryToolbar from '../audit/SummaryToolbar';
 import { MIN_CHARS, MAX_CHARS } from '../tool/constants';
 import { runEngine, runLens as runLensShared, type SectionState, type LensName } from '../tool/engine';
+import { soloPrice } from '../../lib/pricing';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -105,7 +106,7 @@ function CounterargUpsell() {
       <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
       <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
         The opposing-cases engine surfaces the strongest objections your draft fails
-        to engage with. Subscribe for $22/mo to unlock it.
+        to engage with. Part of Studio, {soloPrice}.
       </p>
       <a
         href="/pricing"

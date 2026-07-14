@@ -2,12 +2,15 @@
 import '@fontsource-variable/besley';
 import '../styles/global.css';
 
+import { SITE_URL } from '../lib/site';
+
 interface Props {
   title:          string;
   description?:   string;
   canonicalPath?: string;
   isLoggedIn?:    boolean;
   ogType?:        string;   // 'website' (default) | 'article' for briefings
+  ogImage?:       string;   // per-page share card; falls back to the site card
 }
 
 const {
@@ -16,10 +19,15 @@ const {
   canonicalPath = '/',
   isLoggedIn = false,
   ogType = 'website',
+  ogImage: ogImageProp,
 } = Astro.props;
 
-const siteUrl = 'https://thewhetstone.review';
-const ogImage = `${siteUrl}/og-image.png`;
+const siteUrl = SITE_URL;
+// Per-page OG image when supplied (a briefing's own card); site card otherwise.
+// Absolute-URL the relative paths callers pass.
+const ogImage = ogImageProp
+  ? (ogImageProp.startsWith('http') ? ogImageProp : `${siteUrl}${ogImageProp}`)
+  : `${siteUrl}/og-image.png`;
 const pageUrl = `${siteUrl}${canonicalPath}`;
 
 const currentPath = canonicalPath;
