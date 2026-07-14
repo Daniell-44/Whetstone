@@ -10,6 +10,14 @@ import {
 } from '../../lib/audit';
 import { kindWeight, type GroundednessSignal } from '../../../functions/_lib/grounded/types';
 
+// The heatmap tooltip hardcoded "· structural" for every finding — but since
+// E4 groundedness is model-emitted and ~half of findings are interpretive, so
+// the paid heatmap mislabelled ~half of all findings as Logic. Render the real
+// kind via the site-wide vocabulary.
+const GROUNDEDNESS_LABEL: Record<string, string> = {
+  structural: 'Logic', interpretive: 'Judgment call', empirical: 'Factual',
+};
+
 // ---------------------------------------------------------------------------
 // HeatmapDraft - density-aware overlay
 //
@@ -200,7 +208,7 @@ function HeatTooltip({ run, x, y }: { run: Run; x: number; y: number }) {
             }`} />
             <div class="flex-1 min-w-0">
               <p class="font-medium text-ink">{c.label}</p>
-              <p class="text-xs text-muted">{c.severity} · structural</p>
+              <p class="text-xs text-muted">{c.severity} · {GROUNDEDNESS_LABEL[c.groundedness.kind] ?? c.groundedness.kind}</p>
             </div>
           </li>
         ))}

@@ -49,7 +49,10 @@ import { soloPrice } from '../../lib/pricing';
 const SAMPLE_DIRTY_CHAR_THRESHOLD = 50;
 
 const AUDIT_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:  "You've reached the daily audit limit. Come back tomorrow.",
+  // Studio audits are capped monthly (PAID_MONTHLY_AUDIT_BLOCK), not daily —
+  // "come back tomorrow" would show the same wrong message for weeks. (The Pro
+  // sub-engines below ARE daily-capped, so their copy stays.)
+  RATE_LIMITED:  "You've reached your monthly Studio audit limit. See usage in Account.",
   INVALID_INPUT: 'Please check your input and try again.',
   // AUDIT_FAILED intentionally omitted - fall through to show the server's actual error message
 };
@@ -307,12 +310,17 @@ export default function StudioEditor({
       : 'Studio - The Whetstone';
   }, [findingCount]);
 
-  // Ctrl/Cmd+Enter to analyse
+  // Ctrl/Cmd+Enter to analyse. handleAnalyse is read through a ref (assigned
+  // every render after it's defined) so the listener always runs the LATEST
+  // closure. Keying only on canSubmit re-subscribed the listener only when
+  // validity flipped, so edits made afterwards ran a stale handleAnalyse —
+  // Cmd+Enter analysed AND persisted old text while the screen showed new text.
+  const handleAnalyseRef = useRef<() => void>(() => {});
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         e.preventDefault();
-        if (canSubmit) void handleAnalyse();
+        if (canSubmit) void handleAnalyseRef.current();
       }
     };
     document.addEventListener('keydown', handler);
@@ -545,7 +553,14 @@ export default function StudioEditor({
         onSettled:     () => { citationDone = true; checkDone(); },
       });
     }
-  }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
+    // audience + intent MUST be in deps: without them the memoised callback
+    // closed over the goals from a previous render, so "Re-analyse with these
+    // settings" ran a full Pro suite against the OLD audience/intent and the
+    // stale banner never cleared.
+  }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription, audience, intent]);
+
+  // Keep the Cmd/Enter listener pointed at the latest handleAnalyse.
+  handleAnalyseRef.current = handleAnalyse;
 
   // ---------------------------------------------------------------------------
   // runLens - on-demand deeper-lens caller (shared plumbing in tool/engine.ts).
