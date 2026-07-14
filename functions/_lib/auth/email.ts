@@ -12,11 +12,12 @@ export function makeEmailSender(resendApiKey: string, fetchFn: FetchFn = fetch):
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        // Uses our verified Resend domain. If domain verification isn't
-        // complete yet in Resend, sends will fail and the failure will appear
-        // in `[resend]` log lines. Revert to 'onboarding@resend.dev' temporarily
-        // if you need to roll back to the sandbox sender.
-        from:    'noreply@thewhetstone.net',
+        // Sender must be the CANONICAL domain (.review): mailbox providers align
+        // SPF/DKIM/DMARC on the From: domain, and a .net From: with .review
+        // links reads as phishing (spam-folder verdict) — or 403s if .net was
+        // never verified. REQUIRES the .review domain verified in Resend
+        // (SPF include + 2 DKIM CNAMEs + DMARC) — Daniel's DNS step.
+        from:    'noreply@thewhetstone.review',
         to,
         subject: `Your sign-in code: ${code}`,
         html: [
@@ -51,7 +52,11 @@ export function makeWorkspaceInvitationSender(resendApiKey: string, fetchFn: Fet
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        from:    'onboarding@resend.dev',
+        // Was 'onboarding@resend.dev' — Resend's shared sandbox, which 403s to
+        // every recipient except the account owner, so EVERY external workspace
+        // invite silently failed. Send from the verified .review domain (same
+        // DNS step as the sign-in sender above).
+        from:    'noreply@thewhetstone.review',
         to,
         subject: `You've been invited to join ${workspaceName} on The Whetstone`,
         html: [

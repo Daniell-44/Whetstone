@@ -115,7 +115,7 @@ const currentPath = canonicalPath;
         <a href="/" class="group flex items-center gap-2.5 shrink-0">
           <svg viewBox="4 22 92 57" fill="currentColor" class="h-6 w-auto shrink-0 text-ink-strong transition-colors" aria-hidden="true"><path d="M16 59A34 34 0 0 1 84 59L60 59A10 10 0 0 0 40 59Z"/><rect x="7.5" y="65" width="85" height="10.5"/></svg>
           <span class="flex flex-col leading-none">
-            <span class="font-serif text-lg font-semibold text-ink-strong group-hover:text-accent transition-colors">The Whetstone</span>
+            <span class="font-serif text-lg font-semibold text-ink-strong group-hover:text-accent-support transition-colors">The Whetstone</span>
             <span class="mt-1 font-mono text-[9px] uppercase tracking-[0.18em] text-muted">Arguments, examined <span class="text-accent">▮</span></span>
           </span>
         </a>
@@ -125,45 +125,45 @@ const currentPath = canonicalPath;
           <a
             href="/"
             aria-current={currentPath === '/' || currentPath?.startsWith('/briefing') ? 'page' : undefined}
-            class={`transition-colors ${currentPath === '/' || currentPath?.startsWith('/briefing') ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+            class={`transition-colors ${currentPath === '/' || currentPath?.startsWith('/briefing') ? 'text-accent-support font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent-support'}`}
           >
             Briefings
           </a>
           <a
             href="/audit"
-            class={`transition-colors ${currentPath === '/audit' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+            class={`transition-colors ${currentPath === '/audit' ? 'text-accent-support font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent-support'}`}
           >
             Audit
           </a>
           <a
             href="/creator"
-            class={`transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+            class={`transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent-support font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent-support'}`}
           >
             Studio
           </a>
           <a
             href="/about"
-            class={`transition-colors hidden sm:block ${currentPath === '/about' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+            class={`transition-colors hidden sm:block ${currentPath === '/about' ? 'text-accent-support font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent-support'}`}
           >
             About
           </a>
           <a
             href="/pricing"
-            class={`transition-colors hidden sm:block ${currentPath === '/pricing' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+            class={`transition-colors hidden sm:block ${currentPath === '/pricing' ? 'text-accent-support font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent-support'}`}
           >
             Pricing
           </a>
           {isLoggedIn ? (
             <a
               href="/account"
-              class={`transition-colors ${currentPath === '/account' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+              class={`transition-colors ${currentPath === '/account' ? 'text-accent-support font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent-support'}`}
             >
               Account
             </a>
           ) : (
             <a
               href="/login"
-              class={`transition-colors ${currentPath === '/login' ? 'text-accent font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent'}`}
+              class={`transition-colors ${currentPath === '/login' ? 'text-accent-support font-medium underline decoration-2 underline-offset-[6px]' : 'text-ink hover:text-accent-support'}`}
             >
               Sign in
             </a>
@@ -205,7 +205,7 @@ const currentPath = canonicalPath;
       <a
         href="/"
         aria-current={currentPath === '/' || currentPath?.startsWith('/briefing') ? 'page' : undefined}
-        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/' || currentPath?.startsWith('/briefing') ? 'text-accent' : 'text-muted'}`}
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath === '/' || currentPath?.startsWith('/briefing') ? 'text-accent-support' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
         <span class="text-xs font-medium">Briefings</span>
@@ -213,7 +213,7 @@ const currentPath = canonicalPath;
       <a
         href="/audit"
         aria-current={currentPath?.startsWith('/audit') ? 'page' : undefined}
-        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/audit') ? 'text-accent' : 'text-muted'}`}
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/audit') ? 'text-accent-support' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
         <span class="text-xs font-medium">Audit</span>
@@ -221,7 +221,7 @@ const currentPath = canonicalPath;
       <a
         href="/creator"
         aria-current={currentPath?.startsWith('/creator') ? 'page' : undefined}
-        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent' : 'text-muted'}`}
+        class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent-support' : 'text-muted'}`}
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
         <span class="text-xs font-medium">Studio</span>
@@ -235,16 +235,16 @@ const currentPath = canonicalPath;
       {/* py-2 on each link lifts the tap targets past the WCAG 2.5.8 24px
          floor — this list is the only mobile home for About/Pricing/etc. */}
       <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-muted">
-        <a href="/" class="inline-block py-2 hover:text-accent transition-colors">The Whetstone <span class="text-hairline">·</span> Arguments, examined</a>
+        <a href="/" class="inline-block py-2 hover:text-accent-support transition-colors">The Whetstone <span class="text-hairline">·</span> Arguments, examined</a>
         <nav class="flex flex-wrap gap-x-5" aria-label="Footer">
-          <a href="/"        class="inline-block py-2 hover:text-accent transition-colors">Briefings</a>
-          <a href="/audit"   class="inline-block py-2 hover:text-accent transition-colors">Audit</a>
-          <a href="/creator" class="inline-block py-2 hover:text-accent transition-colors">Studio</a>
-          <a href="/about"   class="inline-block py-2 hover:text-accent transition-colors">About</a>
-          <a href="/pricing" class="inline-block py-2 hover:text-accent transition-colors">Pricing</a>
-          <a href="/feedback" class="inline-block py-2 hover:text-accent transition-colors">Feedback</a>
-          <a href="/account" class="inline-block py-2 hover:text-accent transition-colors">Account</a>
-          <a href="/privacy" class="inline-block py-2 hover:text-accent transition-colors">Privacy</a>
+          <a href="/"        class="inline-block py-2 hover:text-accent-support transition-colors">Briefings</a>
+          <a href="/audit"   class="inline-block py-2 hover:text-accent-support transition-colors">Audit</a>
+          <a href="/creator" class="inline-block py-2 hover:text-accent-support transition-colors">Studio</a>
+          <a href="/about"   class="inline-block py-2 hover:text-accent-support transition-colors">About</a>
+          <a href="/pricing" class="inline-block py-2 hover:text-accent-support transition-colors">Pricing</a>
+          <a href="/feedback" class="inline-block py-2 hover:text-accent-support transition-colors">Feedback</a>
+          <a href="/account" class="inline-block py-2 hover:text-accent-support transition-colors">Account</a>
+          <a href="/privacy" class="inline-block py-2 hover:text-accent-support transition-colors">Privacy</a>
         </nav>
       </div>
     </footer>

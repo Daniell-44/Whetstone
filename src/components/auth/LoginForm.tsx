@@ -121,12 +121,12 @@ export default function LoginForm({ returnTo }: Props) {
   if (state === 'sent' || state === 'verifying') {
     return (
       <div class="space-y-4">
-        <div class="rounded-lg border border-accent/20 bg-accent/5 px-5 py-5">
+        <div class="rounded-lg border border-accent-support/20 bg-accent-support/5 px-5 py-5">
           <p class="text-base font-medium text-ink-strong mb-1">Check your email</p>
-          <p class="text-sm text-accent leading-relaxed">
+          <p class="text-sm text-accent-support leading-relaxed">
             We sent a sign-in link and a 6-digit code to <strong>{email}</strong>.
           </p>
-          <p class="text-xs text-accent mt-2 tabular-nums">
+          <p class="text-xs text-accent-support mt-2 tabular-nums">
             {expired ? (
               <span class="text-red-700 font-medium">Code expired - request a new one</span>
             ) : (
@@ -154,7 +154,7 @@ export default function LoginForm({ returnTo }: Props) {
                      focus:outline-none focus:ring-2 transition-colors disabled:bg-paper
                      ${expired
                        ? 'border-red-200 focus:ring-red-300 focus:border-red-400'
-                       : 'border-hairline focus:ring-accent focus:border-accent'}`}
+                       : 'border-hairline focus:ring-accent-support focus:border-accent-support'}`}
               disabled={state === 'verifying' || expired}
               autoFocus
             />
@@ -162,8 +162,8 @@ export default function LoginForm({ returnTo }: Props) {
             <button
               type="submit"
               disabled={code.length !== 6 || state === 'verifying' || expired}
-              class="w-full rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-white
-                     hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed
+              class="w-full rounded-md bg-accent-support px-4 py-2.5 text-sm font-medium text-white
+                     hover:bg-accent-support/90 disabled:opacity-50 disabled:cursor-not-allowed
                      transition-colors"
             >
               {state === 'verifying' ? 'Verifying…' : 'Sign in with code'}
@@ -176,7 +176,7 @@ export default function LoginForm({ returnTo }: Props) {
             type="button"
             onClick={() => void sendCode()}
             disabled={!expired && msRemaining > CODE_TTL_MS - 30_000} // 30s cooldown to avoid spam
-            class="text-accent hover:text-accent-support disabled:text-muted disabled:cursor-not-allowed underline underline-offset-2"
+            class="text-accent-support hover:text-accent-support disabled:text-muted disabled:cursor-not-allowed underline underline-offset-2"
           >
             {expired ? 'Send a new code' : 'Resend code'}
           </button>
@@ -214,7 +214,7 @@ export default function LoginForm({ returnTo }: Props) {
           onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
           placeholder="you@example.com"
           class="w-full rounded-md border border-hairline px-3 py-2.5 text-base shadow-sm
-                 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent
+                 focus:border-accent-support focus:outline-none focus:ring-1 focus:ring-accent-support
                  disabled:bg-paper"
           disabled={state === 'loading'}
         />
@@ -225,8 +225,8 @@ export default function LoginForm({ returnTo }: Props) {
       <button
         type="submit"
         disabled={invalid || state === 'loading'}
-        class="w-full rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-white
-               hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed
+        class="w-full rounded-md bg-accent-support px-4 py-2.5 text-sm font-medium text-white
+               hover:bg-accent-support/90 disabled:opacity-50 disabled:cursor-not-allowed
                transition-colors"
       >
         {state === 'loading' ? 'Sending…' : 'Send sign-in link'}

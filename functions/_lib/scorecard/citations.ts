@@ -34,7 +34,7 @@ export function toBibtex(scorecard: Scorecard): string {
   howpublished = {Logic Scorecard, The Whetstone},
   year         = {${year}},
   month        = {${scorecard.publishedDate.slice(5, 7)}},
-  url          = {https://thewhetstone.net/scorecard/${scorecard.slug}},
+  url          = {https://thewhetstone.review/scorecard/${scorecard.slug}},
   note         = {${escapeBibtex(scorecard.dek)}}
 }`);
 
@@ -70,7 +70,7 @@ export function toRis(scorecard: Scorecard): string {
     `TI  - ${scorecard.question}`,
     `PB  - The Whetstone (Logic Scorecard)`,
     `PY  - ${year}`,
-    `UR  - https://thewhetstone.net/scorecard/${scorecard.slug}`,
+    `UR  - https://thewhetstone.review/scorecard/${scorecard.slug}`,
     `N1  - ${scorecard.dek}`,
     'ER  - ',
   ].join('\n'));
@@ -99,7 +99,7 @@ export function toApa(scorecard: Scorecard): string {
   const lines: string[] = [];
 
   lines.push(
-    `The Whetstone. (${year}). ${scorecard.question} [Logic Scorecard]. The Whetstone. https://thewhetstone.net/scorecard/${scorecard.slug}`,
+    `The Whetstone. (${year}). ${scorecard.question} [Logic Scorecard]. The Whetstone. https://thewhetstone.review/scorecard/${scorecard.slug}`,
   );
   lines.push('');
   lines.push('Cited sources:');
