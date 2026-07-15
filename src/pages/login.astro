@@ -46,12 +46,12 @@ const error = Astro.url.searchParams.get('error');
     ) : (
       <>
         <h1 class="text-2xl font-semibold text-ink-strong mb-2">
-          {fromExtension ? 'Connect the extension' : 'Sign in'}
+          {fromExtension ? 'Connect the extension' : 'Sign in or create your account'}
         </h1>
         <p class="text-sm text-muted mb-8">
           {fromExtension
             ? 'Sign in to your Whetstone account to connect it to the extension. The link comes by email.'
-            : 'Enter your email and we\'ll send you a one-time sign-in link.'}
+            : 'Enter your email and we\'ll send a one-time link. No password, and no account needed first — a new email creates your free account automatically.'}
         </p>
 
         {error === 'invalid' && (
