@@ -1,6 +1,12 @@
 import type { CrossDocumentResult, CrossDocumentFinding } from '../../../functions/_lib/cross-document/types';
 import { argumentScore, totalFindingCount } from '../../lib/audit';
 
+// The product removed numeric 0-100 confidence on principle; render a
+// categorical band instead of the raw "72% conf." the engine emits.
+function confBand(n: number): string {
+  return n >= 80 ? 'high confidence' : n >= 50 ? 'moderate confidence' : 'low confidence';
+}
+
 const KIND_META: Record<string, { label: string; cls: string }> = {
   self_contradiction:        { label: 'Self-contradiction',        cls: 'bg-red-100    text-red-700'     },
   repeated_unstated_warrant: { label: 'Repeated unstated warrant', cls: 'bg-amber-100  text-amber-700'   },
@@ -24,7 +30,7 @@ function FindingCard({ f, labelById }: { f: CrossDocumentFinding; labelById: Map
       <div class="flex items-center gap-2 mb-2 flex-wrap">
         <span class={`text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${meta.cls}`}>{meta.label}</span>
         <span class="text-xs text-muted">{f.severity}</span>
-        <span class="text-xs text-muted ml-auto">{f.confidence}% conf.</span>
+        <span class="text-xs text-muted ml-auto">{confBand(f.confidence)}</span>
       </div>
       <p class="text-sm text-ink leading-relaxed mb-3">{f.description}</p>
       <div class="space-y-2">

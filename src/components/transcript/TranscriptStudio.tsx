@@ -12,6 +12,14 @@ type Phase =
 
 type Tab = 'youtube' | 'text' | 'srt';
 
+// The engine emits a 0-100 confidence, but the product removed numeric
+// confidence on principle (categorical groundedness replaced it) — these two
+// paid rooms were the last surfaces still leaking the raw number. Render a
+// categorical band instead so the brand rule holds.
+function confBand(n: number): string {
+  return n >= 80 ? 'high confidence' : n >= 50 ? 'moderate confidence' : 'low confidence';
+}
+
 const SAMPLE_TEXT = `So the question I want to address today is whether mandatory bicycle helmet laws are actually good public health policy. And I think most people who haven't really thought about this assume the answer is obviously yes - helmets save lives, more helmets, more lives saved. But I think the empirical record is much more complicated than that.
 
 When Australia introduced its mandatory helmet law in 1991, cycling participation dropped by something like 30 to 40 percent depending on which study you look at. And what happens when fewer people are cycling? Well, drivers become less aware of cyclists, and per-cyclist injury rates actually went up in some Australian cities. So you have to weigh the harm reduction from helmets against the harm increase from reduced cycling.
@@ -251,7 +259,7 @@ function CrossSegmentSection({ findings, summary }: { findings: CrossSegmentFind
                   f.severity === 'medium' ? 'bg-amber-100 text-amber-700' :
                                             'bg-hairline/40 text-ink'
                 }`}>{f.severity}</span>
-                <span class="text-xs text-muted ml-auto">spans {f.segmentIds.join(', ')} · {f.confidence}%</span>
+                <span class="text-xs text-muted ml-auto">spans {f.segmentIds.join(', ')} · {confBand(f.confidence)}</span>
               </div>
               <p class="text-xs text-ink leading-relaxed">{f.description}</p>
             </div>
@@ -277,7 +285,7 @@ function SegmentCard({ segment, audit }: { segment: ArgumentSegment; audit: Segm
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1">
             {timeRange && <span class="text-xs text-muted font-mono tabular-nums">{timeRange}</span>}
-            <span class="text-xs text-muted">{segment.confidence}% confidence</span>
+            <span class="text-xs text-muted">{confBand(segment.confidence)}</span>
           </div>
           <p class="text-sm font-medium text-ink-strong leading-snug">{segment.claimSummary}</p>
         </div>

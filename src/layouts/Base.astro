@@ -218,8 +218,12 @@ const currentPath = canonicalPath;
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
         <span class="text-xs font-medium">Audit</span>
       </a>
+      {/* Tab 3 is session-aware: signed-out visitors get the Studio pitch
+         (/creator); signed-in users skip the sell page and land straight in
+         the editor (/creator/studio). Spending a scarce mobile tab on a pure
+         sell page even for paying subscribers was the wrong trade. */}
       <a
-        href="/creator"
+        href={isLoggedIn ? '/creator/studio' : '/creator'}
         aria-current={currentPath?.startsWith('/creator') ? 'page' : undefined}
         class={`flex flex-col items-center justify-center gap-0.5 transition-colors ${currentPath?.startsWith('/creator') ? 'text-accent-support' : 'text-muted'}`}
       >
