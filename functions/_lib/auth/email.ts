@@ -12,12 +12,13 @@ export function makeEmailSender(resendApiKey: string, fetchFn: FetchFn = fetch):
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        // Sender must be the CANONICAL domain (.review): mailbox providers align
-        // SPF/DKIM/DMARC on the From: domain, and a .net From: with .review
-        // links reads as phishing (spam-folder verdict) — or 403s if .net was
-        // never verified. REQUIRES the .review domain verified in Resend
-        // (SPF include + 2 DKIM CNAMEs + DMARC) — Daniel's DNS step.
-        from:    'noreply@thewhetstone.review',
+        // DEPLOY GUARD (2026-07-13): the canonical sender is
+        // noreply@thewhetstone.review, but flipping it there breaks sign-in
+        // until the .review domain is verified in Resend (SPF include + 2 DKIM
+        // CNAMEs + DMARC). Keeping the prior .net sender so live sign-in keeps
+        // working; change this ONE line to noreply@thewhetstone.review the
+        // moment the .review DNS is verified.
+        from:    'noreply@thewhetstone.net',
         to,
         subject: `Your sign-in code: ${code}`,
         html: [
