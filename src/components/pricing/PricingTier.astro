@@ -9,13 +9,18 @@ interface Props {
   featureColour: string;
   highlighted?: boolean;
   accentBar?:   string;
+  badge?:       string;   // e.g. "Most popular for solo writers"
+  reassurance?: string;   // risk-reversal line under the CTA
 }
 
-const { label, labelColour, price, priceUnit, subtext, features, featureColour, highlighted, accentBar } = Astro.props;
+const { label, labelColour, price, priceUnit, subtext, features, featureColour, highlighted, accentBar, badge, reassurance } = Astro.props;
 ---
 <div class={`relative p-6 sm:p-8 ${highlighted ? 'bg-accent-support/5' : ''}`}>
   {accentBar && <div class={`absolute top-0 left-0 right-0 h-1 ${accentBar}`} />}
 
+  {badge && (
+    <span class="inline-block mb-3 font-mono text-[10px] font-semibold uppercase tracking-wide bg-accent-support/10 text-accent-support px-2 py-0.5 rounded">{badge}</span>
+  )}
   <p class={`text-xs font-bold uppercase tracking-wider font-mono ${labelColour} mb-2`}>{label}</p>
   <div class="flex items-baseline gap-1 mb-1">
     <span class="font-serif text-4xl text-ink-strong">{price}</span>
@@ -57,5 +62,8 @@ const { label, labelColour, price, priceUnit, subtext, features, featureColour, 
 
   <div>
     <slot name="cta" />
+    {reassurance && (
+      <p class="mt-2.5 text-center text-xs text-muted">{reassurance}</p>
+    )}
   </div>
 </div>
