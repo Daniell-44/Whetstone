@@ -27,6 +27,11 @@ const rightSources = briefing.sources.filter((s) => s.side === 'right');
 const isExplainer  = briefing.kind === 'explainer';
 const fmtDate = new Date(briefing.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 const firstPositionIdx = briefing.blocks.findIndex((b) => b.type === 'position');
+// The landscape block is the LEDE — it renders before the spectrum (the map is
+// a figure that follows the opening claim, not a diagram the reader hits before
+// any prose). Pulled out here and skipped in the block map below.
+const landscapeBlock = briefing.blocks.find((b) => b.type === 'landscape');
+const landscapeText  = landscapeBlock && 'text' in landscapeBlock ? landscapeBlock.text : '';
 
 // v2 source model (D2 Option A): positions plot, evidence is a bibliography.
 const posSrc = briefing.positionSources ?? [];
@@ -37,10 +42,16 @@ const hasTakes = briefing.blocks.some((b) => b.type === 'takes');
 const stanceCol = (s: number) => (s < 0 ? '#345D7E' : s > 0 ? '#8C4A2F' : '#6E7370');
 const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
 ---
-<article class="max-w-2xl mx-auto">
+<article class="max-w-[36rem] mx-auto">
   <span class={`font-mono text-[11px] uppercase tracking-[0.1em] ${isExplainer ? 'text-accent-support' : 'text-muted'}`}>{isExplainer ? 'Explainer' : 'Briefing'}{briefing.category ? ` · ${briefing.category}` : ''}</span>
   <h1 id="overview" class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mt-2 mb-2 scroll-mt-24">{briefing.question}</h1>
   <p class="text-xs text-muted mb-6 tabular-nums">{fmtDate}</p>
+
+  {/* The lede opens the piece; the map (spectrum) follows it, so the reader
+     meets a claim about the world before a methodology diagram. */}
+  {!isExplainer && landscapeText && (
+    <p class="text-lg text-ink leading-relaxed mb-6">{landscapeText}</p>
+  )}
 
   {!isExplainer && (
     <>
@@ -56,15 +67,11 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
   <div class="space-y-5">
     {briefing.blocks.map((block, idx) => {
       if (block.type === 'landscape') {
-        return (
-          <div>
-            <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1.5">The landscape</span>
-            <p class="text-base text-ink leading-relaxed">{block.text}</p>
-          </div>
-        );
+        // Rendered as the lede above; skip here.
+        return null;
       }
       if (block.type === 'prose') {
-        return <p class="text-[0.9375rem] text-ink leading-[1.75]">{block.text}</p>;
+        return <p class="text-base text-ink leading-[1.75]">{block.text}</p>;
       }
       if (block.type === 'position') {
         // Stance pole (drafting blue / oxide rust / grey) for migrated briefings;
@@ -79,13 +86,13 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
                `pos-<sourceId>`). Zero-height, no layout impact. */}
             {idx === firstPositionIdx && <span id="positions" class="block scroll-mt-24" aria-hidden="true"></span>}
             <div class="pl-4" style={`border-left:2px solid ${rule}`}>
-              <p class="text-[0.9375rem] text-ink leading-[1.75]">{block.paragraph}</p>
+              <p class="text-base text-ink leading-[1.75]">{block.paragraph}</p>
             </div>
             {block.audit.name && (
               <details class="audit-disclosure mt-3 bg-surface border border-hairline" open={idx === firstPositionIdx}>
                 <div class="instrument-rule"></div>
                 <summary class="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer">
-                  <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted shrink-0">Audit</span>
+                  <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted shrink-0">Audit</span>
                   <span class="font-serif text-[15px] font-semibold text-ink-strong">{block.audit.name}</span>
                   <span class={`font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border shrink-0 ${kindStyle}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
                   <svg class="audit-chevron ml-auto shrink-0 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
@@ -96,7 +103,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
                    line was in-page noise (8.5px) and now lives only on share
                    exports. The deep-link is a chip, not a footnote link. */}
                 <div class="px-3.5 pb-3.5">
-                  <p class="text-[0.9375rem] text-ink leading-relaxed mb-2.5">{block.audit.explanation}</p>
+                  <p class="text-base text-ink leading-relaxed mb-2.5">{block.audit.explanation}</p>
                   <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1.5 text-xs font-medium text-accent-support hover:text-accent hover:border-accent-support/50 border border-hairline rounded px-3 py-2 transition-colors">Audit this argument →</a>
                 </div>
               </details>
@@ -115,8 +122,8 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
       if (block.type === 'editorView') {
         return (
           <div id="discussion" class="rounded-md bg-paper border border-hairline p-4 scroll-mt-24">
-            <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1.5">Editor's view · opinion</span>
-            <p class="text-[0.9375rem] text-ink leading-relaxed">{block.text}</p>
+            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Editor's view · opinion</span>
+            <p class="text-base text-ink leading-relaxed">{block.text}</p>
             {block.whyWrong && (
               <p class="text-sm text-muted mt-2"><span class="font-medium">Why this might be wrong:</span> {block.whyWrong}</p>
             )}
@@ -126,11 +133,11 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
       if (block.type === 'takes') {
         return (
           <div>
-            <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-2.5">Other takes · audited</span>
+            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2.5">Other takes · audited</span>
             <div class="space-y-2.5">
               {block.items.map((t) => (
                 <div class="rounded-md border border-hairline bg-surface p-3">
-                  <p class="text-[0.9375rem] text-ink leading-snug">“{t.quote}”</p>
+                  <p class="text-base text-ink leading-snug">“{t.quote}”</p>
                   <p class="text-xs text-muted mt-1.5">
                     {t.url
                       ? <a href={t.url} target="_blank" rel="noopener noreferrer" class="hover:text-accent">{t.source}</a>
@@ -150,7 +157,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
   {/* Other-takes absence, stated (D2 policy): only when explicitly declared. */}
   {!isExplainer && !hasTakes && briefing.otherTakes === 'none' && (
     <div class="mt-8">
-      <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1.5">Other takes</span>
+      <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Other takes</span>
       <p class="text-sm text-muted italic">No further takes surveyed for this question.</p>
     </div>
   )}
@@ -158,7 +165,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
   {v2 ? (
     <div class="mt-10 pt-6 border-t border-hairline space-y-6">
       <div>
-        <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-3">Positions · {posSrc.length}</span>
+        <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Positions · {posSrc.length}</span>
         <ul class="space-y-1.5">
           {posSrc.map((s) => (
             <li class="flex items-baseline gap-2">
@@ -171,7 +178,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
       </div>
       {eviSrc.length > 0 && (
         <div>
-          <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-3">Evidence cited · {eviSrc.length} — not plotted</span>
+          <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Evidence cited · {eviSrc.length} — not plotted</span>
           <ul class="space-y-1.5">
             {eviSrc.map((s) => (
               <li class="text-xs leading-relaxed">
@@ -185,7 +192,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
     </div>
   ) : briefing.sources.length > 0 && (
   <div class="mt-10 pt-6 border-t border-hairline">
-    <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-3">Deeper reading · {briefing.sources.length} sources</span>
+    <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Deeper reading · {briefing.sources.length} sources</span>
     <div class="grid sm:grid-cols-2 gap-5">
       <div class="border-l-2 pl-3" style="border-color:#185FA5">
         <span class="text-xs font-semibold uppercase tracking-wide text-sky-700">{briefing.spectrumAxis.left}</span>
