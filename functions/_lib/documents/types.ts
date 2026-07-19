@@ -1,9 +1,15 @@
+// 'draft' = Studio draft; 'transcript' / 'cross-doc' = a persisted engine run
+// (the input snapshot lives in the version content, the full engine result in
+// result_json). Migration 0020 defaults existing rows to 'draft'.
+export type DocumentKind = 'draft' | 'transcript' | 'cross-doc';
+
 export interface Document {
   id:           string;
   user_id:      string;
   workspace_id: string | null;
   title:        string;
   status:       'active' | 'archived';
+  kind:         DocumentKind;
   created_at:   number;
   updated_at:   number;
 }
@@ -18,11 +24,15 @@ export interface DocumentVersion {
   extraction_json:      string | null;
   commitments_json:     string | null;
   citation_audit_json:  string | null;
+  // Full engine result for transcript / cross-doc runs. Kept separate from
+  // audit_result on purpose: audit_result is always an AuditResult and the
+  // draft version surfaces render it as one (see migration 0020).
+  result_json:          string | null;
   created_at:           number;
 }
 
 export interface DocumentDb {
-  createDocument(id: string, userId: string, title: string, workspaceId?: string): Promise<void>;
+  createDocument(id: string, userId: string, title: string, workspaceId?: string, kind?: DocumentKind): Promise<void>;
   getDocumentById(id: string): Promise<Document | null>;
   getActiveDocumentForUser(userId: string): Promise<Document | null>;
   listActiveDocumentsForUser(userId: string): Promise<Document[]>;
@@ -40,4 +50,5 @@ export interface DocumentDb {
   storeExtractionOnVersion(versionId: string, extractionJson: string): Promise<void>;
   storeCommitmentsOnVersion(versionId: string, commitmentsJson: string): Promise<void>;
   storeCitationAuditOnVersion(versionId: string, citationAuditJson: string): Promise<void>;
+  storeResultJsonOnVersion(versionId: string, resultJson: string): Promise<void>;
 }

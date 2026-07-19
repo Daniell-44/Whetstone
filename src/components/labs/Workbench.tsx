@@ -389,7 +389,7 @@ export default function Workbench({ realSignedIn = false, realPro = false }: Pro
               type="button"
               onClick={() => void realRead(readInput)}
               aria-label="Audit this argument"
-              class="absolute right-2.5 bottom-2.5 w-11 h-11 rounded-full bg-accent text-paper flex items-center justify-center hover:bg-accent/90 transition-colors"
+              class="absolute right-2.5 bottom-2.5 w-11 h-11 rounded-full bg-accent-support text-paper flex items-center justify-center hover:bg-accent-support/90 transition-colors"
             >
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
@@ -537,7 +537,7 @@ export default function Workbench({ realSignedIn = false, realPro = false }: Pro
                 <p class="text-xs font-semibold uppercase tracking-widest text-accent-support">Counterargument</p>
                 <StudioTag />
               </div>
-              <p class="text-sm text-ink leading-relaxed mb-3">The objections a careful opponent would raise against your draft, each with its own structure — run it in Studio.</p>
+              <p class="text-sm text-ink leading-relaxed mb-3">The objections a careful opponent would raise against your draft, each with its own structure. Run it in Studio.</p>
               <a href="/creator/studio" class="inline-block rounded-lg bg-accent-support px-4 py-2 text-xs font-semibold text-white hover:bg-accent-support/90 transition-colors">Open Studio →</a>
             </div>
           )}

@@ -11,6 +11,7 @@ import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
 import { makeWorkspaceDb } from '../../functions/_lib/workspaces/db';
 import { userHasActiveSubscriptionViaWorkspace } from '../../functions/_lib/workspaces/permissions';
 import { STUDIO_SOLO, STUDIO_TEAM } from '../lib/pricing';
+import { CONTACT_EMAIL } from '../lib/contact';
 
 const authDb      = makeAuthDb(env.DB);
 const billingDb   = makeBillingDb(env.DB);
@@ -130,7 +131,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
         ]}
         featureColour="text-accent-support"
       >
-        <a slot="cta" href="mailto:hello@thewhetstone.review?subject=Whetstone Studio tier" class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-accent-support border border-accent-support/30 hover:bg-accent-support/5 transition-colors">
+        <a slot="cta" href={`mailto:${CONTACT_EMAIL}?subject=Whetstone Studio tier`} class="block w-full py-2.5 px-6 rounded-lg text-sm font-semibold text-center text-accent-support border border-accent-support/30 hover:bg-accent-support/5 transition-colors">
           Contact us
         </a>
       </PricingTier>
@@ -141,7 +142,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
     <div class="mt-8 text-center">
       <p class="text-sm text-muted">
         Need 10+ seats, admin dashboard, or CMS integration?{' '}
-        <a href="mailto:hello@thewhetstone.review?subject=Whetstone Newsroom tier" class="text-accent-support hover:text-accent font-medium">
+        <a href={`mailto:${CONTACT_EMAIL}?subject=Whetstone Newsroom tier`} class="text-accent-support hover:text-accent font-medium">
           Talk to us about Newsroom pricing →
         </a>
       </p>
@@ -160,7 +161,7 @@ const checkoutCanceled = Astro.url.searchParams.get('checkout') === 'canceled';
           ['Is it always right?', 'No, and it does not pretend to be. Findings carry a groundedness label (Logic, Judgment call, or Factual) so you can see which are structural and which are a reading you might reasonably reject. It surfaces questions, not verdicts.'],
           ['Will it work on my Substack or blog?', 'Yes. Paste any text or drop a public URL at the Audit. The free Chrome extension audits any page you are reading in place.'],
           ['Can I use it for academic writing?', 'Yes. The audit calibrates to your audience (general, academic, journalistic, legal, technical), and Studio adds citation checking and evidence-weighted likelihood for source-heavy work.'],
-          ['What is your refund policy?', 'Cancel anytime and you keep access through the period you paid for. If something went wrong, email hello@thewhetstone.review and we will make it right.'],
+          ['What is your refund policy?', `Cancel anytime and you keep access through the period you paid for. If something went wrong, email ${CONTACT_EMAIL} and we will make it right.`],
           ['How often are briefings published?', 'The publication is early. New briefings are added as they are written and sourced. Every quote is verified verbatim against its source before it ships.'],
         ].map(([q, a]) => (
           <details class="group py-4">

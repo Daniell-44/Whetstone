@@ -1,5 +1,6 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import type { TranscriptAuditResult, ArgumentSegment, SegmentAudit, CrossSegmentFinding } from '../../../functions/_lib/transcript/types';
+import type { Document, DocumentVersion } from '../../../functions/_lib/documents/types';
 import AuditResults from '../audit/AuditResults';
 import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import { track } from '../../lib/analytics/track';
@@ -7,7 +8,9 @@ import { track } from '../../lib/analytics/track';
 type Phase =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'done'; result: TranscriptAuditResult }
+  | { status: 'done'; result: TranscriptAuditResult; savedDocumentId?: string }
+  // A previously persisted run reopened via ?doc=<id>: read-only, no re-run.
+  | { status: 'stored'; result: TranscriptAuditResult; savedAt: number; title: string }
   | { status: 'error'; message: string };
 
 type Tab = 'youtube' | 'text' | 'srt';
@@ -36,6 +39,36 @@ export default function TranscriptStudio() {
   const [title, setTitle]           = useState('');
   const [phase, setPhase]           = useState<Phase>({ status: 'idle' });
 
+  // Reopen a persisted run: /creator/studio/transcript?doc=<id> loads the
+  // stored result and renders it read-only, without consuming a run.
+  useEffect(() => {
+    const docId = new URLSearchParams(window.location.search).get('doc');
+    if (!docId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res  = await fetch(`/api/documents/${encodeURIComponent(docId)}`);
+        const data = await res.json() as
+          | { ok: true; document: Document; latestVersion: DocumentVersion | null }
+          | { ok: false };
+        if (cancelled) return;
+        if (!data.ok || data.document.kind !== 'transcript' || !data.latestVersion?.result_json) {
+          setPhase({ status: 'error', message: 'Could not load that stored transcript audit.' });
+          return;
+        }
+        setPhase({
+          status:  'stored',
+          result:  JSON.parse(data.latestVersion.result_json) as TranscriptAuditResult,
+          savedAt: data.latestVersion.created_at,
+          title:   data.document.title,
+        });
+      } catch {
+        if (!cancelled) setPhase({ status: 'error', message: 'Could not load that stored transcript audit.' });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const canSubmit =
     phase.status !== 'loading' && (
       (tab === 'youtube' && youtubeUrl.trim().startsWith('http')) ||
@@ -59,11 +92,11 @@ export default function TranscriptStudio() {
         body:    JSON.stringify(body),
       });
       const data = await res.json() as
-        | { ok: true; result: TranscriptAuditResult }
+        | { ok: true; result: TranscriptAuditResult; savedDocumentId?: string }
         | { ok: false; error: { code: string; message: string } };
 
       if (data.ok) {
-        setPhase({ status: 'done', result: data.result });
+        setPhase({ status: 'done', result: data.result, savedDocumentId: data.savedDocumentId });
         track('transcript_audit_completed', {
           latency_ms:    Math.round(performance.now() - startedAt),
           segment_count: data.result.segmentation.argumentCount,
@@ -74,6 +107,24 @@ export default function TranscriptStudio() {
     } catch {
       setPhase({ status: 'error', message: 'Network error.' });
     }
+  }
+
+  // Read-only view of a persisted run: no input form, no re-run needed.
+  if (phase.status === 'stored') {
+    return (
+      <div class="space-y-6">
+        <div class="rounded-xl border border-hairline bg-surface px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">Stored result</span>
+          <span class="text-xs text-muted">
+            {phase.title} · saved {new Date(phase.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </span>
+          <a href="/creator/studio/transcript" class="ml-auto text-xs text-accent-support hover:underline">
+            Run a new transcript audit →
+          </a>
+        </div>
+        <TranscriptResults result={phase.result} />
+      </div>
+    );
   }
 
   return (
@@ -207,7 +258,18 @@ export default function TranscriptStudio() {
       )}
 
       {phase.status === 'done' && (
-        <TranscriptResults result={phase.result} />
+        <>
+          <p class="text-xs text-muted px-1">
+            {phase.savedDocumentId ? (
+              <>
+                Saved to <a href="/creator/documents" class="text-accent-support hover:underline">My Documents</a>, so you can reopen this result later.
+              </>
+            ) : (
+              <>This result is not saved. Sign in before running to keep results in My Documents.</>
+            )}
+          </p>
+          <TranscriptResults result={phase.result} />
+        </>
       )}
 
     </div>

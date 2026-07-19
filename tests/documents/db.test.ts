@@ -10,9 +10,9 @@ function makeFakeDocumentDb(): DocumentDb {
   const versions = new Map<string, DocumentVersion>();
 
   return {
-    createDocument: async (id, userId, title, workspaceId?) => {
+    createDocument: async (id, userId, title, workspaceId?, kind?) => {
       const now = Date.now();
-      docs.set(id, { id, user_id: userId, workspace_id: workspaceId ?? null, title, status: 'active', created_at: now, updated_at: now });
+      docs.set(id, { id, user_id: userId, workspace_id: workspaceId ?? null, title, status: 'active', kind: kind ?? 'draft', created_at: now, updated_at: now });
     },
 
     getDocumentById: async (id) => docs.get(id) ?? null,
@@ -49,7 +49,7 @@ function makeFakeDocumentDb(): DocumentDb {
 
     createVersion: async (id, documentId, content, versionNumber) => {
       const now = Date.now();
-      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, commitments_json: null, citation_audit_json: null, created_at: now });
+      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, commitments_json: null, citation_audit_json: null, result_json: null, created_at: now });
       const doc = docs.get(documentId);
       if (doc) docs.set(documentId, { ...doc, updated_at: now });
     },
@@ -91,6 +91,11 @@ function makeFakeDocumentDb(): DocumentDb {
     storeCitationAuditOnVersion: async (versionId, citationAuditJson) => {
       const v = versions.get(versionId);
       if (v) versions.set(versionId, { ...v, citation_audit_json: citationAuditJson });
+    },
+
+    storeResultJsonOnVersion: async (versionId, resultJson) => {
+      const v = versions.get(versionId);
+      if (v) versions.set(versionId, { ...v, result_json: resultJson });
     },
 
     countVersionsForDocument: async (documentId) =>

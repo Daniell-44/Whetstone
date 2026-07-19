@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import VersionTrajectory from './VersionTrajectory';
 
 export interface VersionRow {
   id:             string;
@@ -44,6 +45,9 @@ export default function VersionsList({ docId, versions }: Props) {
 
   return (
     <div class="space-y-2">
+      {/* Renders null until at least one version has a stored audit. */}
+      <VersionTrajectory docId={docId} versions={versions} />
+
       {versions.length === 0 && (
         <p class="text-sm text-muted py-8 text-center">No versions saved yet.</p>
       )}

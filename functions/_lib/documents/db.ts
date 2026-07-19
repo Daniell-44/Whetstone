@@ -2,11 +2,11 @@ import type { Document, DocumentVersion, DocumentDb } from './types';
 
 export function makeDocumentDb(d1: D1Database): DocumentDb {
   return {
-    createDocument: async (id, userId, title, workspaceId?) => {
+    createDocument: async (id, userId, title, workspaceId?, kind?) => {
       const now = Date.now();
       await d1
-        .prepare('INSERT INTO documents (id, user_id, workspace_id, title, status, created_at, updated_at) VALUES (?, ?, ?, ?, \'active\', ?, ?)')
-        .bind(id, userId, workspaceId ?? null, title, now, now)
+        .prepare('INSERT INTO documents (id, user_id, workspace_id, title, status, kind, created_at, updated_at) VALUES (?, ?, ?, ?, \'active\', ?, ?, ?)')
+        .bind(id, userId, workspaceId ?? null, title, kind ?? 'draft', now, now)
         .run();
     },
 
@@ -131,6 +131,13 @@ export function makeDocumentDb(d1: D1Database): DocumentDb {
       await d1
         .prepare('UPDATE document_versions SET citation_audit_json = ? WHERE id = ?')
         .bind(citationAuditJson, versionId)
+        .run();
+    },
+
+    storeResultJsonOnVersion: async (versionId, resultJson) => {
+      await d1
+        .prepare('UPDATE document_versions SET result_json = ? WHERE id = ?')
+        .bind(resultJson, versionId)
         .run();
     },
   };

@@ -38,6 +38,7 @@ import SummaryToolbar from '../audit/SummaryToolbar';
 import { MIN_CHARS, MAX_CHARS } from '../tool/constants';
 import { runEngine, runLens as runLensShared, type SectionState, type LensName } from '../tool/engine';
 import { soloPrice } from '../../lib/pricing';
+import { STUDIO_ANALYSIS_DONE_EVENT } from './analysis-events';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -159,20 +160,26 @@ function LensButton({
   label,
   status,
   onClick,
+  compact = false,
 }: {
   label:   string;
   status:  'idle' | 'loading' | 'done' | 'error';
   onClick: () => void;
+  /** Smaller footprint for the demoted free-tier lens strip. */
+  compact?: boolean;
 }) {
   const isLoading = status === 'loading';
   const isDone    = status === 'done';
+  const sizing = compact
+    ? 'gap-1.5 text-[11px] px-2.5 py-1.5 rounded-md'
+    : 'gap-2 w-full text-xs px-3 py-2.5 rounded-lg';
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={isLoading || isDone}
-      aria-label={isDone ? `${label} — done` : isLoading ? `Running ${label}…` : `Run ${label}`}
-      class={`group flex items-center gap-2 w-full text-xs font-medium px-3 py-2.5 rounded-lg border transition-colors text-left
+      aria-label={isDone ? `${label}, done` : isLoading ? `Running ${label}…` : `Run ${label}`}
+      class={`group flex items-center ${sizing} font-medium border transition-colors text-left
         focus:outline-none focus-visible:ring-2 focus-visible:ring-accent
         ${isDone     ? 'bg-factual-bg border-factual/30 text-factual cursor-default' :
           isLoading  ? 'bg-accent/5  border-accent  text-accent  cursor-wait'    :
@@ -190,6 +197,19 @@ function LensButton({
       )}
       <span class="flex-1">{label}</span>
     </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ProTag - small tier marker on the Pro-differentiated engine panels. Uses
+// the drafting blue (accent-support): interaction/Pro colour, never redline.
+// ---------------------------------------------------------------------------
+
+function ProTag() {
+  return (
+    <span class="shrink-0 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-accent-support border border-accent-support/40 rounded-[2px] px-1 py-px">
+      Pro
+    </span>
   );
 }
 
@@ -309,6 +329,18 @@ export default function StudioEditor({
       ? `(${findingCount}) Studio - The Whetstone`
       : 'Studio - The Whetstone';
   }, [findingCount]);
+
+  // Announce each landing of the audit in 'done' to sibling islands: the
+  // onboarding tour's post-analysis act (mounted separately in studio.astro)
+  // listens for this. Ref-tracked so only a genuine transition into 'done'
+  // fires, not every re-render while the state stays 'done'.
+  const prevAuditStatusRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (auditState.status === 'done' && prevAuditStatusRef.current !== 'done') {
+      window.dispatchEvent(new CustomEvent(STUDIO_ANALYSIS_DONE_EVENT));
+    }
+    prevAuditStatusRef.current = auditState.status;
+  }, [auditState.status]);
 
   // Ctrl/Cmd+Enter to analyse. handleAnalyse is read through a ref (assigned
   // every render after it's defined) so the listener always runs the LATEST
@@ -819,7 +851,11 @@ export default function StudioEditor({
                 {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
               </span>
             </div>
-            <LiveStats text={draft} />
+            {/* Once the audit is done the sidebar SummaryToolbar shows the same
+               stats (including a Grade from its own Flesch-Kincaid pass), so
+               rendering both put two Grade values on screen at once. LiveStats
+               returns when a new draft or re-analysis leaves 'done'. */}
+            {auditState.status !== 'done' && <LiveStats text={draft} />}
           </div>
 
           <div class="flex flex-col sm:flex-row gap-2">
@@ -857,10 +893,13 @@ export default function StudioEditor({
   // (Results are now distributed across left and right sidebars below)
 
   // ---------------------------------------------------------------------------
-  // Result panels. The split: document-level findings + the analytical engines
-  // live on the LEFT; span-anchored specifics (things that map to a quote in
-  // the draft) live on the RIGHT. Each panel is defined once here, then
-  // composed into the desktop columns and the mobile bottom-sheet tabs below.
+  // Result panels. The split: the LEFT column leads with the summary and the
+  // Pro-differentiated engines (counterargument, commitments, citation audit,
+  // evidence check), then the skeleton, with the free deeper lenses demoted to
+  // a compact strip at the bottom. Span-anchored specifics (findings that map
+  // to a quote in the draft) live on the RIGHT. Each panel is defined once
+  // here, then composed into the desktop columns and the mobile bottom-sheet
+  // tabs below.
   // ---------------------------------------------------------------------------
 
   // Summary score - pinned to the top of the LEFT column.
@@ -897,11 +936,12 @@ export default function StudioEditor({
     </div>
   ) : null;
 
-  // Framework check.
+  // Framework check - Pro engine (auto-runs for subscribers only).
   const frameworkPanel = commitmentsState.status !== 'idle' ? (
     <div class="rounded-lg border border-hairline bg-surface p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+      <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="commitments" preference={terminologyPreference} />
+        <ProTag />
       </h3>
       {commitmentsState.status === 'loading' && <SectionLoading label="Detecting frameworks…" />}
       {commitmentsState.status === 'error' && <SectionError code={commitmentsState.code} message={commitmentsState.message} />}
@@ -911,11 +951,12 @@ export default function StudioEditor({
     </div>
   ) : null;
 
-  // Counterarguments.
+  // Counterarguments - Pro engine.
   const counterargPanel = (
     <div class="rounded-lg border border-hairline bg-surface p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+      <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
+        <ProTag />
       </h3>
       {/* Pro-gated (Pro-model cost). Free users see the upsell instead of an
          empty box; subscribers get the live result. */}
@@ -942,55 +983,57 @@ export default function StudioEditor({
     </div>
   );
 
-  // Deeper lenses - on-demand, free tier. They read the whole document (not a
-  // span), so they live on the LEFT with the other document-level engines.
+  // Deeper lenses - on-demand, free tier, identical to the Reader's. Demoted
+  // to a compact strip at the foot of the LEFT column: the Pro-differentiated
+  // engines above are what a subscription buys, so they carry the visual
+  // weight. All five lenses and their result displays are unchanged in
+  // function, only smaller.
   const deeperLensesPanel = auditState.status === 'done' ? (
-    <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-hairline bg-surface p-4 space-y-4">
+    <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-hairline bg-surface p-3 space-y-3">
       <div class="flex items-center justify-between gap-2">
-        <h3 class="text-xs font-semibold uppercase tracking-widest text-muted">Deeper lenses</h3>
-        <span class="text-xs text-muted">click any to run</span>
+        <h3 class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">Also on the free tier</h3>
+        <span class="text-[11px] text-muted">click any to run</span>
       </div>
-      <div class="grid grid-cols-2 gap-2.5">
+      <div class="flex flex-wrap gap-1.5">
         <LensButton
+          compact
           label="Presuppositions"
           status={presupState.status}
           onClick={() => void runLens('presupposition', draft, setPresupState)}
         />
         <LensButton
+          compact
           label="Rhetorical mode"
           status={rhetState.status}
           onClick={() => void runLens('rhetorical-mode', draft, setRhetState)}
         />
         <LensButton
+          compact
           label="Epistemic humility"
           status={humilityState.status}
           onClick={() => void runLens('epistemic-humility', draft, setHumilityState)}
         />
         <LensButton
+          compact
           label="Engagement quality"
           status={disagreeState.status}
           onClick={() => void runLens('disagreement-engagement', draft, setDisagreeState)}
         />
-      </div>
-
-      {/* Cui bono - sharp-edged lens, visually separated + always-shown caveat in display */}
-      <div class="border-t border-hairline pt-3">
-        <div class="flex items-center justify-between mb-2">
-          <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted">
-            Structural-incentive analysis
-          </p>
-          <p class="text-xs text-muted italic">structural, not personal</p>
-        </div>
-        <p class="text-xs text-muted leading-relaxed mb-2">
-          Whose positions in a political economy benefit if a reader accepts this framing.
-          Interest-aligned arguments can still be correct - this lens surfaces a question, not a verdict.
-        </p>
         <LensButton
+          compact
           label="Structural incentives"
           status={siState.status}
           onClick={() => void runLens('structural-incentive', draft, setSiState)}
         />
       </div>
+
+      {/* Cui bono caveat - the sharp-edged lens keeps its framing line even in
+         compact form: structural, not personal. */}
+      <p class="text-[11px] text-muted leading-relaxed">
+        Structural incentives asks whose positions in a political economy benefit if a
+        reader accepts this framing. Interest-aligned arguments can still be correct.
+        Structural, not personal: it surfaces a question, not a verdict.
+      </p>
 
       {presupState.status === 'loading' && <SectionLoading label="Surfacing presuppositions…" />}
       {presupState.status === 'error' && <SectionError code={presupState.code} message={presupState.message} />}
@@ -1061,17 +1104,18 @@ export default function StudioEditor({
     </div>
   );
 
-  // Citation audit (RIGHT).
+  // Citation audit - Pro engine (LEFT, grouped with the other Pro engines).
   const citationPanel = (
     <div class="rounded-lg border border-hairline bg-surface p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+      <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
+        <ProTag />
       </h3>
       {!hasActiveSubscription ? <CitationUpsell /> : (
         <>
           {citationState.status === 'idle' && (
             <p class="text-xs text-muted italic leading-relaxed">
-              Source Match runs when you analyse a draft. It checks <span class="font-medium">linked URLs</span> — re-analyse to check this draft's sources. (Academic-style "(Author, Year)" references without a link can't be fetched.)
+              Source Match runs when you analyse a draft. It checks <span class="font-medium">linked URLs</span>: re-analyse to check this draft's sources. (Academic-style "(Author, Year)" references without a link can't be fetched.)
             </p>
           )}
           {citationState.status === 'loading' && <SectionLoading label="Checking sources…" />}
@@ -1090,11 +1134,12 @@ export default function StudioEditor({
     </div>
   );
 
-  // Evidence check (RIGHT, Studio Pro).
+  // Evidence check - Pro engine (LEFT, grouped with the other Pro engines).
   const evidencePanel = hasActiveSubscription && evidenceState.status !== 'idle' ? (
     <div class="rounded-lg border border-hairline bg-surface p-4">
-      <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+      <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         Evidence Check
+        <ProTag />
       </h3>
       {evidenceState.status === 'loading' && <SectionLoading label="Searching academic literature…" />}
       {evidenceState.status === 'error' && <SectionError code={evidenceState.code} message={evidenceState.message} />}
@@ -1104,13 +1149,16 @@ export default function StudioEditor({
     </div>
   ) : null;
 
-  // LEFT column: score + overarching audit + the document-level engines.
+  // LEFT column: score first, then the Pro engines lead, then the skeleton,
+  // then the compact free-tier lens strip.
   const leftSidebar = showResults ? (
     <div class="space-y-4">
       {summaryPanel}
-      {skeletonPanel}
-      {frameworkPanel}
       {counterargPanel}
+      {frameworkPanel}
+      {citationPanel}
+      {evidencePanel}
+      {skeletonPanel}
       {deeperLensesPanel}
     </div>
   ) : null;
@@ -1119,8 +1167,6 @@ export default function StudioEditor({
   const rightSidebar = showResults ? (
     <div class="space-y-4">
       {spanFindingsPanel}
-      {citationPanel}
-      {evidencePanel}
     </div>
   ) : null;
 
@@ -1158,13 +1204,14 @@ export default function StudioEditor({
   const score = auditState.status === 'done' ? argumentScore(auditState.data) : null;
 
   // Mobile bottom-sheet tabs: Specific (span findings) / Overarching
-  // (document-level + engines) / Structure (the argument skeleton).
+  // (document-level + engines, Pro engines leading as on desktop) /
+  // Structure (the argument skeleton).
   const mobileTabs = showResults ? [
     { id: 'specific',    label: 'Specific',    count: findingsCount, body: (
-      <div class="space-y-4">{spanFindingsPanel}{citationPanel}{evidencePanel}</div>
+      <div class="space-y-4">{spanFindingsPanel}</div>
     ) },
     { id: 'overarching', label: 'Overarching', body: (
-      <div class="space-y-4">{summaryPanel}{frameworkPanel}{counterargPanel}{deeperLensesPanel}</div>
+      <div class="space-y-4">{summaryPanel}{counterargPanel}{frameworkPanel}{citationPanel}{evidencePanel}{deeperLensesPanel}</div>
     ) },
     { id: 'structure',   label: 'Structure',   body: (
       <div class="space-y-4">{skeletonPanel}</div>

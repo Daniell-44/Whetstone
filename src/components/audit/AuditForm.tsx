@@ -14,6 +14,10 @@ import { track } from '../../lib/analytics/track';
 import { SAMPLES, type Sample } from '../../data/samples';
 import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES as ERROR_MESSAGES } from '../tool/constants';
 import AuditLoading from '../tool/AuditLoading';
+import SampleLoading from '../tool/SampleLoading';
+import ShareAuditButton from './ShareAuditButton';
+import GroundednessDefs from './GroundednessDefs';
+import { hasSeenGroundednessDefs, markGroundednessDefsSeen, findingsSheetButtonLabel } from './reader-helpers';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -83,6 +87,17 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // Below xl the findings live in the bottom sheet (Stage 1 of the shell
   // backport): the Reader controls the sheet so a highlight tap can open it.
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Transient flash on a draft span when the user jumps to it from a finding
+  // card - the reverse direction of goToFinding (Studio's two-way wiring).
+  const [flashKey, setFlashKey] = useState<string | null>(null);
+  const flashTimer = useRef<number | null>(null);
+  // The current result came from a pre-cached sample rather than a live engine
+  // run - drives the honest sample loading state + "Cached demo" annotation.
+  const [sampleMode, setSampleMode] = useState(false);
+  // Groundedness definition strip: opens automatically with a session's first
+  // result until dismissed once (localStorage), reopenable from the (?)
+  // affordance on the verdict bar.
+  const [defsOpen, setDefsOpen] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   // Examples are the highest-leverage first-run comprehension aid, so show them
   // by default for a cold arrival (no deep-link prefill). They auto-collapse
@@ -120,6 +135,18 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       } catch { /* storage unavailable */ }
     }
   }, []);
+
+  // First-time visitors get the label glossary alongside their first result
+  // (the strip itself only renders once a result exists). Post-hydration so
+  // the server render never touches localStorage.
+  useEffect(() => {
+    if (!hasSeenGroundednessDefs()) setDefsOpen(true);
+  }, []);
+
+  function dismissDefs() {
+    setDefsOpen(false);
+    markGroundednessDefsSeen();
+  }
 
   const trimmed   = input.trim();
   // A URL is auditable even when wrapped in a short label (see runAudit): a
@@ -168,6 +195,33 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     }
   }
 
+  // Finding card tap → its quote in the draft (the reverse of goToFinding;
+  // Studio's handleNavigateToSpan pattern). Desktop: open the "Your text" fold
+  // and scroll the span into view with a brief flash. Below xl: dismiss the
+  // sheet first (it scroll-locks the body), then reveal.
+  function goToSpan(key: string) {
+    setActiveFindingKey(key);
+    const revealAndFlash = () => {
+      setFlashKey(key);
+      if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
+      flashTimer.current = window.setTimeout(() => setFlashKey(null), 1100);
+      const det = document.getElementById('r-text') as HTMLDetailsElement | null;
+      if (det) det.open = true;
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`[data-match-key="${CSS.escape(key)}"]`);
+        // behavior:'auto' (instant): smooth scrollIntoView is silently dropped
+        // in some environments (same constraint Studio hit with this wiring).
+        if (el) el.scrollIntoView({ behavior: 'auto', block: 'center' });
+      });
+    };
+    if (typeof window !== 'undefined' && !window.matchMedia('(min-width: 1280px)').matches) {
+      setSheetOpen(false);
+      window.setTimeout(revealAndFlash, 320);
+      return;
+    }
+    revealAndFlash();
+  }
+
   // Reset to the pre-audit state (from the collapsed input bar's "New audit").
   function newAudit() {
     setInput('');
@@ -177,6 +231,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     setAuditedMode(null);
     setSourceText('');
     setEditing(false);
+    setSampleMode(false);
   }
 
   // Core audit runner, shared by the form submit and the example chips.
@@ -201,6 +256,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     setError(null);
     setResult(null);
     setExtraction(null);
+    setSampleMode(false);
 
     const body      = isText ? { text: raw } : { url };
     const startedAt = performance.now();
@@ -264,9 +320,10 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     runAudit(input);
   }
 
-  // Example picker: load a PRE-CACHED sample (no API call). We keep a short
-  // artificial delay + the same loading animation so it doesn't feel fake — the
-  // reader still sees the "reading and analysing" beat, then the result lands.
+  // Example picker: load a PRE-CACHED sample (no API call). Honest UX: a
+  // distinct "pre-computed sample" loading state with no fake engine-time
+  // theatre, and the delivered result is annotated as a cached demo in the
+  // verdict bar so nobody mistakes it for a live run.
   function loadSample(sample: Sample) {
     setShowExamples(false);
     setError(null);
@@ -276,13 +333,15 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     setInput(sample.text);
     setSourceText(sample.text);
     setAuditedMode('text');
+    setSampleMode(true);
     setLoading(true);
     track('sample_picked', { sample_id: sample.id });
+    // Short beat so the swap doesn't jump-cut. NOT simulated engine time.
     window.setTimeout(() => {
       setResult(sample.cached.audit as AuditResult);
       setExtraction(sample.cached.extraction as ArgumentExtractionResult);
       setLoading(false);
-    }, 1200);
+    }, 400);
   }
 
   return (
@@ -352,7 +411,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         {/* Contextual hint: character budget for text, fetch caveat for a URL. */}
         {looksUrl ? (
           <p class="text-xs text-muted">
-            The page must be publicly accessible. Paywalled articles can't be extracted — paste the text directly instead.
+            The page must be publicly accessible. Paywalled articles can't be extracted. Paste the text directly instead.
           </p>
         ) : (
           <div class="flex justify-between text-xs">
@@ -408,7 +467,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                           <span class="text-[0.625rem] px-1.5 py-0.5 rounded bg-hairline/40 text-muted font-medium">+{s.failureModes.length - 2}</span>
                         )}
                       </div>
-                      <span class="inline-block mt-1.5 text-[0.6875rem] font-medium text-accent">See the analysis →</span>
+                      <span class="inline-block mt-1.5 text-[0.6875rem] font-medium text-accent-support">See the analysis →</span>
                     </button>
                   ))}
                 </div>
@@ -419,7 +478,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       </form>
       )}
 
-      {loading && <AuditLoading />}
+      {loading && (sampleMode ? <SampleLoading /> : <AuditLoading />)}
 
       {error && !loading && (
         <div class="rounded-xl bg-accent/5 border border-accent/30 p-4">
@@ -434,8 +493,18 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       {result && !loading && displayResult && (
         <div class="space-y-4">
 
+          {/* One-time glossary for the Logic / Judgment call / Factual chips.
+             Sits above the verdict bar; the (?) on the scope strip reopens it. */}
+          <GroundednessDefs open={defsOpen} onDismiss={dismissDefs} />
+
           {/* Verdict bar */}
           <div class="rounded-lg border border-hairline bg-surface px-4 py-3 space-y-2">
+            {sampleMode && (
+              <span class="inline-flex items-baseline gap-1.5 rounded-[2px] border border-hairline bg-paper px-2 py-1 text-xs text-muted">
+                <span class="font-mono text-[11px] uppercase tracking-[0.08em]">Cached demo</span>
+                <span>A live audit takes 10 to 20 seconds on your own text.</span>
+              </span>
+            )}
             <div class="flex items-center gap-2 flex-wrap">
               <span class="text-sm font-medium text-ink-strong">
                 {counts.total} {counts.total === 1 ? 'issue' : 'issues'} found
@@ -446,6 +515,11 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                   {counts.critical} critical
                 </span>
               )}
+              {sourceText.trim().length > 0 && (
+                <div class="ml-auto">
+                  <ShareAuditButton result={displayResult} draftText={sourceText} />
+                </div>
+              )}
             </div>
             {/* One-line structural verdict — the plain-language read of the
                finding shape (which KIND of objection dominates). */}
@@ -453,6 +527,17 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             <p class="text-xs text-muted line-clamp-1">
               <span class="font-medium text-ink">Weakest link:</span> {result.toulmin.weakestLink}
             </p>
+            {/* Below xl the findings live in the bottom sheet — give the
+               verdict bar its own plain door so the floating pill is not the
+               only way in. */}
+            <button
+              type="button"
+              onClick={() => setSheetOpen(true)}
+              class="xl:hidden inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md border border-hairline text-accent-support hover:bg-accent-support/5 transition-colors"
+            >
+              {findingsSheetButtonLabel(counts.total)}
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" /></svg>
+            </button>
             {/* Scope strip — what the audit checked (its lenses). Shows base
                checks always, with counts, so a clean result reads as
                "checked, nothing found" rather than "did it run?". */}
@@ -464,6 +549,15 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                   <span class={`font-mono ${l.count > 0 ? 'text-ink font-medium' : 'text-muted/70'}`}>{l.count}</span>
                 </span>
               ))}
+              {!defsOpen && (
+                <button
+                  type="button"
+                  onClick={() => setDefsOpen(true)}
+                  aria-label="What the Logic, Judgment call and Factual labels mean"
+                  title="What the finding labels mean"
+                  class="ml-auto shrink-0 inline-flex h-5 w-5 items-center justify-center rounded-full border border-hairline font-mono text-[11px] text-muted hover:border-accent-support hover:text-accent-support transition-colors"
+                >?</button>
+              )}
             </div>
           </div>
 
@@ -510,6 +604,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                       text={sourceText}
                       audit={displayResult}
                       activeFindingKey={activeFindingKey}
+                      flashKey={flashKey}
                       onHighlightClick={goToFinding}
                     />
                   )}
@@ -524,7 +619,9 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
                   <svg class="rd-chevron w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 </summary>
                 <div class="px-4 pb-4">
-                  <AuditResults result={displayResult} scope="span" flush activeFindingKey={activeFindingKey} />
+                  {/* Card tap → span only when there is a draft to land in
+                     (URL audits without extracted text have no left panel). */}
+                  <AuditResults result={displayResult} scope="span" flush activeFindingKey={activeFindingKey} onFindingNavigate={hasLeftContent ? goToSpan : undefined} />
                 </div>
               </details>
               <details id="r-structure" open class="rd-fold scroll-mt-24 rounded-lg border border-hairline bg-surface">
@@ -552,12 +649,13 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           onOpenChange={setSheetOpen}
           scrollToKey={activeFindingKey}
           totalFindings={counts.total}
+          pulse
           tabs={[
             {
               id:    'findings',
               label: 'Findings',
               count: counts.total,
-              body:  <AuditResults result={displayResult} scope="span" flush activeFindingKey={activeFindingKey} />,
+              body:  <AuditResults result={displayResult} scope="span" flush activeFindingKey={activeFindingKey} onFindingNavigate={hasLeftContent ? goToSpan : undefined} />,
             },
             {
               id:    'structure',
@@ -594,7 +692,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           <div class="rounded-xl border border-hairline bg-paper p-5 flex flex-col">
             <p class="text-xs font-semibold uppercase tracking-widest text-accent-support mb-2">Audit as you read</p>
             <p class="text-sm text-ink leading-relaxed mb-4 flex-1">
-              The free Chrome extension audits any article, on any site, from a side panel — no copy-paste.
+              The free Chrome extension audits any article, on any site, from a side panel, no copy-paste.
             </p>
             <a href="/extension" class="inline-block self-start rounded-lg border border-accent-support/40 px-4 py-2 text-sm font-semibold text-accent-support hover:bg-accent-support/5 transition-colors">
               Get the free extension →

@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { CONTACT_EMAIL } from '../lib/contact';
 ---
 <Base
   title="Chrome Extension - The Whetstone"
@@ -56,7 +57,7 @@ import Base from '../layouts/Base.astro';
           <p class="font-serif text-sm text-ink-strong mb-3 leading-snug">
             Audit this article?
           </p>
-          <button class="w-full bg-accent text-white text-xs font-semibold py-2 rounded-md mb-2 cursor-default">
+          <button class="w-full bg-accent-support text-white text-xs font-semibold py-2 rounded-md mb-2 cursor-default">
             Audit whole page
           </button>
           <button class="w-full border border-hairline text-ink text-xs font-semibold py-2 rounded-md mb-4 cursor-default">
@@ -90,7 +91,7 @@ import Base from '../layouts/Base.astro';
     <section class="sm:hidden mb-10">
       <div class="rounded-xl border border-hairline bg-paper p-4">
         <p class="text-sm text-ink leading-relaxed mb-3">The extension runs in desktop Chrome. On your phone, the same engine is free at the Audit.</p>
-        <a href="/audit" class="inline-flex items-center justify-center px-4 py-2.5 rounded-md bg-accent text-white text-xs font-semibold hover:bg-accent/90 transition-colors">Open the Audit →</a>
+        <a href="/audit" class="inline-flex items-center justify-center px-4 py-2.5 rounded-md bg-accent-support text-white text-xs font-semibold hover:bg-accent-support/90 transition-colors">Open the Audit →</a>
       </div>
     </section>
 
@@ -141,7 +142,7 @@ import Base from '../layouts/Base.astro';
         <p class="text-sm text-ink leading-relaxed">
           The extension is feature-complete and being readied for submission. For early access while
           it's in review, email
-          <a href="mailto:hello@thewhetstone.review" class="font-semibold underline">hello@thewhetstone.review</a>
+          <a href={`mailto:${CONTACT_EMAIL}`} class="font-semibold underline">{CONTACT_EMAIL}</a>
           and you'll get an unpacked build with install instructions.
         </p>
       </div>
@@ -156,7 +157,7 @@ import Base from '../layouts/Base.astro';
             Paste any text or URL at <span class="font-mono text-xs bg-hairline/40 px-1.5 py-0.5 rounded">/audit</span> - same engine, no install.
           </p>
         </div>
-        <a href="/audit" class="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-accent text-white text-sm font-semibold hover:bg-accent/90 transition-colors">
+        <a href="/audit" class="shrink-0 inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-accent-support text-white text-sm font-semibold hover:bg-accent-support/90 transition-colors">
           Open the Audit →
         </a>
       </div>

@@ -33,15 +33,15 @@ const WONT = [
 
 const BRIEFING_PARTS = [
   { h: 'One contested question', p: 'Each briefing takes a single question that serious people genuinely disagree about, stated plainly and kept evergreen.' },
-  { h: 'A per-question spectrum', p: 'Sources are mapped on an axis named for what actually divides them — "competitive market vs monopsony power", not left vs right. The question chooses the axis.' },
-  { h: 'Positions, each audited', p: 'The strongest form of each position, quoted verbatim from a real source — followed by a structural audit card: the named reasoning pattern, where it sits, and why it matters.' },
+  { h: 'A per-question spectrum', p: 'Sources are mapped on an axis named for what actually divides them: "competitive market vs monopsony power", not left vs right. The question chooses the axis.' },
+  { h: 'Positions, each audited', p: 'The strongest form of each position, quoted verbatim from a real source, followed by a structural audit card: the named reasoning pattern, where it sits, and why it matters.' },
   { h: 'The shared assumption', p: 'The premise both sides quietly stand on. No other outlet tells you what the disagreement agrees about.' },
-  { h: "The editor's view, walled off", p: 'A position, taken openly, labelled as opinion, and followed by "why this might be wrong" — the strongest reason to doubt it.' },
+  { h: "The editor's view, walled off", p: 'A position, taken openly, labelled as opinion, and followed by "why this might be wrong": the strongest reason to doubt it.' },
   { h: 'Other takes, audited', p: 'Curated external takes each carry their own structural annotation. Where none are surveyed, the briefing says so.' },
 ];
 ---
 <Base
-  title="How the audit works — The Whetstone"
+  title="How the audit works - The Whetstone"
   description="The methodology behind The Whetstone: eleven analytical lenses grounded in argumentation theory, verbatim-quote discipline, groundedness labels, and how a briefing is built."
   canonicalPath="/method"
 >
@@ -52,7 +52,7 @@ const BRIEFING_PARTS = [
       <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-3">Method</p>
       <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-4 max-w-3xl">How the audit works</h1>
       <p class="text-base sm:text-lg text-muted leading-relaxed max-w-2xl">
-        Every position in a briefing, and every text run through <a href="/audit" class="text-accent hover:text-accent-support">the Audit</a>,
+        Every position in a briefing, and every text run through <a href="/audit" class="text-accent-support hover:text-accent">the Audit</a>,
         goes through the same engine. This page is the method: what it looks for, what the labels mean, and what it deliberately won't do.
       </p>
     </section>
@@ -85,15 +85,15 @@ const BRIEFING_PARTS = [
             <p class="text-sm font-semibold text-ink-strong mb-1.5">Every finding quotes its evidence, verbatim.</p>
             <p class="text-sm text-muted leading-relaxed">
               A finding must point at exact words in the text. Quotes that don't appear verbatim in the source are
-              dropped before anything is shown — a finding you can't check against the text isn't a finding.
+              dropped before anything is shown: a finding you can't check against the text isn't a finding.
             </p>
           </div>
           <div class="pl-4 border-l-2 border-accent-support">
             <p class="text-sm font-semibold text-ink-strong mb-1.5">Every finding declares its kind of ground.</p>
             <p class="text-sm text-muted leading-relaxed">
-              <span class="font-medium text-ink">Logic</span> — verifiable in the text's own structure.
-              <span class="font-medium text-ink"> Judgment call</span> — depends on a reading a careful reader could contest.
-              <span class="font-medium text-ink"> Factual</span> — checkable against external sources.
+              <span class="font-medium text-ink">Logic</span>: verifiable in the text's own structure.
+              <span class="font-medium text-ink"> Judgment call</span>: depends on a reading a careful reader could contest.
+              <span class="font-medium text-ink"> Factual</span>: checkable against external sources.
               No fake percentage scores; the label tells you how to weigh the finding.
             </p>
           </div>
@@ -106,8 +106,8 @@ const BRIEFING_PARTS = [
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">How a briefing is built</h2>
         <p class="text-sm text-muted mb-8 max-w-2xl">
-          A briefing maps the argument space of one question — it does not sample the media coverage. See a live example:
-          <a href="/briefing/minimum-wage-jobs" class="text-accent hover:text-accent-support font-medium">Does raising the minimum wage cost jobs? →</a>
+          A briefing maps the argument space of one question: it does not sample the media coverage. See a live example:
+          <a href="/briefing/minimum-wage-jobs" class="text-accent-support hover:text-accent font-medium">Does raising the minimum wage cost jobs? →</a>
         </p>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-5xl">
           {BRIEFING_PARTS.map(b => (
@@ -125,7 +125,7 @@ const BRIEFING_PARTS = [
       <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
         <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">How positions are placed on the map</h2>
         <p class="text-sm text-muted mb-8 max-w-2xl">
-          Only sources that <em>argue a stance</em> are plotted — every plotted point carries an audit card.
+          Only sources that <em>argue a stance</em> are plotted: every plotted point carries an audit card.
           Sources cited as factual input (a measurement, a dataset, a technical result) are listed as evidence
           beneath the map, never plotted: a paper that reports a finding does not thereby take a side.
         </p>
@@ -139,14 +139,14 @@ const BRIEFING_PARTS = [
               <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums font-mono" style="color:var(--color-spec-leanright)">+1</span> leans toward the right-hand pole</li>
               <li class="flex gap-3"><span class="shrink-0 w-8 font-semibold tabular-nums font-mono" style="color:var(--color-spec-right)">+2</span> argues strongly for the right-hand pole</li>
             </ul>
-            <p class="text-xs text-muted mt-3 leading-relaxed">Five bands, not a 0–100 number: a two-digit coordinate would claim a precision the judgment doesn't have. The axis itself is named per question — what actually divides the positions, not left vs right.</p>
+            <p class="text-xs text-muted mt-3 leading-relaxed">Five bands, not a 0–100 number: a two-digit coordinate would claim a precision the judgment doesn't have. The axis itself is named per question: what actually divides the positions, not left vs right.</p>
           </div>
           <div>
             <p class="text-sm font-semibold text-ink-strong mb-3">The confidence tag (drawn as marker width)</p>
             <ul class="space-y-2 text-sm text-muted">
-              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">high</span> we've read three or more pieces of this source's argument on this question — tight marker</li>
-              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">med</span> one or two pieces — medium marker</li>
-              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">low</span> a single article; provisional — wide bracket, honestly "somewhere around here"</li>
+              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">high</span> we've read three or more pieces of this source's argument on this question (tight marker)</li>
+              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">med</span> one or two pieces (medium marker)</li>
+              <li class="flex gap-3"><span class="shrink-0 w-10 font-semibold text-ink">low</span> a single article; provisional (wide bracket, honestly "somewhere around here")</li>
             </ul>
             <p class="text-xs text-muted mt-3 leading-relaxed">Scope, stated once: placements describe a source's argument <em>on this question</em>, not the outlet in general; a briefing maps the argument space, it does not sample the media coverage.</p>
           </div>
@@ -179,7 +179,7 @@ const BRIEFING_PARTS = [
             read arguments should itself be transparent: if a finding seems off, you can read the prompt that produced it.
           </p>
           <div class="flex flex-wrap gap-x-6 gap-y-2">
-            <a href="https://github.com/Daniell-44/Whetstone" target="_blank" rel="noopener" class="text-sm font-semibold text-accent hover:text-accent-support">View on GitHub →</a>
+            <a href="https://github.com/Daniell-44/Whetstone" target="_blank" rel="noopener" class="text-sm font-semibold text-accent-support hover:text-accent">View on GitHub →</a>
             <a href="/feedback" class="text-sm font-semibold text-accent-support hover:text-accent">Send feedback →</a>
           </div>
         </div>

@@ -1,5 +1,6 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import type { CrossDocumentResult } from '../../../functions/_lib/cross-document/types';
+import type { Document, DocumentVersion } from '../../../functions/_lib/documents/types';
 import CrossDocumentDisplay from './CrossDocumentDisplay';
 import { track } from '../../lib/analytics/track';
 
@@ -14,7 +15,9 @@ interface DocEntry {
 type Phase =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'done'; result: CrossDocumentResult }
+  | { status: 'done'; result: CrossDocumentResult; savedDocumentId?: string }
+  // A previously persisted run reopened via ?doc=<id>: read-only, no re-run.
+  | { status: 'stored'; result: CrossDocumentResult; savedAt: number; title: string }
   | { status: 'error'; message: string };
 
 const MIN_DOCS = 2;
@@ -27,6 +30,36 @@ function emptyDoc(): DocEntry {
 export default function CrossDocumentForm() {
   const [docs, setDocs]   = useState<DocEntry[]>([emptyDoc(), emptyDoc()]);
   const [phase, setPhase] = useState<Phase>({ status: 'idle' });
+
+  // Reopen a persisted run: /creator/studio/cross-document?doc=<id> loads the
+  // stored result and renders it read-only, without consuming a run.
+  useEffect(() => {
+    const docId = new URLSearchParams(window.location.search).get('doc');
+    if (!docId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res  = await fetch(`/api/documents/${encodeURIComponent(docId)}`);
+        const data = await res.json() as
+          | { ok: true; document: Document; latestVersion: DocumentVersion | null }
+          | { ok: false };
+        if (cancelled) return;
+        if (!data.ok || data.document.kind !== 'cross-doc' || !data.latestVersion?.result_json) {
+          setPhase({ status: 'error', message: 'Could not load that stored cross-document analysis.' });
+          return;
+        }
+        setPhase({
+          status:  'stored',
+          result:  JSON.parse(data.latestVersion.result_json) as CrossDocumentResult,
+          savedAt: data.latestVersion.created_at,
+          title:   data.document.title,
+        });
+      } catch {
+        if (!cancelled) setPhase({ status: 'error', message: 'Could not load that stored cross-document analysis.' });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   function updateDoc(i: number, patch: Partial<DocEntry>) {
     setDocs(docs.map((d, idx) => idx === i ? { ...d, ...patch } : d));
@@ -64,11 +97,11 @@ export default function CrossDocumentForm() {
         body:    JSON.stringify(payload),
       });
       const data = await res.json() as
-        | { ok: true;  result: CrossDocumentResult }
+        | { ok: true;  result: CrossDocumentResult; savedDocumentId?: string }
         | { ok: false; error: { code: string; message: string } };
 
       if (data.ok) {
-        setPhase({ status: 'done', result: data.result });
+        setPhase({ status: 'done', result: data.result, savedDocumentId: data.savedDocumentId });
         track('cross_document_completed', {
           latency_ms: Math.round(performance.now() - startedAt),
           finding_count: data.result.synthesis?.findings.length ?? 0,
@@ -79,6 +112,24 @@ export default function CrossDocumentForm() {
     } catch {
       setPhase({ status: 'error', message: 'Network error - check your connection.' });
     }
+  }
+
+  // Read-only view of a persisted run: no input form, no re-run needed.
+  if (phase.status === 'stored') {
+    return (
+      <div class="space-y-6">
+        <div class="rounded-xl border border-hairline bg-surface px-5 py-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">Stored result</span>
+          <span class="text-xs text-muted">
+            {phase.title} · saved {new Date(phase.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </span>
+          <a href="/creator/studio/cross-document" class="ml-auto text-xs text-accent-support hover:underline">
+            Run a new analysis →
+          </a>
+        </div>
+        <CrossDocumentDisplay result={phase.result} />
+      </div>
+    );
   }
 
   return (
@@ -150,7 +201,7 @@ export default function CrossDocumentForm() {
           <button
             type="button"
             onClick={addDoc}
-            class="text-sm text-accent hover:text-accent-support font-medium"
+            class="text-sm text-accent-support hover:text-accent font-medium"
           >
             + Add document
           </button>
@@ -160,7 +211,7 @@ export default function CrossDocumentForm() {
           onClick={handleSubmit}
           disabled={!canSubmit}
           class={`ml-auto py-2.5 px-6 rounded-xl text-sm font-semibold transition-colors ${
-            canSubmit ? 'bg-accent text-white hover:bg-accent/90' : 'bg-hairline/40 text-muted cursor-not-allowed'
+            canSubmit ? 'bg-accent-support text-white hover:bg-accent-support/90' : 'bg-hairline/40 text-muted cursor-not-allowed'
           }`}
         >
           {phase.status === 'loading' ? 'Analysing…' : `Analyse ${filledDocs.length || MIN_DOCS} documents`}
@@ -181,7 +232,16 @@ export default function CrossDocumentForm() {
       )}
 
       {phase.status === 'done' && (
-        <div class="border-t border-hairline pt-6">
+        <div class="border-t border-hairline pt-6 space-y-4">
+          <p class="text-xs text-muted">
+            {phase.savedDocumentId ? (
+              <>
+                Saved to <a href="/creator/documents" class="text-accent-support hover:underline">My Documents</a>, so you can reopen this result later.
+              </>
+            ) : (
+              <>This result is not saved. Sign in before running to keep results in My Documents.</>
+            )}
+          </p>
           <CrossDocumentDisplay result={phase.result} />
         </div>
       )}

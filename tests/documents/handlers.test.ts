@@ -25,9 +25,9 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
   const versions = new Map<string, DocumentVersion>();
 
   const db: DocumentDb = {
-    createDocument: async (id, userId, title, workspaceId?) => {
+    createDocument: async (id, userId, title, workspaceId?, kind?) => {
       const now = Date.now();
-      docs.set(id, { id, user_id: userId, workspace_id: workspaceId ?? null, title, status: 'active', created_at: now, updated_at: now });
+      docs.set(id, { id, user_id: userId, workspace_id: workspaceId ?? null, title, status: 'active', kind: kind ?? 'draft', created_at: now, updated_at: now });
     },
     getDocumentById:         async (id) => docs.get(id) ?? null,
     getActiveDocumentForUser: async (userId) => [...docs.values()].find(d => d.user_id === userId && d.status === 'active') ?? null,
@@ -38,7 +38,7 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     countActiveDocumentsForUser: async (userId) => [...docs.values()].filter(d => d.user_id === userId && d.status === 'active').length,
     createVersion: async (id, documentId, content, versionNumber) => {
       const now = Date.now();
-      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, commitments_json: null, citation_audit_json: null, created_at: now });
+      versions.set(id, { id, document_id: documentId, content, version_number: versionNumber, audit_result: null, counterarg_result: null, extraction_json: null, commitments_json: null, citation_audit_json: null, result_json: null, created_at: now });
     },
     getLatestVersion: async (documentId) => {
       return [...versions.values()].filter(v => v.document_id === documentId).sort((a, b) => b.version_number - a.version_number)[0] ?? null;
@@ -59,6 +59,9 @@ function makeFakeDb(): DocumentDb & { docs: Map<string, Document>; versions: Map
     },
     storeCitationAuditOnVersion: async (versionId, citationAuditJson) => {
       const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, citation_audit_json: citationAuditJson });
+    },
+    storeResultJsonOnVersion: async (versionId, resultJson) => {
+      const v = versions.get(versionId); if (v) versions.set(versionId, { ...v, result_json: resultJson });
     },
     countVersionsForDocument: async (documentId) =>
       [...versions.values()].filter(v => v.document_id === documentId).length,

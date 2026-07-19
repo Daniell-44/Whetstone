@@ -166,7 +166,7 @@ function AssessmentCard({ a }: { a: EvidenceAssessment }) {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            class="text-xs font-semibold text-accent hover:text-accent-support uppercase tracking-wider"
+            class="text-xs font-semibold text-accent-support hover:text-accent uppercase tracking-wider"
           >
             {expanded ? 'Hide papers ↑' : `View ${a.topPapers.length} paper${a.topPapers.length !== 1 ? 's' : ''} ↓`}
           </button>

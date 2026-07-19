@@ -19,7 +19,7 @@ const isLoggedIn = !!session;
     <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-2">Feedback</h1>
     <p class="text-base text-ink leading-relaxed mb-8">
       The Whetstone is early and improving in the open. Tell us what's working, what isn't,
-      where a briefing or an audit misses — or what you'd like to see next. Every note is read.
+      where a briefing or an audit misses, or what you'd like to see next. Every note is read.
     </p>
 
     <form id="feedback-form" class="space-y-4">
@@ -52,7 +52,7 @@ const isLoggedIn = !!session;
         <button
           type="submit"
           id="fb-submit"
-          class="inline-flex items-center rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent-support transition-colors disabled:opacity-60"
+          class="inline-flex items-center rounded-md bg-accent-support px-5 py-2.5 text-sm font-medium text-white hover:bg-accent-support/90 transition-colors disabled:opacity-60"
         >
           Send feedback
         </button>
@@ -86,12 +86,12 @@ const isLoggedIn = !!session;
         const data = (await res.json().catch(() => ({}))) as ApiEnvelope;
         if (res.ok && data.ok) {
           form?.reset();
-          status.textContent = 'Thanks — your feedback was sent.';
+          status.textContent = 'Thanks, your feedback was sent.';
         } else {
           status.textContent = data?.error?.message ?? 'Something went wrong. Please try again.';
         }
       } catch {
-        status.textContent = 'Network error — please try again.';
+        status.textContent = 'Network error. Please try again.';
       } finally {
         submit.disabled = false;
       }

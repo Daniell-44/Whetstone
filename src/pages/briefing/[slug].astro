@@ -23,6 +23,10 @@ const hasPositions = briefing.blocks.some((bl) => bl.type === 'position');
 const hasShared    = briefing.blocks.some((bl) => bl.type === 'shared');
 const hasEditor    = briefing.blocks.some((bl) => bl.type === 'editorView' || bl.type === 'takes');
 
+// Explainers get a pared chassis: essay + one related-briefing link. No ToC,
+// no share/cite rail, no audit CTAs — the full apparatus belongs to briefings.
+const isExplainer = briefing.kind === 'explainer';
+
 const shareUrl = `https://thewhetstone.review/briefing/${briefing.slug}`;
 const X_PATH  = 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z';
 const LI_PATH = 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z';
@@ -50,10 +54,13 @@ function metaDescription(): string {
   return `${briefing.question} The strongest positions, each with a structural audit of its reasoning.`;
 }
 const desc     = metaDescription();
-// A `/placeholder-*` cover is a debug asset — never send it as the share image;
-// fall back to the site card until a real per-briefing cover exists.
+// Share image: a curated real cover wins; otherwise the per-briefing card that
+// scripts/generate-og.ts renders at build time (chained into `pnpm build`, so
+// /og/<slug>.png exists for every briefing — safe to reference unconditionally).
+// A `/placeholder-*` cover is a debug asset and never ships as the share image.
 const hasRealImage = briefing.image && !briefing.image.includes('/placeholder-');
-const ogImage  = hasRealImage ? `https://thewhetstone.review${briefing.image}` : 'https://thewhetstone.review/og-image.png';
+const ogImagePath  = hasRealImage ? briefing.image! : `/og/${briefing.slug}.png`;
+const ogImage      = `https://thewhetstone.review${ogImagePath}`;
 
 // Article structured data (schema.org/Article) — helps the briefing rank as a
 // citable analytical piece rather than a generic page. Rendered as JSON-LD in
@@ -76,6 +83,7 @@ const jsonLd = {
   title={`${briefing.question} — The Whetstone`}
   description={desc}
   ogType="article"
+  ogImage={ogImagePath}
   canonicalPath={`/briefing/${briefing.slug}`}
 >
   <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
@@ -84,7 +92,7 @@ const jsonLd = {
     <!-- Top nav -->
     <nav class="mb-8 flex items-center justify-between">
       <a href="/" class="text-xs text-muted hover:text-accent transition-colors">← Briefings</a>
-      <div class="flex items-center gap-2 lg:hidden">
+      {!isExplainer && <div class="flex items-center gap-2 lg:hidden">
         {/* Native share sheet first (where briefing links actually travel:
            WhatsApp/Messages), clipboard fallback. X/LinkedIn stay as
            direct targets. */}
@@ -102,13 +110,26 @@ const jsonLd = {
         <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-muted hover:text-accent hover:bg-paper" title="Share on LinkedIn" aria-label="Share on LinkedIn">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={LI_PATH}/></svg>
         </a>
-      </div>
+      </div>}
     </nav>
 
-    <!-- 3-column layout: ToC | content | share+related -->
+    {/* Explainer chassis: the essay plus one related-briefing link. No ToC,
+       no share/cite rail, no audit CTAs. Briefings keep the full 3-column
+       layout (ToC | content | share+related). */}
+    {isExplainer ? (
+      <div class="max-w-[36rem] mx-auto">
+        <BriefingArticle briefing={briefing} />
+        {related[0] && (
+          <div class="mt-12 pt-8 border-t border-hairline">
+            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">Related briefing</span>
+            <a href={`/briefing/${related[0].slug}`} class="font-serif text-base text-ink-strong hover:text-accent-support transition-colors leading-snug">{related[0].question}</a>
+          </div>
+        )}
+      </div>
+    ) : (
     <div class="grid lg:grid-cols-12 gap-8 xl:gap-12 items-start">
 
-      <!-- LEFT: Table of contents -->
+      {/* LEFT: Table of contents */}
       <aside class="hidden lg:block lg:col-span-2 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
         <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">On this page</p>
         <nav class="space-y-1.5 text-xs">
@@ -120,18 +141,20 @@ const jsonLd = {
         <a href="/" class="mt-6 block text-xs text-muted hover:text-accent transition-colors">← All Briefings</a>
       </aside>
 
-      <!-- CENTER -->
+      {/* CENTER */}
       <div class="lg:col-span-7">
         <BriefingArticle briefing={briefing} />
 
-        <!-- End-of-briefing next step (D1-B): no dead ends. -->
+        {/* End-of-briefing next step (D1-B): no dead ends. One next-briefing
+           link plus the page's single footer CTA; the per-audit chips above
+           are the only other route into the tool. */}
         <div class="mt-12 pt-8 border-t border-hairline">
           <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">Next</p>
           <div class="grid sm:grid-cols-2 gap-4">
             {related[0] && (
-              <a href={`/briefing/${related[0].slug}`} class="group block rounded-md border border-hairline bg-surface p-4 hover:border-accent/40 transition-all">
-                <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-1.5">Another briefing</p>
-                <p class="font-serif text-base text-ink-strong group-hover:text-accent transition-colors leading-snug">{related[0].question}</p>
+              <a href={`/briefing/${related[0].slug}`} class="group block rounded-md border border-hairline bg-surface p-4 hover:border-accent-support/40 transition-all">
+                <p class="text-xs font-semibold uppercase tracking-widest text-accent-support mb-1.5">Another briefing</p>
+                <p class="font-serif text-base text-ink-strong group-hover:text-accent-support transition-colors leading-snug">{related[0].question}</p>
               </a>
             )}
             <div class="rounded-md border border-hairline bg-surface p-4 flex flex-col justify-between gap-3">
@@ -139,19 +162,16 @@ const jsonLd = {
                 <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-1.5">Run the engine yourself</p>
                 <p class="text-sm text-ink leading-relaxed">The same audit that produced the cards above is free on any text.</p>
               </div>
-              <div class="flex flex-wrap gap-x-4 gap-y-1">
-                <a href="/audit" class="text-sm font-semibold text-accent hover:text-accent-support">Open the Audit →</a>
-                <a href="/method" class="text-sm font-semibold text-accent-support hover:text-accent">How the audit works →</a>
-              </div>
+              <a href="/audit" class="text-sm font-semibold text-accent-support hover:underline">Open the Audit →</a>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- RIGHT: share + related (sticky) -->
+      {/* RIGHT: share + related (sticky) */}
       <aside class="lg:col-span-3 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto space-y-6">
 
-        <!-- Share -->
+        {/* Share */}
         <div class="rounded-md border border-hairline bg-surface p-4">
           <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Share</p>
           <div class="flex gap-2">
@@ -165,18 +185,7 @@ const jsonLd = {
           </div>
         </div>
 
-        <!-- Audit a similar argument. Desktop-only: on mobile the Next block
-             and the bottom Audit tab already carry this step, so the stacked
-             aside was ~1.5 screens of repeated CTAs. -->
-        <div class="hidden lg:block rounded-md border border-accent/20 bg-accent/5 p-4">
-          <p class="text-xs font-semibold text-accent mb-1.5">Audit a similar argument</p>
-          <p class="text-xs text-ink leading-relaxed mb-3">
-            Paste your own text and the engine returns the same structural analysis you see here.
-          </p>
-          <a href="/audit" class="block w-full text-center px-3 py-2 rounded-md bg-accent text-paper text-xs font-semibold hover:bg-accent/90 transition-colors">Open the Audit →</a>
-        </div>
-
-        <!-- Cite this briefing -->
+        {/* Cite this briefing */}
         <div class="rounded-md border border-hairline bg-surface p-4">
           <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Cite this Briefing</p>
           <div class="flex flex-col gap-1.5">
@@ -191,8 +200,8 @@ const jsonLd = {
           </div>
         </div>
 
-        <!-- Related briefings. Desktop-only: the Next block already offers the
-             top related briefing on mobile. -->
+        {/* Related briefings. Desktop-only: the Next block already offers the
+           top related briefing on mobile. */}
         {related.length > 0 && (
           <div class="hidden lg:block rounded-md border border-hairline bg-surface p-4">
             <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Related</p>
@@ -214,5 +223,6 @@ const jsonLd = {
       </aside>
 
     </div>
+    )}
   </main>
 </Base>

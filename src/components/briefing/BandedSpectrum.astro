@@ -46,7 +46,7 @@ const height = railTop + 14 + rows * 20 + 16;
       {placed.map(({ s, n, within }) => (
         <a
           href={`#pos-${s.id}`}
-          title={`${s.label}${s.publication ? ' · ' + s.publication : ''} — placed ${s.stance > 0 ? '+' + s.stance : s.stance} (${s.confidence} confidence). Jump to this position.`}
+          title={`${s.label}${s.publication ? ' · ' + s.publication : ''}, placed ${s.stance > 0 ? '+' + s.stance : s.stance} (${s.confidence} confidence). Jump to this position.`}
           class="absolute flex items-center justify-center text-white text-[10px] font-semibold hover:opacity-100 transition-opacity"
           style={`left:${PCT[String(s.stance)]}%;top:${railTop + 8 + within * 20}px;width:${W[s.confidence]}px;height:15px;border-radius:8px;background:${COL(s.stance)};opacity:${OP[s.confidence]};transform:translate(-50%,-50%);box-shadow:0 0 0 3px #FBF7F0;`}
         >{n}</a>
@@ -69,7 +69,7 @@ const height = railTop + 14 + rows * 20 + 16;
     </div>
     <p class="text-xs text-muted mt-1.5 leading-snug">
       Every point is an audited position; tap a number to jump to it, or a name below to read the source.
-      Marker width shows placement confidence (<a href="/method#placement" class="text-accent hover:text-accent-support">method</a>). Evidence sources are listed below, not plotted.
+      Marker width shows placement confidence (<a href="/method#placement" class="text-accent-support hover:text-accent">method</a>). Evidence sources are listed below, not plotted.
     </p>
   </div>
 )}

@@ -4,6 +4,7 @@ import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
 import { makeAuthDb } from '../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
+import { CONTACT_EMAIL } from '../lib/contact';
 
 // Session-aware so the CTA offers the right next step: a signed-in user opens
 // Studio; a signed-out user is invited to sign in (returning to Studio after) or
@@ -143,7 +144,7 @@ const signedIn = !!session;
           <h3 class="text-sm font-semibold text-ink-strong mb-2">Newsrooms</h3>
           <p class="text-sm text-ink leading-relaxed">
             Multi-seat workspace, shared document library, API access.{' '}
-            <a href="mailto:hello@thewhetstone.review" class="text-accent-support hover:text-accent font-medium">Get in touch →</a>
+            <a href={`mailto:${CONTACT_EMAIL}`} class="text-accent-support hover:text-accent font-medium">Get in touch →</a>
           </p>
         </div>
       </div>

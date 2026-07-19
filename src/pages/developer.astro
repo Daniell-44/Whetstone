@@ -11,7 +11,7 @@ import Base from '../layouts/Base.astro';
   <main class="max-w-2xl mx-auto px-6 pt-20 pb-24">
 
     <header class="mb-12">
-      <p class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">Developer</p>
+      <p class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Developer</p>
       <h1 class="font-serif text-4xl text-ink-strong leading-tight mb-4">API reference</h1>
       <p class="text-lg text-muted leading-relaxed">
         A Studio subscription gives you programmatic access to the same audit engine that
@@ -24,7 +24,7 @@ import Base from '../layouts/Base.astro';
     <section class="mb-12">
       <h2 class="text-xl font-semibold text-ink-strong mb-4">Authentication</h2>
       <p class="text-sm text-ink leading-relaxed mb-4">
-        Generate an API key from your <a href="/account" class="text-accent hover:text-accent-support underline">account page</a>.
+        Generate an API key from your <a href="/account" class="text-accent-support hover:text-accent underline">account page</a>.
         Keys are prefixed <code class="font-mono text-xs bg-hairline/40 px-1.5 py-0.5 rounded">wsk_live_</code> and
         must be passed as a Bearer token on every request.
       </p>
@@ -120,7 +120,7 @@ import Base from '../layouts/Base.astro';
     <section class="mb-12">
       <h2 class="text-xl font-semibold text-ink-strong mb-4">Key management</h2>
       <p class="text-sm text-ink leading-relaxed mb-4">
-        Keys are managed from your <a href="/account" class="text-accent hover:text-accent-support underline">account page</a>.
+        Keys are managed from your <a href="/account" class="text-accent-support hover:text-accent underline">account page</a>.
         You can have up to 10 active keys. Revoking a key is immediate and irreversible -
         any integration using it will receive 401 responses.
       </p>
@@ -139,7 +139,7 @@ import Base from '../layouts/Base.astro';
     </section>
 
     <!-- Footer CTA -->
-    <div class="rounded-lg border border-accent/20 bg-accent/5 px-5 py-4">
+    <div class="rounded-lg border border-accent-support/20 bg-accent-support/5 px-5 py-4">
       <p class="text-sm text-accent-support">
         No subscription yet?{' '}
         <a href="/pricing" class="font-semibold underline hover:text-accent">View pricing →</a>

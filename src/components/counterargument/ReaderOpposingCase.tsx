@@ -45,13 +45,13 @@ export default function ReaderOpposingCase({ text }: { text: string }) {
       {phase.status !== 'done' && (
         <>
           <p class="text-xs text-muted leading-relaxed">
-            The 2–3 strongest opposing positions a thoughtful, well-informed opponent would deploy — steelmanned, not strawmanned.
+            The 2–3 strongest opposing positions a thoughtful, well-informed opponent would deploy: steelmanned, not strawmanned.
           </p>
           <button
             type="button"
             onClick={() => void run()}
             disabled={phase.status === 'loading'}
-            class="w-full py-2 px-4 rounded-lg text-sm font-semibold transition-colors bg-accent text-paper hover:bg-accent/90 disabled:opacity-60"
+            class="w-full py-2 px-4 rounded-lg text-sm font-semibold transition-colors bg-accent-support text-paper hover:bg-accent-support/90 disabled:opacity-60"
           >
             {phase.status === 'loading' ? 'Finding the strongest case against…' : 'Find the strongest opposing case'}
           </button>

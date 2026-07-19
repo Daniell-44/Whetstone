@@ -115,7 +115,7 @@ function ClaimCard({
           href={claim.citationUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="block text-xs text-accent hover:underline truncate"
+          class="block text-xs text-accent-support hover:underline truncate"
         >
           {claim.citationUrl}
         </a>

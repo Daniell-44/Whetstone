@@ -32,6 +32,26 @@ const firstPositionIdx = briefing.blocks.findIndex((b) => b.type === 'position')
 // any prose). Pulled out here and skipped in the block map below.
 const landscapeBlock = briefing.blocks.find((b) => b.type === 'landscape');
 const landscapeText  = landscapeBlock && 'text' in landscapeBlock ? landscapeBlock.text : '';
+// Explainers have no landscape lede; their first prose paragraph is the dek.
+const firstProseIdx  = briefing.blocks.findIndex((b) => b.type === 'prose');
+
+// Editor's-read leader: the verdict's first sentence surfaces under the lede,
+// so the reader isn't 600+ words from any editorial signal. The full view
+// (with "why this might be wrong") stays at #discussion.
+const editorBlock = briefing.blocks.find((b) => b.type === 'editorView');
+function firstSentence(t: string): string {
+  const flat = t.replace(/\s+/g, ' ').trim();
+  // Sentence-ending punctuation (optionally closing a quote/bracket) followed
+  // by a space or end-of-text; non-greedy so the FIRST sentence wins.
+  const m = flat.match(/^.*?[.!?…]["')\]]*(?=\s|$)/);
+  if (m) return m[0];
+  if (flat.length <= 180) return flat;
+  let cut = flat.slice(0, 180);
+  const sp = cut.lastIndexOf(' ');
+  if (sp > 0) cut = cut.slice(0, sp);
+  return cut + '…';
+}
+const editorLead = editorBlock && 'text' in editorBlock ? firstSentence(editorBlock.text) : '';
 
 // v2 source model (D2 Option A): positions plot, evidence is a bibliography.
 const posSrc = briefing.positionSources ?? [];
@@ -53,6 +73,16 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
     <p class="text-lg text-ink leading-relaxed mb-6">{landscapeText}</p>
   )}
 
+  {/* Two-line editor's-read leader: kicker + first sentence of the verdict,
+     anchored to the full editor's view below. */}
+  {!isExplainer && editorLead && (
+    <div class="mb-6">
+      <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Our read</span>
+      <p class="font-serif text-base text-ink-strong leading-relaxed">{editorLead}</p>
+      <a href="#discussion" class="mt-1 inline-block text-xs font-medium text-accent-support hover:underline">Full editor's view, and why it might be wrong →</a>
+    </div>
+  )}
+
   {!isExplainer && (
     <>
       <div class="mb-4">
@@ -71,6 +101,11 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
         return null;
       }
       if (block.type === 'prose') {
+        // An explainer's first paragraph is its dek: lede-sized, like the
+        // landscape opening on a briefing.
+        if (isExplainer && idx === firstProseIdx) {
+          return <p class="text-lg text-ink leading-relaxed">{block.text}</p>;
+        }
         return <p class="text-base text-ink leading-[1.75]">{block.text}</p>;
       }
       if (block.type === 'position') {
@@ -162,56 +197,63 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
     </div>
   )}
 
-  {v2 ? (
-    <div class="mt-10 pt-6 border-t border-hairline space-y-6">
-      <div>
-        <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Positions · {posSrc.length}</span>
-        <ul class="space-y-1.5">
-          {posSrc.map((s) => (
-            <li class="flex items-baseline gap-2">
-              <span class="shrink-0 text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded border" style={`color:${stanceCol(s.stance)};border-color:${stanceCol(s.stance)}55;`}>{s.stance > 0 ? `+${s.stance}` : s.stance}</span>
-              <a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
-              <span class="text-[10px] text-muted">({s.confidence} confidence)</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      {eviSrc.length > 0 && (
+  {/* ONE Sources section (a single bibliography, not two competing ones):
+     the plotted positions first, then the evidence the argument cites. */}
+  {!isExplainer && (v2 || briefing.sources.length > 0) && (
+    <div class="mt-10 pt-6 border-t border-hairline">
+      <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-4">Sources</span>
+      {v2 ? (
+        <div class="space-y-6">
+          <div>
+            <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted/80 mb-2">Positions · {posSrc.length}</span>
+            <ul class="space-y-1.5">
+              {posSrc.map((s) => (
+                <li class="flex items-baseline gap-2">
+                  <span class="shrink-0 text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded border" style={`color:${stanceCol(s.stance)};border-color:${stanceCol(s.stance)}55;`}>{s.stance > 0 ? `+${s.stance}` : s.stance}</span>
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
+                  <span class="text-[10px] text-muted">({s.confidence} confidence)</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {eviSrc.length > 0 && (
+            <div>
+              <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted/80 mb-2">Further evidence · {eviSrc.length}</span>
+              <ul class="space-y-1.5">
+                {eviSrc.map((s) => (
+                  <li class="text-xs leading-relaxed">
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-medium text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
+                    {s.note && <span class="text-muted">: {s.note}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      ) : (
         <div>
-          <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Evidence cited · {eviSrc.length} — not plotted</span>
-          <ul class="space-y-1.5">
-            {eviSrc.map((s) => (
-              <li class="text-xs leading-relaxed">
-                <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-medium text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
-                {s.note && <span class="text-muted"> — {s.note}</span>}
-              </li>
-            ))}
-          </ul>
+          <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted/80 mb-2">Positions · {briefing.sources.length}</span>
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div class="border-l-2 pl-3" style="border-color:#185FA5">
+              <span class="text-xs font-semibold uppercase tracking-wide text-sky-700">{briefing.spectrumAxis.left}</span>
+              <ul class="mt-1.5 space-y-1">
+                {leftSources.map((s) => (
+                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div class="border-l-2 pl-3" style="border-color:#993C1D">
+              <span class="text-xs font-semibold uppercase tracking-wide text-orange-700">{briefing.spectrumAxis.right}</span>
+              <ul class="mt-1.5 space-y-1">
+                {rightSources.map((s) => (
+                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       )}
     </div>
-  ) : briefing.sources.length > 0 && (
-  <div class="mt-10 pt-6 border-t border-hairline">
-    <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Deeper reading · {briefing.sources.length} sources</span>
-    <div class="grid sm:grid-cols-2 gap-5">
-      <div class="border-l-2 pl-3" style="border-color:#185FA5">
-        <span class="text-xs font-semibold uppercase tracking-wide text-sky-700">{briefing.spectrumAxis.left}</span>
-        <ul class="mt-1.5 space-y-1">
-          {leftSources.map((s) => (
-            <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
-          ))}
-        </ul>
-      </div>
-      <div class="border-l-2 pl-3" style="border-color:#993C1D">
-        <span class="text-xs font-semibold uppercase tracking-wide text-orange-700">{briefing.spectrumAxis.right}</span>
-        <ul class="mt-1.5 space-y-1">
-          {rightSources.map((s) => (
-            <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </div>
   )}
 </article>
 

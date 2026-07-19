@@ -6,7 +6,8 @@ import BriefingCard from '../components/briefing/BriefingCard.astro';
 import { getAllBriefings } from '../lib/briefings';
 import { featured } from '../data/featured';
 import { SAMPLES } from '../data/samples';
-import { categoryColour, CATEGORY_COLOUR_FALLBACK } from '../lib/category-colour';
+import { CATEGORY_COLOUR_FALLBACK } from '../lib/category-colour';
+import { qualifyingFeedGroups } from '../lib/feed-groups';
 import type { BriefingArticle } from '../../functions/_lib/briefing/types';
 
 // Deep-link shim (D1 Option B, 2026-07-07): the audit tool moved to /audit.
@@ -62,15 +63,18 @@ function packMosaic(items: BriefingArticle[]): PlacedCard[] {
 }
 const mosaicCards = packMosaic(restBriefings);
 
-const categoryCounts: Record<string, number> = {};
-for (const b of briefings) {
-  if (b.category) categoryCounts[b.category] = (categoryCounts[b.category] ?? 0) + 1;
-}
-const presentCategories = Object.keys(categoryCounts).sort();
+// Filter consolidation (2026-07-17): the authored categories are too granular
+// for the current corpus (most filters yielded a one-card feed), so the filter
+// advertises at most 3 broad groups (src/lib/feed-groups.ts), each shown only
+// when it matches at least 2 briefings. Card kickers keep the authored category.
+const feedGroups = qualifyingFeedGroups(briefings.map((b) => b.category));
+// A filter with fewer than 2 qualifying groups can't split the feed, so the
+// whole filter UI (rail nav + mobile chip strip) is hidden.
+const showFeedFilter = feedGroups.length >= 2;
 ---
 <Base
-  title="The Whetstone — arguments, examined"
-  description="Briefings that map the strongest positions on contested questions, with a structural audit of every position's reasoning — named fallacies, unstated assumptions, and the shared premises both sides stand on."
+  title="The Whetstone: arguments, examined"
+  description="Briefings that map the strongest positions on contested questions, with a structural audit of every position's reasoning: named fallacies, unstated assumptions, and the shared premises both sides stand on."
   canonicalPath="/"
 >
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12 sm:pb-24">
@@ -165,48 +169,54 @@ const presentCategories = Object.keys(categoryCounts).sort();
 
           <!-- Left filter rail (desktop only) -->
           <aside class="hidden lg:block w-56 shrink-0 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
-            <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Browse</p>
-            <nav class="space-y-1">
-              <button type="button" data-filter="all" aria-pressed="true" class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left transition-colors">
-                <span class="flex items-center gap-2.5"><span class="w-2 h-2 rounded-full shrink-0" style={`background:${CATEGORY_COLOUR_FALLBACK}`} aria-hidden="true"></span>All</span>
-                <span class="feed-filter-count text-xs">{briefings.length}</span>
-              </button>
-              {presentCategories.map(cat => (
-                <button
-                  type="button"
-                  data-filter={cat}
-                  aria-pressed="false"
-                  class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left transition-colors"
-                >
-                  <span class="flex items-center gap-2.5"><span class="w-2 h-2 rounded-full shrink-0" style={`background:${categoryColour(cat)}`} aria-hidden="true"></span><span class="capitalize">{cat}</span></span>
-                  <span class="feed-filter-count text-xs">{categoryCounts[cat]}</span>
-                </button>
-              ))}
-            </nav>
+            {showFeedFilter && (
+              <Fragment>
+                <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Browse</p>
+                <nav class="space-y-1">
+                  <button type="button" data-filter="all" aria-pressed="true" class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left transition-colors">
+                    <span class="flex items-center gap-2.5"><span class="w-2 h-2 rounded-full shrink-0" style={`background:${CATEGORY_COLOUR_FALLBACK}`} aria-hidden="true"></span>All</span>
+                    <span class="feed-filter-count text-xs">{briefings.length}</span>
+                  </button>
+                  {feedGroups.map(g => (
+                    <button
+                      type="button"
+                      data-filter={g.id}
+                      aria-pressed="false"
+                      class="feed-filter w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-left transition-colors"
+                    >
+                      <span class="flex items-center gap-2.5"><span class="w-2 h-2 rounded-full shrink-0" style={`background:${g.colour}`} aria-hidden="true"></span><span>{g.label}</span></span>
+                      <span class="feed-filter-count text-xs">{g.count}</span>
+                    </button>
+                  ))}
+                </nav>
+              </Fragment>
+            )}
 
-            <div class="mt-6 pt-6 border-t border-hairline">
+            <div class={showFeedFilter ? 'mt-6 pt-6 border-t border-hairline' : ''}>
               <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">About</p>
               <p class="text-xs text-muted leading-relaxed">
                 Each briefing takes one contested question and audits every position: its claim, its evidence, and where the reasoning breaks down.
               </p>
-              <a href="/method#briefings" class="block mt-3 text-xs text-accent hover:text-accent-support font-medium">
+              <a href="/method#briefings" class="block mt-3 text-xs text-accent-support hover:text-accent font-medium">
                 How briefings work →
               </a>
             </div>
           </aside>
 
-          <!-- Mobile category strip — sticky under the 48px top bar so
+          <!-- Mobile group strip — sticky under the 48px top bar so
                re-filtering a long feed doesn't mean scrolling back up. -->
-          <div class="lg:hidden sticky top-12 z-20 bg-paper flex gap-1.5 overflow-x-auto -mx-4 px-4 pt-2 pb-2 border-b border-hairline scrollbar-thin">
-            <button type="button" data-filter="all" aria-pressed="true" class="feed-chip shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
-              <span class="w-1.5 h-1.5 rounded-full shrink-0" style={`background:${CATEGORY_COLOUR_FALLBACK}`} aria-hidden="true"></span>All ({briefings.length})
-            </button>
-            {presentCategories.map(cat => (
-              <button type="button" data-filter={cat} aria-pressed="false" class="feed-chip shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors">
-                <span class="w-1.5 h-1.5 rounded-full shrink-0" style={`background:${categoryColour(cat)}`} aria-hidden="true"></span>{cat} ({categoryCounts[cat]})
+          {showFeedFilter && (
+            <div class="lg:hidden sticky top-12 z-20 bg-paper flex gap-1.5 overflow-x-auto -mx-4 px-4 pt-2 pb-2 border-b border-hairline scrollbar-thin">
+              <button type="button" data-filter="all" aria-pressed="true" class="feed-chip shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors">
+                <span class="w-1.5 h-1.5 rounded-full shrink-0" style={`background:${CATEGORY_COLOUR_FALLBACK}`} aria-hidden="true"></span>All ({briefings.length})
               </button>
-            ))}
-          </div>
+              {feedGroups.map(g => (
+                <button type="button" data-filter={g.id} aria-pressed="false" class="feed-chip shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors">
+                  <span class="w-1.5 h-1.5 rounded-full shrink-0" style={`background:${g.colour}`} aria-hidden="true"></span>{g.label} ({g.count})
+                </button>
+              ))}
+            </div>
+          )}
 
           <!-- Main feed — fills the remaining column beside the rail (no centred
                width-cap), so the grid spans to the section header on wide screens. -->
@@ -252,7 +262,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
                     id="audit-launcher-go"
                     type="button"
                     aria-label="Run the audit"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-accent text-paper flex items-center justify-center hover:bg-accent/90 transition-colors"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-accent-support text-paper flex items-center justify-center hover:bg-accent-support/90 transition-colors"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
                   </button>
@@ -303,7 +313,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
       .feed-filter[aria-pressed="true"] { background: var(--color-surface); border-color: var(--color-hairline); color: var(--color-ink-strong); font-weight: 500; }
       .feed-filter-count { color: var(--color-muted); }
       .feed-chip { color: var(--color-muted); background: var(--color-surface); border: 1px solid var(--color-hairline); }
-      .feed-chip[aria-pressed="true"] { color: var(--color-ink-strong); border-color: var(--color-accent); }
+      .feed-chip[aria-pressed="true"] { color: var(--color-ink-strong); border-color: var(--color-accent-support); }
       /* Asymmetric mosaic (option 1). Mobile: single column. md+: 6-col grid with a
          per-card span (set inline as --span). When filtering, collapse to a uniform
          grid so hidden cards don't leave holes in the pattern. */
@@ -323,23 +333,26 @@ const presentCategories = Object.keys(categoryCounts).sort();
     </style>
 
     <script>
-      // Client-side category filter for the briefings feed. Rail buttons and mobile
-      // chips share [data-filter]; cards carry [data-category]. No reload — cards are
-      // shown/hidden in place, and aria-pressed is kept in sync across both controls.
+      // Client-side group filter for the briefings feed. Rail buttons and mobile
+      // chips share [data-filter] (a broad group id); cards carry [data-category]
+      // (the authored category, still shown on the kicker), so each card is mapped
+      // into its group here before comparing. No reload — cards are shown/hidden in
+      // place, and aria-pressed is kept in sync across both controls.
+      import { feedGroupFor } from '../lib/feed-groups';
       const filters = Array.from(document.querySelectorAll<HTMLElement>('[data-filter]'));
       const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-briefing-card]'));
       const mosaic = document.getElementById('feed-mosaic');
       const featuredBand = document.getElementById('feed-featured');
-      function applyFeedFilter(cat: string) {
+      function applyFeedFilter(group: string) {
         for (const card of cards) {
-          const match = cat === 'all' || card.getAttribute('data-category') === cat;
+          const match = group === 'all' || feedGroupFor(card.getAttribute('data-category')) === group;
           // Inline display beats the card's `block` utility with no !important and
           // no reliance on Astro style-scoping cooperating with a JS-added class.
           card.style.display = match ? '' : 'none';
         }
         // The mosaic's asymmetric spans assume the full set; when filtering, collapse
         // it to a uniform grid so hidden cards don't leave holes.
-        mosaic?.classList.toggle('is-filtering', cat !== 'all');
+        mosaic?.classList.toggle('is-filtering', group !== 'all');
         // Hide the curated band entirely if the active filter leaves it with no cards.
         if (featuredBand) {
           const anyVisible = Array.from(featuredBand.querySelectorAll<HTMLElement>('[data-briefing-card]'))
@@ -347,7 +360,7 @@ const presentCategories = Object.keys(categoryCounts).sort();
           featuredBand.style.display = anyVisible ? '' : 'none';
         }
         for (const f of filters) {
-          f.setAttribute('aria-pressed', f.getAttribute('data-filter') === cat ? 'true' : 'false');
+          f.setAttribute('aria-pressed', f.getAttribute('data-filter') === group ? 'true' : 'false');
         }
       }
       for (const f of filters) {
@@ -377,17 +390,17 @@ const presentCategories = Object.keys(categoryCounts).sort();
       <div class="py-4 px-4 sm:px-6 sm:border-r sm:border-hairline">
         <h3 class="text-xs font-bold uppercase text-ink-strong mb-2">Chrome Extension</h3>
         <p class="text-sm text-muted leading-relaxed mb-2">Audit any argument while you read - runs in the side panel against the page in view.</p>
-        <a href="/extension" class="text-xs font-semibold text-accent hover:text-accent-support">Learn more →</a>
+        <a href="/extension" class="text-xs font-semibold text-accent-support hover:text-accent">Learn more →</a>
       </div>
       <div class="py-4 px-4 sm:px-6 sm:border-r sm:border-hairline">
         <h3 class="text-xs font-bold uppercase text-ink-strong mb-2">Studio</h3>
         <p class="text-sm text-muted leading-relaxed mb-2">Point the engine at your own writing.</p>
-        <a href="/creator" class="text-xs font-semibold text-accent hover:text-accent-support">Learn more →</a>
+        <a href="/creator" class="text-xs font-semibold text-accent-support hover:text-accent">Learn more →</a>
       </div>
       <div class="py-4 px-4 sm:px-6">
         <h3 class="text-xs font-bold uppercase text-ink-strong mb-2">Strongest Opposing Case</h3>
         <p class="text-sm text-muted leading-relaxed mb-2">Paste any argument, get its steelmanned opposition.</p>
-        <a href="/audit" class="text-xs font-semibold text-accent hover:text-accent-support">Try it →</a>
+        <a href="/audit" class="text-xs font-semibold text-accent-support hover:text-accent">Try it →</a>
       </div>
     </div>
 

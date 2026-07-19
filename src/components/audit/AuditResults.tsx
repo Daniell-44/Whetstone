@@ -1128,7 +1128,7 @@ export default function AuditResults({ result, documentId, versionId, initialAct
       {showSpanFindings && (!hasFindings ? (
         <div class="rounded-xl bg-paper border border-hairline p-5">
           <p class="text-sm text-ink">
-            No reasoning patterns or loaded language detected — the argument rests on its structural
+            No reasoning patterns or loaded language detected: the argument rests on its structural
             integrity, covered in the analysis.
           </p>
         </div>

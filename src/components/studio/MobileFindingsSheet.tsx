@@ -29,12 +29,24 @@ interface Props {
      can only find cards on the tab that is showing). */
   activeTab?:        string;
   onActiveTabChange?: (id: string) => void;
+  /** One-shot attention pulse (~2s) on the closed trigger pill when the sheet
+     first mounts — the Reader passes it on a fresh result so the pill reads
+     as the door to the findings, not as site nav. Off (Studio) = unchanged. */
+  pulse?:            boolean;
 }
 
 const SWIPE_DISMISS_THRESHOLD_PX = 80;
 
-export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, open: controlledOpen, onOpenChange, scrollToKey, activeTab: controlledTab, onActiveTabChange }: Props) {
+export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, open: controlledOpen, onOpenChange, scrollToKey, activeTab: controlledTab, onActiveTabChange, pulse = false }: Props) {
   const [internalOpen, setInternalOpen] = useState(false);
+  // Pulse runs once per mount, then clears — so closing/reopening the sheet
+  // (which remounts the pill button, not this component) never replays it.
+  const [pulsing, setPulsing] = useState(pulse);
+  useEffect(() => {
+    if (!pulse) return;
+    const t = setTimeout(() => setPulsing(false), 2400);
+    return () => clearTimeout(t);
+  }, [pulse]);
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = (v: boolean) => {
     onOpenChange?.(v);
@@ -115,13 +127,30 @@ export default function MobileFindingsSheet({ tabs, scoreBadge, totalFindings, o
 
   return (
     <>
-      {/* Floating trigger pill */}
+      {/* Floating trigger pill — lifted clear of the mobile bottom tab bar so
+         it reads as a control over the content, not part of the nav. */}
+      {pulsing && (
+        <style>{`
+          /* Two soft rings over ~2s, played once. Ring colour mirrors
+             --color-accent-support (#345D7E) — interactive accent, no redline.
+             The base drop shadow is repeated in every frame so the pill's
+             shadow-lg doesn't blink off while the animation owns box-shadow. */
+          @keyframes wst-pill-pulse {
+            0%, 100% { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1), 0 0 0 0 rgba(52, 93, 126, 0); }
+            15%      { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1), 0 0 0 3px rgba(52, 93, 126, 0.45); }
+            45%      { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1), 0 0 0 12px rgba(52, 93, 126, 0); }
+            55%      { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1), 0 0 0 3px rgba(52, 93, 126, 0.45); }
+            90%      { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1), 0 0 0 12px rgba(52, 93, 126, 0); }
+          }
+          .wst-pill-pulse { animation: wst-pill-pulse 2s ease-out 1 both; }
+        `}</style>
+      )}
       {!open && (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          class="xl:hidden fixed left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-ink-strong text-white text-sm font-semibold shadow-lg hover:bg-ink active:scale-95 transition-all duration-150"
-          style="bottom: calc(5rem + env(safe-area-inset-bottom, 0px));"
+          class={`xl:hidden fixed left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full bg-ink-strong text-white text-sm font-semibold shadow-lg hover:bg-ink active:scale-95 transition-all duration-150 ${pulsing ? 'wst-pill-pulse' : ''}`}
+          style="bottom: calc(6rem + env(safe-area-inset-bottom, 0px));"
         >
           {scoreBadge}
           <span>View findings{totalFindings !== undefined ? ` (${totalFindings})` : ''}</span>

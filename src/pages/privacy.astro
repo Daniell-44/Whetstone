@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { CONTACT_EMAIL } from '../lib/contact';
 ---
 <Base
   title="Privacy - The Whetstone"
@@ -13,7 +14,7 @@ import Base from '../layouts/Base.astro';
     </nav>
 
     <header class="mb-10">
-      <p class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">Privacy</p>
+      <p class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Privacy</p>
       <h1 class="font-serif text-3xl text-ink-strong mb-4">How we handle your data</h1>
       <p class="text-muted text-sm">Last updated 5 July 2026</p>
     </header>
@@ -21,7 +22,7 @@ import Base from '../layouts/Base.astro';
     <div class="space-y-10 text-sm text-ink leading-relaxed">
 
       <section>
-        <h2 class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">The short version</h2>
+        <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">The short version</h2>
         <p>
           No analytics. No tracking cookies. No advertising. We do not sell, share, or profile your data.
           The only information that leaves your device is the text you submit for analysis, and that is
@@ -31,7 +32,7 @@ import Base from '../layouts/Base.astro';
       </section>
 
       <section>
-        <h2 class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">What we store</h2>
+        <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">What we store</h2>
         <p class="mb-3">
           We store almost nothing. The only server-side state is an IP-keyed daily quota counter held in
           Cloudflare KV. It records how many API requests a given IP address has made in the current
@@ -45,13 +46,13 @@ import Base from '../layouts/Base.astro';
       </section>
 
       <section>
-        <h2 class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">AI providers</h2>
+        <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">AI providers</h2>
         <p class="mb-3">
           When you submit text for analysis, it is forwarded to Google Gemini under Google's
           <strong class="font-semibold text-ink-strong">Zero Data Retention</strong> policy for the
           Gemini API. This means Google does not store your input or output, and the content is not
           used to improve Google's models. You can read Google's terms at
-          <a href="https://cloud.google.com/terms/data-processing-terms" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">cloud.google.com/terms/data-processing-terms</a>.
+          <a href="https://cloud.google.com/terms/data-processing-terms" target="_blank" rel="noopener noreferrer" class="text-accent-support hover:underline">cloud.google.com/terms/data-processing-terms</a>.
         </p>
         <p>
           We do not use the Anthropic API for public requests at this time. If that changes, this page
@@ -60,7 +61,7 @@ import Base from '../layouts/Base.astro';
       </section>
 
       <section>
-        <h2 class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">Cookies</h2>
+        <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Cookies</h2>
         <p>
           We set no tracking or analytics cookies. The site does not use any third-party scripts
           (no Google Analytics, no Meta Pixel, no ad networks). Your browser may cache static assets
@@ -69,7 +70,7 @@ import Base from '../layouts/Base.astro';
       </section>
 
       <section>
-        <h2 class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">The Chrome extension</h2>
+        <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">The Chrome extension</h2>
         <p class="mb-3">
           The Whetstone extension audits the argument on a page you choose. When you run an audit, the
           selected passage or article text is sent to the same AI provider (Google Gemini, under the
@@ -89,11 +90,11 @@ import Base from '../layouts/Base.astro';
       </section>
 
       <section>
-        <h2 class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">Your rights</h2>
+        <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Your rights</h2>
         <p>
           Because we collect no personal data beyond ephemeral IP-based counters, there is nothing to
           request, correct, or delete. If you have a question or concern, email
-          <a href="mailto:hello@thewhetstone.review" class="text-accent-support hover:underline">hello@thewhetstone.review</a>.
+          <a href={`mailto:${CONTACT_EMAIL}`} class="text-accent-support hover:underline">{CONTACT_EMAIL}</a>.
         </p>
       </section>
 
