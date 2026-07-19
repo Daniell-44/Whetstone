@@ -16,7 +16,7 @@ import { CONTACT_EMAIL } from '../lib/contact';
     <header class="mb-10">
       <p class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Privacy</p>
       <h1 class="font-serif text-3xl text-ink-strong mb-4">How we handle your data</h1>
-      <p class="text-muted text-sm">Last updated 5 July 2026</p>
+      <p class="text-muted text-sm">Last updated 19 July 2026</p>
     </header>
 
     <div class="space-y-10 text-sm text-ink leading-relaxed">
@@ -24,24 +24,67 @@ import { CONTACT_EMAIL } from '../lib/contact';
       <section>
         <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">The short version</h2>
         <p>
-          No analytics. No tracking cookies. No advertising. We do not sell, share, or profile your data.
-          The only information that leaves your device is the text you submit for analysis, and that is
-          sent straight to an AI provider under a zero-data-retention agreement - it is not stored or
-          used to train models.
+          No tracking cookies, no advertising, no analytics unless you opt in. We do not sell, share,
+          or profile your data. We store only what a feature you chose to use needs in order to work:
+          nothing for anonymous reading and auditing beyond a rate-limit counter; your email and your
+          saved drafts if you create an account and use Studio; a shared audit's text for 30 days if
+          you create a share link. Text you send for analysis goes straight to an AI provider under a
+          zero-data-retention agreement and is not stored there or used to train models.
         </p>
       </section>
 
       <section>
         <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">What we store</h2>
         <p class="mb-3">
-          We store almost nothing. The only server-side state is an IP-keyed daily quota counter held in
-          Cloudflare KV. It records how many API requests a given IP address has made in the current
-          24-hour window so we can enforce the free-tier rate limit. The counter expires automatically
-          at midnight UTC and is never linked to any personal identifier beyond the IP address itself.
+          It depends on what you use, so here is the honest inventory, from least to most:
+        </p>
+        <p class="mb-3">
+          <strong class="font-semibold text-ink-strong">Anonymous use</strong> (reading briefings,
+          running free audits): an IP-keyed daily quota counter in Cloudflare KV, recording how many
+          API requests your IP has made in the current 24-hour window so we can enforce the free-tier
+          limit. It expires automatically and is linked to nothing but the IP itself. Your audited
+          text is not saved.
+        </p>
+        <p class="mb-3">
+          <strong class="font-semibold text-ink-strong">An account</strong> (passwordless sign-in):
+          your email address and server-side session records. No password exists to store.
+        </p>
+        <p class="mb-3">
+          <strong class="font-semibold text-ink-strong">Studio</strong>: the drafts you save, their
+          version history, and the audit results attached to them - stored in our database, tied to
+          your account, until you delete them. That storage is the feature.
+        </p>
+        <p class="mb-3">
+          <strong class="font-semibold text-ink-strong">Share links</strong>: creating one stores the
+          shared text and its audit for 30 days, after which it expires automatically. Signed-in users
+          also get a minimal index entry (link id, a title only if you typed one, timestamps) so links
+          can be listed and revoked at /creator/shares; revoking deletes both immediately.
+        </p>
+        <p class="mb-3">
+          <strong class="font-semibold text-ink-strong">Feedback and the email list</strong>: whatever
+          you type into the feedback form (with an optional email), and the signup record described in
+          "Email list" below.
         </p>
         <p>
           Published briefings (the question, the mapped positions, and the structural analysis) are
           editorial content authored for the site. They contain no personal data.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Email list</h2>
+        <p class="mb-3">
+          The email signup forms on the site (at the end of a briefing, on the extension page, and in
+          the footer) are entirely voluntary. If you submit one, we store three things in our own
+          database: the address you gave, which form it came from, and a timestamp. That is the whole
+          record.
+        </p>
+        <p>
+          The list is used for exactly one thing: sending you new briefings by email once a sending
+          address is set up. Until then, nothing is sent at all. The address is never shared, sold, or
+          used for anything else. To be removed, email
+          <a href={`mailto:${CONTACT_EMAIL}`} class="text-accent-support hover:underline">{CONTACT_EMAIL}</a>
+          and we will delete it.
         </p>
       </section>
 
@@ -63,7 +106,9 @@ import { CONTACT_EMAIL } from '../lib/contact';
       <section>
         <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Cookies</h2>
         <p>
-          We set no tracking or analytics cookies. The site does not use any third-party scripts
+          We set no tracking or analytics cookies. Signing in sets one functional first-party cookie
+          (<code class="text-xs bg-hairline/40 px-1 py-0.5 rounded">whetstone_session</code>) that keeps
+          you signed in and does nothing else. The site does not use any third-party scripts
           (no Google Analytics, no Meta Pixel, no ad networks). Your browser may cache static assets
           as normal HTTP caching - that is not a cookie.
         </p>
@@ -92,9 +137,11 @@ import { CONTACT_EMAIL } from '../lib/contact';
       <section>
         <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Your rights</h2>
         <p>
-          Because we collect no personal data beyond ephemeral IP-based counters, there is nothing to
-          request, correct, or delete. If you have a question or concern, email
-          <a href={`mailto:${CONTACT_EMAIL}`} class="text-accent-support hover:underline">{CONTACT_EMAIL}</a>.
+          Everything above that is tied to you can be removed: delete your drafts from Studio, revoke
+          share links at /creator/shares (unrevoked ones expire on their own within 30 days), and for
+          anything else - your account, a feedback message, an email-list entry - email
+          <a href={`mailto:${CONTACT_EMAIL}`} class="text-accent-support hover:underline">{CONTACT_EMAIL}</a>
+          and we will delete it. Anonymous use leaves nothing behind to request.
         </p>
       </section>
 

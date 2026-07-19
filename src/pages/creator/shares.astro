@@ -1,0 +1,160 @@
+---
+export const prerender = false;
+
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+import { makeAuditLinkIndexDb } from '../../../functions/_lib/audit-links/index-db';
+
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+
+if (!session) {
+  // Same posture as the Studio: signed-out visitors go to the session-aware
+  // /creator overview rather than a bare login dead-end.
+  return Astro.redirect('/creator');
+}
+
+const now    = Date.now();
+const shares = await makeAuditLinkIndexDb(env.DB).listForUser(session.user_id, now);
+
+function formatDate(epochMs: number): string {
+  return new Date(epochMs).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function expiresIn(expiresAt: number): string {
+  const days = Math.ceil((expiresAt - now) / 86_400_000);
+  if (days <= 0) return 'Expires today';
+  if (days === 1) return 'Expires in 1 day';
+  return `Expires in ${days} days`;
+}
+---
+<Base
+  title="Share links - The Whetstone"
+  description="Share links you have created for audit results."
+  canonicalPath="/creator/shares"
+  isLoggedIn={true}
+>
+  <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
+
+    <a
+      href="/creator/documents"
+      class="inline-flex items-center gap-1 text-xs font-mono font-semibold uppercase tracking-widest text-accent-support hover:text-accent transition-colors"
+    >
+      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Documents
+    </a>
+
+    <header class="mt-4 mb-10">
+      <h1 class="font-serif text-4xl sm:text-5xl text-ink-strong leading-tight">Share links</h1>
+      <p class="mt-3 text-sm text-muted max-w-prose">
+        Links you have created for audit results. Each link expires 30 days after it was made.
+        Revoking a link stops it working immediately for anyone who has it.
+      </p>
+    </header>
+
+    {shares.length === 0 ? (
+      <div class="rounded-xl border border-hairline bg-paper p-12 text-center">
+        <p class="text-muted">
+          Share links you create from now on appear here. Links made earlier still work but are not listed.
+        </p>
+      </div>
+    ) : (
+      <>
+        <div class="hidden sm:flex items-center gap-4 pb-2 border-b border-hairline font-mono text-[11px] uppercase tracking-[0.08em] text-muted">
+          <span class="flex-1">Link</span>
+          <span class="w-24">Created</span>
+          <span class="w-32">Expiry</span>
+          <span class="w-32 text-right">Actions</span>
+        </div>
+        <ul class="divide-y divide-hairline">
+          {shares.map(share => (
+            <li class="py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4" data-share-row={share.id}>
+              <div class="min-w-0 flex-1">
+                <a
+                  href={`/audit/${share.id}`}
+                  class="block text-sm font-medium text-ink-strong hover:text-accent-support truncate transition-colors"
+                >
+                  {share.title ?? 'Untitled audit'}
+                </a>
+                <p class="sm:hidden text-xs text-muted mt-0.5">
+                  Created {formatDate(share.created_at)} · {expiresIn(share.expires_at)}
+                </p>
+              </div>
+              <span class="hidden sm:block w-24 text-xs text-muted">{formatDate(share.created_at)}</span>
+              <span class="hidden sm:block w-32 text-xs text-muted">{expiresIn(share.expires_at)}</span>
+              <div class="flex items-center gap-2 sm:w-32 sm:justify-end">
+                <button
+                  type="button"
+                  data-copy-link={`${Astro.url.origin}/audit/${share.id}`}
+                  class="font-mono text-[11px] uppercase tracking-[0.08em] rounded border border-hairline px-2 py-1 text-accent-support hover:border-accent-support transition-colors"
+                >
+                  Copy link
+                </button>
+                <button
+                  type="button"
+                  data-revoke-id={share.id}
+                  class="font-mono text-[11px] uppercase tracking-[0.08em] rounded border border-hairline px-2 py-1 text-muted hover:text-ink transition-colors"
+                >
+                  Revoke
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-6 text-xs text-muted">
+          Links made before this page existed still work until they expire, but are not listed here.
+        </p>
+      </>
+    )}
+
+  </main>
+</Base>
+
+<script>
+  document.addEventListener('click', async (e) => {
+    const target = e.target instanceof Element ? e.target : null;
+    if (!target) return;
+
+    const copyBtn = target.closest<HTMLButtonElement>('[data-copy-link]');
+    if (copyBtn) {
+      const link = copyBtn.dataset.copyLink;
+      if (!link) return;
+      try {
+        await navigator.clipboard.writeText(link);
+        const original = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        setTimeout(() => { copyBtn.textContent = original; }, 1500);
+      } catch {
+        window.prompt('Copy this link:', link);
+      }
+      return;
+    }
+
+    const revokeBtn = target.closest<HTMLButtonElement>('[data-revoke-id]');
+    if (revokeBtn) {
+      const id = revokeBtn.dataset.revokeId;
+      if (!id) return;
+      if (!confirm('Revoke this share link? It will stop working immediately for anyone who has it.')) return;
+      revokeBtn.disabled = true;
+      try {
+        const res = await fetch('/api/shares', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, action: 'revoke' }),
+        });
+        const body = await res.json().catch(() => null) as { ok?: boolean } | null;
+        if (res.ok && body?.ok) {
+          document.querySelector(`[data-share-row="${id}"]`)?.remove();
+        } else {
+          revokeBtn.disabled = false;
+          alert('Could not revoke this link. Please try again.');
+        }
+      } catch {
+        revokeBtn.disabled = false;
+        alert('Could not revoke this link. Please try again.');
+      }
+    }
+  });
+</script>

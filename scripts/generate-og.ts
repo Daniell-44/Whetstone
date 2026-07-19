@@ -7,9 +7,13 @@
  * public/og/<slug>.png. Chained into `pnpm build` so the PNGs always exist
  * before `astro build` copies public/ — nothing runs in the Worker.
  *
+ * Also renders a static card per marketing/tool page (PAGE_CARDS below) to
+ * public/og/page-<name>.png, in the same style with a plain THE WHETSTONE
+ * kicker and a domain-only footer.
+ *
  * Usage:
- *   pnpm run generate:og            # all briefings
- *   pnpm tsx scripts/generate-og.ts <slug>   # one briefing
+ *   pnpm run generate:og            # all briefings + static page cards
+ *   pnpm tsx scripts/generate-og.ts <slug>   # one briefing (or one page name)
  *
  * Brand constraint: NO redline (#CE2B14) on these cards — the redline is
  * reserved for detected findings, and a share card is not a finding.
@@ -53,6 +57,19 @@ function el(type: string, style: Record<string, unknown>, children?: unknown): N
   return { type, props: { style, children } };
 }
 
+// Static page cards — one per marketing/tool page, wired into each page's
+// Base ogImage prop. Same Instrument card, but the kicker is plain
+// THE WHETSTONE (a page is not a briefing) and the footer carries only the
+// domain. Written to public/og/page-<name>.png.
+const PAGE_CARDS: ReadonlyArray<{ name: string; title: string }> = [
+  { name: 'audit', title: "See where an argument's reasoning breaks down." },
+  { name: 'pricing', title: 'Free structural audit. Studio for writers.' },
+  { name: 'about', title: 'Arguments, examined.' },
+  { name: 'creator', title: 'The engine, turned on your own drafts.' },
+  { name: 'extension', title: 'Audit any argument while you read.' },
+  { name: 'method', title: 'How the audit works, and what it will not do.' },
+];
+
 // Headline size steps down with question length so long questions still sit
 // comfortably inside the fixed canvas.
 function headlineSize(q: string): number {
@@ -62,9 +79,9 @@ function headlineSize(q: string): number {
   return 42;
 }
 
-function card(question: string, kind: 'briefing' | 'explainer', category?: string): Node {
-  const kicker = `THE WHETSTONE · ${kind === 'explainer' ? 'EXPLAINER' : 'BRIEFING'}`;
+type CardOpts = { kicker: string; title: string; footerRight?: string };
 
+function card({ kicker, title, footerRight }: CardOpts): Node {
   // The instrument rule: a graphite bar with perpendicular end ticks
   // (the site's .instrument-rule motif), built as a flex row.
   const tick = () => el('div', { width: 4, height: 16, backgroundColor: INK_STRONG, display: 'flex' });
@@ -73,8 +90,6 @@ function card(question: string, kind: 'briefing' | 'explainer', category?: strin
     { display: 'flex', flexDirection: 'row', alignItems: 'flex-start', width: '100%' },
     [tick(), el('div', { flexGrow: 1, height: 4, backgroundColor: INK_STRONG, display: 'flex' }), tick()],
   );
-
-  const footerRight = category ? category.toUpperCase() : 'ARGUMENTS, EXAMINED';
 
   return el(
     'div',
@@ -94,22 +109,22 @@ function card(question: string, kind: 'briefing' | 'explainer', category?: strin
         el('div', { fontSize: 26, letterSpacing: 5, color: MUTED, marginBottom: 26, display: 'flex' }, kicker),
         rule,
       ]),
-      // Headline: the briefing question, in the brand display serif
+      // Headline: the briefing question (or page tagline), in the brand display serif
       el(
         'div',
         {
           fontFamily: 'Besley',
           fontWeight: 600,
-          fontSize: headlineSize(question),
+          fontSize: headlineSize(title),
           lineHeight: 1.18,
           color: INK_STRONG,
           display: 'flex',
           // Belt and braces: never overflow the canvas on an unusually long question.
           lineClamp: 5,
         },
-        question,
+        title,
       ),
-      // Footer apparatus line
+      // Footer apparatus line (right side only when there is something to say)
       el(
         'div',
         {
@@ -121,14 +136,17 @@ function card(question: string, kind: 'briefing' | 'explainer', category?: strin
           letterSpacing: 3,
           color: MUTED,
         },
-        [el('div', { display: 'flex' }, 'thewhetstone.review'), el('div', { display: 'flex' }, footerRight)],
+        [
+          el('div', { display: 'flex' }, 'thewhetstone.review'),
+          ...(footerRight ? [el('div', { display: 'flex' }, footerRight)] : []),
+        ],
       ),
     ],
   );
 }
 
-async function renderCard(question: string, kind: 'briefing' | 'explainer', category?: string): Promise<Buffer> {
-  const svg = await satori(card(question, kind, category) as never, {
+async function renderCard(opts: CardOpts): Promise<Buffer> {
+  const svg = await satori(card(opts) as never, {
     width: WIDTH,
     height: HEIGHT,
     fonts: [
@@ -145,9 +163,10 @@ async function main(): Promise<void> {
   const files = fs
     .readdirSync(BRIEFINGS_DIR)
     .filter((f) => f.endsWith('.md') && (!arg || f === `${arg}.md`));
+  const pages = PAGE_CARDS.filter((p) => !arg || p.name === arg);
 
-  if (files.length === 0) {
-    console.error(arg ? `No briefing found for slug "${arg}".` : 'No briefing .md files found.');
+  if (files.length === 0 && pages.length === 0) {
+    console.error(arg ? `No briefing or page card found for "${arg}".` : 'Nothing to render.');
     process.exit(1);
   }
 
@@ -171,12 +190,29 @@ async function main(): Promise<void> {
     // A render failure is a toolchain problem (font, satori, resvg) and should
     // fail the chained build rather than ship pages pointing at missing PNGs.
     try {
-      const png = await renderCard(briefing.question, briefing.kind ?? 'briefing', briefing.category);
+      const png = await renderCard({
+        kicker: `THE WHETSTONE · ${(briefing.kind ?? 'briefing') === 'explainer' ? 'EXPLAINER' : 'BRIEFING'}`,
+        title: briefing.question,
+        footerRight: briefing.category ? briefing.category.toUpperCase() : 'ARGUMENTS, EXAMINED',
+      });
       fs.writeFileSync(path.join(OUT_DIR, `${slug}.png`), png);
       console.log(`og: ${slug}.png (${(png.length / 1024).toFixed(1)} KB)`);
     } catch (err) {
       failures++;
       console.error(`og: FAILED ${slug} —`, err instanceof Error ? err.message : err);
+    }
+  }
+
+  // Static page cards — same failure semantics as briefings: a render failure
+  // is a toolchain problem and should fail the chained build.
+  for (const page of pages) {
+    try {
+      const png = await renderCard({ kicker: 'THE WHETSTONE', title: page.title });
+      fs.writeFileSync(path.join(OUT_DIR, `page-${page.name}.png`), png);
+      console.log(`og: page-${page.name}.png (${(png.length / 1024).toFixed(1)} KB)`);
+    } catch (err) {
+      failures++;
+      console.error(`og: FAILED page-${page.name} —`, err instanceof Error ? err.message : err);
     }
   }
 

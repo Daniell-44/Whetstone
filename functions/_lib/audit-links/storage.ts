@@ -12,7 +12,7 @@ import type { AuditResult } from '../audit/types';
 // privacy exposure for users sharing audits of pasted text.
 // ---------------------------------------------------------------------------
 
-const TTL_SECONDS  = 30 * 24 * 60 * 60; // 30 days
+export const TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
 const KEY_PREFIX   = 'audit:';
 const SHORT_ID_LEN = 12;
 
@@ -48,6 +48,11 @@ export async function saveAuditLink(
   };
   await kv.put(`${KEY_PREFIX}${id}`, JSON.stringify(stored), { expirationTtl: TTL_SECONDS });
   return id;
+}
+
+export async function deleteAuditLink(kv: KVNamespace, id: string): Promise<void> {
+  if (!/^[A-Za-z0-9]{12}$/.test(id)) return;
+  await kv.delete(`${KEY_PREFIX}${id}`);
 }
 
 export async function getAuditLink(kv: KVNamespace, id: string): Promise<StoredAuditLink | null> {

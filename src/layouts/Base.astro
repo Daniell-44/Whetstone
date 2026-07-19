@@ -2,6 +2,7 @@
 import '@fontsource-variable/besley';
 import '../styles/global.css';
 
+import EmailCapture from '../components/capture/EmailCapture';
 import { SITE_URL } from '../lib/site';
 
 interface Props {
@@ -11,6 +12,9 @@ interface Props {
   isLoggedIn?:    boolean;
   ogType?:        string;   // 'website' (default) | 'article' for briefings
   ogImage?:       string;   // per-page share card; falls back to the site card
+  /** Pages that mount their own inline EmailCapture pass true so the page
+     doesn't ask for the same address twice (inline block + footer). */
+  hideFooterCapture?: boolean;
 }
 
 const {
@@ -20,6 +24,7 @@ const {
   isLoggedIn = false,
   ogType = 'website',
   ogImage: ogImageProp,
+  hideFooterCapture = false,
 } = Astro.props;
 
 const siteUrl = SITE_URL;
@@ -236,6 +241,19 @@ const currentPath = canonicalPath;
          when Audit joined it; the footer is their mobile home). pb clears the
          fixed tab bar. -->
     <footer class="border-t border-hairline mt-24 py-8 pb-[calc(6rem+env(safe-area-inset-bottom,0px))] sm:pb-8">
+      {/* Compact email capture — the list lives in our own D1; nothing is
+         sent until a sending address is wired. Suppressed on pages that carry
+         their own inline capture (two identical asks reads as a banner). */}
+      {!hideFooterCapture && (
+        <div class="max-w-3xl mx-auto px-6 mb-4 pb-4 border-b border-hairline">
+          <EmailCapture
+            client:visible
+            source="footer"
+            heading="New briefings by email"
+            compact
+          />
+        </div>
+      )}
       {/* py-2 on each link lifts the tap targets past the WCAG 2.5.8 24px
          floor — this list is the only mobile home for About/Pricing/etc. */}
       <div class="max-w-3xl mx-auto px-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-muted">

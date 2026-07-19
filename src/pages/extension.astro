@@ -1,11 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
+import EmailCapture from '../components/capture/EmailCapture';
 import { CONTACT_EMAIL } from '../lib/contact';
 ---
 <Base
   title="Chrome Extension - The Whetstone"
   description="Audit any argument while you read. The Whetstone's analytical engine, in your browser's side panel, against the page in view."
   canonicalPath="/extension"
+  ogImage="/og/page-extension.png"
+  hideFooterCapture={true}
 >
   <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-16">
 
@@ -139,11 +142,17 @@ import { CONTACT_EMAIL } from '../lib/contact';
       <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-4">Install</h2>
       <div class="rounded-xl border border-hairline bg-paper p-6">
         <p class="text-sm font-semibold text-ink-strong mb-2">Coming to the Chrome Web Store.</p>
-        <p class="text-sm text-ink leading-relaxed">
-          The extension is feature-complete and being readied for submission. For early access while
-          it's in review, email
-          <a href={`mailto:${CONTACT_EMAIL}`} class="font-semibold underline">{CONTACT_EMAIL}</a>
-          and you'll get an unpacked build with install instructions.
+        <p class="text-sm text-ink leading-relaxed mb-5">
+          The extension is feature-complete and being readied for submission.
+        </p>
+        <EmailCapture
+          client:visible
+          source="extension"
+          heading="Get notified when it ships"
+          sub="One email when it's installable. Nothing else."
+        />
+        <p class="text-xs text-muted mt-3">
+          Want it sooner? Email <a href={`mailto:${CONTACT_EMAIL}`} class="underline hover:text-accent-support transition-colors">{CONTACT_EMAIL}</a> for early access: an unpacked build with install instructions.
         </p>
       </div>
     </section>
