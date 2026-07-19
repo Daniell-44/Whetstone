@@ -12,6 +12,7 @@ import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
 import { applyContextualSeverity } from '../../../functions/_lib/audit/contextual-severity';
 import { track } from '../../lib/analytics/track';
 import { SAMPLES, type Sample } from '../../data/samples';
+import SpecimenRail from './SpecimenRail';
 import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES as ERROR_MESSAGES } from '../tool/constants';
 import AuditLoading from '../tool/AuditLoading';
 import SampleLoading from '../tool/SampleLoading';
@@ -355,6 +356,13 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         </div>
       )}
 
+      {/* Empty state: the tool and a specimen rail sit side by side on xl —
+         before the first result the right half of the page was dead space.
+         The grid collapses back to the plain stack the moment a result or
+         spinner exists (the rail is proof-of-what-you-get, not chrome to
+         compete with real findings). */}
+      <div class={(!result && !loading) ? 'xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-10 xl:items-start' : ''}>
+      <div>
       {/* Input: full field before an audit (or when editing), a compact summary
           bar after — so the pasted text isn't duplicated with the marked draft. */}
       {(result && !editing) ? (
@@ -445,7 +453,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             </button>
             {showExamples && (
               <div class="mt-2 rounded-lg border border-hairline bg-paper p-2">
-                <p class="px-1 pb-1.5 text-[0.625rem] uppercase tracking-wider text-muted">Pre-cached · instant, no API call</p>
+                <p class="px-1 pb-1.5 text-[0.625rem] uppercase tracking-wider text-muted">Worked examples · load instantly</p>
                 <div class="grid sm:grid-cols-3 gap-2">
                   {SAMPLES.map(s => (
                     <button
@@ -477,6 +485,9 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         )}
       </form>
       )}
+      </div>
+      {!result && !loading && <SpecimenRail onTrySample={() => loadSample(SAMPLES[0])} />}
+      </div>
 
       {loading && (sampleMode ? <SampleLoading /> : <AuditLoading />)}
 

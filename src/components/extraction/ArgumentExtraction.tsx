@@ -382,9 +382,10 @@ export default function ArgumentExtraction({ result, terminologyPreference, evid
     <div class="space-y-4">
       {/* Central claim */}
       <div>
-        <p class="text-sm font-semibold text-ink mb-1">
+        {/* div, not p: LabelWithTooltip renders a <details>, invalid inside <p> */}
+        <div class="text-sm font-semibold text-ink mb-1">
           <LabelWithTooltip label="extraction" preference={terminologyPreference} />
-        </p>
+        </div>
         <p class="text-base text-ink-strong font-medium leading-snug">{result.centralClaim}</p>
         <span class="inline-block mt-1"><GroundednessChip groundedness={result.groundedness} compact /></span>
       </div>

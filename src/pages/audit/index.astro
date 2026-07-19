@@ -147,7 +147,9 @@ const terminology = mode === 'create' && session
           </p>
         </header>
 
-        <section class="max-w-4xl">
+        {/* 1200px: room for the empty-state specimen rail beside the input,
+           and a less-cramped two-panel results view (was max-w-4xl / 896px). */}
+        <section class="max-w-[1200px]">
           <AuditForm isPro={isPro} initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
         </section>
       </>

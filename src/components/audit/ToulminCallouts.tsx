@@ -51,9 +51,10 @@ export default function ToulminCallouts({ toulmin, terminologyPreference }: {
       )}
       {toulmin.weakestLink && (
         <div class="rounded-lg bg-paper border border-hairline border-l-2 border-l-accent p-3">
-          <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-1">
+          {/* div, not p: LabelWithTooltip renders a <details>, invalid inside <p> */}
+          <div class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-1">
             <LabelWithTooltip label="weakestLink" preference={terminologyPreference} />
-          </p>
+          </div>
           <p class="text-sm text-ink leading-relaxed">{toulmin.weakestLink}</p>
         </div>
       )}
