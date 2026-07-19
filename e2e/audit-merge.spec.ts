@@ -1,0 +1,46 @@
+import { test, expect } from '@playwright/test';
+
+// The merged Read/Create surface at /audit ("Workbench + satellites",
+// adjudicated 2026-07-13, shipped 2026-07-19). The mode switch is SERVER-side
+// (?mode=create renders a different island), so all three checks assert
+// server-rendered structure - zero LLM cost, no route mocks needed.
+
+test('read mode: segmented control renders with Read active + audit textarea', async ({ page }) => {
+  await page.goto('/audit');
+
+  const modeNav = page.locator('nav[aria-label="Audit mode"]');
+  const readTab = modeNav.getByRole('link', { name: /read/i });
+  const createTab = modeNav.getByRole('link', { name: /create/i });
+
+  await expect(readTab).toBeVisible();
+  await expect(readTab).toHaveAttribute('aria-current', 'page');
+  await expect(createTab).toBeVisible();
+  await expect(createTab).not.toHaveAttribute('aria-current', 'page');
+
+  // The Reader's paste box is present in Read mode.
+  await expect(page.locator('textarea').first()).toBeVisible();
+});
+
+test('create mode signed-out: gate renders, no editor', async ({ page }) => {
+  await page.goto('/audit?mode=create');
+
+  const modeNav = page.locator('nav[aria-label="Audit mode"]');
+  await expect(modeNav.getByRole('link', { name: /create/i })).toHaveAttribute('aria-current', 'page');
+
+  // The sign-in gate, not an unsaved-analysis half-state (owner decision).
+  await expect(page.getByText('Create works on your own draft.')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Sign in free' })).toBeVisible();
+
+  // No studio editor textarea for anonymous visitors.
+  await expect(page.locator('textarea')).toHaveCount(0);
+});
+
+test('tool strip shows Audit / Transcript / Cross-document / Documents', async ({ page }) => {
+  await page.goto('/audit');
+
+  const toolNav = page.locator('nav[aria-label="Audit tools"]');
+  await expect(toolNav.getByRole('link', { name: 'Audit', exact: true })).toBeVisible();
+  await expect(toolNav.getByRole('link', { name: /Transcript/ })).toBeVisible();
+  await expect(toolNav.getByRole('link', { name: /Cross-document/ })).toBeVisible();
+  await expect(toolNav.getByRole('link', { name: /^Documents$/ })).toBeVisible();
+});

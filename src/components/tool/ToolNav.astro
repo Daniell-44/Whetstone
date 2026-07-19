@@ -1,11 +1,12 @@
 ---
-// The suite strip for the merged workbench (Stage 3 port, "Workbench +
-// satellites"): the merged Read/Create surface plus the three rooms that
-// keep their own doors - Transcript and Cross-document take different input
-// objects (the Ahrefs different-input test), Documents is the library.
-// Modeled on StudioNav, which keeps serving the existing /creator pages
-// until cutover; at cutover the Workbench entry takes over /audit and the
-// satellite links flip to the reserved URL contract (/audit?type=transcript,
+// The suite strip for the merged Read/Create surface ("Workbench +
+// satellites"): the Audit at /audit plus the three rooms that keep their
+// own doors - Transcript and Cross-document take different input objects
+// (the Ahrefs different-input test), Documents is the library. Modeled on
+// StudioNav, which keeps serving the existing /creator pages. The first tab
+// cut over from /labs/workbench to /audit on 2026-07-19; the satellite
+// links still point at their studio rooms until the full cutover flips
+// them to the reserved URL contract (/audit?type=transcript,
 // /audit?compare=1 - already honoured by /audit as redirects).
 //
 // Gating grammar: Pro rooms carry the ONE mono StudioTag for non-
@@ -13,13 +14,16 @@
 import StudioTag from './StudioTag';
 
 interface Props {
-  current: 'workbench' | 'transcript' | 'cross-document' | 'documents';
+  /** Omit on pages that aren't one of the tabs (e.g. the frozen workbench
+     artifact) — no tab renders active, so aria-current can't point at a
+     page the user isn't on. */
+  current?: 'audit' | 'transcript' | 'cross-document' | 'documents';
   isPro?: boolean;
 }
 const { current, isPro = false } = Astro.props;
 
-const tabs: { key: Props['current']; label: string; href: string; pro: boolean }[] = [
-  { key: 'workbench',      label: 'Workbench',      href: '/labs/workbench',                pro: false },
+const tabs: { key: NonNullable<Props['current']>; label: string; href: string; pro: boolean }[] = [
+  { key: 'audit',          label: 'Audit',          href: '/audit',                         pro: false },
   { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript',     pro: true  },
   { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document', pro: true  },
   { key: 'documents',      label: 'Documents',      href: '/creator/documents',             pro: false },
@@ -28,7 +32,7 @@ const tabs: { key: Props['current']; label: string; href: string; pro: boolean }
 {/* Same mobile pattern as StudioNav: single-row horizontal scroll with ~44px
    targets; sm+ wraps. Anonymous/free users see the locked rooms at reduced
    weight (muted text + tag) so the strip stays quiet beside the paste box. */}
-<nav class="mb-4 flex items-center justify-between gap-3 flex-nowrap sm:flex-wrap border-b border-hairline pb-0 sm:pb-2" aria-label="Workbench tools">
+<nav class="mb-4 flex items-center justify-between gap-3 flex-nowrap sm:flex-wrap border-b border-hairline pb-0 sm:pb-2" aria-label="Audit tools">
   <div class="flex items-center gap-1 sm:gap-4 flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-visible min-w-0">
     {tabs.map((t) => (
       <a

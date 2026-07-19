@@ -231,6 +231,9 @@ interface Props {
   initialAnalyzedAt?:           number | null;
   initialActions?:              Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
   terminologyPreference?:       TerminologyPreference;
+  // Read → Create bridge (/audit merge): consume a sessionStorage handoff into
+  // a fresh editor on mount. Off by default so /creator/studio is unaffected.
+  consumeHandoff?:              boolean;
 }
 
 export default function StudioEditor({
@@ -247,6 +250,7 @@ export default function StudioEditor({
   initialAnalyzedAt           = null,
   initialActions              = {},
   terminologyPreference,
+  consumeHandoff              = false,
 }: Props) {
   const [draft, setDraft]         = useState(initialContent);
   const [docId, setDocId]         = useState<string | null>(initialDocId);
@@ -329,6 +333,35 @@ export default function StudioEditor({
       ? `(${findingCount}) Studio - The Whetstone`
       : 'Studio - The Whetstone';
   }, [findingCount]);
+
+  // Read → Create handoff (/audit merge): the Reader's "Work on this text in
+  // Create" bridge and the homepage launcher stash text under 'wst_handoff';
+  // consume it ONCE into a fresh editor only — never over a loaded document.
+  // Mirrors AuditForm's consumption pattern (same key, try/catch, mount-only).
+  // Deliberately self-contained with empty deps: `draft` read here is the
+  // initial state at mount, which is exactly what the emptiness guard needs.
+  useEffect(() => {
+    if (!consumeHandoff || initialDocId || draft !== '') return;
+    try {
+      // sessionStorage is the same-tab path; the localStorage copy (15 min
+      // TTL) is the magic-LINK path — sign-in emails open a NEW tab where
+      // sessionStorage is empty. Both keys are removed UNCONDITIONALLY (even
+      // for a sub-50-char stash) so a stale value can never be silently
+      // injected into the Reader textarea by AuditForm's consumer later.
+      const fromSession = sessionStorage.getItem('wst_handoff');
+      sessionStorage.removeItem('wst_handoff');
+      let h = fromSession;
+      const rawLs = localStorage.getItem('wst_handoff_ls');
+      localStorage.removeItem('wst_handoff_ls');
+      if (!h && rawLs) {
+        const parsed = JSON.parse(rawLs) as { t?: number; text?: string };
+        if (typeof parsed.text === 'string' && typeof parsed.t === 'number' && Date.now() - parsed.t < 15 * 60_000) {
+          h = parsed.text;
+        }
+      }
+      if (h && h.length >= 50) setDraft(h);
+    } catch { /* storage unavailable / corrupt stash */ }
+  }, []);
 
   // Announce each landing of the audit in 'done' to sibling islands: the
   // onboarding tour's post-analysis act (mounted separately in studio.astro)

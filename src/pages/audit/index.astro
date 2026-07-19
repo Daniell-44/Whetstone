@@ -7,6 +7,10 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import AuditForm from '../../components/audit/AuditForm';
+import ToolNav from '../../components/tool/ToolNav.astro';
+import StudioEditor from '../../components/studio/StudioEditor';
+import OnboardingTour from '../../components/onboarding/OnboardingTour';
+import CreateGate from '../../components/tool/CreateGate.astro';
 import { getAllBriefings } from '../../lib/briefings';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 
@@ -25,7 +29,14 @@ const typeParam = Astro.url.searchParams.get('type');
 if (typeParam === 'transcript') return Astro.redirect('/creator/studio/transcript', 302);
 if (Astro.url.searchParams.get('compare') === '1') return Astro.redirect('/creator/studio/cross-document', 302);
 const docParam = Astro.url.searchParams.get('doc');
+// This runs before any mode logic, so /audit?mode=create&doc=x also lands in
+// the studio room: saved docs still open in the studio room until the full cutover.
 if (docParam) return Astro.redirect(`/creator/studio?doc=${encodeURIComponent(docParam)}`, 302);
+
+// Server-side mode switch ("Workbench + satellites" adjudication, 2026-07-13):
+// ?mode=create renders the Create island (StudioEditor) in place of the Reader.
+// No client toggle, no double hydration; the segmented control is plain links.
+const mode: 'read' | 'create' = Astro.url.searchParams.get('mode') === 'create' ? 'create' : 'read';
 
 // "Audit the full article" deep-link: /audit?audit=<slug> pre-loads the field
 // with the briefing's argumentative prose. (Moved from index.astro; / shims
@@ -70,28 +81,108 @@ const sharedText     = !auditUrl && auditTextParam.length >= 50 ? auditTextParam
 // pre-cached sample so the reader sees a worked result instantly, no API call.
 const auditSampleId = Astro.url.searchParams.get('sample') ?? '';
 
-// Deeper lenses are Pro-gated; detect subscription for the teaser.
-const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
+// Deeper lenses are Pro-gated; detect subscription for the teaser. The same
+// flag doubles as Create mode's hasActiveSubscription (identical computation
+// to /creator/studio).
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
 const isPro = session
   ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
   : false;
+// Create mode labels findings to the signed-in user's terminology preference.
+const terminology = mode === 'create' && session
+  ? await authDb.getTerminologyPreference(session.user_id)
+  : undefined;
 ---
 <Base
-  title="The Audit — The Whetstone"
+  title="The Audit - The Whetstone"
   description="Paste any text or drop a URL. See the structure behind the argument: claims, evidence, where the logic breaks down, and the strongest opposing case. Free to try."
   canonicalPath="/audit"
+  isLoggedIn={!!session}
 >
-  <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
-    <header class="mb-8 max-w-3xl">
-      <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit</p>
-      <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">See where an argument's reasoning breaks down.</h1>
-      <p class="mt-2 text-sm text-muted leading-relaxed">
-        Paste an argument or drop a link. The engine returns the structure — the claim, its warrants, and the named reasoning patterns inside it. Not a verdict on who's right.
-      </p>
-    </header>
+  {/* One width for both modes: switching Read/Create must not shift the shared
+     strip + toggle sideways (the one-surface reading is the point of the merge).
+     Inner sections apply their own narrower constraints. */}
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
+    <ToolNav current="audit" isPro={isPro} />
 
-    <section class="max-w-4xl">
-      <AuditForm isPro={isPro} initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
-    </section>
+    {/* Read / Create mode control: a segmented PILL, deliberately a different
+       shape from the ToolNav underline-tabs above it — two stacked rows of the
+       same tab grammar read as two competing navigation systems. Plain anchors,
+       server-rendered active state. */}
+    <nav class="mb-8" aria-label="Audit mode">
+      <div class="inline-flex items-stretch rounded-lg border border-hairline bg-paper p-1 gap-1">
+        <a
+          href="/audit"
+          aria-current={mode === 'read' ? 'page' : undefined}
+          class={`flex flex-col justify-center min-h-[44px] rounded-md px-3 sm:px-4 py-1.5 transition-colors ${
+            mode === 'read' ? 'bg-surface text-ink-strong shadow-sm' : 'text-muted hover:text-ink'
+          }`}
+        >
+          <span class="text-sm font-semibold leading-tight">Read</span>
+          <span class="sm:hidden font-mono text-[11px] uppercase tracking-[0.04em] text-muted leading-tight">their writing</span>
+          <span class="hidden sm:block font-mono text-[11px] uppercase tracking-[0.04em] text-muted leading-tight">someone else's writing</span>
+        </a>
+        <a
+          href="/audit?mode=create"
+          aria-current={mode === 'create' ? 'page' : undefined}
+          class={`flex flex-col justify-center min-h-[44px] rounded-md px-3 sm:px-4 py-1.5 transition-colors ${
+            mode === 'create' ? 'bg-surface text-ink-strong shadow-sm' : 'text-muted hover:text-ink'
+          }`}
+        >
+          <span class="text-sm font-semibold leading-tight">Create</span>
+          <span class="sm:hidden font-mono text-[11px] uppercase tracking-[0.04em] text-muted leading-tight">your writing</span>
+          <span class="hidden sm:block font-mono text-[11px] uppercase tracking-[0.04em] text-muted leading-tight">your own writing</span>
+        </a>
+      </div>
+    </nav>
+
+    {mode === 'read' ? (
+      <>
+        <header class="mb-8 max-w-3xl">
+          <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit</p>
+          <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">See where an argument's reasoning breaks down.</h1>
+          <p class="mt-2 text-sm text-muted leading-relaxed">
+            Paste an argument or drop a link. The engine returns the structure: the claim, its warrants, and the named reasoning patterns inside it. Not a verdict on who's right.
+          </p>
+        </header>
+
+        <section class="max-w-4xl">
+          <AuditForm isPro={isPro} initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
+        </section>
+      </>
+    ) : session ? (
+      <>
+        <header class="mb-6 max-w-3xl">
+          <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit · Create</p>
+          <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">Strengthen your draft before it ships.</h1>
+          <p class="mt-2 text-sm text-muted leading-relaxed">
+            The same engine, turned on your own writing: claims, warrants, and the named reasoning patterns, before a reader finds them.
+          </p>
+        </header>
+
+        <StudioEditor
+          client:load
+          hasActiveSubscription={isPro}
+          initialDocId={null}
+          initialTitle="Untitled draft"
+          initialContent=""
+          initialVersionId={null}
+          initialAuditResult={null}
+          initialCounterargResult={null}
+          initialExtractionResult={null}
+          initialCommitmentsResult={null}
+          initialCitationAuditResult={null}
+          initialAnalyzedAt={null}
+          initialActions={{}}
+          terminologyPreference={terminology}
+          consumeHandoff={true}
+        />
+
+        <OnboardingTour client:load />
+      </>
+    ) : (
+      <CreateGate />
+    )}
   </main>
 </Base>

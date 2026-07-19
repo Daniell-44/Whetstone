@@ -34,6 +34,14 @@ const realPro = session
   {/* Must never be indexed even though it's reachable in production. */}
   <meta slot="head" name="robots" content="noindex, nofollow" />
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12">
+    {/* Freeze banner: the merge shipped to /audit (2026-07-19); this page is
+       kept as a design artifact only. Apparatus style, no redline. */}
+    <div class="mb-6 border border-hairline bg-paper p-4">
+      <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1">Design artifact · Frozen 2026-07-19</p>
+      <p class="text-sm text-ink leading-relaxed">
+        The merged Read/Create surface now lives at <a href="/audit" class="text-accent-support underline hover:text-accent-support/80">/audit</a>. This prototype is no longer maintained.
+      </p>
+    </div>
     <header class="mb-6">
       <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-2">Labs · the merge workbench · not linked anywhere</p>
       <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-tight">The Audit, with a Read / Create toggle</h1>
@@ -43,7 +51,7 @@ const realPro = session
         The dev tier switcher (top right) still overrides the display gates.
       </p>
     </header>
-    <ToolNav current="workbench" isPro={realPro} />
+    <ToolNav isPro={realPro} />
     <Workbench client:load realSignedIn={realSignedIn} realPro={realPro} />
   </main>
 </Base>

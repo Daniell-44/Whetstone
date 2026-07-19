@@ -1,0 +1,30 @@
+---
+// Signed-out Create mode gate (merge adjudication 2026-07-13): anonymous
+// visitors get a sign-in pitch, NOT an unsaved-analysis half-state. Honest
+// list of what a free account adds; the Pro engines carry the ONE mono
+// StudioTag (visible-but-locked grammar). No screenshots, no redline.
+import StudioTag from './StudioTag';
+---
+<section class="max-w-xl rounded-xl border border-hairline bg-paper p-6 sm:p-8">
+  <h2 class="font-serif text-xl sm:text-2xl text-ink-strong leading-snug">Create works on your own draft.</h2>
+  <p class="mt-2 text-sm text-muted leading-relaxed">
+    A free account keeps your work and points the audit at it properly:
+  </p>
+  <ul class="mt-4 space-y-2 text-sm text-ink">
+    <li class="flex items-center gap-2"><span class="text-muted" aria-hidden="true">·</span>Saved drafts with version history</li>
+    <li class="flex items-center gap-2"><span class="text-muted" aria-hidden="true">·</span>Audience and intent calibration</li>
+    <li class="flex items-center gap-2"><span class="text-muted" aria-hidden="true">·</span>Inline highlights on your text</li>
+    <li class="flex items-center gap-2"><span class="text-muted" aria-hidden="true">·</span>Counterargument engine <StudioTag /></li>
+    <li class="flex items-center gap-2"><span class="text-muted" aria-hidden="true">·</span>Citation audit <StudioTag /></li>
+    <li class="flex items-center gap-2"><span class="text-muted" aria-hidden="true">·</span>Evidence check <StudioTag /></li>
+  </ul>
+  <a
+    href="/login?returnTo=%2Faudit%3Fmode%3Dcreate"
+    class="mt-6 inline-block rounded-lg bg-accent-support px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent-support/90 transition-colors"
+  >
+    Sign in free
+  </a>
+  <p class="mt-4 text-xs text-muted">
+    Auditing something you read? <a href="/audit" class="underline hover:text-ink">Read mode needs no account.</a>
+  </p>
+</section>

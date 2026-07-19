@@ -685,8 +685,10 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
 
       {/* Two next steps, both shown: the FREE extension is the higher-probability
          activation for a low-intent visitor who liked the tool (no signup, keeps
-         the engine in front of them daily); Studio is the paid path. Redline is
-         reserved for findings — these use drafting-blue (accent-support). */}
+         the engine in front of them daily); Create mode is the drafting path —
+         the bridge hands the audited text across via the same sessionStorage
+         key the homepage launcher uses. Redline is reserved for findings —
+         these use drafting-blue (accent-support). */}
       {result && !loading && (
         <div class="grid sm:grid-cols-2 gap-4">
           <div class="rounded-xl border border-hairline bg-paper p-5 flex flex-col">
@@ -700,13 +702,37 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
           </div>
           <div class="rounded-xl border border-hairline bg-paper p-5 flex flex-col">
             <p class="text-xs font-semibold uppercase tracking-widest text-accent-support mb-2">Work on your own drafts</p>
+            {/* Pitch what CLICKING actually gives this user: the free Create
+               workspace, with this text carried over. The Pro engine list
+               lives behind "See plans" — promising it on the button that lands
+               a free user in front of Pro-tagged locks reads as bait. */}
             <p class="text-sm text-ink leading-relaxed mb-3">
-              Studio adds counterargument, citation audit, evidence-weighted likelihood, cross-document checks, and saved drafts with version history.
+              Create is the drafting side of this page: this text carries over, and a free account
+              saves drafts and versions, calibrates the audit to your audience, and marks findings
+              inline. Pro tools (counterargument, citation audit, evidence check) sit on top.
             </p>
             <div class="flex flex-wrap items-center gap-3 mt-auto">
-              <a href="/creator/studio" class="inline-block rounded-lg bg-accent-support px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent-support/90 transition-colors">
-                Open Studio →
-              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  // Hand the audited text across to Create mode. sessionStorage
+                  // is the consume-once contract the homepage launcher uses; the
+                  // localStorage copy (15 min TTL) survives the magic-LINK
+                  // sign-in flow, which opens in a NEW tab where sessionStorage
+                  // is empty — without it the handoff silently dies for exactly
+                  // the signed-out users the Create gate sends through email.
+                  try {
+                    if (sourceText) {
+                      sessionStorage.setItem('wst_handoff', sourceText);
+                      localStorage.setItem('wst_handoff_ls', JSON.stringify({ t: Date.now(), text: sourceText }));
+                    }
+                  } catch { /* storage unavailable */ }
+                  window.location.assign('/audit?mode=create');
+                }}
+                class="inline-block rounded-lg bg-accent-support px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent-support/90 transition-colors"
+              >
+                Work on this text in Create
+              </button>
               <a href="/pricing" class="text-xs text-muted hover:text-ink underline">See plans</a>
             </div>
           </div>
