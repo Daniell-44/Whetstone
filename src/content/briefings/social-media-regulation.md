@@ -3,6 +3,7 @@ question: Should social media platforms be regulated like utilities?
 category: law
 axisLeft: public utility
 axisRight: private editorial
+archived: true
 publishedDate: 2026-05-25
 otherTakes: none
 image: /briefing-images/placeholder-sand.svg

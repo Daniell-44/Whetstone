@@ -3,6 +3,7 @@ question: Does individual climate action matter?
 category: environment
 axisLeft: individual action
 axisRight: systemic change
+archived: true
 publishedDate: 2026-05-27
 otherTakes: none
 image: /briefing-images/placeholder-slate.svg

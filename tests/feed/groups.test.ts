@@ -70,7 +70,11 @@ describe('qualifyingFeedGroups', () => {
     expect(groups.map((g) => g.count)).toEqual([3, 2]);
   });
 
-  it('current corpus yields at least 2 qualifying groups, so the filter is shown', () => {
+  it('full corpus (archived included) maps into at least 2 qualifying groups', () => {
+    // Guards the CATEGORY_TO_GROUP mapping against the whole authored corpus.
+    // NOTE: since the 2026-07-21 clean-slate the feed filter reads LIVE
+    // (non-archived) briefings only, so this does NOT assert the filter is
+    // visible on the home page — with everything archived it correctly hides.
     const groups = qualifyingFeedGroups(corpusCategories());
     expect(groups.length).toBeGreaterThanOrEqual(2);
     for (const g of groups) expect(g.count).toBeGreaterThanOrEqual(2);

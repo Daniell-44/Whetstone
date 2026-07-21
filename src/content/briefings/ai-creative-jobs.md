@@ -3,6 +3,7 @@ question: Will generative AI eliminate creative jobs?
 category: technology
 axisLeft: mass displacement
 axisRight: pure augmentation
+archived: true
 publishedDate: 2026-06-24
 otherTakes: none
 image: /briefing-images/placeholder-slate.svg

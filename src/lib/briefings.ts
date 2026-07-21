@@ -26,3 +26,14 @@ const mdBriefings: BriefingArticle[] = Object.entries(files).flatMap(([path, raw
 export function getAllBriefings(): BriefingArticle[] {
   return [...mdBriefings].sort((a, b) => b.publishedDate.localeCompare(a.publishedDate));
 }
+
+/** The publication surfaces (home feed, related rails, next-briefing links)
+   show only non-archived work. Archived pieces keep their pages, deep links,
+   and citations — use getAllBriefings for anything that resolves a slug. */
+export function getLiveBriefings(): BriefingArticle[] {
+  return getAllBriefings().filter((b) => !b.archived);
+}
+
+export function getArchivedBriefings(): BriefingArticle[] {
+  return getAllBriefings().filter((b) => b.archived);
+}

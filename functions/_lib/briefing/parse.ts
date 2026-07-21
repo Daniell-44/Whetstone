@@ -201,6 +201,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
     ...(positionSources.length ? { positionSources } : {}),
     ...(evidenceSources.length ? { evidenceSources } : {}),
     ...(fm.otherTakes === 'none' ? { otherTakes: 'none' as const } : {}),
+    ...(fm.archived === 'true' ? { archived: true as const } : {}),
     blocks,
   };
 }

@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import { getArchivedBriefings } from '../lib/briefings';
+
+// The archive (2026-07-21): the earlier corpus, unlisted from the feed when
+// the hand-authored rebuild began. Pages stay live; this is their index.
+const archived = getArchivedBriefings();
+---
+<Base
+  title="Archive - The Whetstone"
+  description="Earlier Whetstone briefings, kept for reference while the corpus is rebuilt by hand."
+  canonicalPath="/archive"
+>
+  <main class="max-w-2xl mx-auto px-6 pt-12 sm:pt-16 pb-24">
+
+    <nav class="mb-10">
+      <a href="/" class="text-xs text-muted hover:text-ink transition-colors">← The Whetstone</a>
+    </nav>
+
+    <header class="mb-10">
+      <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Archive</p>
+      <h1 class="font-serif text-3xl text-ink-strong mb-4">The earlier corpus</h1>
+      <p class="text-sm text-muted leading-relaxed">
+        These pieces are from the site's first corpus and are kept for reference. The publication is
+        being rebuilt by hand: one contested question at a time, every quote verified verbatim against
+        its source. New briefings appear on <a href="/" class="text-accent-support hover:underline">the front page</a> as they publish.
+      </p>
+    </header>
+
+    {archived.length === 0 ? (
+      <p class="text-sm text-muted py-8 border-t border-hairline">The archive is empty.</p>
+    ) : (
+      <div class="divide-y divide-hairline border-t border-b border-hairline">
+        {archived.map((b) => (
+          <a href={`/briefing/${b.slug}`} class="group flex items-baseline justify-between gap-4 py-4">
+            <div class="min-w-0">
+              <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-1">
+                {b.kind === 'explainer' ? 'Explainer' : 'Briefing'}{b.category ? ` · ${b.category}` : ''}
+              </p>
+              <p class="font-serif text-base text-ink-strong group-hover:text-accent-support transition-colors leading-snug">{b.question}</p>
+            </div>
+            <span class="shrink-0 font-mono text-[11px] text-muted">{b.publishedDate}</span>
+          </a>
+        ))}
+      </div>
+    )}
+
+  </main>
+</Base>

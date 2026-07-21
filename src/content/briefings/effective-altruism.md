@@ -3,6 +3,7 @@ question: Is effective altruism a coherent ethical framework?
 category: philosophy
 axisLeft: coherent framework
 axisRight: structural flaws
+archived: true
 publishedDate: 2026-05-15
 otherTakes: none
 image: /briefing-images/placeholder-sand.svg

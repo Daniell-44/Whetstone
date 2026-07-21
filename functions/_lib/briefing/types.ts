@@ -74,5 +74,10 @@ export interface BriefingArticle {
   evidenceSources?: BriefingEvidenceSource[]; // v2: ::evidence (bibliography, never plotted)
   /** Front-matter `otherTakes: none` — absence of ::takes is a stated choice, not an unfinished page. */
   otherTakes?:   'none';
+  /** Front-matter `archived: true` — kept out of the feed/related/next surfaces
+     but the page stays live (links, SEO, citations all keep working). The
+     2026-07-21 clean-slate: the ported corpus archived so only hand-authored
+     work shows on the front door. */
+  archived?:     true;
   blocks:        BriefingBlock[];
 }

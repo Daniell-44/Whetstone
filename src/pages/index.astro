@@ -3,7 +3,8 @@ export const prerender = false;
 
 import Base from '../layouts/Base.astro';
 import BriefingCard from '../components/briefing/BriefingCard.astro';
-import { getAllBriefings } from '../lib/briefings';
+import { getLiveBriefings } from '../lib/briefings';
+import EmailCapture from '../components/capture/EmailCapture';
 import { featured } from '../data/featured';
 import { SAMPLES } from '../data/samples';
 import { CATEGORY_COLOUR_FALLBACK } from '../lib/category-colour';
@@ -18,7 +19,9 @@ if (sp.has('audit') || sp.has('url')) {
   return Astro.redirect(`/audit?${sp.toString()}`, 301);
 }
 
-const briefings = getAllBriefings();
+// Live (non-archived) work only: the 2026-07-21 clean-slate archived the
+// ported corpus, so the feed shows hand-authored pieces as they publish.
+const briefings = getLiveBriefings();
 
 // Featured band vs mosaic split. `featured` (src/data/featured.ts) is the curated
 // front page, in order; everything else flows into the asymmetric mosaic below,
@@ -76,6 +79,7 @@ const showFeedFilter = feedGroups.length >= 2;
   title="The Whetstone: arguments, examined"
   description="Briefings that map the strongest positions on contested questions, with a structural audit of every position's reasoning: named fallacies, unstated assumptions, and the shared premises both sides stand on."
   canonicalPath="/"
+  hideFooterCapture={briefings.length === 0}
 >
   <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-12 sm:pb-24">
 
@@ -161,8 +165,22 @@ const showFeedFilter = feedGroups.length >= 2;
       </div>
 
       {briefings.length === 0 ? (
-        <div class="py-20 border-t border-hairline text-center">
-          <p class="font-serif text-2xl text-hairline">No briefings published yet.</p>
+        <!-- The clean-slate state (2026-07-21): the ported corpus is archived;
+             this is the front door until the first hand-authored piece lands.
+             Deliberately a launch surface, not an apology: what is coming, the
+             standard it is held to, the capture, and the archive door. -->
+        <div class="py-12 sm:py-16 border-t border-hairline">
+          <div class="max-w-xl">
+            <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">A clean slate</p>
+            <h3 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug mb-3">New briefings are being written.</h3>
+            <p class="text-sm text-muted leading-relaxed mb-6">
+              The corpus is being rebuilt by hand: one contested question at a time, every position
+              mapped, every quote verified verbatim against its source, every argument audited. The
+              earlier machine-assisted corpus is kept in
+              <a href="/archive" class="text-accent-support hover:underline">the archive</a>.
+            </p>
+            <EmailCapture client:visible source="briefing" heading="Get the first briefing by email" sub="When it publishes. Nothing else." />
+          </div>
         </div>
       ) : (
         <div class="flex flex-col lg:flex-row gap-8">

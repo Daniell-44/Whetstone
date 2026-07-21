@@ -3,6 +3,7 @@ question: Should germline gene editing of human embryos be permitted?
 category: science
 axisLeft: permit
 axisRight: prohibit
+archived: true
 publishedDate: 2026-05-20
 otherTakes: none
 image: /briefing-images/placeholder-slate.svg

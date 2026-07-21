@@ -3,6 +3,7 @@ question: Should schools ban smartphones during the school day?
 category: education
 axisLeft: structural ban
 axisRight: taught autonomy
+archived: true
 publishedDate: 2026-05-23
 otherTakes: none
 image: /briefing-images/placeholder-sand.svg

@@ -2,6 +2,7 @@
 type: explainer
 question: What "begging the question" actually means
 category: philosophy
+archived: true
 publishedDate: 2026-06-24
 ---
 

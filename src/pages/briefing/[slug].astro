@@ -2,16 +2,21 @@
 import Base from '../../layouts/Base.astro';
 import BriefingArticle from '../../components/briefing/BriefingArticle.astro';
 import EmailCapture from '../../components/capture/EmailCapture';
-import { getAllBriefings } from '../../lib/briefings';
+import { getAllBriefings, getLiveBriefings, getArchivedBriefings } from '../../lib/briefings';
 
+// ALL briefings keep their pages — archiving unlists from the feed and the
+// related/next rails; it never breaks a shared or indexed URL.
 export function getStaticPaths() {
   return getAllBriefings().map((b) => ({ params: { slug: b.slug }, props: { briefing: b } }));
 }
 
 const { briefing } = Astro.props;
 
-// Related: same category preferred, then newest.
-const related = getAllBriefings()
+// Related: live pages recirculate live work; archived pages cross-link the
+// archive (keeps internal links alive there without leaking archived pieces
+// onto current surfaces). Same category preferred, then newest.
+const relatedPool = briefing.archived ? getArchivedBriefings() : getLiveBriefings();
+const related = relatedPool
   .filter((b) => b.slug !== briefing.slug)
   .sort((a, b) => {
     const sameA = a.category === briefing.category ? 0 : 1;
@@ -114,6 +119,16 @@ const jsonLd = {
         </a>
       </div>}
     </nav>
+
+    {briefing.archived && (
+      <div class="mb-8 border border-hairline bg-paper px-4 py-3 max-w-[36rem]">
+        <p class="text-sm text-ink leading-relaxed">
+          <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mr-2">From the archive</span>
+          A piece from the site's earlier corpus, kept for reference. New briefings are written by
+          hand. <a href="/archive" class="text-accent-support hover:underline">Browse the archive →</a>
+        </p>
+      </div>
+    )}
 
     {/* Explainer chassis: the essay plus one related-briefing link. No ToC,
        no share/cite rail, no audit CTAs. Briefings keep the full 3-column

@@ -3,6 +3,7 @@ question: Does raising the minimum wage cost jobs?
 category: economics
 axisLeft: competitive market
 axisRight: monopsony power
+archived: true
 publishedDate: 2026-06-25
 image: /briefing-images/placeholder-sand.svg
 ---
