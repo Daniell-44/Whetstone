@@ -1,0 +1,1355 @@
+{
+  "gencost": {
+    "claims": [
+      {
+        "quote": "To be clear GenCost agrees that high capacity factors of around 90% are achievable for nuclear generation. However, a prudent investor (government or private) must prepare for all plausible eventualities. The observed global average capacity factor for nuclear generation is 80% and 10% of nuclear generation is operating at below 60%.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 2.2 Nuclear generation capacity factors (verified character-for-character against the official accessible-text file downloaded this session)",
+        "whatItClaims": "CSIRO's core defence of the capacity-factor range: it concedes ~90% is achievable but argues a range is required for prudent planning, grounded in global operating data rather than the US fleet alone."
+      },
+      {
+        "quote": "GenCost bases its capacity factor assumptions for all baseload technologies – coal, gas, and nuclear – on the Australian evidence, applying a maximum of 89% and minimum of 53%. The minimum is based on the same formula that we apply to renewables (the minimum capacity factor for new build generation is assumed to be 10% below the average capacity factor of existing equivalent generation).",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 2.2 (verified against official accessible-text file)",
+        "whatItClaims": "The 53-89% range is derived from Australian coal-fleet experience via a formula applied consistently across technologies — the report's consistency defence against cherry-picking accusations."
+      },
+      {
+        "quote": "Due to US experience, capacity factors of below 93% should not be considered (GenCost uses the range 53% to 89%)",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 2.2 — bullet in which GenCost itself states the critics' position before rebutting (verified against official accessible-text file)",
+        "whatItClaims": "GenCost's own summary of the nuclear advocates' capacity-factor objection — useful as the report's steelman of the criticism it answers."
+      },
+      {
+        "quote": "Our finding is that there are no unique cost advantages arising from nuclear technology’s long operational life. Similar cost savings are achievable from shorter lived technologies, even accounting for the fact that shorter lived technologies need to be built twice to achieve the same operational life.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 2.1 Nuclear capital recovery period and long operational life (verified against official accessible-text file)",
+        "whatItClaims": "CSIRO's answer to the 30-vs-60-year criticism: it ran the 60-year numbers and found no advantage unique to nuclear."
+      },
+      {
+        "quote": "Long operational life provides no major financial benefit to electricity customers relative to shorter-lived technologies. Taking account of extension costs, long operational life confers an average cost reduction of 8% to nuclear power relative to the costs that are calculated when only considering the standard 30-year private sector financial arrangements.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 2.1, bulleted finding (verified against official accessible-text file)",
+        "whatItClaims": "Quantifies the 60-year-life benefit at only 8% once mid-life refurbishment costs are counted — the load-bearing number in CSIRO's rebuttal."
+      },
+      {
+        "quote": "Many stakeholders have agreed with the GenCost estimate of at least 15 years lead time for nuclear generation.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 2.3 Nuclear development lead times (verified against official accessible-text file); the section concludes: \"As such, at least 15 years remains the most plausible lead time.\"",
+        "whatItClaims": "The total development lead-time claim (construction plus pre-construction) that underpins the 'too slow for the transition' argument."
+      },
+      {
+        "quote": "In the last 5 years median construction time has increased to 8.2 years. This increase cannot be explained by the pandemic because construction times were longer in the two years preceding the pandemic (8.6 and 9.8 years).",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 2.3 (verified against official accessible-text file)",
+        "whatItClaims": "Global median nuclear construction time has risen from 6 to 8.2 years — CSIRO's evidence against the 'other countries build in 3-8 years' objection, with a pre-emptive rebuttal of the pandemic excuse."
+      },
+      {
+        "quote": "For variable renewable technologies we include the cost of firming those renewables which we call integration costs. These are the additional costs of ensuring supply is reliable when using intermittent energy sources. These integration costs are itemised in the report and include storage, transmission, system security and spilled energy.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Executive summary (verified against official accessible-text file)",
+        "whatItClaims": "What the 'firmed renewables' LCOE actually includes — the report's answer to the accusation that renewables' hidden system costs are excluded."
+      },
+      {
+        "quote": "All new capacity relies on being supported by existing generation capacity to meet demand.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, integration-costs discussion (verified against official accessible-text file)",
+        "whatItClaims": "CSIRO's warrant for not charging renewables for the pre-existing system: every technology, not just VRE, leans on the existing fleet."
+      },
+      {
+        "quote": "To develop the premium the value of 120% has been applied to large scale nuclear based on Flyvbjerg and Gardner (2023).",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 3.1.1 First-of-a-kind cost premiums (verified against official accessible-text file)",
+        "whatItClaims": "The evidentiary basis of the 120% FOAK premium: megaproject cost-overrun literature, not nuclear-specific Australian data — a key auditable inference step."
+      },
+      {
+        "quote": "Frontier Economics released a report on 13th December 2024 which was widely anticipated to provide some new information about the cost of nuclear generation in Australia’s electricity system.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+        "locator": "GenCost 2024-25 Final report, Section 1.3.1 Technology specific items — Nuclear (verified against official accessible-text file); the passage concludes: \"However, the report cannot be used to draw any conclusions about the cost of nuclear generation relative to other generation options.\"",
+        "whatItClaims": "CSIRO's formal dismissal of the Frontier report inside GenCost itself: the scenario design (delayed abatement + lower demand + nuclear, varied together) cannot isolate nuclear's cost effect."
+      },
+      {
+        "quote": "Gas with CCS is the next most competitive after solar thermal and offshore wind. Large-scale nuclear is slightly higher in cost than gas with CCS. Black coal with CCS occupies a similar cost range to large-scale nuclear. Nuclear small modular reactors (SMRs) are the highest cost.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Final/GenCost_2025-26_Final-exec-summ.pdf",
+        "locator": "GenCost 2025-26 Final report, Executive summary, SLCOE findings bullets (extracted locally from the fetched PDF; line-wraps joined)",
+        "whatItClaims": "The latest edition's nuclear ranking under the new whole-of-system SLCOE measure: large-scale nuclear above gas-with-CCS, SMR the most expensive option."
+      },
+      {
+        "quote": "LCOE does not include renewable integration costs. SLCOE does.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Final/GenCost_2025-26_Final-exec-summ.pdf",
+        "locator": "GenCost 2025-26 Final report, Executive summary, note under ES Figure 0-2 (extracted locally from the fetched PDF)",
+        "whatItClaims": "CSIRO's own one-line concession of LCOE's limitation, and the definition of the new measure introduced to fix it."
+      },
+      {
+        "quote": "The cost of generation if the electricity sector makes an efficient contribution to achieving net zero by 2050 is $141/MWh to $152/MWh based on solar PV and wind generation inclusive of all firming costs. Excluding transmission costs which are not recovered through the generation market, the net zero consistent generation cost is $120/MWh to $130/MWh or an average of $125/MWh.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Final/GenCost_2025-26_Final-exec-summ.pdf",
+        "locator": "GenCost 2025-26 Final report, Executive summary, 'Implications for electricity prices' (extracted locally from the fetched PDF; line-wraps joined)",
+        "whatItClaims": "The headline 2050 system-cost number for the renewables-based pathway — notably above $100/MWh, a franker framing than earlier editions' 'renewables are cheapest' headlines."
+      },
+      {
+        "quote": "Stakeholders generally supported the new method but were less convinced of the value of the SLCOE in measuring cost in 2030 than in 2050. In 2030, cost estimates are strongly influenced by existing capacity and there is no consistent rule or readily available data for capturing the amount of unrecovered costs associated with that capacity.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Final/GenCost_2025-26_Final-exec-summ.pdf",
+        "locator": "GenCost 2025-26 Final report, Executive summary, 'Responses to stakeholder feedback' (extracted locally from the fetched PDF; line-wraps joined)",
+        "whatItClaims": "CSIRO's admission that near-term system-cost estimates founder on how to count the existing fleet's unrecovered costs — it replaced 2030 SLCOE with electricity futures prices in response."
+      },
+      {
+        "quote": "LCOE is only meaningful as a quick guide to competitiveness. Investors will need to carry out more in-depth modelling to support investment decisions and more complex questions such as policy analysis also require deeper modelling approaches.",
+        "url": "https://www.csiro.au/en/research/technology-space/energy/electricity-transition/gencost/faq-gencost",
+        "locator": "GenCost FAQs page, question 'What are levelised costs of electricity and why use it?' (via page extraction)",
+        "whatItClaims": "CSIRO's own scoping of LCOE as a 'quick guide' — directly relevant to auditing how much weight the headline rankings can bear."
+      },
+      {
+        "quote": "It's standard practice that the financing period for an asset is less than its full operational life, similar to a car or house loan. For power stations, warranties expire and refurbishment costs increase around the 30-year mark.",
+        "url": "https://www.csiro.au/en/research/technology-space/energy/electricity-transition/gencost/faq-gencost",
+        "locator": "GenCost FAQs page, question 'Why does GenCost assume a 30-year life for nuclear plants when they will operate for 50 years or more?' (via page extraction)",
+        "whatItClaims": "The 30-year assumption is a financing convention, not an engineering-life claim — the analogy ('car or house loan') is itself auditable."
+      },
+      {
+        "quote": "To keep calculations simple and transparent across all technologies, GenCost excludes costs that won't significantly affect a technology's competitive position.",
+        "url": "https://www.csiro.au/en/research/technology-space/energy/electricity-transition/gencost/faq-gencost",
+        "locator": "GenCost FAQs page, question 'Is the cost of storing nuclear waste included in GenCost?' (via page extraction)",
+        "whatItClaims": "The stated exclusion principle (materiality to competitive position) used to justify leaving out nuclear waste storage — an assumption doing quiet work in both directions."
+      },
+      {
+        "quote": "The first units of any new technology in Australia are expected to be impacted by higher costs, with a first-of-a-kind cost premium of up to 120 per cent.",
+        "url": "https://www.csiro.au/en/research/technology-space/energy/electricity-transition/gencost/faq-gencost",
+        "locator": "GenCost FAQs page, question 'How did GenCost calculate the cost for large-scale nuclear in Australia?' (via page extraction)",
+        "whatItClaims": "Public-facing statement of the FOAK premium of up to 120% for the first Australian nuclear units."
+      },
+      {
+        "quote": "Nuclear power does not currently provide the most cost competitive solution for low emission electricity in Australia.",
+        "url": "https://www.csiro.au/en/news/all/articles/2024/december/nuclear-explainer",
+        "locator": "CSIRO explainer 'The question of nuclear in Australia's electricity sector', December 2024, key points (via page extraction)",
+        "whatItClaims": "CSIRO's carefully-hedged headline conclusion — note the modal scope: 'does not currently provide the most cost competitive', not 'can never'."
+      },
+      {
+        "quote": "Overall, it would take at least 15 years after legal restrictions were removed before first nuclear generation could be achieved in Australia.",
+        "url": "https://www.csiro.au/en/news/all/articles/2024/december/nuclear-explainer",
+        "locator": "CSIRO nuclear explainer, December 2024, section on transition timing (via page extraction)",
+        "whatItClaims": "The 15-year clock starts only after repeal of the legal ban — a premise that interacts with the ban still being in force as of the February 2026 Senate record."
+      },
+      {
+        "quote": "Australia operates a similar steam turbine based technology in coal generation for which the average capacity factor over the last decade was 59 per cent with a maximum of 89 per cent.",
+        "url": "https://www.csiro.au/en/news/all/articles/2024/december/nuclear-explainer",
+        "locator": "CSIRO nuclear explainer, December 2024, 'Capacity factor' section (via page extraction)",
+        "whatItClaims": "The reference-class move at the heart of the capacity-factor dispute: Australian coal plants stand in for prospective Australian nuclear plants."
+      },
+      {
+        "quote": "The report found renewables remain the lowest-cost new-build electricity generation technology, while nuclear small modular reactors (SMRs) are the most costly.",
+        "url": "https://www.csiro.au/en/news/all/news/2025/july/2024-25-gencost-final-report",
+        "locator": "CSIRO news release, 29 July 2025, 'CSIRO releases final 2024-25 GenCost report following consultation', key points (via page extraction)",
+        "whatItClaims": "Headline finding of the 2024-25 final edition — the edition that absorbed and answered the election-period nuclear criticisms."
+      },
+      {
+        "quote": "As battery costs continue to fall and gas technology costs rise, batteries are increasingly becoming the preferred flexible generation technology",
+        "url": "https://www.csiro.au/en/news/All/News/2026/July/GenCost-2025-26",
+        "locator": "CSIRO news release, 15 July 2026, 'GenCost 2025-26: Renewables and storage a source of stability amid global uncertainty' — quote attributed to Paul Graham, CSIRO Chief Energy Economist (via page extraction)",
+        "whatItClaims": "Graham's framing of the 2025-26 final edition; notably the release leads on batteries and stability, not on nuclear."
+      },
+      {
+        "quote": "The work undertaken for this report is funded and directed solely by Frontier Economics.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Frontier Economics Report 2, Section 1.2 'Funding and direction of work' (extracted locally from the fetched PDF); the same section states: \"We have consulted with the Federal Coalition through the course of this work to determine more details about their plans\"",
+        "whatItClaims": "Frontier's independence claim, alongside its acknowledged consultation with the Coalition — the provenance question critics probed."
+      },
+      {
+        "quote": "a Progressive future which includes nuclear power is 44% cheaper than the Step Change future as envisaged by the Federal Labor Government, which involves meeting demand with mainly renewables and energy storages",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Frontier Economics Report 2, Section 1 summary, p6 (extracted locally from the fetched PDF; line-wraps joined)",
+        "whatItClaims": "The Coalition's headline '44% cheaper' number — generated by comparing a lower-demand scenario with nuclear against a higher-demand scenario without it, not a like-for-like comparison."
+      },
+      {
+        "quote": "For AEMO’s Step Change scenario, using nuclear power, the total NEM system costs can be reduced by about $150 billion from $594 billion to $446 billion, or about $5.5 billion per annum. The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO’s renewables and storage approach.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Frontier Economics Report 2, Section 1.5.1 results summary (extracted locally from the fetched PDF; the em-dash-free passage reproduced with apostrophes as typographic quotes in the original)",
+        "whatItClaims": "Frontier's like-for-like number: 25% cheaper within the same demand scenario — the honest comparator that the 44% headline exceeds by mixing scenarios."
+      },
+      {
+        "quote": "The modelling assumes a cost of nuclear power of $10,000/kW. This is higher than the CSIRO’s recent estimate of the cost of large-scale reactors.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Frontier Economics Report 2, Section 3.2.3 'Cost of nuclear power' (extracted locally from the fetched PDF); the section continues: \"The capital costs are amortised over a 50-year period, although realistically new nuclear generators will operate for many more years than this and more than twice the life of renewables.\"",
+        "whatItClaims": "Frontier's key inputs: $10,000/kW capex (claimed conservative because above CSIRO's NOAK estimate) and 50-year amortisation — the direct counter to GenCost's 30-year capital recovery."
+      },
+      {
+        "quote": "It is very unlikely that the inclusion of nuclear power in the NEM would, in practice, ever be more expensive than AEMO’s approach.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Frontier Economics Report 2, Section 1.5.1, following the claim that assumed nuclear costs 'could double on a sustained basis' before parity (extracted locally from the fetched PDF)",
+        "whatItClaims": "Frontier's strongest modal claim — a near-certainty assertion resting on its own scenario construction; prime audit material for modal scope."
+      },
+      {
+        "quote": "In the report modelling, some existing coal fired generators in the NEM are maintained beyond AEMO’s early closure dates to ensure that there is sufficient generation capacity to meet the system reliability requirements. The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Frontier Economics Report 2, Section 1.4 'Key assumptions' (extracted locally from the fetched PDF; line-wraps joined)",
+        "whatItClaims": "The nuclear scenario quietly depends on extending 65% of the coal fleet past announced closure dates — the assumption CEC attacks as uncosted."
+      },
+      {
+        "quote": "While this is higher than CSIRO’s latest estimate in the draft GenCost 2024, according to IEEFA analysis, the most recent international experience indicates construction costs of between $15,000-$28,000/kWh, excluding financing costs during the construction period, which can be very significant given the very large capital costs and long construction timeframes.",
+        "url": "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf",
+        "locator": "Clean Energy Council briefing note on Frontier's second report, December 2024, item 3 'Underestimation of nuclear construction, and operations & maintenance costs' (extracted locally from the fetched PDF; '/kWh' is the briefing note's own typo for '/kW', reproduced verbatim; line-wraps joined)",
+        "whatItClaims": "The renewables lobby's counter to Frontier's 'conservative' $10,000/kW: recent Western builds run $15,000-$28,000/kW before financing costs."
+      },
+      {
+        "quote": "The GenCost report is internally inconsistent on nuclear capacity factors. The authors admit brown coal is almost always on, achieving a 90% capacity factor, because its low fuel cost allows it to underbid other generators. But according to the CSIRO, nuclear fuel will be even cheaper than brown coal in coming decades, so the same logic should apply.",
+        "url": "https://www.cis.org.au/commentary/opinion/the-cost-of-nuclear-some-clarifications/",
+        "locator": "Zoe Hilton, Centre for Independent Studies, 'The cost of nuclear: some clarifications', 15 January 2025 (via page extraction)",
+        "whatItClaims": "The sharpest structural criticism of GenCost's capacity-factor treatment: an internal-consistency argument, not a data dispute."
+      },
+      {
+        "quote": "Frontier intentionally mirrored the government's favoured modelling to ensure a like-for-like comparison.",
+        "url": "https://www.cis.org.au/commentary/opinion/the-cost-of-nuclear-some-clarifications/",
+        "locator": "Zoe Hilton, CIS, 15 January 2025 (via page extraction); she also argues the ISP's solar and wind capacity factors (25% and 35%) are 'overly optimistic' in the same way critics say Frontier's 90% nuclear figure is",
+        "whatItClaims": "The pro-nuclear defence of Frontier's method: symmetry — if optimistic capacity factors disqualify Frontier, they disqualify the ISP too."
+      },
+      {
+        "quote": "The optimistic lifetime of 60 years is assumed, even though no nuclear power station has ever continued to perform for that long",
+        "url": "https://www.scimex.org/newsfeed/gencost-2024-25-draft-report-released-for-consultation",
+        "locator": "Scimex expert reaction to the GenCost 2024-25 draft, December 2024 — attributed to Emeritus Professor Ian Lowe, Griffith University (via page extraction)",
+        "whatItClaims": "The anti-nuclear counter to the 60-year-life criticism of CSIRO: the 60-year premise itself is empirically untested."
+      },
+      {
+        "quote": "LCOE of Variable with integration costs are likely to be underestimated in the report",
+        "url": "https://www.scimex.org/newsfeed/gencost-2024-25-draft-report-released-for-consultation",
+        "locator": "Scimex expert reaction, December 2024 — attributed to Professor Stefan Trueck, Macquarie University (via page extraction)",
+        "whatItClaims": "Criticism of GenCost from the opposite flank: the firmed-renewables number may be too low — evidence the report is contested from both directions."
+      },
+      {
+        "quote": "I don't know of a more transparent and open energy pricing process than Gencost",
+        "url": "https://www.scimex.org/newsfeed/gencost-2024-25-draft-report-released-for-consultation",
+        "locator": "Scimex expert reaction, December 2024 — attributed to Professor Glenn Platt (via page extraction; Scimex's affiliation line should be re-checked before publication)",
+        "whatItClaims": "The process-transparency defence of GenCost from a founder of the series."
+      },
+      {
+        "quote": "Nothing has been adopted, there are many different interests that people have when it comes to policy",
+        "url": "https://www.inkl.com/news/nuclear-policy-fate-still-unclear-after-coalition-talks",
+        "locator": "AAP report (Andrew Brown) via inkl, mid-May 2025, after the Coalition's election loss — quote attributed to Opposition Leader Sussan Ley; the article describes the abandoned platform as one 'which would have built seven reactors by the mid-2030s across five states' (via page extraction)",
+        "whatItClaims": "Immediately post-election, the seven-reactor policy was in limbo — neither adopted nor formally abandoned."
+      },
+      {
+        "quote": "The Liberal Party has dumped a commitment to net-zero emissions by 2050",
+        "url": "https://www.netimes.com.au/2025/11/13/liberals-follow-nationals-in-scrapping-net-zero/",
+        "locator": "New England Times, 13 November 2025; the article lists 'lift the ban on nuclear power' among the ten principles unveiled by energy spokesman Dan Tehan (via page extraction)",
+        "whatItClaims": "By November 2025 the Coalition had dropped net zero and shrunk its nuclear policy from building seven government-owned reactors to lifting the legal ban."
+      },
+      {
+        "quote": "We are still the only developed country, only G20 country in the world that actually bans nuclear energy.",
+        "url": "https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827",
+        "locator": "Senate Hansard via OpenAustralia, 4 February 2026 — Senator Matt Canavan moving the second reading of the Environment and Other Legislation Amendment (Removing Nuclear Energy Prohibitions) Bill; debate adjourned with no vote recorded (via page extraction)",
+        "whatItClaims": "As of February 2026 the federal prohibitions (EPBC Act / ARPANS Act) remain in force and repeal remains a private senator's bill at second-reading stage — the '15 years after legal restrictions were removed' clock has not started."
+      },
+      {
+        "quote": "nuclear reactors by 2040 would be about $145-$238 per MWh, compared to $22-$53 for solar, and $45-$78 for wind",
+        "url": "https://www.climatecouncil.org.au/resources/csiro-confirms-nuclear-fantasy-would-cost-twice-as-much-as-renewables/",
+        "locator": "Climate Council resource page, 10 December 2024, reporting the GenCost 2024-25 draft figures (via page extraction; note the solar/wind figures quoted there exclude firming costs — an advocacy framing worth auditing in its own right)",
+        "whatItClaims": "The most-circulated dollar comparison from the 2024-25 draft as rendered by an advocacy group — including its apples-to-oranges omission of integration costs on the renewables side."
+      }
+    ],
+    "assumptions": [
+      {
+        "assumption": "A technology-by-technology unit-cost comparison (LCOE plus itemised integration costs) is an adequate frame for ranking generation options for a whole electricity system.",
+        "evidence": "GenCost 2024-25 Final, Executive summary: integration costs 'include storage, transmission, system security and spilled energy'; FAQ: 'LCOE is only meaningful as a quick guide to competitiveness.'",
+        "contested": "Frontier Economics built its whole case on rejecting this frame in favour of total system cost; CSIRO effectively conceded the point in 2025-26 by introducing SLCOE ('LCOE does not include renewable integration costs. SLCOE does.') — an audit should note the measure changed after the fight, not before it."
+      },
+      {
+        "assumption": "Australian coal-fleet operating history (average 59%, max 89%) is the right reference class for predicting Australian nuclear capacity factors.",
+        "evidence": "GenCost 2024-25 Final Section 2.2: baseload capacity factors for 'coal, gas, and nuclear' are based 'on the Australian evidence, applying a maximum of 89% and minimum of 53%'; the nuclear explainer makes the steam-turbine analogy explicit.",
+        "contested": "Nuclear advocates say the relevant class is the operating global/US nuclear fleet (US average 93%, global average 80%); CIS (Hilton) argues internal inconsistency — GenCost's own merit-order logic for cheap-fuel brown coal (90%) should apply to cheap-fuel nuclear. CSIRO's rebuttal: 'a prudent investor... must prepare for all plausible eventualities.'"
+      },
+      {
+        "assumption": "A 30-year capital-recovery period (financing convention) rather than engineering life is what determines the cost consumers pay.",
+        "evidence": "FAQ: 'It's standard practice that the financing period for an asset is less than its full operational life, similar to a car or house loan.'",
+        "contested": "Frontier amortises over 50 years and calls even that unrealistically short; critics say 30 years roughly doubles nuclear's apparent capital charge. CSIRO's 60-year sensitivity found only an 8% average cost reduction after 'substantial reinvestment' — but that 8% figure depends on assumed refurbishment costs and on renewables' assumed cost declines when 'built twice', both auditable."
+      },
+      {
+        "assumption": "A first-of-a-kind premium of up to 120% (from Flyvbjerg & Gardner's general megaproject cost-overrun research) transfers to Australian nuclear.",
+        "evidence": "GenCost 2024-25 Final Section 3.1.1: 'the value of 120% has been applied to large scale nuclear based on Flyvbjerg and Gardner (2023)'; carried into 2025-26 (draft Table 2-1: 120%/60% large nuclear, 92%/46% SMR).",
+        "contested": "Advocates argue an experienced foreign vendor (Korea, UAE model) would not pay a full FOAK premium; conversely the premium is applied to a South-Korea-derived base cost that critics like IEEFA/CEC say is already below recent Western experience ($15,000-$28,000/kW) — the premium can be attacked as both too high and too low depending on the base."
+      },
+      {
+        "assumption": "Total development time (site, permits, financing, grid studies) — not just construction — is the relevant timeline, giving 'at least 15 years' for first Australian nuclear power.",
+        "evidence": "GenCost 2024-25 Final Section 2.3; FAQ lists pre-construction activities; explainer: 'at least 15 years after legal restrictions were removed'.",
+        "contested": "Critics cite IAEA's 10-15 years and the UAE's fast build; CSIRO counters that recent median construction alone is 8.2 years and that no-industry, first-mover democracies are slower. The clock also assumes repeal of the ban, which as of Feb 2026 had not occurred."
+      },
+      {
+        "assumption": "Costs of the existing pre-2030 system (and policy-driven renewables build already underway) can be treated as given/sunk when comparing new-build options.",
+        "evidence": "GenCost 2024-25: 'All new capacity relies on being supported by existing generation capacity to meet demand'; GenCost 2025-26 exec summary concedes for 2030 SLCOE that 'there is no consistent rule or readily available data for capturing the amount of unrecovered costs associated with that capacity' and swaps in futures prices instead.",
+        "contested": "The long-running critic claim (CIS/Aidan Morrison lineage) is that this hides the renewables transition's cumulative system costs; CSIRO's 2025-26 retreat on 2030 SLCOE is the closest it has come to acknowledging the measurement gap."
+      },
+      {
+        "assumption": "Costs excluded from GenCost (nuclear waste storage, insurance, decommissioning detail) 'won't significantly affect a technology's competitive position'.",
+        "evidence": "FAQ waste-storage answer (quoted verbatim in claims).",
+        "contested": "CEC turns the same materiality question on Frontier ('unclear whether and how Frontier has accounted for nuclear waste management and insurance costs'); the materiality judgment is asserted, not demonstrated, in the public-facing material."
+      },
+      {
+        "assumption": "Frontier's headline requires that AEMO's Progressive (lower-demand) scenario is the appropriate base case for Coalition policy, that nuclear costs $10,000/kW with 1%/yr learning, that plants amortise over 50 years at ~90% utilisation, and that 65% of the coal fleet can run past announced closure dates within existing O&M budgets.",
+        "evidence": "Frontier Report 2, Sections 1.3-1.5 and 3.2.3 (all quoted verbatim in claims); the 44% figure compares Progressive-with-nuclear against Step-Change-without, while the like-for-like figure is 25%.",
+        "contested": "CEC/IEEFA: capex understated vs $15,000-$28,000/kW international experience, O&M+fuel understated vs GenCost's $40-$60/MWh, coal-extension costs unevidenced ('little evidence provided within the report to evaluate the realism of this claim'); CSIRO: the scenario design means the report 'cannot be used to draw any conclusions about the cost of nuclear generation relative to other generation options'; academics note Frontier publishes no LCOE or capacity factor, making the numbers hard to probe."
+      },
+      {
+        "assumption": "Electricity futures prices are a valid substitute indicator for 2030 generation costs (GenCost 2025-26's replacement for 2030 SLCOE).",
+        "evidence": "GenCost 2025-26 exec summary: futures 'rely on market expectations rather than modelling'; $80-$90/MWh by 2030 cited in the final news release.",
+        "contested": "Futures embed policy expectations and existing-fleet dynamics, so they answer a different question than 'what does the new-build mix cost' — a quiet change of measure between editions that an audit should surface."
+      },
+      {
+        "assumption": "The political argument built on GenCost assumed its rankings translate into deliverable policy; the counter-argument built on Frontier assumed its system savings survive contact with financing and construction reality.",
+        "evidence": "Election outcome: Coalition lost May 2025; post-election the policy shrank to 'lift the ban on nuclear power' (Tehan's principles, Nov 2025) and the ban remained law at the 4 Feb 2026 Senate second-reading debate.",
+        "contested": "Both sides treat the other's report as politically motivated: Frontier consulted the Coalition while claiming sole direction; GenCost is commissioned by AEMO, whose ISP the Coalition's plan would overturn — each provenance claim is itself audit material."
+      }
+    ],
+    "numbers": [
+      {
+        "figure": "53% to 89%",
+        "meaning": "GenCost's nuclear capacity-factor range, derived from Australian coal-fleet experience (max 89%; min = 10% below the 59% ten-year average)",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt"
+      },
+      {
+        "figure": "93% / 80% / 'below 60%'",
+        "meaning": "US average nuclear capacity factor cited by critics / observed global average per CSIRO / performance floor of the worst 10% of global nuclear generation per CSIRO",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt"
+      },
+      {
+        "figure": "30 years vs 60 years",
+        "meaning": "GenCost's capital-recovery period vs the operational life critics demanded; CSIRO's 60-year sensitivity found the longer life confers only an average 8% cost reduction after reinvestment costs",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt"
+      },
+      {
+        "figure": "120% (and 60% for the second unit)",
+        "meaning": "First-of-a-kind capital-cost premium GenCost applies to large-scale nuclear in Australia, based on Flyvbjerg & Gardner (2023); SMR premiums 92%/46% in the 2025-26 draft Table 2-1",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt"
+      },
+      {
+        "figure": "at least 15 years (12-17 years)",
+        "meaning": "GenCost's total development lead time for first Australian nuclear power, starting only after legal restrictions are removed",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt"
+      },
+      {
+        "figure": "8.2 years (up from 6; pre-pandemic 8.6 and 9.8)",
+        "meaning": "Global median nuclear construction time over the last five years per GenCost — its rebuttal to '3-8 year' build claims",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt"
+      },
+      {
+        "figure": "$145-$238/MWh vs $22-$53 (solar) and $45-$78 (wind)",
+        "meaning": "2040 cost comparison from the GenCost 2024-25 draft as circulated by the Climate Council — renewables figures there exclude firming, so the comparison overstates the gap vs GenCost's own firmed-renewables range",
+        "url": "https://www.climatecouncil.org.au/resources/csiro-confirms-nuclear-fantasy-would-cost-twice-as-much-as-renewables/"
+      },
+      {
+        "figure": "$141-$152/MWh (incl. transmission); $120-$130/MWh excl.",
+        "meaning": "GenCost 2025-26 Final: 2050 cost of generation for an efficient net-zero contribution based on solar PV and wind inclusive of all firming costs",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Final/GenCost_2025-26_Final-exec-summ.pdf"
+      },
+      {
+        "figure": "$104/MWh (2025) falling to $80-$90/MWh (2030)",
+        "meaning": "NEM volume-weighted average generation price in 2025 and the futures-implied 2030 range GenCost 2025-26 now uses instead of a 2030 SLCOE",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Final/GenCost_2025-26_Final-exec-summ.pdf"
+      },
+      {
+        "figure": "$10,000/kW; 1%/yr learning; $30/MWh; 50-year amortisation; ~13,000 MW from 2036",
+        "meaning": "Frontier Economics' core nuclear assumptions (capex, learning rate, all-in variable/fixed non-capital cost, capital recovery, deployed capacity and start date)",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "44% cheaper (headline) vs 25% cheaper (like-for-like)",
+        "meaning": "Frontier: Progressive-with-nuclear ($331b) vs Step-Change-without ($594b) gives 44%; within the same scenario the saving is 25% ($594b→$446b Step Change; $437b→$331b Progressive)",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "65%",
+        "meaning": "Share of the current NEM coal fleet whose closure Frontier's modelling delays beyond AEMO's early-closure dates to keep the nuclear scenario reliable",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "$15,000-$28,000/kW (excl. financing)",
+        "meaning": "CEC-cited IEEFA range for recent international nuclear construction costs, used against Frontier's $10,000/kW; CEC also cites GenCost fuel+O&M of $40-$60/MWh (2030) vs Frontier's $30/MWh",
+        "url": "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf"
+      },
+      {
+        "figure": "C$20.9b for 4x300MW",
+        "meaning": "Darlington (Canada) SMR project cost anchoring GenCost 2025-26's near-term SMR capital costs",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt"
+      },
+      {
+        "figure": "9 Dec 2024 / 13 Dec 2024 / 3 May 2025 / 29 Jul 2025 / 17 Dec 2025 / 15 Jul 2026",
+        "meaning": "Timeline: GenCost 2024-25 draft; Frontier Report 2 (Coalition costings); federal election (Coalition defeat); GenCost 2024-25 final; GenCost 2025-26 draft; GenCost 2025-26 final",
+        "url": "https://www.csiro.au/en/news/All/News/2026/July/GenCost-2025-26"
+      }
+    ],
+    "context": "EDITION MAP (corrects the task brief): the nuclear fight ran on the GenCost 2024-25 DRAFT (released 9 Dec 2024) and the 2024-25 FINAL — which CSIRO's news page dates 29 July 2025, not June 2025 as the brief assumed. The latest edition as of today is GenCost 2025-26 FINAL, released 15 July 2026 (draft 17 Dec 2025). The 2025-26 edition changed the argument's structure: it introduced SLCOE (whole-system levelised cost, including transmission) alongside LCOE, published an open-source Simple Electricity Model, and — after stakeholder pushback — replaced its 2030 SLCOE estimate with electricity futures prices because there is 'no consistent rule' for counting unrecovered costs of existing capacity. That concession is the closest CSIRO has come to validating the critics' 'hidden system costs' line, and any audit should treat the LCOE→SLCOE evolution as CSIRO amending its own measure under criticism. POLITICAL ARC: Frontier Economics' two reports (14 Nov and 13 Dec 2024) — 'funded and directed solely by Frontier' but produced in consultation with the Federal Coalition — supplied the Coalition's $331b/44%-cheaper nuclear costings; Labor won the 3 May 2025 election; under Sussan Ley the seven-reactor plan went into limbo (May 2025) and by 13 Nov 2025 the Liberals had dropped net zero, with nuclear policy reduced to 'lift the ban on nuclear power' among Dan Tehan's ten principles. The federal prohibitions (EPBC Act 1999 / ARPANS Act 1998) were still in force as of the 4 Feb 2026 Senate second-reading debate on Canavan's repeal bill (debate adjourned, no vote); a claim circulating on low-quality sites that Australia 'will formally lift the ban in 2026' is NOT supported by the parliamentary record I fetched and should not be repeated. VERBATIM PROVENANCE TIERS — important for the audit cards: (1) Highest confidence: quotes from GenCost 2024-25 Final and GenCost 2025-26 Final exec summary were verified character-for-character against files downloaded this session (official accessible-text file curl'd to scratchpad; exec-summary and Frontier/CEC PDFs saved by WebFetch and text-extracted locally with pdftotext). Local files: C:\\\\Users\\\\danie\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-danie-OneDrive-Documents-Claude-Projects-Devils-Advocate\\\\eb432e38-e9c3-4c54-abb3-2b7a3dabbcf1\\\\scratchpad\\\\gencost2425final.txt, gencost_report.txt (2025-26 exec summ), frontier_report2.txt, cec_briefing.txt. Caveats: PDF extraction joins line-wraps with spaces, and typographic apostrophes/en-dashes in the PDFs may render differently across extractors — pnpm verify:quotes should be run against the PDFs' text layer. (2) Medium confidence: quotes from CSIRO FAQ/news/explainer pages and from CIS, Scimex, inkl, netimes came through the WebFetch extraction model — wording returned in quote marks from the fetched page, but re-verify before publication (the Scimex affiliation for Glenn Platt in particular looked garbled; he is a former CSIRO energy director). AUDIT ANGLES THE BANK SUPPORTS: reference-class choice (coal fleet vs global nuclear fleet for capacity factors); internal-consistency attack (CIS brown-coal merit-order argument); measure-switching (LCOE→SLCOE→futures prices across editions); modal scope (CSIRO's 'does not currently provide' vs Frontier's 'very unlikely... ever'); scenario sleight (44% headline mixes demand scenarios, 25% is like-for-like — Frontier states both, the Coalition led with 44%); burden-shifting on excluded costs (waste/insurance immaterial per CSIRO; coal-extension costs unevidenced per CEC); and the unfalsifiable-by-design complaint that Frontier publishes no LCOE or capacity factor to probe. GAPS: I could not fetch the full GenCost 2024-25 Final PDF (404 on csiro.au media path; APO mirror 403) — the accessible-text file is the same content and is the citable substitute; exact per-technology 2030 LCOE table values (Figure 6-4 data points) are in chart data, not prose, so the $/MWh comparison quotes here come from the exec-summary prose and the Climate Council's rendering, and the parent should pull Table B/Apx data from the accessible text if precise per-technology 2030 ranges are needed.",
+    "urlsFetched": [
+      "https://www.csiro.au/en/news/All/News/2026/July/GenCost-2025-26",
+      "https://www.csiro.au/en/research/technology-space/energy/electricity-transition/gencost/faq-gencost",
+      "https://www.csiro.au/en/news/all/articles/2024/december/nuclear-explainer",
+      "https://www.csiro.au/en/news/all/news/2025/july/2024-25-gencost-final-report",
+      "https://www.csiro.au/en/news/All/News/2024/December/GenCost-2024-25-Draft-Report-released-for-consultation",
+      "https://www.csiro.au/en/news/all/news/2025/december/consultation-opens-on-the-draft-gencost-2025-2026-report",
+      "https://www.csiro.au/en/research/technology-space/energy/electricity-transition/gencost",
+      "https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt",
+      "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt",
+      "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Final/GenCost_2025-26_Final-exec-summ.pdf",
+      "https://www.frontier-economics.com.au/economic-analysis-of-including-nuclear-power-in-the-nem/",
+      "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+      "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf",
+      "https://www.climatecouncil.org.au/resources/csiro-confirms-nuclear-fantasy-would-cost-twice-as-much-as-renewables/",
+      "https://www.cis.org.au/commentary/opinion/the-cost-of-nuclear-some-clarifications/",
+      "https://www.scimex.org/newsfeed/gencost-2024-25-draft-report-released-for-consultation",
+      "https://www.inkl.com/news/nuclear-policy-fate-still-unclear-after-coalition-talks",
+      "https://www.netimes.com.au/2025/11/13/liberals-follow-nationals-in-scrapping-net-zero/",
+      "https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827"
+    ]
+  },
+  "frontier": {
+    "claims": [
+      {
+        "quote": "As explained above in Section 1.3.4, the Federal Coalition's view about the energy transition is more consistent with the Progressive scenario including nuclear power, which is 44% cheaper at $331 billion compared to the Federal Labor Government's AEMO's Step Change scenario, which is estimated to cost $594 billion in the report modelling.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.5.1 'Results and conclusions — Costs', p.9 (PDF text extracted via pdftotext this session)",
+        "whatItClaims": "THE headline claim: the 44%/$263bn saving is explicitly a cross-scenario comparison — Progressive+nuclear ($331bn) vs Step Change without nuclear ($594bn) — and Frontier says so in plain text."
+      },
+      {
+        "quote": "For AEMO's Step Change scenario, using nuclear power, the total NEM system costs can be reduced by about $150 billion from $594 billion to $446 billion, or about $5.5 billion per annum. The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.5.1, p.9",
+        "whatItClaims": "The like-for-like (same-demand) result: within Step Change, nuclear saves 25%, not 44%. This is the number critics say should have been the headline."
+      },
+      {
+        "quote": "For AEMO's Progressive scenario, using nuclear power, the total NEM system costs can be reduced by $106 billion from $437 billion to $331 billion, or about $4 billion per annum. The inclusion of nuclear power in the NEM in the Progressive scenario is also 25% cheaper than AEMO's renewables and storage approach.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.5.1, p.9",
+        "whatItClaims": "The other like-for-like result: within Progressive, nuclear saves 25% ($437bn→$331bn). So nuclear's own within-scenario effect is 25% in both worlds; the extra 19 points of the '44%' come from lower demand."
+      },
+      {
+        "quote": "Many commentators simply and erroneously compared the cost of a renewable generator (wind or solar) plus the costs of back-up generation to the capacity and operating costs of a nuclear power station. Such a crude assessment is an incorrect and misleading basis of comparison because it does not account for the fact that much more renewable capacity is required to produce the same amount of electricity compared to a nuclear power station.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.1 'Two reports', p.4",
+        "whatItClaims": "Frontier's framing move against LCOE-style comparisons (implicitly against GenCost): generator-level cost comparison is 'incorrect and misleading'."
+      },
+      {
+        "quote": "As argued in Report 1, a more appropriate basis of comparison is the total cost of a power system – generators, storages, and transmission – to reliably and securely meet demand.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.1, p.4",
+        "whatItClaims": "The core methodological warrant: total-system-cost is the right metric. The whole argument stands on this plus the scenario choice."
+      },
+      {
+        "quote": "As part of discussions to help inform our comparative modelling exercise, the Federal Coalition confirmed that they consider the demand forecast embodied in the Progressive scenario is more consistent with their view of the most likely transition of the electricity market. This contrasts to the Federal Labor Government's pursuit of the Step Change scenario.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.3.4 'Scenarios modelled', p.6",
+        "whatItClaims": "Frontier's entire justification for costing the nuclear pathway on Progressive demand: the Coalition told them it matches their worldview. The scenario choice is sourced to the client-adjacent party's belief, not to a modelling result."
+      },
+      {
+        "quote": "AEMO's Progressive scenario, which AEMO says is just 1 percentage point less likely - 42% likely - than their preferred Step Change world, also reflects a growth in electricity demand due to electrification of services currently provided by fossil fuels and development of wind, solar and energy storage to meet associated demand, albeit not as rapid as in the Step Change scenario.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.3.4, p.6",
+        "whatItClaims": "Frontier's supporting defence of the scenario choice: AEMO itself rates Progressive at 42% likelihood, only 1 point below Step Change (43%)."
+      },
+      {
+        "quote": "The work undertaken for this report is funded and directed solely by Frontier Economics.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.2 'Funding and direction of work', p.5",
+        "whatItClaims": "Frontier's independence claim — load-bearing for how much weight 'independent modelling' language carries in Coalition messaging."
+      },
+      {
+        "quote": "We have consulted with the Federal Coalition through the course of this work to determine more details about their plans to help clarify how we could model the inclusion of nuclear power in the NEM.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.2, p.5",
+        "whatItClaims": "The report's own disclosure that the Coalition was consulted during the work — sits in tension with (though not contradiction of) the independence claim above."
+      },
+      {
+        "quote": "In this report we do include an analysis of transmission costs, but not low voltage distribution costs.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.3.2 'Costs not included', p.5. Same section lists exclusions: 'DSP+USE (Demand Side Participation + Unserved Energy)', 'REZ augmentation', 'Flow path augmentation'",
+        "whatItClaims": "What both sides of Frontier's comparison exclude: DSP/USE, REZ and flow-path augmentation, CER, distribution, gas-to-electric appliance switching."
+      },
+      {
+        "quote": "These missing costs will be very large and when they are taken into account the total cost of the transition of the electricity sector will be well above a trillion dollars over the next 25-30 years if Australia continues with AEMO's transition plans.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.5.1, p.10",
+        "whatItClaims": "Frontier's own rhetorical extension beyond its model: an un-modelled 'well above a trillion dollars' figure applied only to AEMO's pathway — an asymmetric aside worth auditing."
+      },
+      {
+        "quote": "Capital costs are $10,000 per kilowatt of capacity",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.4 'Key assumptions', p.7 (first bullet; following bullets: 'Capital costs improve 1% per year based on conservative learning rates for repeated commissioning of a technology type' and 'Variable and non-capital fixed costs of $30 per megawatt hour, including decommissioning costs.')",
+        "whatItClaims": "The three nuclear cost assumptions the whole result rests on: $10,000/kW capex, 1%/yr learning, $30/MWh covering all variable + non-capital fixed costs including decommissioning."
+      },
+      {
+        "quote": "In the report modelling, some existing coal fired generators in the NEM are maintained beyond AEMO's early closure dates to ensure that there is sufficient generation capacity to meet the system reliability requirements. The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.4, p.8",
+        "whatItClaims": "The bridge assumption: 65% of the coal fleet runs past AEMO's assumed closure dates until nuclear arrives — with no modelled refurbishment, subsidy or reliability-degradation cost."
+      },
+      {
+        "quote": "The cost differences between the AEMO cases and the nuclear alternative are so large that the costs of nuclear capacity assumed in the modelling could double on a sustained basis before the costs of AEMO's approach and the nuclear alternative were equivalent. It is very unlikely that the inclusion of nuclear power in the NEM would, in practice, ever be more expensive than AEMO's approach.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 1.5.1, p.9",
+        "whatItClaims": "Frontier's robustness claim: nuclear capex could double and still break even — a sensitivity assertion critics contest because IEEFA's observed range ($15–28bn/GW) is 1.5–2.8x the assumption."
+      },
+      {
+        "quote": "The relative costs between the scenarios are the same as for the sum real costs. AEMO's Step Change Base case is, by far, the most expensive scenario (NPV cost of $225 billion), and almost twice that of the Progressive Nuclear alternative scenario (NPV cost of $124 billion).",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, Section 4.6.3 'NPV costs' + Table 10, pp.43–44",
+        "whatItClaims": "The NPV versions of the headline numbers ($225bn vs $124bn) — presented but relegated; headlines use the undiscounted 'sum of real costs'."
+      },
+      {
+        "quote": "This uses the WACC value specified in Section Error! Reference source not found..",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+        "locator": "Report 2, footnote 12 to Section 4.5.3 'Net present value of generation costs', p.40",
+        "whatItClaims": "The published PDF's only pointer to its discount rate is a broken cross-reference — Report 2 never states the WACC; you must go to Report 1 (7% real) to find it. A concrete documentation/verification defect."
+      },
+      {
+        "quote": "It is worth noting that the costs of AEMO's preferred Step Change scenario, which does not include the costs of consumer energy resources, is the sum of the real costs of the electricity supply options of $580 bn plus the $62 bn in transmission costs – or a total of $642 bn.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/11/Report-1-Base-case-report-Nov-14-2024_v2.pdf",
+        "locator": "Report 1 ('Report 1 – Developing a base case to assess the relative costs of nuclear power in the NEM', 14 November 2024), Section 1 Summary, p.8",
+        "whatItClaims": "Report 1's headline: the ISP pathway 'really' costs $642bn in summed real dollars. Report 2 later revised the comparable figure to $594bn after correcting a transmission error ($62bn→$66bn) and stripping REZ/flow-path/DSP/USE costs."
+      },
+      {
+        "quote": "The modelling used a real WACC of 7%.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/11/Report-1-Base-case-report-Nov-14-2024_v2.pdf",
+        "locator": "Report 1, Section 3.2.6 'The WACC', p.19",
+        "whatItClaims": "The discount rate for NPV figures — same 7% real as AEMO, so the NPV/real-cost fight is about presentation, not rate choice."
+      },
+      {
+        "quote": "We find that, even on these conservative estimates, it takes about $500,000 of transmission costs to support each megawatt of new supply option.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/11/Report-1-Base-case-report-Nov-14-2024_v2.pdf",
+        "locator": "Report 1, Section 1 Summary, p.8",
+        "whatItClaims": "The linear transmission-cost heuristic ($500k/MW of installed capacity) that generates the nuclear pathway's large transmission savings in Report 2."
+      },
+      {
+        "quote": "You can’t compare renewable energy and nuclear power generation and costs like apples to apples. We’ve done the modelling in these AEMO scenarios with a wider, and more detailed, lens on how the two options compare in real life, and the data speaks for itself. In both scenarios, including nuclear power in our energy mix is cheaper – by up to 44% - for Australians in the medium-term future.",
+        "url": "https://www.frontier-economics.com.au/economic-analysis-of-including-nuclear-power-in-the-nem/",
+        "locator": "Frontier Economics landing page (published 13 December 2024), pull-quote attributed to 'Danny Price, Managing Director, Frontier Economics'",
+        "whatItClaims": "Price's own marketing compression: 'In both scenarios... cheaper – by up to 44%' — eliding that 44% only appears when scenarios are crossed; within either scenario the saving is 25%."
+      },
+      {
+        "quote": "I stand by the analysis that shows on a system-wide average economic cost basis, including nuclear remains cheaper than a renewables only system.",
+        "url": "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+        "locator": "Danny Price AFR op-ed 'The critics are wrong about Frontier's nuclear costings', published in AFR 18 December 2024, republished on Frontier's site 20 December 2024 — standfirst",
+        "whatItClaims": "Price's blanket defence of the modelling against Steven Hamilton's AFR critique."
+      },
+      {
+        "quote": "When we did this modelling we forced nuclear power into the system and then the model was re-run to re-optimise everything around the nuclear power stations to find the lowest cost solution. When nuclear is included, the model obviously builds less renewable capacity. Of course, there will be some spill, but the model optimisation explicitly minimises this spill.",
+        "url": "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+        "locator": "Price AFR op-ed, body — reply to Hamilton on spilled renewable energy",
+        "whatItClaims": "Price's methodological defence: nuclear was forced in exogenously, then the system re-optimised; spill is minimised by the optimiser, not ignored."
+      },
+      {
+        "quote": "There is no shortage of horror stories about nuclear plant cost blowouts, but there are also excellent recent examples of projects that are far less costly than what I have used and even lower than recommended by the CSIRO and with learning rates well in excess of what I assumed.",
+        "url": "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+        "locator": "Price AFR op-ed, body — reply to Hamilton on the $10,000/kW assumption",
+        "whatItClaims": "Price's defence of $10,000/kW: cherry-picking cuts both ways; cheap recent projects exist. Note he names no specific project in the op-ed."
+      },
+      {
+        "quote": "Firstly, the modelling period is determined by the modelling period adopted by the Australian Energy Market Operator’s Integrated System Plan our modelling replicates. Equally importantly, it is clear in the report that the last nuclear generator begins operation in 2049. This means the cost structure of the sector reflects the highest quantity of nuclear capacity as a share of output a few years before the end of the modelling period. Given the costs shown for each year is the annualised cost, the costs of nuclear doesn’t go any higher.",
+        "url": "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+        "locator": "Price AFR op-ed, body — reply to Hamilton on the 2051 cut-off",
+        "whatItClaims": "Price's defence of the 2051 window against the 'long tail' critique: costs are annualised, so the post-2051 tail doesn't change the ranking."
+      },
+      {
+        "quote": "The VER is designed to make otherwise uneconomic abatement policies appear economic, it does not reflect the economic cost of emissions. I note that Minister Bowen, rightly, does not include the VER when he reports his $122 billion present value transition cost.",
+        "url": "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+        "locator": "Price AFR op-ed, body — reply on excluding the cost of emissions",
+        "whatItClaims": "Price's defence of leaving the AER's Value of Emissions Reduction out of headline costs — plus a tu quoque aimed at Bowen's $122bn figure."
+      },
+      {
+        "quote": "More importantly, the additional emissions are measured against AEMO's unrealistic early closure schedule, which clearly is not going to happen. Coal generators will likely close much later than AEMO's assumptions.",
+        "url": "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+        "locator": "Price AFR op-ed, final paragraph",
+        "whatItClaims": "Price's defence on the higher-emissions charge: the baseline coal-closure schedule is unrealistic, so reported extra emissions are overstated."
+      },
+      {
+        "quote": "An assumption that nuclear power plants can be built and operational starting from 2036. They can't – making the Frontier/Coalition's Nuclear Alternative scenario an impossible and misleading piece of modelling and analysis.",
+        "url": "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf",
+        "locator": "Clean Energy Council Briefing Note on Frontier's second report (Dec 2024), Overview bullet list, p.1 (PDF extracted this session; en-dash restored from extraction artifact)",
+        "whatItClaims": "CEC's flat rejection of the 2036 first-power assumption as impossible."
+      },
+      {
+        "quote": "Lower demand requires a smaller system build, and a lower capital spend.",
+        "url": "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf",
+        "locator": "CEC Briefing Note, Overview, p.1 — end of the bullet on Frontier selecting the Progressive Change demand profile",
+        "whatItClaims": "The mechanism of the apples-to-oranges critique in one sentence: most of the 44% 'saving' is buying less electricity system, not buying it cheaper."
+      },
+      {
+        "quote": "Unrealistically low representation of the total system costs associated with nuclear on the basis that these costs have been spread over a 50-year period, most of which sits beyond the modelling end date of 2051.",
+        "url": "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf",
+        "locator": "CEC Briefing Note, Overview bullets, p.1",
+        "whatItClaims": "CEC's version of the cost-tail critique: 50-year amortisation pushes most nuclear capital cost past the 2051 window being compared."
+      },
+      {
+        "quote": "the Progressive Change electricity demand profile, which represents 26 per cent lower electricity demand (operational demand) than AEMO's Step Change scenario",
+        "url": "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf",
+        "locator": "CEC Briefing Note, Section 1 'Modelling results overview', point 3, p.2",
+        "whatItClaims": "Quantifies the demand gap between the two compared scenarios: Progressive serves 26% less operational demand than Step Change."
+      },
+      {
+        "quote": "The first question is – does it compare apples with oranges? The headline result of a $263 billion saving compares AEMO’s Progressive Change scenario (a slower transition aligned with the Coalition view) plus nuclear, with AEMO’s preferred Step Change scenario (below 2 degrees global warming) used by Labor. This is comparing apples with oranges as they yield two different emissions outcomes, with the Coalition trajectory heading for greater than 2 degrees global warming.",
+        "url": "https://www.scimex.org/newsfeed/expert-reaction-coalitions-nuclear-energy-costs-modelling",
+        "locator": "Scimex 'EXPERT REACTION: Coalition releases nuclear energy cost modelling', 13 Dec 2024 — Prof Ken Baldwin (Emeritus, ANU Research School of Physics) entry",
+        "whatItClaims": "The canonical apples-with-oranges critique, adding that the two scenarios also embody different emissions/warming outcomes, so the comparison hides a climate-ambition downgrade."
+      },
+      {
+        "quote": "For nuclear to be part of the mix, coal fired generators need to be kept going well beyond their current scheduled shut down timetable, resulting in carbon emissions for the electricity sector way above the target set by the current government (i.e. 82% renewables by 2030).",
+        "url": "https://www.scimex.org/newsfeed/expert-reaction-coalitions-nuclear-energy-costs-modelling",
+        "locator": "Scimex expert reaction, 13 Dec 2024 — Assoc Prof Roger Dargaville (Monash) entry",
+        "whatItClaims": "The coal-bridge critique: the plan's viability requires extended coal, blowing the 82%-by-2030 target."
+      },
+      {
+        "quote": "First, SMR do NOT exist today. There is not even a prototype of them. So we have absolutely no idea what they really cost. Second, the cost figures are hopelessly understated. The last nuclear plant built in the Western world today (Flamanville 3 in France) is 10 billion Euros over budget (at 13.2 billion euros, so A$20 billion total) and 12 years behind schedule; construction started in 2007.",
+        "url": "https://www.scimex.org/newsfeed/expert-reaction-coalitions-nuclear-energy-costs-modelling",
+        "locator": "Scimex expert reaction, 13 Dec 2024 — Assoc Prof Guillaume Roger (Monash, economics) entry",
+        "whatItClaims": "Cost-realism critique from recent Western build experience (Flamanville 3) plus the SMR evidence gap."
+      },
+      {
+        "quote": "The Coalition Opposition headline figures compare the cost of the market operator’s plan to serve a larger electricity consumption, with the cost for the nuclear plan to serve a smaller electricity consumption. However, these are not like-for-like.",
+        "url": "http://web.archive.org/web/20260213131514/https://ieefa.org/articles/oppositions-nuclear-costings-are-unrealistic",
+        "locator": "IEEFA, 'Opposition's nuclear costings are unrealistic', 13 December 2024, quotes attributed to Johanna Bowyer, Lead Analyst, Australian Electricity — section 'Misleading: Nuclear plan is costed for an economy with less electricity consumption' (fetched via Wayback snapshot of 13 Feb 2026; live ieefa.org blocked automated fetch)",
+        "whatItClaims": "IEEFA's version of the demand-mismatch critique."
+      },
+      {
+        "quote": "The modelling uses a $10 billion per gigawatt (GW) cost for large-scale nuclear reactor construction. However recent international experience shows actual construction costs of $15 billion to $28 billion per GW excluding financing costs. This is 1.5 to almost three times the Coalition Opposition figure.",
+        "url": "http://web.archive.org/web/20260213131514/https://ieefa.org/articles/oppositions-nuclear-costings-are-unrealistic",
+        "locator": "IEEFA, 13 Dec 2024, Bowyer — section 'Underestimated: Nuclear construction costs are too low'",
+        "whatItClaims": "Empirical counter to the $10,000/kW assumption: observed builds run 1.5–2.8x higher before financing costs — directly attacking Price's 'could double and still break even' buffer."
+      },
+      {
+        "quote": "Since nuclear is not installed in the model until 2036 and onwards, and the nuclear capital cost is spread over 50 years (i.e. from 2036 to 2086 and beyond), IEEFA anticipates much of the nuclear cost will still not be repaid at the end of the Frontier report modelling period, 2051. This means that the Coalition’s proposal appears to have a long tail of cost outside of the modelled period that consumers will continue having to pay for.",
+        "url": "http://web.archive.org/web/20260213131514/https://ieefa.org/articles/oppositions-nuclear-costings-are-unrealistic",
+        "locator": "IEEFA, 13 Dec 2024, Bowyer — section 'Misleading: Spreading the cost over 50 years with unclear refurbishment costs'",
+        "whatItClaims": "The truncation critique: 50-year amortisation + 2051 cut-off leaves a long unpaid cost tail outside the comparison window. Price's annualisation reply (above) is the direct counter."
+      },
+      {
+        "quote": "The Frontier Economics report includes a fuel and O&M combined cost of $30 per megawatt-hour (MWh). However, CSIRO puts that figure at $40-$60/MWh in 2030, and $36-$56/MWh in 2050 from their recent GenCost 2024-25 consultation.",
+        "url": "http://web.archive.org/web/20260213131514/https://ieefa.org/articles/oppositions-nuclear-costings-are-unrealistic",
+        "locator": "IEEFA, 13 Dec 2024, Bowyer — section 'Underestimated: Fuel and operations cost of nuclear is lower than expected'",
+        "whatItClaims": "The $30/MWh operating-cost assumption (which Frontier says also covers decommissioning) sits below CSIRO's range before decommissioning or waste are added."
+      },
+      {
+        "quote": "If coal-fired power plants were to be extended, refurbishments may be required, but the costs for this don’t seem to have been considered.",
+        "url": "http://web.archive.org/web/20260213131514/https://ieefa.org/articles/oppositions-nuclear-costings-are-unrealistic",
+        "locator": "IEEFA, 13 Dec 2024, Bowyer — section 'Unclear costs: Coal power plant extension costs do not seem to be mentioned'",
+        "whatItClaims": "The un-costed coal-extension gap: 65% of the fleet runs longer with no modelled refurbishment or subsidy cost (Eraring's extension cited at up to $225m/yr)."
+      },
+      {
+        "quote": "Hence by omitting both plant refurbishment costs and the costs associated with no refurbishment, it is unsurprising Frontier’s cost-benefit analysis concludes a net consumer benefit from coal plant “sweating”.",
+        "url": "https://reneweconomy.com.au/the-devil-of-frontiers-nuclear-modelling-is-not-in-the-detail-its-in-the-omissions/",
+        "locator": "RenewEconomy commentary by Alan Rai (CORE Markets), published 23 January 2025 — coal 'sweating' section",
+        "whatItClaims": "The omissions critique sharpened into a structural point: the favourable result follows mechanically from what was left out."
+      },
+      {
+        "quote": "Given this lack of complementarity, it is striking that Frontier’s report does not contain the volume of renewables curtailed under its modelling.",
+        "url": "https://reneweconomy.com.au/the-devil-of-frontiers-nuclear-modelling-is-not-in-the-detail-its-in-the-omissions/",
+        "locator": "Rai, RenewEconomy, 23 Jan 2025 — rooftop solar/curtailment section",
+        "whatItClaims": "A falsifiability gap: the report omits the curtailment volumes that would let readers check Price's spill-minimisation defence."
+      },
+      {
+        "quote": "For example, UK’s Hinkley C nuclear plant is likely to cost at least $27,500/kW – almost three times more than Frontier’s estimate.",
+        "url": "https://reneweconomy.com.au/the-devil-of-frontiers-nuclear-modelling-is-not-in-the-detail-its-in-the-omissions/",
+        "locator": "Rai, RenewEconomy, 23 Jan 2025 — nuclear capital cost section",
+        "whatItClaims": "A comparable-democracy datapoint against $10,000/kW."
+      },
+      {
+        "quote": "Frontier have used a seven per cent real weighted average cost of capital for discounting. Frontier argues consumers don’t pay the NPV, they pay the real costs. The report also comments that the concept of NPV is confusing and people would prefer to understand the total costs.",
+        "url": "https://www.energycouncil.com.au/analysis/frontier-economics-and-the-cost-of-the-transition-how-does-it-stack-up/",
+        "locator": "Australian Energy Council analysis 'Frontier Economics and the cost of the transition: How does it stack up?', published 27 November 2024 (on Report 1) — NPV discussion",
+        "whatItClaims": "Neutral industry-body summary of Frontier's present-value posture: 7% real WACC, but headline numbers deliberately presented as undiscounted sums because 'consumers pay the real costs'."
+      },
+      {
+        "quote": "A few more areas noted in the Frontier work is that the quoted $122 billion NPV costs are only capital costs, so do not include Fixed Operations and Maintenance (FOM), Variable Operations and Maintenance (VOM) expenses associated with running and maintaining plant, or fuel and emissions costs.",
+        "url": "https://www.energycouncil.com.au/analysis/frontier-economics-and-the-cost-of-the-transition-how-does-it-stack-up/",
+        "locator": "AEC analysis, 27 Nov 2024 — closing section",
+        "whatItClaims": "Why Frontier's $594bn and Bowen's $122bn talk past each other: different metrics (sum of real costs vs NPV of capital only), not necessarily different models. AEC also notes Frontier's model is '97 per cent aligned' with AEMO's NPV."
+      },
+      {
+        "quote": "Our finding is that there are no unique cost advantages arising from nuclear technology's long operational life. Similar cost savings are achievable from shorter lived technologies, even accounting for the fact that shorter lived technologies need to be built twice to achieve the same operational life.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost2024-25Final_ES.pdf",
+        "locator": "GenCost 2024-25 Final Report (Graham, Hayward, Foster; released 28 July 2025 per filename date), Executive summary — 'Nuclear technology's long operational life'",
+        "whatItClaims": "CSIRO's post-Frontier-debate answer to the long-life argument: 60-year amortisation does not rescue nuclear economics once refurbishment and renewables' cost decline are counted."
+      },
+      {
+        "quote": "The observed global average capacity factor for nuclear generation is 80% and 10% of nuclear generation is operating at below 60%.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost2024-25Final_ES.pdf",
+        "locator": "GenCost 2024-25 Final, Executive summary — 'Nuclear generation capacity factors' (same section: GenCost applies a 53%–89% capacity factor range for all baseload technologies based on Australian evidence)",
+        "whatItClaims": "CSIRO's evidence base against assuming near-permanent high nuclear utilisation in a solar-heavy grid."
+      },
+      {
+        "quote": "As such, at least 15 years remains the most plausible lead time.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost2024-25Final_ES.pdf",
+        "locator": "GenCost 2024-25 Final, Executive summary — 'Nuclear development lead time'",
+        "whatItClaims": "CSIRO's lead-time finding, incompatible with Frontier's 2036 first-power input (2036 requires ~11 years from Dec 2024)."
+      },
+      {
+        "quote": "Consistent with previous report findings, the 2025-26 GenCost Final Report finds that solar PV and onshore wind form the basis for the least cost electricity generation mix for Australia.",
+        "url": "https://www.csiro.au/en/research/technology-space/energy/Electricity-transition/GenCost",
+        "locator": "CSIRO GenCost landing page, section 'Final 2025-26 GenCost Report released' (page current as fetched 21 July 2026)",
+        "whatItClaims": "The current (2025-26 final) GenCost position as of July 2026 — the standing official counter-frame to Frontier's conclusion."
+      },
+      {
+        "quote": "AEMO published its 2026 ISP on June 25, 2026. Due this final report being delivered after that date, the 2026 ISP references data provided in the GenCost 2025-26 Consultation draft published in December 2025.",
+        "url": "https://www.csiro.au/en/research/technology-space/energy/Electricity-transition/GenCost",
+        "locator": "CSIRO GenCost landing page, 'AEMO's Integrated Systems Plan' section",
+        "whatItClaims": "Currency fact: a 2026 ISP now exists (25 June 2026), superseding the 2024 ISP that both Frontier reports used as their base case — any audit must date-stamp Frontier's numbers to the 2024 ISP."
+      },
+      {
+        "quote": "Absolutely we want to see a nuclear policy, and we've already committed, through the coalition agreement, to lifting the ban, and that will be very much part of the discussions we have,",
+        "url": "https://www.kyfreepress.com.au/national/coalition-to-look-at-coal-subsidies-stick-with-nuclear/",
+        "locator": "AAP article syndicated via Kyabram Free Press, 'Coalition to look at coal subsidies, stick with nuclear', published 9 November 2025 — quote from opposition energy spokesman Dan Tehan; same article: 'Removing a federal ban on nuclear power in Australia, introduced under the Howard coalition government in the late 1990s, was a condition to mending the split between the Nationals and Liberals following the disastrous May election.'",
+        "whatItClaims": "Post-election policy state: the Coalition's nuclear commitment has narrowed to lifting the ban (a coalition-agreement condition after the May 2025 loss and brief Liberal–National split), with coal subsidies flagged — the seven-reactor, Frontier-costed build program is no longer the operative policy."
+      },
+      {
+        "quote": "We are still the only developed country, only G20 country in the world that actually bans nuclear energy.",
+        "url": "https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827",
+        "locator": "Senate Hansard via OpenAustralia, 4 February 2026 — Senator Matt Canavan moving the second reading of the Environment and Other Legislation Amendment (Removing Nuclear Energy Prohibitions) Bill 2026; record ends 'Leave granted; debate adjourned.'",
+        "whatItClaims": "Legal-ban currency: as of 4 Feb 2026 the federal prohibitions (EPBC Act/ARPANS Act) remain in force; repeal exists only as a private senator's bill whose debate was adjourned. No evidence the ban has been lifted as of this session (21 July 2026)."
+      }
+    ],
+    "assumptions": [
+      {
+        "assumption": "The Progressive Change demand profile is the correct basis for costing the nuclear pathway, while Step Change is the correct basis for the ISP pathway — i.e. the comparison may legitimately cross demand scenarios.",
+        "evidence": "Report 2 s1.3.4: the Federal Coalition 'confirmed that they consider the demand forecast embodied in the Progressive scenario is more consistent with their view'; Frontier adds AEMO rates Progressive 42% likely vs 43% for Step Change. The warrant is a party's stated worldview plus near-equal AEMO scenario weights.",
+        "contested": "The single most contested move. Baldwin (Scimex): 'comparing apples with oranges as they yield two different emissions outcomes'. Bowyer (IEEFA): 'these are not like-for-like'. CEC: Progressive represents '26 per cent lower electricity demand'; 'Lower demand requires a smaller system build, and a lower capital spend.' Within-scenario, Frontier's own numbers show only 25% savings — the 44% headline needs the scenario crossing."
+      },
+      {
+        "assumption": "Total system cost (sum of undiscounted real costs, 2025–2051) is the right decision metric; LCOE and NPV presentations are inferior or misleading.",
+        "evidence": "Report 2 s1.1 calls generator-level comparison 'incorrect and misleading'; AEC records Frontier's argument that 'consumers don't pay the NPV, they pay the real costs'. NPV tables are included (7% real WACC, stated only in Report 1) but relegated; Report 2's WACC footnote is a broken cross-reference.",
+        "contested": "AEC (sympathetic-neutral): 'it would be useful to have both quoted' and the report 'could have been enhanced' by an LCOE. Undiscounted sums over 26 years inflate all totals and favour the pathway that defers capex (nuclear starts 2036); CEC notes Frontier's NPV of the ISP ($225bn) is nearly double AEMO's own $122bn because it adds O&M/fuel/emissions to a capital-only figure."
+      },
+      {
+        "assumption": "Nuclear capex of $10,000/kW with 1%/yr learning and no cost-overrun premium is achievable in a first-time nuclear country.",
+        "evidence": "Report 2 s1.4 bullets; robustness claim that assumed costs 'could double on a sustained basis' before parity is lost; Price's AFR op-ed cites unnamed 'excellent recent examples of projects that are far less costly'.",
+        "contested": "IEEFA: observed builds '$15 billion to $28 billion per GW excluding financing costs' (1.5–2.8x — consuming the doubling buffer); Rai: Hinkley C 'at least $27,500/kW'; Roger: Flamanville 3 is 10bn euros over budget, 12 years late; GenCost applies a first-of-a-kind premium and notes nuclear cost trends rising in 2025-26."
+      },
+      {
+        "assumption": "$30/MWh covers all nuclear variable and non-capital fixed costs including fuel, O&M, network, waste and decommissioning.",
+        "evidence": "Report 2 s1.4 bullet ('including decommissioning costs') and s2 text: the amount 'is considered sufficient to cover fuel costs, variable and fixed operating and maintenance cost, network costs and decommissioning costs over the life' (p.13 area of extracted text).",
+        "contested": "IEEFA: CSIRO's GenCost 2024-25 consultation puts fuel+O&M alone at '$40-$60/MWh in 2030'; waste disposal and accident-liability costs 'do not appear to have been explored in detail'; Roger: 'There is no mention of the maintenance costs of these nuclear plants' (refurbishment of France's fleet >A$75bn)."
+      },
+      {
+        "assumption": "First nuclear power flows in 2036 and ~13,000 MW is commissioned by 2049, replacing coal closures 'just in time'.",
+        "evidence": "Report 2 s1.4: commissioning 'occurs from 2036 onwards' in NSW, Qld and Vic as coal retires; Price's op-ed defends the 2051 window because 'the last nuclear generator begins operation in 2049'.",
+        "contested": "CEC: 'They can't' — impossible timeline; GenCost 2024-25 final: 'at least 15 years remains the most plausible lead time' (i.e. mid-2040s earliest), with recent Western democracies at 17–21 years construction; Aziz (Scimex): OECD delays make just-in-time invalid; ban still unrepealed as of Feb 2026, and no regulator or enabling law yet exists."
+      },
+      {
+        "assumption": "About 65% of the existing coal fleet can run past AEMO's assumed closure dates at no additional modelled cost (no refurbishment capex, no subsidies, no reliability penalty).",
+        "evidence": "Report 2 s1.4: coal 'maintained beyond AEMO's early closure dates to ensure... system reliability'; Frontier argues owner-announced closure dates are later than AEMO's anyway, and Yallourn/Eraring extensions show lives can stretch.",
+        "contested": "IEEFA: refurbishment and subsidy costs 'don't seem to have been considered' (Eraring extension up to $225m/yr); Rai: omitting refurbishment costs makes the pro-'sweating' conclusion unsurprising, and ageing plants suffer increased outages; Baldwin: outages in extreme heat plus midday solar competition undercut the coal business model."
+      },
+      {
+        "assumption": "Higher cumulative emissions under the nuclear pathway are acceptable/immaterial because AEMO's early-closure schedule is 'unrealistic' and the VER is not a real economic cost.",
+        "evidence": "Price AFR op-ed: VER 'does not reflect the economic cost of emissions'; 'the additional emissions I reported will be overstated'; Report 2 claims net zero by 2050 is still met and average emissions end lower.",
+        "contested": "Rai: cumulative NEM emissions under Progressive+nuclear are around 1 billion tonnes higher than Step Change; Dargaville: emissions 'way above the target'; Baldwin: the Coalition trajectory heads 'for greater than 2 degrees'. The dispute is really about whether the 82%/Paris constraint is a fixed premise or a variable."
+      },
+      {
+        "assumption": "Transmission cost scales linearly at ~$500,000 per MW of installed capacity, so a smaller-capacity nuclear system saves proportional transmission spend ($66bn vs $14bn across scenarios).",
+        "evidence": "Report 1 s1 Summary derives the $500k/MW heuristic from committed/planned projects; Report 2 s4.6.1 applies it, conceding 'it is very unclear what the totality of transmission costs are likely to be'.",
+        "contested": "Rai: 'Frontier's estimates of transmission costs under its two with-nuclear scenarios appear an underestimate' (per the RenewEconomy piece); the linearity assumption ignores that nuclear at ex-coal sites still needs REZ-scale reinforcement for the 46–72GW of renewables Frontier itself builds; Frontier also stripped REZ/flow-path costs from both sides."
+      },
+      {
+        "assumption": "Costs beyond 2051 can be ignored because annual costs are annualised and the ISP window is 2025–2051.",
+        "evidence": "Price AFR op-ed: 'the costs shown for each year is the annualised cost, the costs of nuclear doesn't go any higher'; window inherited from AEMO's ISP.",
+        "contested": "IEEFA: capital spread 'from 2036 to 2086 and beyond' leaves 'a long tail of cost outside of the modelled period'; CEC: 'most of which sits beyond the modelling end date of 2051'. Annualisation answers the ranking question only if the annualised rate itself is right — which loops back to capex, life and refurbishment assumptions."
+      },
+      {
+        "assumption": "The exercise is independent analysis, not advocacy: 'funded and directed solely by Frontier Economics', with the Coalition consulted only for plan details.",
+        "evidence": "Report 2 s1.2 (both sentences quoted in claims); Frontier landing page: 'we expect and welcome robust debate on the work we present'.",
+        "contested": "The scenario choice was adopted because 'the Federal Coalition confirmed' its preference (s1.3.4) — the report's decisive analytical parameter tracks the sponsor-adjacent party's worldview; Price simultaneously accuses critics of 'vested interest in a renewables-dominated grid' (Capital Brief, Jan 2025, paywalled preview). Independence of funding is not independence of framing."
+      },
+      {
+        "assumption": "The 2024 ISP (and GenCost inputs current in late 2024) remain a valid base case for the comparison.",
+        "evidence": "Both reports are built on AEMO's 2024 ISP Step Change/Progressive scenarios and 2023-24/2024-25 GenCost-era costs.",
+        "contested": "Superseded twice since: GenCost 2025-26 final (released July 2026) reports nuclear cost trends increasing, and AEMO published its 2026 ISP on 25 June 2026. No 2025 or 2026 update of either Frontier report was found this session — the argument's empirical base is now two document-generations old."
+      }
+    ],
+    "numbers": [
+      {
+        "figure": "$594 billion",
+        "meaning": "Frontier Report 2's sum of real costs (generation $528bn + transmission $66bn, 2025–2051, July 2024 dollars, NEM only) for the AEMO Step Change base case — the number attached to Labor's pathway. Table 9.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "$446 billion",
+        "meaning": "Step Change WITH nuclear (generation $402bn + transmission $44bn) — same demand as the $594bn case; the honest like-for-like nuclear number.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "$437 billion",
+        "meaning": "Progressive WITHOUT nuclear (generation $405bn + transmission $32bn) — the suppressed comparator: lower demand alone removes $157bn of the $263bn 'saving'.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "$331 billion",
+        "meaning": "Progressive WITH nuclear (generation $317bn + transmission $14bn) — the Coalition's headline cost. 44% below $594bn only because both the scenario and the technology change at once.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "25% / 22%",
+        "meaning": "Frontier's own within-scenario nuclear savings: 25% on sum-of-real-costs in both scenarios; on NPV, 25% (Step) and 22% (Progressive). The 44% exists only across scenarios.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "$225bn vs $124bn (NPV, 7% real WACC)",
+        "meaning": "Report 2 Table 10 NPV totals for Step Change base vs Progressive+nuclear. The WACC (7% real) is stated only in Report 1 s3.2.6; Report 2's footnote 12 pointer is a broken 'Error! Reference source not found.'",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "$642 billion ($580bn + $62bn)",
+        "meaning": "Report 1's (14 Nov 2024) original headline for the Step Change ISP pathway; Report 2 revised the comparable total to $594bn after correcting transmission ($62bn→just over $66bn) and stripping REZ/flow-path/DSP/USE costs.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/11/Report-1-Base-case-report-Nov-14-2024_v2.pdf"
+      },
+      {
+        "figure": "$10,000/kW; 1%/yr; $30/MWh; 13,000 MW; 2036",
+        "meaning": "Frontier's five key nuclear inputs: capital cost, learning rate, all-in variable/non-capital-fixed cost (incl. decommissioning), total NEM nuclear capacity (NSW/Qld/Vic), and first commissioning year (last unit 2049).",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "65%",
+        "meaning": "Share of the current NEM coal fleet whose closure is delayed past AEMO's assumed dates in Frontier's modelling to bridge to nuclear — with no modelled refurbishment/subsidy cost (IEEFA's central omission charge).",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf"
+      },
+      {
+        "figure": "$500,000 per MW",
+        "meaning": "Report 1's linear transmission-cost heuristic used to convert lower installed capacity into transmission savings across all four scenarios.",
+        "url": "https://www.frontier-economics.com.au/wp-content/uploads/2024/11/Report-1-Base-case-report-Nov-14-2024_v2.pdf"
+      },
+      {
+        "figure": "26 per cent",
+        "meaning": "CEC's calculation (from Frontier's numbers) of how much lower Progressive operational electricity demand is than Step Change — the size of the apples-vs-oranges gap.",
+        "url": "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf"
+      },
+      {
+        "figure": "$15–28 billion per GW; Vogtle $23bn/GW",
+        "meaning": "IEEFA's observed range for recent Europe/North America nuclear construction (ex-financing) vs Frontier's $10bn/GW; scaling Vogtle to 13GW puts reactor build cost alone near the whole $331bn system claim.",
+        "url": "http://web.archive.org/web/20260213131514/https://ieefa.org/articles/oppositions-nuclear-costings-are-unrealistic"
+      },
+      {
+        "figure": "$122 billion",
+        "meaning": "Chris Bowen's ISP transition cost — AEMO's NPV of capital-only costs of the optimal development path; AEC explains it excludes FOM/VOM/fuel/emissions, which is why it and Frontier's $594bn are different metrics, not a factual contradiction.",
+        "url": "https://www.energycouncil.com.au/analysis/frontier-economics-and-the-cost-of-the-transition-how-does-it-stack-up/"
+      },
+      {
+        "figure": "~1 billion tonnes",
+        "meaning": "Rai's estimate of extra cumulative NEM CO2-e emissions under Progressive+nuclear vs Step Change over the modelling period (stated in the RenewEconomy piece; exact sentence split by markup in extraction, so treated as a figure not a quote).",
+        "url": "https://reneweconomy.com.au/the-devil-of-frontiers-nuclear-modelling-is-not-in-the-detail-its-in-the-omissions/"
+      },
+      {
+        "figure": "53%–89%; global average 80%; ≥15 years",
+        "meaning": "GenCost 2024-25 final: nuclear capacity-factor range applied (Australian baseload evidence), observed global average, and most-plausible development lead time — CSIRO's post-debate answers on the three contested nuclear parameters.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost/GenCost2024-25Final_ES.pdf"
+      },
+      {
+        "figure": "25 June 2026",
+        "meaning": "Publication date of AEMO's 2026 ISP — the 2024 ISP that both Frontier reports model against is now superseded; GenCost 2025-26 final is also released (announced on CSIRO's page as of this fetch, July 2026).",
+        "url": "https://www.csiro.au/en/research/technology-space/energy/Electricity-transition/GenCost"
+      }
+    ],
+    "context": "STRUCTURE OF THE ARGUMENT (for auditing Frontier as an argument, not summarising it). The two reports form a two-step syllogism. Report 1 ('Report 1 – Developing a base case to assess the relative costs of nuclear power in the NEM', dated 14 November 2024) argues (a) the right cost metric is whole-of-system real cost, not LCOE; (b) Frontier's model replicates AEMO's 2024 ISP closely (AEC: '97 per cent aligned' on NPV), so it can be trusted to run counterfactuals AEMO refuses to run; (c) properly counted, the Step Change ISP pathway costs $580bn + $62bn transmission = $642bn. Report 2 ('Report 2 - Economic analysis of including nuclear power in the NEM', released 13 December 2024 — the landing page and CEC both date it 13 Dec; the PDF itself carries no date on the extracted pages) then swaps nuclear into both AEMO scenarios and reports four cells of a 2x2 (scenario x nuclear): $594/$446/$437/$331bn. The headline '44% cheaper' is the diagonal of that 2x2 — it changes demand scenario AND technology simultaneously. Frontier states this openly (s1.5.1) and justifies the diagonal via s1.3.4: the Coalition 'confirmed' Progressive matches their worldview, plus AEMO's own 42%-vs-43% scenario likelihoods. Every serious critic attacks the diagonal (Baldwin 'apples with oranges', Bowyer 'not like-for-like', CEC '26 per cent lower electricity demand'); Frontier's defenders reply that costing a party's policy on that party's demand outlook is legitimate scenario analysis. That is the crux for the structural audit: is the warrant 'a party may choose its own demand scenario' strong enough to carry a comparative-cost headline used against the other party's scenario? Secondary contested moves, each with claim+counterclaim in the bank: undiscounted sum-of-real-costs headlining (with NPV at 7% real WACC relegated, and Report 2's WACC footnote literally broken: 'Error! Reference source not found.'); the $10,000/kW + $30/MWh + 1% learning nuclear inputs vs observed builds; 2036 first power vs GenCost's ≥15-year lead time; 65% coal-fleet life-extension with no refurbishment/subsidy/outage costs; the 2051 truncation vs 50-year amortisation tail (Price's annualisation defence vs IEEFA/CEC); emissions treated as overstated-by-baseline rather than costed (VER excluded); and symmetric exclusions (CER/DSP/distribution/REZ) inherited from the ISP's own scope. Note Frontier's asymmetric aside that AEMO's path will really cost 'well above a trillion dollars' — un-modelled editorialising inside a modelling report. DEFENCES: the primary defence document is Danny Price's AFR op-ed (published 18 Dec 2024, free full text on Frontier's site, 20 Dec post) responding to Steven Hamilton's AFR critique of 16 Dec 2024 (paywalled; Hamilton's points are reconstructable only via Price's characterisation — flag this if quoting). Price also blasted critics as having 'a vested interest' in Capital Brief (Jan 2025, paywalled preview — not fetched, do not quote). TIMELINE/CURRENCY (all verified this session, 21 July 2026): Labor won the 3 May 2025 election in a landslide and Dutton lost his seat; Ley replaced him; the Nationals briefly split from the Liberals in May 2025 with nuclear/energy disagreement cited; per AAP (9 Nov 2025) the reunion deal made 'lifting the ban' the coalition-agreement nuclear commitment, Tehan flagged possible coal subsidies, and the Coalition then dumped its net-zero-by-2050 commitment (The Conversation, 18 Nov 2025). The seven-reactor, Commonwealth-owned, Frontier-costed build program is no longer operative policy — the live Coalition position is ban-repeal. The federal ban (EPBC Act s140A + ARPANS Act) remains IN FORCE: on 4 Feb 2026 Canavan moved the second reading of the private senators' Removing Nuclear Energy Prohibitions Bill 2026 and debate was adjourned; treat any claim that 'Australia lifted the ban in 2026' as false (it circulates on SEO sites). The evidential base has also moved: GenCost 2025-26 final is released (solar+wind still least-cost; nuclear cost trends INCREASING), and AEMO's 2026 ISP (25 June 2026) supersedes the 2024 ISP Frontier modelled. No 2025/2026 update to either Frontier report was found. VERBATIM PROVENANCE NOTES: Report 1, Report 2, the CEC briefing note and the GenCost 2024-25 ES were fetched as PDFs and extracted locally with pdftotext — quotes are character-faithful except: PDF en-dashes extract as byte 0xAD and were restored to '–'; apostrophes render straight; running-header artifacts ('Fin2al' = 'Final' interleaved with page numbers) were excluded; line-wraps joined. HTML sources (Scimex, IEEFA-via-Wayback, Frontier landing page, Price op-ed, AEC, RenewEconomy/Rai, CSIRO GenCost page, AAP/Kyabram, OpenAustralia Hansard) were downloaded raw with curl and tag-stripped; HTML entities were decoded (curly quotes preserved where the page used them). IEEFA's live page blocks automated fetch (403) — cite the Wayback URL given. The ANU Policy Brief (Baldwin, 17 Dec 2024) and The Conversation piece were fetched only via the summarising fetch tool, so no quotes from them are in the bank — use Baldwin's Scimex entry instead, which is raw-verified and substantively identical. Local extracted text lives in the session scratcher tool-results dir (r1.txt, r2.txt, cec.txt, scimex.txt, ieefa_wb.txt, afr_oped.txt, aec.txt, rai.txt, gencost.txt, gencost_es.txt, tehan.txt, senate.txt, fe_landing.txt) under C:\\\\Users\\\\danie\\\\.claude\\\\projects\\\\C--Users-danie-OneDrive-Documents-Claude-Projects-Devils-Advocate\\\\eb432e38-e9c3-4c54-abb3-2b7a3dabbcf1\\\\tool-results\\\\ for re-verification with pnpm verify:quotes-style checks.",
+    "numbers_note": "omitted",
+    "urlsFetched": [
+      "https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf",
+      "https://www.frontier-economics.com.au/wp-content/uploads/2024/11/Report-1-Base-case-report-Nov-14-2024_v2.pdf",
+      "https://www.frontier-economics.com.au/economic-analysis-of-including-nuclear-power-in-the-nem/",
+      "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+      "https://cleanenergycouncil.org.au/getmedia/0d4c1b8f-3974-4ee2-a6fd-d3b043d6f1dd/cec-briefing-note_analysis-of-frontier-s-second-report-on-costs-of-nuclear-power-for-aus_dec24.pdf",
+      "https://www.scimex.org/newsfeed/expert-reaction-coalitions-nuclear-energy-costs-modelling",
+      "http://web.archive.org/web/20260213131514/https://ieefa.org/articles/oppositions-nuclear-costings-are-unrealistic",
+      "https://reneweconomy.com.au/the-devil-of-frontiers-nuclear-modelling-is-not-in-the-detail-its-in-the-omissions/",
+      "https://www.energycouncil.com.au/analysis/frontier-economics-and-the-cost-of-the-transition-how-does-it-stack-up/",
+      "https://www.csiro.au/en/research/technology-space/energy/Electricity-transition/GenCost",
+      "https://www.csiro.au/-/media/Energy/GenCost/GenCost2024-25Final_ES.pdf",
+      "https://www.kyfreepress.com.au/national/coalition-to-look-at-coal-subsidies-stick-with-nuclear/",
+      "https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827",
+      "https://policybrief.anu.edu.au/is-the-coalitions-nuclear-power-plan-cheaper-than-renewable-energy",
+      "https://theconversation.com/which-policies-would-face-the-chopping-block-under-the-coalitions-retreat-from-net-zero-269901"
+    ]
+  },
+  "reactions": {
+    "claims": [
+      {
+        "quote": "On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition.",
+        "url": "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+        "locator": "Danny Price (Managing Director, Frontier Economics — author of the Coalition's costings, so defending his own work), AFR op-ed republished on Frontier's site, 18 Dec 2024",
+        "whatItClaims": "DEFENDS Frontier's total-system-cost framing: the right test is whole-of-system cost across the transition, not per-technology levelised cost — a direct rejection of GenCost's LCOE-centred comparison."
+      },
+      {
+        "quote": "There is no shortage of horror stories about nuclear plant cost blowouts, but there are also excellent recent examples of projects that are far less costly than what I have used and even lower than recommended by the CSIRO and with learning rates well in excess of what I assumed.",
+        "url": "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+        "locator": "Danny Price, same AFR op-ed, 18 Dec 2024, passage defending the ~$10,000/kW capital-cost assumption",
+        "whatItClaims": "DEFENDS Frontier's nuclear capital-cost and learning-rate choices as conservative; implicitly ATTACKS GenCost's decision to assign large-scale nuclear no learning rate (see the GenCost draft quote below — that is the exact method choice this contests)."
+      },
+      {
+        "quote": "They've compared the cost of Labor's pathway to get to a net-zero grid by 2050 to the Coalition's one, which includes nuclear and it says that the Coalition's pathway is $263 billion cheaper.",
+        "url": "https://www.4bc.com.au/podcast/the-big-debate-ted-obrien-declares-nuclear-44-per-cent-cheaper-to-get-to-net-zero/",
+        "locator": "Ted O'Brien (then shadow energy minister, now deputy Liberal leader — the policy's chief salesman), 4BC radio interview page, 7 Jan 2025; followed by: \"So, it's basically 44 per cent cheaper to get to a net-zero grid\"",
+        "whatItClaims": "DEFENDS Frontier's headline: the $263bn/44% saving. The claim rests entirely on Frontier's scenario choice (Progressive Change, lower demand, for the Coalition pathway vs Step Change for Labor's) — the choice Grattan, ANU, Monash and UWS all attack."
+      },
+      {
+        "quote": "By lifting the prohibition on zero-emission nuclear energy.",
+        "url": "https://www.liberal.org.au/2025/11/13/affordable-and-responsible-the-liberal-plan-for-affordable-energy-and-lower-emissions",
+        "locator": "Liberal Party policy announcement attributed to Sussan Ley and Dan Tehan, 13 Nov 2025 — a bullet in the priorities list; same page states \"the Liberal Party will remove a net zero target from our policy and, if elected, will remove Labor's 43 per cent 2030 target and its net zero by 2050 target from the Climate Change Act 2022\" (that second extract begins mid-sentence — verify exact sentence start before publishing)",
+        "whatItClaims": "POST-ELECTION STATE OF PLAY: after the May 2025 defeat the Liberals no longer promise seven government-built reactors; the policy is now lifting the legal ban plus dropping net zero. The costing fight's political vehicle changed — the ban, not the build, is the live policy."
+      },
+      {
+        "quote": "GenCost assumes an economic life of 30 years for nuclear plants in their core analysis, despite modern plants lasting for 60 years or more.",
+        "url": "https://www.cis.org.au/commentary/opinion/the-cost-of-nuclear-some-clarifications/",
+        "locator": "Zoe Hilton (Senior Policy Analyst, Centre for Independent Studies — pro-nuclear think tank), CIS commentary, 15 Jan 2025",
+        "whatItClaims": "ATTACKS GenCost's plant-life method choice: amortising over 30 years instead of a 60+-year operating life inflates nuclear's levelised cost. This is the serious pro-nuclear critique of CSIRO, independent of the Coalition."
+      },
+      {
+        "quote": "GenCost gives nuclear a wide range of 53-89% – which would mean paying billions to build a plant that reliably provides electricity, only to switch it off half the time to make room for weather-dependent renewables.",
+        "url": "https://www.cis.org.au/commentary/opinion/the-cost-of-nuclear-some-clarifications/",
+        "locator": "Zoe Hilton, same CIS piece, 15 Jan 2025, on capacity factors; she adds: \"By fixing only some of the unrealistic assumptions for the cost ranges in the GenCost model – economic life, capacity factor and storage costs – renewables go from being much cheaper than nuclear to being roughly the same cost.\"",
+        "whatItClaims": "ATTACKS GenCost's capacity-factor choice (the low end of its 53–89% range) as an artefact of forcing nuclear into a renewables-dominated dispatch model, and claims the headline gap between renewables and nuclear is assumption-driven, not robust."
+      },
+      {
+        "quote": "While both use similar estimates of the capital cost of nuclear plants, the big difference is that Frontier has assumed nuclear plants would run 90 per cent of the time, while CSIRO has used a range of 54-89 per cent, more akin to what coal currently achieves.",
+        "url": "https://grattan.edu.au/news/the-case-to-switch-from-renewables-to-nuclear-has-not-been-made/",
+        "locator": "Tony Wood (Energy Program Director, Grattan Institute — centrist energy think tank), Grattan news piece, 22 Dec 2024",
+        "whatItClaims": "ATTACKS Frontier's 90% capacity-factor assumption as the load-bearing difference between the reports — while conceding (useful for shared ground) that the two reports' capital-cost-per-kW inputs are similar."
+      },
+      {
+        "quote": "Both plans should be tested against the same economic growth scenarios, in which case the savings from nuclear fall by as much as $150bn.",
+        "url": "https://grattan.edu.au/news/the-case-to-switch-from-renewables-to-nuclear-has-not-been-made/",
+        "locator": "Tony Wood, same Grattan piece, 22 Dec 2024 (preceding sentence calls comparing the two scenarios misleading — that sentence rendered with a hyphenation artefact in extraction, so quote-verify it before use)",
+        "whatItClaims": "ATTACKS Frontier's scenario choice: pairing the Coalition pathway with the lower-demand Progressive Change scenario while Labor's is costed on Step Change manufactures most of the $263bn saving."
+      },
+      {
+        "quote": "So, without looking under the hood of the black-box modelling by Frontier Economics, it's hard to understand how this renewable cost advantage could be turned around in favour of nuclear.",
+        "url": "https://policybrief.anu.edu.au/is-the-coalitions-nuclear-power-plan-cheaper-than-renewable-energy",
+        "locator": "Prof. Kenneth Baldwin (ANU Institute for Climate, Energy and Disaster Solutions — academic energy economist), ANU Policy Brief, 17 Dec 2024",
+        "whatItClaims": "ATTACKS Frontier's transparency: GenCost's integrated-costs result (solar/wind 1.5–2x cheaper even at 90% renewables) can't be overturned by a model whose workings aren't published. Targets Frontier's total-system framing as unauditable."
+      },
+      {
+        "quote": "CSIRO's GenCost has looked at the issue of plant lifetime and concluded that the difference between nuclear and renewables is not significant.",
+        "url": "https://policybrief.anu.edu.au/is-the-coalitions-nuclear-power-plan-cheaper-than-renewable-energy",
+        "locator": "Prof. Kenneth Baldwin, same ANU Policy Brief, 17 Dec 2024",
+        "whatItClaims": "DEFENDS GenCost's plant-life method choice against the CIS/Coalition 60-year-life attack — direct counterpart to the Hilton quote above; the two takes disagree about the same parameter."
+      },
+      {
+        "quote": "At best, Peter Dutton's nuclear proposal would deliver 3.7% of the energy required at the same cost as the Government's comprehensive strategy.",
+        "url": "https://smartenergy.org.au/nuclear-fallout-116-600-billion-to-build-7-nuclear-reactors/",
+        "locator": "John Grimes (Chief Executive, Smart Energy Council — renewables industry peak body, openly partisan for renewables), SEC analysis page, dated 22 June 2024; same page: \"Using data from CSIRO's latest GenCost report and the Australian Energy Market Operator's (AEMO) Integrated System Plan, the cost of building 7 nuclear reactors is at least $116 billion.\"",
+        "whatItClaims": "ATTACKS the Coalition plan's scale/total-system framing from the renewables side: even accepting GenCost/ISP inputs, seven reactors buy a small energy share; adding real-world blowouts and coal-extension costs pushes toward $600bn. Note the interest: SEC members sell the competing technologies."
+      },
+      {
+        "quote": "The nuclear scenario and the AEMO ISP Step Change scenarios are like comparing apples and oranges",
+        "url": "https://www.aap.com.au/factcheck/major-parties-overconfident-in-nuclear-costs-experts/",
+        "locator": "Assoc. Prof. Roger Dargaville (Monash University energy systems researcher) quoted in AAP FactCheck, 3 Apr 2025; he also says \"We can see how it's reasonable to expect costs to blow out to around $300 billion\"",
+        "whatItClaims": "ATTACKS Frontier's scenario choice (same axis as Grattan) — and, notably, AAP's factcheck also dings LABOR's $600bn counter-claim, concluding both parties used cherry-picked figures. Useful as a both-sides-overreach take."
+      },
+      {
+        "quote": "These scenarios aren't policy plans",
+        "url": "https://www.aap.com.au/factcheck/major-parties-overconfident-in-nuclear-costs-experts/",
+        "locator": "Dr Thomas Longden (energy economist, University of Western Sydney) quoted in AAP FactCheck, 3 Apr 2025, on Frontier's use of AEMO scenarios (fragment as quoted in article)",
+        "whatItClaims": "ATTACKS both camps' scenario framing: AEMO's Step Change / Progressive Change are modelling scenarios, not government policy programs, so costing 'Labor's plan' vs 'the Coalition's plan' off them misuses what the scenarios are."
+      },
+      {
+        "quote": "Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations.",
+        "url": "https://reneweconomy.com.au/nuclear-too-slow-to-replace-coal-and-baseload-simply-cant-compete-with-wind-and-solar-aemo-boss-says/",
+        "locator": "Daniel Westerman (CEO, AEMO — GenCost co-publisher and grid operator), speech to the Clean Energy Summit, Sydney, reported by RenewEconomy 16 Jul 2024; he added: \"When the sun is shining and wind is blowing, renewable generation produces energy at zero marginal cost, and 'baseload' energy simply can't compete.\"",
+        "whatItClaims": "DEFENDS the GenCost/ISP timeline method choice: the binding constraint is coal-exit timing, which nuclear cannot meet — an attack on Frontier's assumption of first nuclear power by 2036."
+      },
+      {
+        "quote": "As battery costs continue to fall and gas technology costs rise, batteries are increasingly becoming the preferred flexible generation technology in the near term.",
+        "url": "https://region.com.au/gencost-predicts-higher-electricity-prices-after-2030-as-coal-is-retired/982348/",
+        "locator": "Paul Graham (CSIRO Chief Energy Economist, GenCost lead author) quoted in Region Canberra coverage of the GenCost 2025-26 FINAL report, article dated 16 Jul 2026 (report released 15 Jul 2026)",
+        "whatItClaims": "CURRENT CSIRO POSITION (July 2026): the 2025-26 final report holds the line — nuclear remains the most expensive option, solar+wind+storage the least-cost mix — while conceding prices rise toward $125/MWh as coal exits, i.e. GenCost's own demand/replacement-cost sensitivity."
+      },
+      {
+        "quote": "GenCost delivers transparent, independent cost estimates that feed directly into electricity system modelling and investment planning.",
+        "url": "https://www.csiro.au/en/news/all/news/2025/july/2024-25-gencost-final-report",
+        "locator": "Dr Dietmar Tourbier (CSIRO Director of Energy), CSIRO news release on the final 2024-25 GenCost report, 29 Jul 2025; Paul Graham in the same release: \"The strength of GenCost lies in collaboration. We depend on the deep expertise of the electricity industry because no single organisation can track every technology in detail.\"",
+        "whatItClaims": "DEFENDS GenCost's process legitimacy (transparency, annual consultation) — the institutional rebuttal to both the 'black-box' charge levelled at Frontier and the 'GenCost is rigged' charge levelled at CSIRO."
+      },
+      {
+        "quote": "Large-scale nuclear is treated as a mature technology and therefore is not assigned any learning rate whereby cost reductions are achieved as a function of deployment.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt",
+        "locator": "CSIRO GenCost 2025-26 consultation draft (primary document, published 16 Dec 2025), section 4.3.7 on large-scale nuclear; exec summary of same draft: \"The combination of solar PV, onshore wind, storage and either natural gas or hydrogen was the least cost technology mix in all cases examined with the addition of carbon capture and storage, offshore wind and nuclear leading to higher average electricity costs.\"",
+        "whatItClaims": "THE REPORT'S OWN METHOD CHOICE in its own words: no learning rate for large-scale nuclear. This is precisely the parameter Danny Price claims to beat (\"learning rates well in excess of what I assumed\") — quote the two side by side."
+      },
+      {
+        "quote": "In any given year, we are readily able to change assumptions in response to stakeholder input.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt",
+        "locator": "GenCost 2025-26 consultation draft, section 1.1.2 (incremental improvement)",
+        "whatItClaims": "SHARED GROUND: GenCost itself concedes its outputs are assumption-driven and revisable — the same demand/assumption-sensitivity both its defenders and attackers exploit."
+      },
+      {
+        "quote": "Comparing the average costs of wind, solar, nuclear, hydro and coal power sounds like a simple thing to do. But the only plausible answer is: 'it depends on many barely known and many unknown things'.",
+        "url": "https://theconversation.com/known-unknowns-controversy-over-csiros-electricity-report-reveals-an-uncomfortable-truth-231691",
+        "locator": "Prof. Bruce Mountain (Director, Victoria Energy Policy Centre, Victoria University — pro-transition energy economist, yet a GenCost critic), The Conversation, 13 Jun 2024; he adds: \"Different assumptions give radically different results.\" and \"Our energy market operator and chief scientific agency have got themselves into the position of providing supposedly definitive, objective answers to questions that do not lend themselves to definitive, objective answers.\"",
+        "whatItClaims": "ATTACKS CSIRO from the renewables-friendly side: not that GenCost's answer is wrong, but that presenting ANY single cost ranking as definitive overclaims. The strongest shared-assumption take: both reports' certainty outruns what long-run cost modelling can support."
+      },
+      {
+        "quote": "Even under the favorable conditions of a brownfield site and an established nuclear industry, new nuclear power is hopelessly uneconomic.",
+        "url": "https://johnquigginblog.substack.com/p/czech-nuclear-deal-shows-csiro-gencost",
+        "locator": "Prof. John Quiggin (economist, University of Queensland), Substack post on the Czech Dukovany contract, 21 Jul 2024; same post: \"Converted to $A, it's 12.8 billion, around 50 per cent more than the CSIRO Gencost estimate.\" (verify the exact rendering of the $A figure before publishing)",
+        "whatItClaims": "ATTACKS GENCOST FROM THE OTHER DIRECTION: real-world contracted prices (Dukovany) came in ~50% ABOVE GenCost's nuclear capital-cost assumption — so CSIRO is too generous to nuclear, and Frontier (using similar capital costs, per Grattan) even more so. Completes the spectrum: GenCost sits BETWEEN Frontier and observed deals."
+      },
+      {
+        "quote": "is currently not a viable investment of taxpayer money",
+        "url": "https://theconversation.com/new-report-skewers-coalitions-contentious-nuclear-plan-and-reignites-australias-energy-debate-250912",
+        "locator": "House Select Committee on Nuclear Energy final-report finding as quoted (fragment) in John Quiggin's The Conversation piece, 26 Feb 2025; article also reports committee evidence \"almost unanimously dismissed the idea small modular reactors (SMRs) will arrive in time\" and the at-least-A$116-billion cost finding. Coalition members lodged a dissenting report (aph.gov.au blocked automated fetch — see context)",
+        "whatItClaims": "THE PARLIAMENTARY VERDICT on the Coalition/Frontier side (Labor-chaired committee, so read the interest): nuclear fails on cost AND timeline. The dissent's existence is the counter-take; its verbatim text still needs manual capture from aph.gov.au."
+      }
+    ],
+    "assumptions": [
+      {
+        "assumption": "The coal fleet is exiting and a major transition is happening regardless of which report is right — the fight is over the replacement mix and pace, not whether change comes.",
+        "evidence": "Westerman (RenewEconomy, 16 Jul 2024): coal exits are the binding deadline. Tony Wood (Grattan, 22 Dec 2024) notes Frontier's own modelling claims the Coalition plan \"would reach near-zero emissions by 2050\" — i.e. Frontier also models a decarbonising transition, just a slower, nuclear-inclusive one. Danny Price frames his claim as holding \"in equilibrium and in transition\".",
+        "contested": "Not contested by either camp in the costing fight itself (the Nov 2025 Liberal net-zero repeal changes the political target but even that policy still claims to reduce emissions). Genuinely shared ground — use for the shared-assumptions section."
+      },
+      {
+        "assumption": "Cost conclusions are scenario- and demand-sensitive: whoever chooses the demand scenario largely chooses the winner.",
+        "evidence": "Wood: same-scenario testing cuts the claimed saving \"by as much as $150bn\". Baldwin: Progressive vs Step Change is the pivot. Dargaville: \"apples and oranges\". Longden: \"These scenarios aren't policy plans\". Mountain: \"Different assumptions give radically different results.\" GenCost draft itself: \"In any given year, we are readily able to change assumptions...\"",
+        "contested": "The sensitivity itself is accepted by everyone; what's contested is which scenario is legitimate. Frontier/O'Brien say Progressive Change matches actual Coalition policy (slower renewables build-out); critics say costing two different demand futures against each other is the central trick producing the 44% figure."
+      },
+      {
+        "assumption": "Both reports use broadly similar nuclear capital costs per kW — the headline gap comes from other parameters (capacity factor, plant life, scenario, learning rates).",
+        "evidence": "Tony Wood (Grattan, fetched): \"While both use similar estimates of the capital cost of nuclear plants...\" — the disagreement is downstream of capex.",
+        "contested": "Yes, from both flanks: Quiggin says the Czech Dukovany contract (~50% above GenCost's estimate) shows BOTH are too low; Price says recent projects come in \"far less costly than what I have used and even lower than recommended by the CSIRO\". Good candidate for the briefing's key-term-scrutiny of 'cost'."
+      },
+      {
+        "assumption": "GenCost functions as the neutral referee of Australian energy costing.",
+        "evidence": "Tourbier (CSIRO, 29 Jul 2025): \"transparent, independent cost estimates\"; Graham: annual industry consultation. AEMO co-publishes and builds the ISP on it.",
+        "contested": "Attacked from three directions: Hilton/CIS says its 30-year life and low capacity factors handicap nuclear; Mountain says it offers \"supposedly definitive, objective answers\" to questions that don't admit them; Quiggin says it flatters nuclear against observed contract prices. Its referee status is itself a contested claim, not a fact."
+      },
+      {
+        "assumption": "First Australian nuclear power arrives 2036 (Frontier/Coalition) vs ~2040s (GenCost, AEMO, House committee).",
+        "evidence": "Westerman: not ready \"in time for the exit of Australia's coal-fired power stations\"; House committee final report (via Quiggin's Conversation piece, 26 Feb 2025) found deployment before the mid-2040s faces significant challenges; GenCost 2025-26 coverage puts first operation at 2040+.",
+        "contested": "Genuinely disputed — NOT shared ground. The timeline choice compounds the scenario choice: a 2036 start lets Frontier's model retire coal onto nuclear; a 2040s start forces the renewables build regardless, which is AEMO's core argument."
+      }
+    ],
+    "numbers": [
+      {
+        "figure": "$263 billion / \"44 per cent cheaper\"",
+        "meaning": "Frontier Economics' claimed saving of the Coalition (nuclear-inclusive, Progressive Change scenario) pathway vs Labor's (Step Change) pathway to a net-zero grid by 2050 — the Coalition's headline number, as stated by Ted O'Brien, 7 Jan 2025.",
+        "url": "https://www.4bc.com.au/podcast/the-big-debate-ted-obrien-declares-nuclear-44-per-cent-cheaper-to-get-to-net-zero/"
+      },
+      {
+        "figure": "~$150 billion",
+        "meaning": "How much of the claimed $263bn saving evaporates when both plans are tested against the SAME economic-growth scenario, per Tony Wood/Grattan (22 Dec 2024).",
+        "url": "https://grattan.edu.au/news/the-case-to-switch-from-renewables-to-nuclear-has-not-been-made/"
+      },
+      {
+        "figure": "90% vs 54–89%",
+        "meaning": "Nuclear capacity factor assumed by Frontier (90%) vs the range used by CSIRO GenCost (54–89%) — per Grattan the single biggest driver of the gap between the reports. CIS quotes the GenCost range as 53–89%; reconcile against the report before publishing.",
+        "url": "https://grattan.edu.au/news/the-case-to-switch-from-renewables-to-nuclear-has-not-been-made/"
+      },
+      {
+        "figure": "30 years vs 60+ years",
+        "meaning": "Economic life GenCost assumes for nuclear in core analysis vs the operating life pro-nuclear critics (CIS, 15 Jan 2025) say modern plants achieve — the plant-life method fight; ANU's Baldwin says GenCost tested lifetime and found the difference \"not significant\".",
+        "url": "https://www.cis.org.au/commentary/opinion/the-cost-of-nuclear-some-clarifications/"
+      },
+      {
+        "figure": "1.5 to 2x",
+        "meaning": "GenCost's finding (as cited by ANU's Baldwin, 17 Dec 2024) that solar and wind remain this much cheaper than nuclear even in a 90% renewable system with integration costs included — the total-system rebuttal to Frontier.",
+        "url": "https://policybrief.anu.edu.au/is-the-coalitions-nuclear-power-plan-cheaper-than-renewable-energy"
+      },
+      {
+        "figure": "$116–$600 billion",
+        "meaning": "Smart Energy Council's range for building the Coalition's 7 reactors ($116bn floor derived from GenCost 2024 + AEMO ISP data; $600bn ceiling adds observed overseas blowouts and coal-extension costs), for a claimed 3.7% of 2050 energy needs. AAP FactCheck (3 Apr 2025) rates Labor's use of the $600bn top end as overreach; Monash's Dargaville considers ~$300bn blowout plausible.",
+        "url": "https://smartenergy.org.au/nuclear-fallout-116-600-billion-to-build-7-nuclear-reactors/"
+      },
+      {
+        "figure": "~50% above GenCost",
+        "meaning": "Where the contracted Czech Dukovany nuclear price landed relative to CSIRO GenCost's capital-cost estimate (~$A12.8bn per plant), per Quiggin (21 Jul 2024) — evidence GenCost is too OPTIMISTIC about nuclear, not too harsh.",
+        "url": "https://johnquigginblog.substack.com/p/czech-nuclear-deal-shows-csiro-gencost"
+      },
+      {
+        "figure": "$125/MWh; 93%; 3–7%",
+        "meaning": "GenCost 2025-26 FINAL (released 15 Jul 2026): wholesale prices head toward $125/MWh as coal retires post-2030; solar+wind supply ~93% of electricity by 2050 under net zero; gas keeps a 3–7% firming role — nuclear remains the most expensive option.",
+        "url": "https://region.com.au/gencost-predicts-higher-electricity-prices-after-2030-as-coal-is-retired/982348/"
+      },
+      {
+        "figure": "At least A$116 billion",
+        "meaning": "House Select Committee on Nuclear Energy's cost finding for replacing coal capacity with nuclear (meeting ~15% of NEM needs), per Quiggin's Conversation coverage of the final report (26 Feb 2025).",
+        "url": "https://theconversation.com/new-report-skewers-coalitions-contentious-nuclear-plan-and-reignites-australias-energy-debate-250912"
+      }
+    ],
+    "context": "STATE OF PLAY AS OF 2026-07-21 (all newer than training-data staples — date everything): (1) CSIRO/AEMO released the GenCost 2025-26 FINAL report on 15 July 2026 (consultation draft 16 Dec 2025): nuclear still the most expensive option, solar+wind+storage still least-cost, but it concedes prices rise toward $125/MWh as coal exits. (2) The Coalition lost the May 2025 election; Dutton gone, Sussan Ley leads. The seven-government-reactor policy is effectively dead: the Liberals' 13 Nov 2025 energy policy commits only to lifting the nuclear prohibition and removing net-zero targets (Ted O'Brien, now deputy leader, backed dropping net zero). The Nationals split from and rejoined tension over this through late 2025. So the federal ban (EPBC Act/ARPANS Act) still stands, with repeal now the Coalition's ask. (3) The House Select Committee on Nuclear Energy (chaired by Labor's Dan Repacholi) delivered its final report ~26 Feb 2025 finding nuclear not currently a viable investment of taxpayer money; Coalition members lodged a dissenting report. GAPS/CAVEATS FOR THE PARENT AGENT: (a) All quotes were pulled via WebFetch extraction — I instructed character-exact copying and cross-checked several against independent search snippets, but the pipeline uses an extraction model, so run every quote through pnpm verify:quotes before publication; I flagged three with known artefact risk (Grattan \\\"scenarios\\\" hyphenation, Quiggin $A12.8bn rendering, Liberal net-zero extract starting mid-sentence). (b) ieefa.org and aph.gov.au both returned 403 to automated fetch — IEEFA's critique (\\\"Opposition's nuclear costings are unrealistic\\\", https://ieefa.org/articles/oppositions-nuclear-costings-are-unrealistic) and the Coalition Members' Dissenting Report (https://www.aph.gov.au/Parliamentary_Business/Committees/House/Select_Committee_on_Nuclear_Energy/Nuclearpower/Interim_report_for_the_inquiry_into_nuclear_power_generation_in_Australia/Coalition_Members_Dissenting_Report) need manual/browser capture if verbatim quotes are wanted from them; I substituted AAP-quoted academics (Dargaville, Longden) and CIS for those spectrum slots. (c) The csiro.au GenCost landing page timed out; the 2025-26 final's own news release wasn't fetched — the 16 Jul 2026 Region article and the 29 Jul 2025 CSIRO release cover both editions. SPECTRUM COVERAGE of the bank: CSIRO institutional (Tourbier, Graham), AEMO (Westerman) defending GenCost; Frontier (Price x2), O'Brien, Liberal Party post-election, CIS (Hilton, serious pro-nuclear) defending nuclear costings; critics of Frontier (Wood/Grattan, Baldwin/ANU, Grimes/SEC, Dargaville/Monash, Longden/UWS); critics of CSIRO from BOTH directions (Hilton says too harsh on nuclear; Quiggin says too generous; Mountain says overclaims certainty); shared ground (Mountain's uncertainty point, GenCost's own assumption-revisability sentence, Wood's observation that capital costs are similar and both pathways decarbonise, Westerman's coal-exit clock which Frontier does not dispute). Baldwin-vs-Hilton on plant life and Wood-vs-Price on capacity factor give you directly opposed takes on the SAME parameter — ideal for audit cards.",
+    "urlsFetched": [
+      "https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/",
+      "https://www.csiro.au/en/news/all/news/2025/july/2024-25-gencost-final-report",
+      "https://region.com.au/gencost-predicts-higher-electricity-prices-after-2030-as-coal-is-retired/982348/",
+      "https://policybrief.anu.edu.au/is-the-coalitions-nuclear-power-plan-cheaper-than-renewable-energy",
+      "https://smartenergy.org.au/nuclear-fallout-116-600-billion-to-build-7-nuclear-reactors/",
+      "https://theconversation.com/new-report-skewers-coalitions-contentious-nuclear-plan-and-reignites-australias-energy-debate-250912",
+      "https://www.liberal.org.au/2025/11/13/affordable-and-responsible-the-liberal-plan-for-affordable-energy-and-lower-emissions",
+      "https://grattan.edu.au/news/the-case-to-switch-from-renewables-to-nuclear-has-not-been-made/",
+      "https://reneweconomy.com.au/nuclear-too-slow-to-replace-coal-and-baseload-simply-cant-compete-with-wind-and-solar-aemo-boss-says/",
+      "https://www.aap.com.au/factcheck/major-parties-overconfident-in-nuclear-costs-experts/",
+      "https://www.cis.org.au/commentary/opinion/the-cost-of-nuclear-some-clarifications/",
+      "https://theconversation.com/known-unknowns-controversy-over-csiros-electricity-report-reveals-an-uncomfortable-truth-231691",
+      "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt",
+      "https://johnquigginblog.substack.com/p/czech-nuclear-deal-shows-csiro-gencost",
+      "https://www.4bc.com.au/podcast/the-big-debate-ted-obrien-declares-nuclear-44-per-cent-cheaper-to-get-to-net-zero/"
+    ]
+  },
+  "current": {
+    "claims": [
+      {
+        "quote": "A federal election was held on 3 May 2025 to elect members of the 48th Parliament of Australia.",
+        "url": "https://en.wikipedia.org/wiki/2025_Australian_federal_election",
+        "locator": "Lead section, Wikipedia '2025 Australian federal election'",
+        "whatItClaims": "Dates the federal election that ended the 2024-25 nuclear-policy fight's first phase: 3 May 2025. Labor won 94 seats to the Coalition's 43 (seat figures from the same page's results section)."
+      },
+      {
+        "quote": "Dutton also lost his seat of Dickson to Labor candidate Ali France, the first time a federal opposition leader had been defeated in their own seat.",
+        "url": "https://en.wikipedia.org/wiki/2025_Australian_federal_election",
+        "locator": "Results/aftermath section, Wikipedia '2025 Australian federal election'",
+        "whatItClaims": "The leader who fronted the seven-reactor policy lost his own seat at the May 2025 election — the policy's chief sponsor left parliament."
+      },
+      {
+        "quote": "The guiding principles include staying in the Paris agreement and committing to lifting the ban on nuclear energy.",
+        "url": "https://theconversation.com/view-from-the-hill-conservative-liberals-hold-power-walk-before-delivering-coup-de-grace-to-net-zero-269391",
+        "locator": "The Conversation, Michelle Grattan 'View from The Hill', published 12 November 2025, paragraphs on the Ley/Tehan announcement",
+        "whatItClaims": "When the Liberals dumped net zero in November 2025, the nuclear component of Coalition policy was reduced to a principle of 'lifting the ban' — not a commitment to build reactors."
+      },
+      {
+        "quote": "According to counts, 17 people spoke in favour of retaining the commitment to net zero, while 28 spoke against.",
+        "url": "https://theconversation.com/view-from-the-hill-conservative-liberals-hold-power-walk-before-delivering-coup-de-grace-to-net-zero-269391",
+        "locator": "The Conversation, 12 November 2025, account of the Liberal shadow-ministry/party-room meeting",
+        "whatItClaims": "The internal Liberal split on abandoning net zero in November 2025: roughly 28 speakers against retaining it, 17 for."
+      },
+      {
+        "quote": "I don't believe Sussan Ley is in a position to be able to lead the party as it needs to be led.",
+        "url": "https://en.wikipedia.org/wiki/2026_Liberal_Party_of_Australia_leadership_spill",
+        "locator": "Background section quoting Angus Taylor's 11 February 2026 resignation letter, Wikipedia '2026 Liberal Party of Australia leadership spill'",
+        "whatItClaims": "Taylor's stated grounds for challenging Ley in February 2026 — leadership capability, not an explicit nuclear-policy dispute."
+      },
+      {
+        "quote": "Following the spill, Ley resigned from Parliament, triggering a by-election in her former electorate of Farrer.",
+        "url": "https://en.wikipedia.org/wiki/2026_Liberal_Party_of_Australia_leadership_spill",
+        "locator": "Aftermath section, Wikipedia '2026 Liberal Party of Australia leadership spill'",
+        "whatItClaims": "On 13 February 2026 Angus Taylor defeated Sussan Ley 34-17 for the Liberal leadership (Jane Hume elected deputy 30-20 over Ted O'Brien, per the same page); Ley then quit parliament. Corroborated by The Conversation's same-day report."
+      },
+      {
+        "quote": "That includes coal, gas, hydro, batteries and renewables in the right places, and it will include nuclear power too. We will lift the ban.",
+        "url": "https://reneweconomy.com.au/angus-taylors-energy-policy-is-now-a-carbon-copy-of-hanson-and-trump/",
+        "locator": "RenewEconomy, Giles Parkinson, 15 May 2026, quoting Angus Taylor's federal Budget reply speech",
+        "whatItClaims": "As of May 2026 the Coalition's nuclear policy under Taylor is to lift the federal ban if elected — the article reports no reactor numbers, sites, or government-build commitment, and says Taylor also pledged to ditch net zero and axe the Net Zero Authority."
+      },
+      {
+        "quote": "Nuclear power production is currently not permitted under two main pieces of Commonwealth legislation—the Australian Radiation Protection and Nuclear Safety Act 1998 (the ARPANS Act), and the Environment Protection and Biodiversity Conservation Act 1999",
+        "url": "https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827",
+        "locator": "Senate Hansard via OpenAustralia, 4 February 2026, second-reading debate on the Environment and Other Legislation Amendment (Removing Nuclear Energy Prohibitions) Bill 2026",
+        "whatItClaims": "The federal statutory ban (ARPANS Act 1998 + EPBC Act 1999 prohibitions) was still in force as of 4 February 2026 — stated on the Senate record during debate on Matt Canavan's private senator's repeal bill."
+      },
+      {
+        "quote": "the approval, licensing, construction, or operation of a nuclear fuel fabrication plant; a nuclear power plant; an enrichment plant; or a reprocessing facility.",
+        "url": "https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827",
+        "locator": "Senate Hansard via OpenAustralia, 4 February 2026, description of what the Removing Nuclear Energy Prohibitions Bill 2026 would un-prohibit",
+        "whatItClaims": "The scope of the prohibitions the Canavan bill seeks to remove — the same EPBC/ARPANS prohibitions at issue since 1998-99. Canavan moved 'that this bill be now read a second time' on 4 February 2026."
+      },
+      {
+        "quote": "the NSW Coalition formally announced its support of repeal legislation to remove the 1986 prohibition on uranium mining and nuclear facilities in New South Wales introduced by John Ruddick MLC",
+        "url": "https://www.nuclearforaustralia.com/nuclear_for_australia_welcomes_nsw_bill_to_lift_the_ban_on_nuclear_energy",
+        "locator": "Nuclear for Australia media release, 11 February 2026",
+        "whatItClaims": "The NSW Liberal-National opposition backed Libertarian MLC John Ruddick's private member's bill (introduced 11 November 2025) to repeal the state's 1986 uranium/nuclear prohibitions."
+      },
+      {
+        "quote": "aims to repeal the original prohibitions from 1986",
+        "url": "https://minerals.org.au/resources/nsw-uranium-bill-marks-a-welcome-first-step-in-consistent-nationwide-approach/",
+        "locator": "Minerals Council of Australia media release, 7 May 2026, on the Uranium Mining and Nuclear Facilities (Prohibitions) Repeal Bill 2025 passing the NSW Legislative Council",
+        "whatItClaims": "On 7 May 2026 the NSW Legislative Council (upper house) passed the Ruddick repeal bill; the MCA release urges Legislative Assembly members to consider it next — i.e. it had passed one chamber only and was not law."
+      },
+      {
+        "quote": "Small modular nuclear reactors (SMRs) remain the highest cost option, even with new data from Canada's Darlington project.",
+        "url": "https://www.csiro.au/en/news/all/news/2025/july/2024-25-gencost-final-report",
+        "locator": "CSIRO news release, 29 July 2025, 'CSIRO releases final 2024-25 GenCost report following consultation'",
+        "whatItClaims": "The final GenCost 2024-25 (released 29 July 2025, after the consultation round that included the Frontier-adjacent critiques) held its position that nuclear SMRs are the most expensive new-build option."
+      },
+      {
+        "quote": "Gas with carbon capture and storage (CCS) and large-scale nuclear are the next lowest cost options, but as neither are currently deployed for electricity generation in Australia, they could be subject to longer lead times and first-of-a-kind premiums.",
+        "url": "https://www.csiro.au/en/news/all/news/2025/july/2024-25-gencost-final-report",
+        "locator": "CSIRO news release, 29 July 2025, key findings",
+        "whatItClaims": "GenCost 2024-25 final placed large-scale nuclear among mid-cost options but with lead-time and first-of-a-kind caveats — the nuance both sides of the 2024-25 fight selectively quote."
+      },
+      {
+        "quote": "The combination of solar PV, onshore wind, storage and either natural gas or hydrogen was the least cost technology mix in all cases examined with the addition of carbon capture and storage, offshore wind and nuclear leading to higher average electricity costs.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt",
+        "locator": "GenCost 2025-26 Consultation Draft (released 17 December 2025), Executive Summary",
+        "whatItClaims": "The draft GenCost 2025-26's new system-level (SLCOE) analysis found adding nuclear to the mix raises average electricity costs — the first GenCost edition to make the comparison at system level rather than plant-level LCOE."
+      },
+      {
+        "quote": "Given Australia has no experience building large scale nuclear, we base costs on South Korean nuclear building costs adjusted for the relative costs of building ultra-supercritical coal in each country. Given the cost of building ultra-supercritical coal in Australia has increased, nuclear costs are also revised upwards.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt",
+        "locator": "GenCost 2025-26 Consultation Draft, Section 4.3.7 (Large-scale nuclear)",
+        "whatItClaims": "GenCost 2025-26 draft's large-scale nuclear costing method (South Korean costs adjusted via coal-build cost ratios) and why the nuclear estimate rose this edition."
+      },
+      {
+        "quote": "A first of a kind premium, in addition to the costs shown, will likely apply when large-scale nuclear is deployed in Australia for the first time.",
+        "url": "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt",
+        "locator": "GenCost 2025-26 Consultation Draft, Section 4.3.7",
+        "whatItClaims": "CSIRO maintains that its published large-scale nuclear figures exclude a likely first-of-a-kind premium — i.e. it treats its numbers as a floor for a first Australian build."
+      },
+      {
+        "quote": "The 2025-26 draft of the GenCost report responded to these criticisms by introducing SLCOE, a material refinement of the GenCost framework.",
+        "url": "https://www.claytonutz.com/insights/2026/march/gencost-2025-26-what-it-does-and-does-not-say",
+        "locator": "Clayton Utz insight, 11 March 2026, 'GenCost 2025-26 – What it does (and does not) say', methodology discussion",
+        "whatItClaims": "An informed legal-sector reading that CSIRO's new System LCOE method was a direct response to the long-running criticism that plant-level LCOE understates system integration costs — the closest thing to a conceded method point in the 2024-26 fight."
+      },
+      {
+        "quote": "Rather than calculating the incremental system elements that would be required by increasing shares of renewables, CSIRO simply moved the temporal boundary.",
+        "url": "https://www.cis.org.au/submission/submission-to-draft-2025-26-gencost/",
+        "locator": "Centre for Independent Studies submission to the draft GenCost 2025-26, Aidan Morrison, 2 February 2026",
+        "whatItClaims": "The critic camp did not accept SLCOE as settling the fight: CIS argues the new method still excludes already-committed system costs (it itemises roughly $74 billion of committed projects treated as sunk in the 2030 model)."
+      },
+      {
+        "quote": "This means CSIRO is no longer modelling the cost of an actual system that is remotely technically, economically, or financially viable.",
+        "url": "https://www.cis.org.au/submission/submission-to-draft-2025-26-gencost/",
+        "locator": "CIS submission to draft GenCost 2025-26, 2 February 2026, system-coherence critique",
+        "whatItClaims": "The sharpest continuing attack line on GenCost 2025-26 from the sceptic side, dated 2 February 2026 — evidence the methodology war is live, just relocated from LCOE to SLCOE boundary choices."
+      },
+      {
+        "quote": "renewable energy supported by storage is helping to protect Australia against global energy shocks and continues to provide the lowest cost pathway for Australia's electricity system to achieve net zero emissions",
+        "url": "https://www.csiro.au/en/news/All/News/2026/July/GenCost-2025-26",
+        "locator": "CSIRO news release, 15 July 2026, 'GenCost 2025-26: Renewables and storage a source of stability amid global uncertainty' — headline finding",
+        "whatItClaims": "The final GenCost 2025-26, released 15 July 2026 (six days before this bank was compiled), reaffirms renewables-plus-storage as the lowest-cost pathway. Notably, the release itself does not mention nuclear at all."
+      },
+      {
+        "quote": "This year's report incorporates extensive stakeholder feedback, including new use of market data for near-term projections and open-source modelling tools that improve transparency, enabling industry and researchers to engage more deeply with our results",
+        "url": "https://www.csiro.au/en/news/All/News/2026/July/GenCost-2025-26",
+        "locator": "CSIRO news release, 15 July 2026, quote attributed to GenCost lead author Paul Graham",
+        "whatItClaims": "CSIRO's own framing that the 2025-26 final edition changed (market data, open-source Simple Electricity Model) in response to stakeholder feedback — its answer to the transparency criticisms of 2024-25."
+      },
+      {
+        "quote": "Consistent with previous report findings, the 2025-26 GenCost Final Report finds that solar PV and onshore wind form the basis for the least cost electricity generation mix for Australia.",
+        "url": "https://www.csiro.au/en/research/technology-space/energy/Electricity-transition/GenCost",
+        "locator": "CSIRO GenCost landing page, as at 21 July 2026, summary of the 15 July 2026 final report",
+        "whatItClaims": "The final GenCost 2025-26 headline ranking is unchanged from the draft and from prior editions."
+      },
+      {
+        "quote": "To deliver the least-cost optimal development path (ODP) proposed in this draft by 2050, the NEM would need a total of 120GW of grid-scale wind and solar, 32GW grid-scale batteries, 14GW of flexible gas and 12GW of pumped hydro.",
+        "url": "https://esdnews.com.au/aemo-releases-draft-2026-integrated-system-plan/",
+        "locator": "Energy Source & Distribution news, 10 December 2025, on AEMO's Draft 2026 Integrated System Plan",
+        "whatItClaims": "AEMO's Draft 2026 ISP (published 10 December 2025) proposes an optimal development path with no nuclear component — renewables, storage, gas and pumped hydro only. Annualised total capital cost of the draft ODP: $128 billion in today's dollars (same article)."
+      },
+      {
+        "quote": "published on 25 June",
+        "url": "https://www.ecdonline.com.au/content/electrical-distribution/article/aemo-releases-new-isp-industry-responds-498702311",
+        "locator": "ECD Online, 29 June 2026, 'AEMO releases new ISP: industry responds', first paragraphs",
+        "whatItClaims": "AEMO's final 2026 ISP was published 25 June 2026. The article's summary of the plan ('renewables should underpin Australia's future grid, connected by transmission and distribution, firmed with storage and backed up by gas', about $106 billion annualised capital investment to 2050 under Step Change) contains no nuclear component."
+      }
+    ],
+    "assumptions": [
+      {
+        "assumption": "The Coalition's seven-sites, government-owned reactor plan is effectively dead: current policy (as of July 2026) is only to 'lift the ban' if elected.",
+        "evidence": "The plan has not been re-announced by any Coalition leader since the 3 May 2025 defeat; the November 2025 Ley/Tehan principles reduced the nuclear plank to 'committing to lifting the ban on nuclear energy' (The Conversation, 12 Nov 2025); Taylor's May 2026 Budget reply commits only to 'We will lift the ban' with no sites, numbers, or public-build funding (RenewEconomy, 15 May 2026).",
+        "contested": "No source found this session that formally declares the seven-sites plan abandoned — this is an inference from consistent silence plus the narrower replacement policy. Write it as 'not revived / replaced by a lift-the-ban policy', not 'formally scrapped'. Some Nationals and pro-nuclear advocates may still push government builds."
+      },
+      {
+        "assumption": "The federal prohibitions (EPBC Act s140A, ARPANS Act s10) remain in force as of 21 July 2026.",
+        "evidence": "Canavan's repeal bill was at second-reading debate on 4 February 2026 (a bill to remove the prohibitions presupposes they exist); Taylor's 15 May 2026 'We will lift the ban' presupposes the same; no report of any repeal passing was found in any search this session.",
+        "contested": "The Canavan bill's fate after the 4 Feb 2026 debate was not traced (private senators' bills almost never pass against a government majority, and Labor holds 94 lower-house seats, but I did not verify a formal negative vote). The specific section numbers (s140A EPBC, s10 ARPANS) come from pre-cutoff knowledge and the aph.gov.au quick guide, which returned 403 this session — verify section numbers against legislation.gov.au before publishing them."
+      },
+      {
+        "assumption": "The NSW repeal bill is NOT law: it passed the Legislative Council only (7 May 2026) and faces a Labor-controlled Legislative Assembly whose government opposes it.",
+        "evidence": "MCA release (7 May 2026) marks the Legislative Council passage and explicitly pitches to Legislative Assembly members for the next stage, confirming the bill had not passed the lower house at that date. No later source found showing Assembly passage.",
+        "contested": "The Minns government's formal position was NOT directly sourced this session (nucnet and discoveryalert articles both returned 403). 'Labor government opposes it' is an unverified but widely assumed position — flag as unverified or source it before print. Also check for any Assembly vote between 7 May and publication date."
+      },
+      {
+        "assumption": "Nuclear is absent from AEMO's final 2026 ISP optimal development path.",
+        "evidence": "Draft ISP (10 Dec 2025) and final ISP (25 June 2026) coverage list an ODP of renewables, storage, gas and pumped hydro with no nuclear; the ISP by design models the least-cost path under current law, and nuclear generation remains illegal.",
+        "contested": "This rests on absence-of-mention in AEMO's summary coverage plus secondary articles — the final 2026 ISP PDF itself was not parsed for an explicit nuclear statement (aemo.com.au returned 403 to fetches). A direct quote from the ISP on nuclear, if one exists, should be pulled before asserting 'AEMO excluded nuclear' in print."
+      },
+      {
+        "assumption": "Frontier Economics has published no new nuclear costing since its December 2024 reports and February 2025 rejoinders; the sceptic-side running is now being made by CIS (Aidan Morrison).",
+        "evidence": "Searches for Frontier/Danny Price material dated after June 2025 returned only the 2024-25 reports and op-eds; the substantive post-June-2025 critique found was the CIS submission to the draft GenCost 2025-26 (2 Feb 2026).",
+        "contested": "Absence of search results is weak evidence — Frontier may have made a GenCost submission or client report not surfaced by search. Treat 'Frontier has gone quiet' as unverified; say 'no new public Frontier costing located as of 21 July 2026'."
+      },
+      {
+        "assumption": "The final GenCost 2025-26 (15 July 2026) retains the draft's nuclear findings (SMR most expensive; nuclear addition raises system costs; FOAK premium excluded from published figures).",
+        "evidence": "CSIRO's landing page says the final report is 'Consistent with previous report findings'; the 15 July 2026 news release reaffirms the renewables-lowest-cost headline; no coverage found reporting a changed nuclear treatment in the final.",
+        "contested": "The nuclear-specific verbatim quotes in this bank are from the 17 Dec 2025 consultation DRAFT text, not the final PDF. Before publishing 'GenCost 2025-26 finds X about nuclear', pull the final report PDF and re-verify each sentence — the final may have reworded or renumbered sections after consultation."
+      },
+      {
+        "assumption": "Queensland (Nuclear Facilities Prohibition Act 2007) and Victoria (Nuclear Activities (Prohibitions) Act 1983) bans remain in place with no active repeal movement as of 21 July 2026.",
+        "evidence": "Act names confirmed via legislation.qld.gov.au search result and multiple secondary references; all 2025-26 state-level repeal activity found this session was in NSW only; Premier Crisafulli's opposition to hosting reactors is documented in 2024-25 reporting.",
+        "contested": "Thinly checked: only one targeted search. Qld's s21 compulsory-plebiscite trigger was described in a secondary (CPA) source not fetched. Verify Act status on state legislation registers before print."
+      },
+      {
+        "assumption": "Quote-extraction fidelity: all 'quote' fields were returned as verbatim extracts by fetches performed this session, but the fetch tool summarises pages through an extraction model.",
+        "evidence": "Every quote carries the URL fetched this session and a locator; none are reconstructed from memory or training data.",
+        "contested": "An extraction model can silently smooth text. Per project rule, run pnpm verify:quotes on every quote that survives into a briefing before publishing — treat this bank as sourced-but-unverified input to that gate, not as a substitute for it."
+      }
+    ],
+    "numbers": [
+      {
+        "figure": "3 May 2025; Labor 94 seats, Coalition 43",
+        "meaning": "Federal election date and House result — the landslide that broke the seven-reactor policy's political vehicle; Dutton lost Dickson to Ali France.",
+        "url": "https://en.wikipedia.org/wiki/2025_Australian_federal_election"
+      },
+      {
+        "figure": "12 November 2025; speakers 28 v 17",
+        "meaning": "Date The Conversation reported the Liberals finalising the dump of net zero (announced by Ley and Tehan), with party-room speakers running roughly 28 against retaining net zero to 17 for; nuclear plank reduced to 'lifting the ban'.",
+        "url": "https://theconversation.com/view-from-the-hill-conservative-liberals-hold-power-walk-before-delivering-coup-de-grace-to-net-zero-269391"
+      },
+      {
+        "figure": "13 February 2026; 34-17; deputy 30-20",
+        "meaning": "Liberal leadership spill: Angus Taylor defeated Sussan Ley 34-17; Jane Hume beat Ted O'Brien 30-20 for deputy; Ley then resigned from parliament (Farrer by-election).",
+        "url": "https://en.wikipedia.org/wiki/2026_Liberal_Party_of_Australia_leadership_spill"
+      },
+      {
+        "figure": "15 May 2026",
+        "meaning": "Date of RenewEconomy's report of Taylor's Budget reply committing a future Coalition government to 'lift the ban' on nuclear (no sites/numbers), ditch net zero and axe the Net Zero Authority.",
+        "url": "https://reneweconomy.com.au/angus-taylors-energy-policy-is-now-a-carbon-copy-of-hanson-and-trump/"
+      },
+      {
+        "figure": "4 February 2026",
+        "meaning": "Senate second-reading debate on Canavan's Environment and Other Legislation Amendment (Removing Nuclear Energy Prohibitions) Bill 2026 — proof the EPBC/ARPANS prohibitions were still in force at that date.",
+        "url": "https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827"
+      },
+      {
+        "figure": "11 November 2025 / 7 May 2026",
+        "meaning": "NSW: Ruddick's Uranium Mining and Nuclear Facilities (Prohibitions) Repeal Bill 2025 introduced in the Legislative Council; passed that chamber 7 May 2026 — first chamber of any Australian parliament to vote to repeal a nuclear ban. Still requires the Legislative Assembly.",
+        "url": "https://minerals.org.au/resources/nsw-uranium-bill-marks-a-welcome-first-step-in-consistent-nationwide-approach/"
+      },
+      {
+        "figure": "29 July 2025",
+        "meaning": "Release date of the FINAL GenCost 2024-25 — post-consultation, it held that SMRs 'remain the highest cost option, even with new data from Canada's Darlington project'.",
+        "url": "https://www.csiro.au/en/news/all/news/2025/july/2024-25-gencost-final-report"
+      },
+      {
+        "figure": "17 December 2025 / 2 February 2026",
+        "meaning": "GenCost 2025-26 consultation draft release date / consultation close (close date corroborated by the CIS submission being dated 2 Feb 2026). Draft introduced the System LCOE method and Simple Electricity Model.",
+        "url": "https://www.csiro.au/en/news/all/news/2025/december/consultation-opens-on-the-draft-gencost-2025-2026-report"
+      },
+      {
+        "figure": "15 July 2026",
+        "meaning": "Release date of the FINAL GenCost 2025-26 — six days before this bank was compiled. Headline: renewables + storage still the lowest-cost net-zero pathway; the release itself never says the word nuclear.",
+        "url": "https://www.csiro.au/en/news/All/News/2026/July/GenCost-2025-26"
+      },
+      {
+        "figure": "~$74 billion",
+        "meaning": "CIS's estimate (submission, 2 Feb 2026) of committed projects (Snowy 2.0, batteries, rooftop solar, transmission) it says the draft GenCost 2025-26 SLCOE treats as 'free' in the 2030 model — the live methodological battleground.",
+        "url": "https://www.cis.org.au/submission/submission-to-draft-2025-26-gencost/"
+      },
+      {
+        "figure": "10 December 2025; 120GW wind+solar, 32GW batteries, 14GW gas, 12GW pumped hydro; $128bn",
+        "meaning": "AEMO Draft 2026 ISP publication date, its 2050 optimal-development-path build-out, and the annualised total capital cost in today's dollars — no nuclear in the path.",
+        "url": "https://esdnews.com.au/aemo-releases-draft-2026-integrated-system-plan/"
+      },
+      {
+        "figure": "25 June 2026; ~$106 billion",
+        "meaning": "Final 2026 ISP publication date and annualised capital investment to 2050 (today's dollars, Step Change scenario) — renewables/storage/gas path, no nuclear component reported.",
+        "url": "https://www.ecdonline.com.au/content/electrical-distribution/article/aemo-releases-new-isp-industry-responds-498702311"
+      }
+    ],
+    "context": "CURRENT-STATE BANK, compiled 2026-07-21, for The Whetstone nuclear-Australia briefing set (parent + two report reviews). The picture as of today, in one arc: (1) POLITICS. The 3 May 2025 election was a Labor landslide (94-43); Dutton, the seven-reactor plan's sponsor, lost his own seat. The Coalition then spent 2025 reviewing; on ~12 November 2025 Ley and Tehan announced the Liberals were dumping net zero, with the nuclear plank reduced to a principle of 'lifting the ban'. On 13 February 2026 Angus Taylor took the leadership 34-17 (Ley quit parliament; Farrer by-election). Taylor's May 2026 Budget reply set current policy: 'We will lift the ban' — no sites, no reactor count, no government-build commitment. The seven-sites plan has not been revived; write it as superseded, not formally scrapped (no formal abandonment statement found). (2) LEGAL BAN. Federal EPBC/ARPANS prohibitions still in force — proven by Canavan's repeal bill being at second reading on 4 Feb 2026 and Taylor's lift-the-ban pledge. The genuinely new fact: NSW's Legislative Council passed Ruddick's repeal bill on 7 May 2026 (introduced 11 Nov 2025, NSW Coalition backing announced 11 Feb 2026) — the first Australian chamber to vote to repeal a nuclear/uranium ban — but it has NOT passed the Labor-controlled Assembly and is not law. Qld and Vic bans untouched. (3) COSTINGS. Two new authoritative editions post-date the 2024-25 fight: GenCost 2025-26 (draft 17 Dec 2025; FINAL 15 July 2026 — check it, it is 6 days old) and AEMO's 2026 ISP (draft 10 Dec 2025; FINAL 25 June 2026). Both reaffirm renewables-least-cost; the ISP's optimal path contains no nuclear; GenCost's draft found adding nuclear raises system-level average costs and revised large-scale nuclear costs UP (South Korea benchmark via coal-cost ratio; FOAK premium still excluded from published figures). No new Frontier Economics costing located after June 2025. (4) DID THE FIGHT MOVE? Partially. CSIRO effectively conceded the critics' strongest structural point by building a system-level method (SLCOE) — Clayton Utz (11 Mar 2026) reads it as a direct response to the LCOE-understates-system-costs critique — and open-sourced its model (SEM). But the sceptic side (now led publicly by CIS/Aidan Morrison, submission 2 Feb 2026) rejects SLCOE's boundary choices (~$74bn of committed projects treated as sunk), so the dispute relocated rather than resolved. GenCost 2024-25's FINAL (29 July 2025) held the SMR-most-expensive line even with Darlington data. CAVEATS FOR AUTHORING: all quotes here were extracted from pages fetched this session via the fetch tool's extraction model — run pnpm verify:quotes on anything that goes into a briefing; nuclear-specific GenCost quotes are from the DRAFT text, so re-verify against the final PDF before attributing them to 'GenCost 2025-26'; the Minns government's position on the NSW bill, the Canavan bill's post-debate fate, and EPBC s140A/ARPANS s10 section numbers are flagged unverified (403s blocked aph.gov.au, aemo.com.au, nucnet, discoveryalert). Nothing in this bank contradicts the 2024-25 fight material — it postdates and reframes it: the audit pieces can now say the seven-sites plan lost its election, its author, and its leader, while the ban it targeted has started cracking at state level and the costing war has shifted from LCOE to system-boundary assumptions.",
+    "urlsFetched": [
+      "https://en.wikipedia.org/wiki/2025_Australian_federal_election",
+      "https://en.wikipedia.org/wiki/2026_Liberal_Party_of_Australia_leadership_spill",
+      "https://theconversation.com/view-from-the-hill-conservative-liberals-hold-power-walk-before-delivering-coup-de-grace-to-net-zero-269391",
+      "https://theconversation.com/angus-taylor-defeats-sussan-ley-by-hefty-margin-of-34-17-as-liberal-leader-275909",
+      "https://reneweconomy.com.au/angus-taylors-energy-policy-is-now-a-carbon-copy-of-hanson-and-trump/",
+      "https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827",
+      "https://www.nuclearforaustralia.com/nuclear_for_australia_welcomes_nsw_bill_to_lift_the_ban_on_nuclear_energy",
+      "https://minerals.org.au/resources/nsw-uranium-bill-marks-a-welcome-first-step-in-consistent-nationwide-approach/",
+      "https://www.csiro.au/en/news/all/news/2025/july/2024-25-gencost-final-report",
+      "https://www.csiro.au/en/news/all/news/2025/december/consultation-opens-on-the-draft-gencost-2025-2026-report",
+      "https://www.csiro.au/-/media/Energy/GenCost-2025-26-Draft/GenCost_2025-26_consultation-draft_accessible-report.txt",
+      "https://www.csiro.au/en/news/All/News/2026/July/GenCost-2025-26",
+      "https://www.csiro.au/en/research/technology-space/energy/Electricity-transition/GenCost",
+      "https://www.claytonutz.com/insights/2026/march/gencost-2025-26-what-it-does-and-does-not-say",
+      "https://www.cis.org.au/submission/submission-to-draft-2025-26-gencost/",
+      "https://esdnews.com.au/aemo-releases-draft-2026-integrated-system-plan/",
+      "https://www.ecdonline.com.au/content/electrical-distribution/article/aemo-releases-new-isp-industry-responds-498702311",
+      "https://cleanenergycouncil.org.au/news-resources/aemo-s-2026-integrated-system-plan-shows-renewables-rollout-is-the-least-cost-pathway",
+      "https://smartenergy.org.au/gencost-2025-26-confirms-renewables-remain-australias-lowest-cost-pathway-to-net-zero/"
+    ]
+  }
+}
