@@ -1,0 +1,42 @@
+---
+export const prerender = false;
+// DEV-ONLY editorial surface: lists the drafts in site/drafts/ with their
+// unresolved [OWNER:] counts. 404s outside `astro dev` — drafts never serve
+// in production.
+import Base from '../../layouts/Base.astro';
+import { getDrafts } from '../../lib/drafts';
+
+if (!import.meta.env.DEV) return new Response('Not found', { status: 404 });
+
+const drafts = getDrafts();
+---
+<Base title="Drafts - The Whetstone (dev)" description="Dev-only draft preview." canonicalPath="/drafts" hideFooterCapture={true}>
+  <main class="max-w-2xl mx-auto px-6 pt-12 pb-24">
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">Editorial · dev only</p>
+      <h1 class="font-serif text-3xl text-ink-strong mb-3">Drafts</h1>
+      <p class="text-sm text-muted leading-relaxed">
+        Rendered through the real briefing chassis. Edit <code class="text-xs bg-hairline/40 px-1 py-0.5 rounded">site/drafts/&lt;slug&gt;.md</code>
+        in your editor and the preview hot-reloads on save. This page 404s in production.
+      </p>
+    </header>
+
+    {drafts.length === 0 ? (
+      <p class="text-sm text-muted py-8 border-t border-hairline">No parseable drafts in site/drafts/.</p>
+    ) : (
+      <div class="divide-y divide-hairline border-t border-b border-hairline">
+        {drafts.map((d) => (
+          <a href={`/drafts/${d.slug}`} class="group flex items-baseline justify-between gap-4 py-4">
+            <div class="min-w-0">
+              <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-1">{d.slug}</p>
+              <p class="font-serif text-base text-ink-strong group-hover:text-accent-support transition-colors leading-snug">{d.briefing.question}</p>
+            </div>
+            <span class={`shrink-0 font-mono text-[11px] ${d.ownerMarkers.length ? 'text-sev-med' : 'text-factual'}`}>
+              {d.ownerMarkers.length ? `${d.ownerMarkers.length} owner calls` : 'clear'}
+            </span>
+          </a>
+        ))}
+      </div>
+    )}
+  </main>
+</Base>

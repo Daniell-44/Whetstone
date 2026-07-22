@@ -1,0 +1,37 @@
+---
+export const prerender = false;
+// DEV-ONLY draft preview: one draft rendered through the REAL BriefingArticle
+// chassis, with the unresolved [OWNER:] markers surfaced as a checklist above
+// it. Edit the .md, save, refresh (Astro hot-reloads the glob). 404s in prod.
+import Base from '../../layouts/Base.astro';
+import BriefingArticle from '../../components/briefing/BriefingArticle.astro';
+import { getDrafts } from '../../lib/drafts';
+
+if (!import.meta.env.DEV) return new Response('Not found', { status: 404 });
+
+const draft = getDrafts().find((d) => d.slug === Astro.params.slug);
+if (!draft) return new Response('No such draft', { status: 404 });
+---
+<Base title={`DRAFT · ${draft.briefing.question}`} description="Dev-only draft preview." canonicalPath={`/drafts/${draft.slug}`} hideFooterCapture={true}>
+  <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-16">
+
+    <nav class="mb-6 flex items-center justify-between">
+      <a href="/drafts" class="text-xs text-muted hover:text-ink transition-colors">← Drafts</a>
+      <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-sev-med">Draft preview · dev only · not published</span>
+    </nav>
+
+    {draft.ownerMarkers.length > 0 && (
+      <div class="mb-8 border border-hairline bg-paper px-4 py-3 max-w-[36rem]">
+        <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">{draft.ownerMarkers.length} owner calls to resolve</p>
+        <ol class="list-decimal ml-4 space-y-1.5 text-[13px] text-ink leading-snug">
+          {draft.ownerMarkers.map((m) => <li>{m}</li>)}
+        </ol>
+      </div>
+    )}
+
+    <div class="max-w-[36rem]">
+      <BriefingArticle briefing={draft.briefing} />
+    </div>
+
+  </main>
+</Base>
