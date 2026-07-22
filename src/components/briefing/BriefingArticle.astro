@@ -53,6 +53,34 @@ function firstSentence(t: string): string {
 }
 const editorLead = editorBlock && 'text' in editorBlock ? firstSentence(editorBlock.text) : '';
 
+// A position's `quote` is the verbatim extract AND it also sits inside the
+// paragraph (that is the authored contract: the paragraph contains the quote).
+// Rendering both would print the sentence twice, so split the paragraph around
+// it and promote the extract to a pull quote. That is readability rule 7 from
+// the assessment playbook, and it puts a scan anchor exactly where the
+// argument turns. Curly-to-straight normalisation is 1:1 per character, so
+// indices found in the normalised copy are valid in the original.
+function splitOnQuote(paragraph: string, quote: string): { before: string; pull: string; after: string } {
+  const q = (quote ?? '').trim();
+  if (!q) return { before: paragraph, pull: '', after: '' };
+  const norm = (s: string) => s.replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
+  const hay = norm(paragraph);
+  const needle = norm(q).replace(/^["']|["']$/g, '');
+  const i = hay.indexOf(needle);
+  // Not found (the author quoted a different source than the paragraph body):
+  // keep the paragraph whole and hang the extract underneath it.
+  if (i === -1) return { before: paragraph, pull: q, after: '' };
+  let start = i;
+  let end = i + needle.length;
+  if (hay[start - 1] === '"') start -= 1;
+  if (hay[end] === '"') end += 1;
+  return {
+    before: paragraph.slice(0, start).replace(/[\s:,]+$/, ''),
+    pull:   needle,
+    after:  paragraph.slice(end).replace(/^[\s.,;]+/, ''),
+  };
+}
+
 // v2 source model (D2 Option A): positions plot, evidence is a bibliography.
 const posSrc = briefing.positionSources ?? [];
 const eviSrc = briefing.evidenceSources ?? [];
@@ -121,7 +149,28 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
                `pos-<sourceId>`). Zero-height, no layout impact. */}
             {idx === firstPositionIdx && <span id="positions" class="block scroll-mt-24" aria-hidden="true"></span>}
             <div class="pl-4" style={`border-left:2px solid ${rule}`}>
-              <p class="text-base text-ink leading-[1.75]">{block.paragraph}</p>
+              {/* The stance label was authored, typed, and used only on feed
+                 cards; here it is the waypoint that ties a spectrum marker to
+                 its section and breaks the prose run between audit cards. */}
+              {block.label && (
+                <span class="block font-serif text-[15px] font-semibold text-ink-strong leading-snug mb-1.5">{block.label}</span>
+              )}
+              {(() => {
+                const { before, pull, after } = splitOnQuote(block.paragraph, block.quote);
+                return (
+                  <>
+                    {before && <p class="text-base text-ink leading-[1.75]">{before}</p>}
+                    {/* Pull quote: type carries it, not a second rule (the block
+                       already has the stance rule two levels out). */}
+                    {pull && (
+                      <blockquote class={`font-serif text-lg italic text-ink-strong leading-snug ${before ? 'mt-3' : ''}`}>
+                        “{pull}”
+                      </blockquote>
+                    )}
+                    {after && <p class="text-base text-ink leading-[1.75] mt-3">{after}</p>}
+                  </>
+                );
+              })()}
             </div>
             {block.audit.name && (
               <details class="audit-disclosure mt-3 bg-surface border border-hairline" open={idx === firstPositionIdx}>
