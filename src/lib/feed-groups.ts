@@ -22,6 +22,7 @@ const CATEGORY_TO_GROUP: Record<string, string> = {
   politics: 'society',
   science: 'science-environment',
   environment: 'science-environment',
+  energy: 'science-environment',
   health: 'science-environment',
   economics: 'economics-tech',
   technology: 'economics-tech',

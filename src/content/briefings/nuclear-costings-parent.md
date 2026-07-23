@@ -5,12 +5,11 @@ axisLeft: nuclear pathway cheaper
 axisRight: renewables pathway cheaper
 hook: Two rival models, five method choices. The politics moved on; the disagreement did not.
 publishedDate: 2026-07-21
-draft: true
 ---
 
 ::principals
-gencost | CSIRO GenCost | Firmed renewables the least-cost new build; nuclear mid-to-high. | government-funded; AEMO is co-publisher | gencost-review
-frontier | Frontier Economics | A nuclear-inclusive system cheaper across the whole pathway. | commissioned by the Coalition | frontier-review
+gencost | CSIRO GenCost | Firmed renewables the least-cost new build; nuclear mid-to-high. | government-funded; AEMO is co-publisher |
+frontier | Frontier Economics | A nuclear-inclusive system cheaper across the whole pathway. | commissioned by the Coalition |
 
 ::positions
 cis | Centre for Independent Studies | CIS | https://www.cis.org.au/submission/submission-to-draft-2025-26-gencost/ | -1 | high | free-market think tank; the new measure hid information
@@ -33,7 +32,7 @@ Nuclear power generation remained prohibited under federal law (the ARPANS Act 1
 GenCost has kept publishing through the fight: the 2024-25 final in July 2025 and the 2025-26 final in July 2026, both finding firmed renewables the least-cost new build.
 
 ::landscape
-Between December 2024 and the May 2025 election, Australia's nuclear debate ran on two rival costings: CSIRO and AEMO's annual GenCost report, which finds firmed renewables the cheapest new build, and Frontier Economics' modelling for the Coalition, which found a nuclear-inclusive system hundreds of billions cheaper. The politics has since moved: the Coalition's seven-site plan died with the election, its policy under Angus Taylor has shrunk to lifting the federal ban, and repeal bills are moving in the Senate and in New South Wales. The models have not moved. This briefing maps where the two costings actually disagree. It audits neither report in full; each has its own review. [OWNER: link the two sub-article slugs here once named.]
+Between December 2024 and the May 2025 election, Australia's nuclear debate ran on two rival costings: CSIRO and AEMO's annual GenCost report, which finds firmed renewables the cheapest new build, and Frontier Economics' modelling for the Coalition, which found a nuclear-inclusive system hundreds of billions cheaper. The politics has since moved: the Coalition's seven-site plan died with the election, its policy under Angus Taylor has shrunk to lifting the federal ban, and repeal bills are moving in the Senate and in New South Wales. The models have not moved. This briefing maps where the two costings actually disagree. It audits neither report in full — dedicated reviews of each are forthcoming.
 
 The disagreement is not one number against another. It is five separate method choices, each defensible, each contested, and their effects compound. A reader who knows which choice drives which headline can predict most participants' conclusions from their inputs, which is itself the finding: the costing fight is an assumptions fight wearing a conclusions costume.
 
@@ -64,13 +63,13 @@ Capacity factor | 90 per cent | 54 to 89 per cent
 Asset life | 50 years | 30 years
 Timing | coal fleet extended | 15-year lead-time clock
 
-::position colour=1 source=cis label="The measure hides the answer" quote="robbed the public and policymakers of information"
-The Centre for Independent Studies carries the critics' regrouped objection into the 2025-26 round: after SLCOE replaced the old headline measure, the submission argues the change "robbed the public and policymakers of information", shifting the fight from missing system costs to where the system boundary sits.
+::position colour=1 source=cis label="The measure hides the answer"
+The Centre for Independent Studies carries the critics' regrouped objection into the 2025-26 round: after SLCOE replaced the old headline measure, the submission argues the change withheld information from the public and policymakers, shifting the fight from missing system costs to where the system boundary sits.
 ::audit name="Contested Warrant" kind=structural
 The objection assumes the pre-SLCOE presentation informed rather than misled, which is the very point in dispute; CSIRO's stated reason for the change was that per-technology numbers were being read as system claims. Both readings fit the public record. The inference holds given its premise, and the premise is the fight.
 
-::position colour=2 source=grattan label="One parameter, adjudicated" quote="The case to switch from renewables to nuclear has not been made."
-Grattan sits between the models, conceding the build-cost inputs match and locating the gap in the capacity-factor assumption, concluding "The case to switch from renewables to nuclear has not been made." [OWNER: verify this exact sentence appears as prose at the Grattan URL and not only as the headline; if headline only, swap for an in-text sentence from the same piece.]
+::position colour=2 source=grattan label="One parameter, adjudicated" quote="But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic."
+Grattan sits between the models, conceding the build-cost inputs match and locating the gap in the capacity-factor assumption: "While both use similar estimates of the capital cost of nuclear plants, the big difference is that Frontier has assumed nuclear plants would run 90 per cent of the time, while CSIRO has used a range of 54-89 per cent, more akin to what coal currently achieves." On that parameter Grattan lands with GenCost: "But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic."
 ::structure supports="that one parameter explains the arithmetic gap between the two costings" asserts="that the coal-fleet capacity factor is the correct one to use"
 1 | quoted   | Both reports use similar estimates of the capital cost of nuclear plants.
 2 | quoted   | Frontier assumes plants run 90 per cent of the time; CSIRO uses a 54 to 89 per cent range.
@@ -90,11 +89,11 @@ The inference is sound given the 15-year clock and the exit schedule, but both p
 Beneath five lines of disagreement, the combatants share a load-bearing frame: that a cost model, correctly parameterised, is the right instrument to settle a national technology choice, and that its outputs deserve headline status even as every party concedes under pressure that those outputs move with the assumptions. They also share more specific ground: nobody disputes the coal fleet is exiting, both models use similar nuclear build costs per kilowatt, and both publish sensitivity results their own headlines ignore. The AAP FactCheck's finding that both major parties overclaimed is the shared assumption's receipt.
 
 ::editor
-[OWNER: your verdict on the mapping. The draft's honest reading: the five lines are genuinely open at different levels. Lines one and two are resolved questions of method hygiene (compare like scenarios; publish sensitivities) that neither headline honoured. Lines three and four are legitimate open parameter disputes that evidence could narrow but has not. Line five is the strongest decided question: the lead-time clock plus the still-standing ban makes the timing argument currently unanswerable by the nuclear side except by attacking the exit schedule. Write 3-4 sentences in your voice.]
+The five lines are open at different levels. The first two are resolved questions of method hygiene — compare like scenarios, publish the sensitivities — that neither political headline honoured. The middle two are legitimate open parameter disputes that evidence could narrow but has not, so the two reports' outputs will remain a function of their reference-class and recovery-window conventions until someone runs the sensitivities and shows them. The fifth, timing, is the strongest decided question against the nuclear pathway: the 15-year clock plus a still-standing federal ban leaves the nuclear side answering not by disputing the arithmetic but by attacking the coal-exit schedule that makes the arithmetic bite.
 ::why-wrong
 The mapping itself embeds a choice: treating the dispute as five separable lines flatters the tractable parts and understates the possibility that the frame question, whether any such model should carry this decision, swallows the rest. Bruce Mountain's position, that the only honest answer is "it depends on many barely known and many unknown things", would rate this briefing's tidy decomposition as part of the genre it critiques.
 
 ::takes
 Ted O'Brien, 4BC radio · 7 Jan 2025 | https://www.4bc.com.au/podcast/the-big-debate-ted-obrien-declares-nuclear-44-per-cent-cheaper-to-get-to-net-zero/ | They've compared the cost of Labor's pathway to get to a net-zero grid by 2050 to the Coalition's one, which includes nuclear and it says that the Coalition's pathway is $263 billion cheaper. | The comparison crosses demand scenarios; the like-for-like figure in the same report is 25 per cent. Quoting only the cross-scenario number is a scenario-shopping move the report's own text enables but does not require.
 Danny Price, AFR op-ed · 18 Dec 2024 | https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/ | There is no shortage of horror stories about nuclear plant cost blowouts, but there are also excellent recent examples of projects that are far less costly than what I have used and even lower than recommended by the CSIRO and with learning rates well in excess of what I assumed. | Selective admission: overruns are dismissed as noise while favourable builds enter as evidence, with no stated selection rule for either.
-Bruce Mountain, The Conversation | https://theconversation.com/known-unknowns-controversy-over-csiros-electricity-report-reveals-an-uncomfortable-truth-231691 | Comparing the average costs of wind, solar, nuclear, hydro and coal power sounds like a simple thing to do. But the only plausible answer is: 'it depends on many barely known and many unknown things'. | The anti-frame position both camps must answer: if he is right, the argument between the models is a category error, and this briefing's decomposition inherits the charge.
+Bruce Mountain, The Conversation | https://theconversation.com/known-unknowns-controversy-over-csiros-electricity-report-reveals-an-uncomfortable-truth-231691 | Comparing the average costs of wind, solar, nuclear, hydro and coal power sounds like a simple thing to do. But the only plausible answer is: "it depends on many barely known and many unknown things". | The anti-frame position both camps must answer: if he is right, the argument between the models is a category error, and this briefing's decomposition inherits the charge.

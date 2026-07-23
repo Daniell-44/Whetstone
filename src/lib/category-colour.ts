@@ -7,6 +7,7 @@ export const CATEGORY_COLOUR: Record<string, string> = {
   technology:  '#3E5F78', // muted blue
   economics:   '#8A5238', // muted rust
   environment: '#4F6B4E', // muted green
+  energy:      '#6B7A3E', // muted olive (kin to environment; distinct)
   science:     '#3F6A6C', // muted teal
   law:         '#6B5D48', // muted brown
   philosophy:  '#5C4F6B', // muted plum

@@ -164,7 +164,9 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
             <span class="font-serif text-base font-semibold text-ink-strong leading-tight">{p.name}</span>
             {p.finding && <span class="text-[13px] text-ink leading-snug">{p.finding}</span>}
             {p.interest && <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] leading-snug">Interest: {p.interest}</span>}
-            {p.reviewSlug && <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-accent-support hover:text-accent">Full review →</a>}
+            {p.reviewSlug
+              ? <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-accent-support hover:text-accent">Full review →</a>
+              : <span class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-muted">Review forthcoming</span>}
           </div>
         ))}
       </div>
