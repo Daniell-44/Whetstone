@@ -93,6 +93,16 @@ const hasTakes = briefing.blocks.some((b) => b.type === 'takes');
 // Stance poles — the Instrument palette: drafting blue vs oxide rust (never the redline).
 const stanceCol = (s: number) => (s < 0 ? '#345D7E' : s > 0 ? '#8C4A2F' : '#6E7370');
 const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
+const posSourceById = new Map(posSrc.map((s) => [s.id, s] as const));
+// Sources plotted on the spectrum but WITHOUT a full ::position block —
+// they get an inline commentary card (label + interest + their quote + one-
+// line audit). This is the merged-in former ::takes format for sources
+// too small to warrant a full block. Sorted by stance so cards read
+// left-to-right in axis order.
+const blockSourceIds = new Set(briefing.blocks.flatMap((b) => (b.type === 'position' ? [b.sourceId] : [])));
+const inlineCommentary = posSrc
+  .filter((s) => !blockSourceIds.has(s.id) && s.quote && s.auditNote)
+  .sort((a, b) => a.stance - b.stance);
 // The kicker names the register so a reader always knows what they're reading.
 // review = drafting-blue, opinion = oxide-rust (clearly the author's voice),
 // explainer = accent-support, briefing = muted. Decided 2026-07-21.
@@ -221,34 +231,62 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         );
       }
       if (block.type === 'matrix') {
-        // Crux display C: who-disagrees-on-what. Scrolls inside its own box so
-        // the page body never scrolls sideways. Cells are plain text the author
-        // writes; no colour-coding beyond the hairline grid.
+        // Crux display C: who-disagrees-on-what. Restyled 2026-07-21 from a
+        // hairline table into cards-per-crux with the two actor columns
+        // sharing the piece's stance palette (drafting-blue vs oxide-rust)
+        // and mono values — reads as claims, not a spreadsheet. Two actors
+        // is the strong case (the parent's principals); three or more falls
+        // back to a compact table so wide grids don't blow out mobile.
+        const twoActor = block.actors.length === 2;
         return (
-          <div>
-            {block.caption && <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">{block.caption}</span>}
-            <div class="overflow-x-auto border border-hairline">
-              <table class="w-full border-collapse text-[13px]">
-                <thead>
-                  <tr>
-                    <th class="text-left align-bottom p-2 border-b border-hairline bg-paper font-mono text-[10px] uppercase tracking-wide text-muted font-semibold">Crux</th>
-                    {block.actors.map((a) => (
-                      <th class="text-left align-bottom p-2 border-b border-l border-hairline bg-paper font-mono text-[10px] uppercase tracking-wide text-muted font-semibold whitespace-nowrap">{a}</th>
+          <div class="my-4">
+            {/* A small heading for the block so it reads as an anchor, not
+               an inline afterthought. Serif h3, matching the tier heading
+               grammar but one level down. */}
+            {block.caption && <h3 class="font-serif text-lg text-ink-strong mb-3 leading-snug">{block.caption}</h3>}
+            {twoActor ? (
+              <div class="grid gap-2">
+                {/* Column headers — the two actors, coloured by stance. */}
+                <div class="grid grid-cols-[6.5rem_1fr_1fr] gap-2 pb-2 border-b border-hairline">
+                  <span></span>
+                  {block.actors.map((a, i) => (
+                    <span class={`font-mono text-[10px] font-semibold uppercase tracking-[0.06em] ${i === 0 ? 'text-[#345D7E]' : 'text-[#8C4A2F]'}`}>{a}</span>
+                  ))}
+                </div>
+                {block.rows.map((r) => (
+                  <div class="grid grid-cols-[6.5rem_1fr_1fr] gap-2 items-baseline border-b border-hairline/60 pb-2">
+                    <span class="font-mono text-[10.5px] uppercase tracking-[0.05em] text-muted leading-snug">{r.crux}</span>
+                    {r.cells.map((c, i) => (
+                      <span class={`font-serif text-[15px] leading-tight ${i === 0 ? 'text-[#345D7E]' : 'text-[#8C4A2F]'}`}>{c}</span>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {block.rows.map((r) => (
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* Fallback: compact table for 3+ actors. */
+              <div class="overflow-x-auto border border-hairline">
+                <table class="w-full border-collapse text-[13px]">
+                  <thead>
                     <tr>
-                      <th class="text-left align-top p-2 border-t border-hairline font-semibold text-ink-strong text-[13px]">{r.crux}</th>
-                      {r.cells.map((c) => (
-                        <td class="align-top p-2 border-t border-l border-hairline text-ink">{c}</td>
+                      <th class="text-left align-bottom p-2 border-b border-hairline bg-paper font-mono text-[10px] uppercase tracking-wide text-muted font-semibold">Crux</th>
+                      {block.actors.map((a) => (
+                        <th class="text-left align-bottom p-2 border-b border-l border-hairline bg-paper font-mono text-[10px] uppercase tracking-wide text-muted font-semibold whitespace-nowrap">{a}</th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {block.rows.map((r) => (
+                      <tr>
+                        <th class="text-left align-top p-2 border-t border-hairline font-semibold text-ink-strong text-[13px]">{r.crux}</th>
+                        {r.cells.map((c) => (
+                          <td class="align-top p-2 border-t border-l border-hairline text-ink">{c}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         );
       }
@@ -276,28 +314,42 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                immediately above the first position, so it follows any cruxes/
                matrix and introduces the audited commentary. */}
             {idx === firstPositionIdx && (
-              <div class="mb-6 not-prose">
+              <div id="commentary" class="mb-8 not-prose scroll-mt-24">
+                {/* Full-width tier heading — the reader needs to know the
+                   register just changed (principals → commentary). Serif h2 +
+                   rule across the reading column, not a mono kicker. */}
                 {briefing.principals && briefing.principals.length > 0 && (
-                  <div class="flex items-center gap-3 mb-3">
-                    <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-strong">The commentary</span>
-                    <span class="text-[11px] text-muted">how others read it</span>
-                    <span class="h-px flex-1 bg-hairline"></span>
-                  </div>
+                  <>
+                    <hr class="border-0 border-t border-ink-strong mb-4" />
+                    <h2 class="font-serif text-2xl text-ink-strong mb-1 leading-tight">The commentary</h2>
+                    <p class="text-sm text-muted mb-5">How others read the two reports — each source's stance, its interest, and one quoted line audited.</p>
+                  </>
                 )}
                 <div class="mb-4">
                   {v2
                     ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
                     : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
                 </div>
-                {posSrc.some((s) => s.interest) && (
-                  <dl class="divide-y divide-hairline border-y border-hairline">
-                    {posSrc.filter((s) => s.interest).map((s) => (
-                      <div class="grid grid-cols-[7rem_1fr] gap-3 py-2 text-[13px] leading-snug">
-                        <dt class="font-semibold text-ink-strong">{s.label}</dt>
-                        <dd class="text-ink"><span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1.5">Interest</span>{s.interest}</dd>
-                      </div>
-                    ))}
-                  </dl>
+                {inlineCommentary.length > 0 && (
+                  <div class="grid gap-3">
+                    {inlineCommentary.map((s) => {
+                      const rule = stanceCol(s.stance);
+                      const kindStyleIC = KIND_STYLE[s.auditKind ?? 'interpretive'] ?? KIND_STYLE.interpretive;
+                      return (
+                        <div id={`pos-${s.id}`} class="scroll-mt-24 pl-3.5 py-1.5" style={`border-left:2px solid ${rule}`}>
+                          <div class="flex items-baseline gap-2 flex-wrap mb-1">
+                            <span class="font-serif text-[15px] font-semibold text-ink-strong leading-snug">{s.label}</span>
+                            {s.interest && <span class="text-[12px] text-muted leading-snug"><span class="font-mono text-[9px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1">Interest</span>{s.interest}</span>}
+                          </div>
+                          <blockquote class="font-serif text-[15px] italic text-ink-strong leading-snug mb-1.5">“{s.quote}”</blockquote>
+                          <p class="text-[13px] text-ink leading-snug pl-3 border-l-2 border-hairline">
+                            <span class={`inline-block mr-2 font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border ${kindStyleIC}`}>{KIND_LABEL[s.auditKind ?? 'interpretive']}</span>
+                            {s.auditNote}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             )}
@@ -308,6 +360,18 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               {block.label && (
                 <span class="block font-serif text-[15px] font-semibold text-ink-strong leading-snug mb-1.5">{block.label}</span>
               )}
+              {/* Interest disclosure (cui-bono) — moves from the mini-table
+                 into the position body itself, next to the source label,
+                 where it disambiguates the voice speaking. */}
+              {(() => {
+                const src = posSourceById.get(block.sourceId);
+                return src?.interest && (
+                  <p class="text-[13px] leading-snug text-muted mb-2.5">
+                    <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1.5">Interest</span>
+                    {src.interest}
+                  </p>
+                );
+              })()}
               {(() => {
                 const { before, pull, after } = splitOnQuote(block.paragraph, block.quote);
                 return (
@@ -322,6 +386,27 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                     )}
                     {after && <p class="text-base text-ink leading-[1.75] mt-3">{after}</p>}
                   </>
+                );
+              })()}
+              {/* Merged former ::takes atom: a representative quote from the
+                 source with a one-line audit. Only renders when authored on
+                 the source (positions.quote / auditNote). Layout mirrors the
+                 old take (serif quote + rule + audit) so nothing is lost. */}
+              {(() => {
+                const src = posSourceById.get(block.sourceId);
+                if (!src?.quote) return null;
+                const kindStyleSrc = KIND_STYLE[src.auditKind ?? 'interpretive'] ?? KIND_STYLE.interpretive;
+                return (
+                  <div class="mt-4 pt-3 border-t border-hairline/60">
+                    <span class="font-mono text-[10px] uppercase tracking-[0.06em] text-muted mb-1.5 block">Their own words</span>
+                    <blockquote class="font-serif text-base italic text-ink-strong leading-snug mb-2">“{src.quote}”</blockquote>
+                    {src.auditNote && (
+                      <p class="text-[13.5px] text-ink leading-snug pl-3 border-l-2 border-hairline">
+                        <span class={`inline-block mr-2 font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border ${kindStyleSrc}`}>{KIND_LABEL[src.auditKind ?? 'interpretive']}</span>
+                        {src.auditNote}
+                      </p>
+                    )}
+                  </div>
                 );
               })()}
             </div>
@@ -443,8 +528,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
     })}
   </div>
 
-  {/* Other-takes absence, stated (D2 policy): only when explicitly declared. */}
-  {!isExplainer && !hasTakes && briefing.otherTakes === 'none' && (
+  {/* Other-takes absence stated (D2 policy) — but only if there IS no
+     commentary tier absorbing them. Since the 2026-07-21 takes-merge, a
+     briefing with commentary positions already displays every take as an
+     inline commentary card, so this note only fires when there are ALSO no
+     commentary sources. */}
+  {!isExplainer && !hasTakes && briefing.otherTakes === 'none' && posSrc.length === 0 && (
     <div class="mt-8">
       <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Other takes</span>
       <p class="text-sm text-muted italic">No further takes surveyed for this question.</p>

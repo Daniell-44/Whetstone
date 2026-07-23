@@ -71,9 +71,12 @@ Audit note.
     });
   });
   it('flags an unaudited plotted position (audited-by-definition rule)', () => {
+    // Since the 2026-07-21 takes-merge, a plotted position is "audited" if it
+    // has EITHER a ::position block OR inline `quote+auditNote` on the source
+    // row. The error message changed shape accordingly.
     const issues = validateBriefing(b);
-    expect(issues.some((i) => i.includes('cengiz') && i.includes('no ::position audit card'))).toBe(true);
-    expect(issues.some((i) => i.includes('jardim') && i.includes('no ::position audit card'))).toBe(false);
+    expect(issues.some((i) => i.includes('cengiz') && i.includes('no audit'))).toBe(true);
+    expect(issues.some((i) => i.includes('jardim') && i.includes('no audit'))).toBe(false);
   });
 });
 

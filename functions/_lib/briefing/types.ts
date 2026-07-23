@@ -31,6 +31,13 @@ export interface BriefingPositionSource {
      funds/commissions/benefits). "Where it's coming from" as INTEREST, never
      ideology. Decided 2026-07-21: interest, not a political compass. */
   interest?:    string;
+  /** Optional representative quote from this source (verbatim, must be at
+     `url` — gates through verify:quotes). Merges the former ::takes section
+     into commentary: each source's stance is followed by its actual voice
+     with a one-line audit. Decided 2026-07-21. */
+  quote?:       string;
+  auditNote?:   string;
+  auditKind?:   'structural' | 'interpretive' | 'empirical';
 }
 
 // Principals: the primary sources UNDER audit (the reports/models the piece is

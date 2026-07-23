@@ -69,5 +69,12 @@ export function collectQuoteChecks(b: BriefingArticle): QuoteCheck[] {
       if (url) checks.push({ where: `position:${block.label || block.sourceId}`, quote: block.quote, url });
     }
   }
+  // Merged-in ::takes quotes now live on the ::positions row itself as
+  // `quote + auditNote` (decided 2026-07-21). These are the commentary
+  // atoms — verifier must cover them or the fabrication guard blinds itself
+  // exactly where the new format put the shareable voice.
+  for (const s of b.positionSources ?? []) {
+    if (s.quote && s.url) checks.push({ where: `commentary:${s.label || s.id}`, quote: s.quote, url: s.url });
+  }
   return checks;
 }

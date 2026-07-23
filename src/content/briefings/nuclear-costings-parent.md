@@ -5,6 +5,8 @@ axisLeft: nuclear pathway cheaper
 axisRight: renewables pathway cheaper
 hook: Two rival models, five method choices. The politics moved on; the disagreement did not.
 publishedDate: 2026-07-21
+otherTakes: none
+image: /briefing-images/nuclear-cooling-tower.svg
 ---
 
 ::principals
@@ -12,8 +14,11 @@ gencost | CSIRO GenCost | Firmed renewables the least-cost new build; nuclear mi
 frontier | Frontier Economics | A nuclear-inclusive system cheaper across the whole pathway. | commissioned by the Coalition |
 
 ::positions
+obrien | Ted O'Brien | 4BC | https://www.4bc.com.au/podcast/the-big-debate-ted-obrien-declares-nuclear-44-per-cent-cheaper-to-get-to-net-zero/ | -2 | high | Coalition energy spokesman; defends his own policy's costing | They've compared the cost of Labor's pathway to get to a net-zero grid by 2050 to the Coalition's one, which includes nuclear and it says that the Coalition's pathway is $263 billion cheaper. | The comparison crosses demand scenarios; the like-for-like figure in the same report is 25 per cent. Quoting only the cross-scenario number is a scenario-shopping move the report's own text enables but does not require. | structural
+price | Danny Price, AFR op-ed | Frontier Economics | https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/ | -2 | high | Frontier's managing director; defending his own model in public | There is no shortage of horror stories about nuclear plant cost blowouts, but there are also excellent recent examples of projects that are far less costly than what I have used and even lower than recommended by the CSIRO and with learning rates well in excess of what I assumed. | Selective admission: overruns are dismissed as noise while favourable builds enter as evidence, with no stated selection rule for either. | interpretive
 cis | Centre for Independent Studies | CIS | https://www.cis.org.au/submission/submission-to-draft-2025-26-gencost/ | -1 | high | free-market think tank; the new measure hid information
 grattan | Grattan Institute (Tony Wood) | Grattan Institute | https://grattan.edu.au/news/the-case-to-switch-from-renewables-to-nuclear-has-not-been-made/ | 1 | med | independent institute; adjudicating, no stake in either report
+mountain | Bruce Mountain, The Conversation | The Conversation | https://theconversation.com/known-unknowns-controversy-over-csiros-electricity-report-reveals-an-uncomfortable-truth-231691 | 0 | high | Victoria Energy Policy Centre director; refuses the frame both camps share | Comparing the average costs of wind, solar, nuclear, hydro and coal power sounds like a simple thing to do. But the only plausible answer is: "it depends on many barely known and many unknown things". | The anti-frame position both camps must answer: if he is right, the argument between the models is a category error, and this briefing's decomposition inherits the charge. | interpretive
 aemo | AEMO (Daniel Westerman) | RenewEconomy | https://reneweconomy.com.au/nuclear-too-slow-to-replace-coal-and-baseload-simply-cant-compete-with-wind-and-solar-aemo-boss-says/ | 2 | med | the market operator; co-publishes GenCost, so party to one report
 
 ::evidence
@@ -93,7 +98,3 @@ The five lines are open at different levels. The first two are resolved question
 ::why-wrong
 The mapping itself embeds a choice: treating the dispute as five separable lines flatters the tractable parts and understates the possibility that the frame question, whether any such model should carry this decision, swallows the rest. Bruce Mountain's position, that the only honest answer is "it depends on many barely known and many unknown things", would rate this briefing's tidy decomposition as part of the genre it critiques.
 
-::takes
-Ted O'Brien, 4BC radio · 7 Jan 2025 | https://www.4bc.com.au/podcast/the-big-debate-ted-obrien-declares-nuclear-44-per-cent-cheaper-to-get-to-net-zero/ | They've compared the cost of Labor's pathway to get to a net-zero grid by 2050 to the Coalition's one, which includes nuclear and it says that the Coalition's pathway is $263 billion cheaper. | The comparison crosses demand scenarios; the like-for-like figure in the same report is 25 per cent. Quoting only the cross-scenario number is a scenario-shopping move the report's own text enables but does not require.
-Danny Price, AFR op-ed · 18 Dec 2024 | https://www.frontier-economics.com.au/the-critics-are-wrong-about-frontiers-nuclear-costings-australian-financial-review-afr-op-ed/ | There is no shortage of horror stories about nuclear plant cost blowouts, but there are also excellent recent examples of projects that are far less costly than what I have used and even lower than recommended by the CSIRO and with learning rates well in excess of what I assumed. | Selective admission: overruns are dismissed as noise while favourable builds enter as evidence, with no stated selection rule for either.
-Bruce Mountain, The Conversation | https://theconversation.com/known-unknowns-controversy-over-csiros-electricity-report-reveals-an-uncomfortable-truth-231691 | Comparing the average costs of wind, solar, nuclear, hydro and coal power sounds like a simple thing to do. But the only plausible answer is: "it depends on many barely known and many unknown things". | The anti-frame position both camps must answer: if he is right, the argument between the models is a category error, and this briefing's decomposition inherits the charge.

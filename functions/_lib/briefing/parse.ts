@@ -70,6 +70,11 @@ function parsePositions(text: string): BriefingPositionSource[] {
         confidence:  (conf === 'low' || conf === 'high' ? conf : 'med') as BriefingPositionSource['confidence'],
         // Optional 7th column: cui-bono interest note (commentary sources).
         ...(p[6] ? { interest: p[6] } : {}),
+        // Optional 8/9/10: representative quote + one-line audit + kind
+        // (merges the ::takes section into commentary — decided 2026-07-21).
+        ...(p[7] ? { quote: p[7] } : {}),
+        ...(p[8] ? { auditNote: p[8] } : {}),
+        ...(p[9] && (p[9] === 'structural' || p[9] === 'interpretive' || p[9] === 'empirical') ? { auditKind: p[9] as BriefingPositionSource['auditKind'] } : {}),
       };
     });
 }
@@ -328,14 +333,16 @@ export function validateBriefing(b: BriefingArticle): string[] {
     if (posIds.has(s.id)) issues.push(`id "${s.id}" appears in both ::positions and ::evidence — a source holds one role`);
   }
 
-  // Every plotted position is audited BY DEFINITION under v2: it must be the
-  // subject of a ::position block (audit card) or a ::takes item.
-  const auditedIds = new Set(
-    b.blocks.flatMap((bl) => (bl.type === 'position' && bl.audit.name ? [bl.sourceId] : [])),
-  );
+  // Every plotted position is audited BY DEFINITION under v2. Since the
+  // 2026-07-21 takes-merge, a source can carry its audit in EITHER a full
+  // ::position block OR inline via `quote + auditNote` on the source row.
+  const auditedIds = new Set([
+    ...b.blocks.flatMap((bl) => (bl.type === 'position' && bl.audit.name ? [bl.sourceId] : [])),
+    ...pos.filter((s) => s.quote && s.auditNote).map((s) => s.id),
+  ]);
   if (v2) {
     for (const s of pos) {
-      if (!auditedIds.has(s.id)) issues.push(`plotted position "${s.id}" has no ::position audit card — under the v2 model every plotted point is audited (move it to ::evidence or audit it)`);
+      if (!auditedIds.has(s.id)) issues.push(`plotted position "${s.id}" has no audit — either add a ::position block or fill quote+auditNote columns on the ::positions row`);
     }
   }
 
