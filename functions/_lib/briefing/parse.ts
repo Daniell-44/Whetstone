@@ -3,7 +3,7 @@
 // dependency needed), a `::sources` pipe-table, and `::` block markers in the
 // body. Plain paragraphs between markers become `prose` blocks.
 
-import type { BriefingArticle, BriefingBlock, BriefingSource, BriefingPositionSource, BriefingEvidenceSource, PositionAudit, PositionStructure, StructureRow } from './types';
+import type { BriefingArticle, BriefingBlock, BriefingSource, BriefingPositionSource, BriefingEvidenceSource, BriefingPrincipal, PositionAudit, PositionStructure, StructureRow } from './types';
 
 // Tolerant number parse — a stray or non-numeric `leaning`/`colour` becomes 0
 // (spectrum centre) rather than NaN, which would break the spectrum maths.
@@ -68,6 +68,26 @@ function parsePositions(text: string): BriefingPositionSource[] {
         url:         p[3] ?? '',
         stance,
         confidence:  (conf === 'low' || conf === 'high' ? conf : 'med') as BriefingPositionSource['confidence'],
+        // Optional 7th column: cui-bono interest note (commentary sources).
+        ...(p[6] ? { interest: p[6] } : {}),
+      };
+    });
+}
+
+// id | name | finding | interest | reviewSlug — the primary sources under audit.
+function parsePrincipals(text: string): BriefingPrincipal[] {
+  return text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const p = line.split('|').map((x) => x.trim());
+      return {
+        id:          p[0] ?? '',
+        name:        p[1] ?? '',
+        finding:     p[2] ?? '',
+        ...(p[3] ? { interest: p[3] } : {}),
+        ...(p[4] ? { reviewSlug: p[4] } : {}),
       };
     });
 }
@@ -102,6 +122,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
   let sources: BriefingSource[] = [];
   let positionSources: BriefingPositionSource[] = [];
   let evidenceSources: BriefingEvidenceSource[] = [];
+  let principals: BriefingPrincipal[] = [];
   let proseBuf: string[] = [];
 
   const flushProse = () => {
@@ -155,6 +176,20 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       // top of the page (extracted like landscape). One factual line per row.
       const items = readUntilMarker().split('\n').map((l) => l.trim().replace(/^[-*]\s*/, '')).filter(Boolean);
       blocks.push({ type: 'context', label: attrs.label ?? 'The settled facts', items });
+    } else if (name === 'principals') {
+      // The primary sources under audit (the reports/models), each → a review.
+      principals = parsePrincipals(readUntilMarker());
+    } else if (name === 'cruxes') {
+      // The disagreement shown as a named set at once (crux display A).
+      const items = readUntilMarker().split('\n').map((l) => l.trim().replace(/^[-*]\s*/, '')).filter(Boolean);
+      blocks.push({ type: 'cruxes', label: attrs.label ?? 'They diverge on:', items });
+    } else if (name === 'matrix') {
+      // Who-disagrees-on-what grid (crux display C). First row = actor headers
+      // (leading empty cell), each later row = crux | cell | cell | …
+      const rowsRaw = readUntilMarker().split('\n').map((l) => l.trim()).filter(Boolean).map((l) => l.split('|').map((x) => x.trim()));
+      const actors = (rowsRaw[0] ?? []).slice(1);
+      const rows = rowsRaw.slice(1).map((r) => ({ crux: r[0] ?? '', cells: r.slice(1) }));
+      if (rows.length) blocks.push({ type: 'matrix', caption: attrs.caption ?? '', actors, rows });
     } else if (name === 'position') {
       const paragraph = readParagraph();
       // Optional `::structure` between the paragraph and the audit: the argument
@@ -248,6 +283,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
     sources,
     ...(positionSources.length ? { positionSources } : {}),
     ...(evidenceSources.length ? { evidenceSources } : {}),
+    ...(principals.length ? { principals } : {}),
     ...(fm.otherTakes === 'none' ? { otherTakes: 'none' as const } : {}),
     ...(fm.archived === 'true' ? { archived: true as const } : {}),
     blocks,

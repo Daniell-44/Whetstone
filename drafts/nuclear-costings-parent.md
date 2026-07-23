@@ -8,12 +8,14 @@ publishedDate: 2026-07-21
 draft: true
 ---
 
+::principals
+gencost | CSIRO GenCost | Firmed renewables the least-cost new build; nuclear mid-to-high. | government-funded; AEMO is co-publisher | gencost-review
+frontier | Frontier Economics | A nuclear-inclusive system cheaper across the whole pathway. | commissioned by the Coalition | frontier-review
+
 ::positions
-frontier | Frontier Economics (Reports 1-2, 2024) | Frontier Economics | https://www.frontier-economics.com.au/wp-content/uploads/2024/12/Report-2-Nuclear-power-analysis-Final-STC.pdf | -2 | high
-cis | Centre for Independent Studies | CIS | https://www.cis.org.au/submission/submission-to-draft-2025-26-gencost/ | -1 | high
-grattan | Grattan Institute (Tony Wood) | Grattan Institute | https://grattan.edu.au/news/the-case-to-switch-from-renewables-to-nuclear-has-not-been-made/ | 1 | med
-gencost | CSIRO GenCost 2024-25 and 2025-26 | CSIRO / AEMO | https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt | 2 | high
-aemo | AEMO (Daniel Westerman) | RenewEconomy | https://reneweconomy.com.au/nuclear-too-slow-to-replace-coal-and-baseload-simply-cant-compete-with-wind-and-solar-aemo-boss-says/ | 2 | med
+cis | Centre for Independent Studies | CIS | https://www.cis.org.au/submission/submission-to-draft-2025-26-gencost/ | -1 | high | free-market think tank; the new measure hid information
+grattan | Grattan Institute (Tony Wood) | Grattan Institute | https://grattan.edu.au/news/the-case-to-switch-from-renewables-to-nuclear-has-not-been-made/ | 1 | med | independent institute; adjudicating, no stake in either report
+aemo | AEMO (Daniel Westerman) | RenewEconomy | https://reneweconomy.com.au/nuclear-too-slow-to-replace-coal-and-baseload-simply-cant-compete-with-wind-and-solar-aemo-boss-says/ | 2 | med | the market operator; co-publishes GenCost, so party to one report
 
 ::evidence
 gencost2425 | GenCost 2024-25 Final report | CSIRO | https://www.csiro.au/-/media/Energy/GenCost/GenCost202425Final-accessible-text.txt | The edition the fight ran on. Quotes verified character-for-character this session.
@@ -35,6 +37,13 @@ Between December 2024 and the May 2025 election, Australia's nuclear debate ran 
 
 The disagreement is not one number against another. It is five separate method choices, each defensible, each contested, and their effects compound. A reader who knows which choice drives which headline can predict most participants' conclusions from their inputs, which is itself the finding: the costing fight is an assumptions fight wearing a conclusions costume.
 
+::cruxes label="The two reports diverge on five method choices"
+what to measure
+which demand future
+capacity factor
+asset life
+timing
+
 ::line name="What to measure"
 GenCost compares technologies by levelised cost, and from 2025-26 by a system-wide levelised cost, conceding in the new edition that "LCOE does not include renewable integration costs. SLCOE does." Frontier refuses per-technology comparison entirely and costs whole system pathways, its principal defending the frame: "On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition." These are different questions, and each side's headline answers only its own.
 
@@ -47,10 +56,13 @@ Both sides feed in similar build costs; Grattan's Tony Wood isolated the diverge
 ::line name="How long the asset lives, and when it arrives"
 GenCost recovers capital over 30 years and prices the 60-year benefit at 8 per cent net of refurbishment; Frontier amortises over 50. On timing, GenCost holds "at least 15 years remains the most plausible lead time", a clock that starts at repeal of a federal ban still in force on the February 2026 Senate record, while Frontier's pathway holds most of the coal fleet open to bridge the wait: "The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM."
 
-::position colour=0 source=frontier label="System cost decides for nuclear" quote="It is very unlikely that the inclusion of nuclear power in the NEM would, in practice, ever be more expensive than AEMO's approach."
-Frontier's position is that pathway cost is the only honest measure and that on it nuclear wins under either scenario, 25 per cent inside Step Change and 44 per cent in the Progressive pairing. The model's strongest sentence is modal: "It is very unlikely that the inclusion of nuclear power in the NEM would, in practice, ever be more expensive than AEMO's approach."
-::audit name="Modal Overreach" kind=structural
-A near-certainty claim about all practical futures rests on one model construction with unpublished per-technology workings. The 25 per cent like-for-like result is real and auditable in outline; "very unlikely ever" extends a model output into a claim about the world that the construction cannot carry.
+::matrix caption="Where each side lands on the five choices"
+ | Frontier | GenCost
+What to measure | whole-system cost | per technology
+Demand future | progressive pairing | step change
+Capacity factor | 90 per cent | 54 to 89 per cent
+Asset life | 50 years | 30 years
+Timing | coal fleet extended | 15-year lead-time clock
 
 ::position colour=1 source=cis label="The measure hides the answer" quote="robbed the public and policymakers of information"
 The Centre for Independent Studies carries the critics' regrouped objection into the 2025-26 round: after SLCOE replaced the old headline measure, the submission argues the change "robbed the public and policymakers of information", shifting the fight from missing system costs to where the system boundary sits.
@@ -68,11 +80,6 @@ C | -        | The capacity-factor assumption, not the build cost, explains the 
 The conclusion needs premise (3), which the adjudication does not argue for. Whether Australian coal or the operating world nuclear fleet better predicts an Australian reactor is the dispute itself, and here it is settled by proximity to the coal figure rather than by evidence.
 ::audit name="Inherited Reference Class" kind=interpretive
 The adjudication accepts GenCost's coal-fleet analogy by proximity rather than argument. Isolating the load-bearing parameter is the piece's real service; ruling on it by analogy repeats the move under audit.
-
-::position colour=3 source=gencost label="Firmed renewables cheapest, nuclear mid-to-high" quote="Nuclear power does not currently provide the most cost competitive solution for low emission electricity in Australia"
-GenCost's scoped conclusion is a present-tense competitiveness claim, held across both recent editions, with large-scale nuclear placed above firmed renewables and near gas-with-CCS, and SMRs highest. The scope is narrower than its public use: "does not currently provide the most cost competitive solution" is a statement about today's costs under the report's conventions, not about any future or any policy.
-::audit name="The Inference Holds" kind=structural
-Within its stated conventions the ranking follows, the formulas are applied across technologies consistently, and the report revises publicly under criticism. The genuine findings against it live in the conventions themselves, primarily the coal-fleet reference class and the 30-year window, and those are audited in the dedicated review. [OWNER: link gencost review slug.]
 
 ::position colour=4 source=aemo label="Cost is moot if it misses the exit" quote="Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations."
 AEMO's chief executive moves the ground from cost to timing: "Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations." If the coal exit schedule holds, the cost comparison never gets its chance.

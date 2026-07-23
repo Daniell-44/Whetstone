@@ -27,6 +27,22 @@ export interface BriefingPositionSource {
   stance:       -2 | -1 | 0 | 1 | 2;
   /** Placement confidence (published rubric on /method): renders as marker width. */
   confidence:   'low' | 'med' | 'high';
+  /** Optional cui-bono disclosure — a short, checkable interest note (who
+     funds/commissions/benefits). "Where it's coming from" as INTEREST, never
+     ideology. Decided 2026-07-21: interest, not a political compass. */
+  interest?:    string;
+}
+
+// Principals: the primary sources UNDER audit (the reports/models the piece is
+// about), distinct from commentary reacting to them (the stratification decided
+// 2026-07-21). Each links to its own full review; it is NOT audited inline on
+// the parent — its audit IS the review.
+export interface BriefingPrincipal {
+  id:          string;
+  name:        string;
+  finding:     string;    // one line: what this source concludes
+  interest?:   string;    // cui-bono disclosure
+  reviewSlug?: string;    // → the standalone review (sub-article)
 }
 
 export interface BriefingEvidenceSource {
@@ -65,8 +81,10 @@ export interface PositionStructure {
 export type BriefingBlock =
   | { type: 'landscape';  text: string }                                   // editor's framing
   | { type: 'prose';      text: string }                                   // connective tissue
-  | { type: 'line';       name: string }                                   // numbered section marker in the opening run (breaks the wall)
+  | { type: 'line';       name: string }                                   // named section marker in the opening run (breaks the wall; de-numbered 2026-07-21)
   | { type: 'context';    label: string; items: string[] }                 // "the settled facts" box — uncontested ground, top of page (Verity-style facts/spin separation)
+  | { type: 'cruxes';     label: string; items: string[] }                 // the disagreement shown as a named set at once (crux display A)
+  | { type: 'matrix';     caption: string; actors: string[]; rows: { crux: string; cells: string[] }[] } // who-disagrees-on-what grid (crux display C, optional)
   | {
       type:        'position';
       colourIndex: number;       // index into the shared spectrum palette
@@ -83,7 +101,11 @@ export type BriefingBlock =
 
 export interface BriefingArticle {
   slug:          string;
-  kind?:         'briefing' | 'explainer';   // explainer = essay, no spectrum/sources
+  /** The register (decided 2026-07-21). briefing = the map (parent); review =
+     a deep audit of one source; explainer = a concept essay; opinion = the
+     author's argument, clearly labelled, still self-auditing. Each renders a
+     distinct kicker so the reader always knows the register. */
+  kind?:         'briefing' | 'explainer' | 'review' | 'opinion';
   question:      string;         // canonical, evergreen — the SEO/URL anchor (or the explainer title)
   hook?:         string;         // optional timely "why now" headline (current-affairs overlay)
   category?:     string;
@@ -91,8 +113,9 @@ export interface BriefingArticle {
   image?:        string;         // optional hero/thumbnail URL (curated; lead + feature cards)
   spectrumAxis:  { left: string; right: string };
   sources:       BriefingSource[];          // legacy single-table model (::sources)
-  positionSources?: BriefingPositionSource[]; // v2: ::positions (plotted, audited)
+  positionSources?: BriefingPositionSource[]; // v2: ::positions (plotted commentary)
   evidenceSources?: BriefingEvidenceSource[]; // v2: ::evidence (bibliography, never plotted)
+  principals?:      BriefingPrincipal[];      // the primary sources under audit (::principals), each → a review
   /** Front-matter `otherTakes: none` — absence of ::takes is a stated choice, not an unfinished page. */
   otherTakes?:   'none';
   /** Front-matter `archived: true` — kept out of the feed/related/next surfaces

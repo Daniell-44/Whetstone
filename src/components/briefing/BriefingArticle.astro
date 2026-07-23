@@ -93,14 +93,15 @@ const hasTakes = briefing.blocks.some((b) => b.type === 'takes');
 // Stance poles — the Instrument palette: drafting blue vs oxide rust (never the redline).
 const stanceCol = (s: number) => (s < 0 ? '#345D7E' : s > 0 ? '#8C4A2F' : '#6E7370');
 const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
-// Pre-number the ::line markers in document order so the render is a pure
-// lookup (Astro renders top-to-bottom, but a precomputed map is clearer than
-// mutating a counter mid-map).
-const lineNumById = new Map<number, number>();
-briefing.blocks.forEach((b, idx) => { if (b.type === 'line') lineNumById.set(idx, lineNumById.size + 1); });
+// The kicker names the register so a reader always knows what they're reading.
+// review = drafting-blue, opinion = oxide-rust (clearly the author's voice),
+// explainer = accent-support, briefing = muted. Decided 2026-07-21.
+const KIND = briefing.kind ?? 'briefing';
+const kickerLabel = KIND === 'explainer' ? 'Explainer' : KIND === 'review' ? 'Review' : KIND === 'opinion' ? 'Essay' : 'Briefing';
+const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' || KIND === 'review') ? 'text-accent-support' : 'text-muted';
 ---
 <article class="max-w-[36rem] mx-auto">
-  <span class={`font-mono text-[11px] uppercase tracking-[0.1em] ${isExplainer ? 'text-accent-support' : 'text-muted'}`}>{isExplainer ? 'Explainer' : 'Briefing'}{briefing.category ? ` · ${briefing.category}` : ''}</span>
+  <span class={`font-mono text-[11px] uppercase tracking-[0.1em] ${kickerCls}`}>{kickerLabel}{briefing.category ? ` · ${briefing.category}` : ''}</span>
   <h1 id="overview" class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mt-2 mb-2 scroll-mt-24">{briefing.question}</h1>
   {/* The deck: front-matter `hook` was parsed and typed but rendered nowhere.
      One serif line under the headline, the first anchor before the long
@@ -147,15 +148,40 @@ briefing.blocks.forEach((b, idx) => { if (b.type === 'line') lineNumById.set(idx
     </div>
   )}
 
-  {!isExplainer && (
-    <>
-      <div class="mb-4">
-        {v2
-          ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
-          : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
+  {/* Tier 1 — the principals: the primary sources UNDER audit, each → its own
+     review. Rendered as cards ABOVE the commentary spectrum so the reader sees
+     what is being assessed before who is weighing in (the stratification
+     decided 2026-07-21). Not audited inline: their audit is the review. */}
+  {!isExplainer && briefing.principals && briefing.principals.length > 0 && (
+    <div class="mb-7">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-strong">The sources under audit</span>
+        <span class="h-px flex-1 bg-hairline"></span>
       </div>
-      <div class="border-b border-hairline mb-7"></div>
-    </>
+      <div class="grid sm:grid-cols-2 gap-3">
+        {briefing.principals.map((p) => (
+          <div class="bg-paper border border-hairline border-t-[3px] border-t-ink-strong px-4 py-3 flex flex-col gap-1.5">
+            <span class="font-serif text-base font-semibold text-ink-strong leading-tight">{p.name}</span>
+            {p.finding && <span class="text-[13px] text-ink leading-snug">{p.finding}</span>}
+            {p.interest && <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] leading-snug">Interest: {p.interest}</span>}
+            {p.reviewSlug && <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-accent-support hover:text-accent">Full review →</a>}
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* The commentary spectrum normally renders inside the block map, just before
+     the first position (so cruxes/matrix come first). Fallback: a briefing with
+     NO ::position blocks (legacy ::sources only) still needs its spectrum, so
+     render it here in that case. */}
+  {!isExplainer && firstPositionIdx === -1 && (posSrc.length > 0 || briefing.sources.length > 0) && (
+    <div class="mb-7">
+      {v2
+        ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
+        : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
+      <div class="border-b border-hairline mt-4"></div>
+    </div>
   )}
 
   <div class="space-y-5">
@@ -169,13 +195,58 @@ briefing.blocks.forEach((b, idx) => { if (b.type === 'line') lineNumById.set(idx
         return null;
       }
       if (block.type === 'line') {
-        // Numbered section marker: the wall-of-text fix for the opening run.
-        // Auto-numbered in document order; pure signposting, no restated content.
-        const n = String(lineNumById.get(idx) ?? 1).padStart(2, '0');
+        // Named section marker (de-numbered 2026-07-21: the five lines are
+        // parallel, not a 1→5 sequence, so an ordinal was decoration that
+        // implied a false order). A hairline + serif name, no number.
         return (
-          <div class="flex items-baseline gap-3 border-t border-hairline pt-2.5">
-            <span class="font-mono text-[11px] text-muted tabular-nums">{n}</span>
+          <div class="border-t border-hairline pt-2.5">
             <span class="font-serif text-lg font-semibold text-ink-strong leading-snug">{block.name}</span>
+          </div>
+        );
+      }
+      if (block.type === 'cruxes') {
+        // Crux display A: the disagreement shown as a named set at once, so the
+        // reader sees the whole shape before the prose walks it. No numbers.
+        return (
+          <div class="bg-surface border border-hairline px-4 py-3.5">
+            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2.5">{block.label}</span>
+            <div class="flex flex-wrap gap-2">
+              {block.items.map((it) => (
+                <span class="border border-hairline bg-paper px-2.5 py-1 text-sm text-ink-strong">{it}</span>
+              ))}
+            </div>
+          </div>
+        );
+      }
+      if (block.type === 'matrix') {
+        // Crux display C: who-disagrees-on-what. Scrolls inside its own box so
+        // the page body never scrolls sideways. Cells are plain text the author
+        // writes; no colour-coding beyond the hairline grid.
+        return (
+          <div>
+            {block.caption && <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">{block.caption}</span>}
+            <div class="overflow-x-auto border border-hairline">
+              <table class="w-full border-collapse text-[13px]">
+                <thead>
+                  <tr>
+                    <th class="text-left align-bottom p-2 border-b border-hairline bg-paper font-mono text-[10px] uppercase tracking-wide text-muted font-semibold">Crux</th>
+                    {block.actors.map((a) => (
+                      <th class="text-left align-bottom p-2 border-b border-l border-hairline bg-paper font-mono text-[10px] uppercase tracking-wide text-muted font-semibold whitespace-nowrap">{a}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.map((r) => (
+                    <tr>
+                      <th class="text-left align-top p-2 border-t border-hairline font-semibold text-ink-strong text-[13px]">{r.crux}</th>
+                      {r.cells.map((c) => (
+                        <td class="align-top p-2 border-t border-l border-hairline text-ink">{c}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         );
       }
@@ -199,6 +270,35 @@ briefing.blocks.forEach((b, idx) => { if (b.type === 'line') lineNumById.set(idx
                (a block can't carry two ids; the spectrum markers jump here by
                `pos-<sourceId>`). Zero-height, no layout impact. */}
             {idx === firstPositionIdx && <span id="positions" class="block scroll-mt-24" aria-hidden="true"></span>}
+            {/* The commentary tier — spectrum + cui-bono interest — renders once,
+               immediately above the first position, so it follows any cruxes/
+               matrix and introduces the audited commentary. */}
+            {idx === firstPositionIdx && (
+              <div class="mb-6 not-prose">
+                {briefing.principals && briefing.principals.length > 0 && (
+                  <div class="flex items-center gap-3 mb-3">
+                    <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-strong">The commentary</span>
+                    <span class="text-[11px] text-muted">how others read it</span>
+                    <span class="h-px flex-1 bg-hairline"></span>
+                  </div>
+                )}
+                <div class="mb-4">
+                  {v2
+                    ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
+                    : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
+                </div>
+                {posSrc.some((s) => s.interest) && (
+                  <dl class="divide-y divide-hairline border-y border-hairline">
+                    {posSrc.filter((s) => s.interest).map((s) => (
+                      <div class="grid grid-cols-[7rem_1fr] gap-3 py-2 text-[13px] leading-snug">
+                        <dt class="font-semibold text-ink-strong">{s.label}</dt>
+                        <dd class="text-ink"><span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1.5">Interest</span>{s.interest}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </div>
+            )}
             <div class="pl-4" style={`border-left:2px solid ${rule}`}>
               {/* The stance label was authored, typed, and used only on feed
                  cards; here it is the waypoint that ties a spectrum marker to
