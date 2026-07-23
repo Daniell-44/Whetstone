@@ -66,6 +66,7 @@ export type BriefingBlock =
   | { type: 'landscape';  text: string }                                   // editor's framing
   | { type: 'prose';      text: string }                                   // connective tissue
   | { type: 'line';       name: string }                                   // numbered section marker in the opening run (breaks the wall)
+  | { type: 'context';    label: string; items: string[] }                 // "the settled facts" box — uncontested ground, top of page (Verity-style facts/spin separation)
   | {
       type:        'position';
       colourIndex: number;       // index into the shared spectrum palette

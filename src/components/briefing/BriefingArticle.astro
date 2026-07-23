@@ -32,6 +32,10 @@ const firstPositionIdx = briefing.blocks.findIndex((b) => b.type === 'position')
 // any prose). Pulled out here and skipped in the block map below.
 const landscapeBlock = briefing.blocks.find((b) => b.type === 'landscape');
 const landscapeText  = landscapeBlock && 'text' in landscapeBlock ? landscapeBlock.text : '';
+// "The settled facts" box: extracted like landscape and rendered boxed near the
+// top (below the deck/date), so the reader meets the uncontested ground before
+// the contested positions — the Verity facts/spin separation, on-brand.
+const contextBlock = briefing.blocks.find((b) => b.type === 'context');
 // Explainers have no landscape lede; their first prose paragraph is the dek.
 const firstProseIdx  = briefing.blocks.findIndex((b) => b.type === 'prose');
 
@@ -106,6 +110,27 @@ briefing.blocks.forEach((b, idx) => { if (b.type === 'line') lineNumById.set(idx
   )}
   <p class="text-xs text-muted mb-6 tabular-nums">{fmtDate}</p>
 
+  {/* The settled facts: the uncontested ground, boxed and set apart from the
+     contested positions below (the Verity facts/spin separation, in the
+     Instrument register). Static, no redline. Especially load-bearing on
+     non-opinion pieces where the reader needs the shared reality first. */}
+  {contextBlock && contextBlock.type === 'context' && contextBlock.items.length > 0 && (
+    <div class="mb-7 border border-hairline bg-surface">
+      <div class="instrument-rule"></div>
+      <div class="px-4 py-3.5">
+        <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2.5">{contextBlock.label}</span>
+        <ul class="space-y-2">
+          {contextBlock.items.map((it) => (
+            <li class="grid grid-cols-[0.75rem_1fr] gap-2.5 text-[15px] text-ink leading-snug">
+              <span class="text-muted" aria-hidden="true">·</span>
+              <span>{it}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )}
+
   {/* The lede opens the piece; the map (spectrum) follows it, so the reader
      meets a claim about the world before a methodology diagram. */}
   {!isExplainer && landscapeText && (
@@ -137,6 +162,10 @@ briefing.blocks.forEach((b, idx) => { if (b.type === 'line') lineNumById.set(idx
     {briefing.blocks.map((block, idx) => {
       if (block.type === 'landscape') {
         // Rendered as the lede above; skip here.
+        return null;
+      }
+      if (block.type === 'context') {
+        // Rendered boxed at the top; skip in the flow.
         return null;
       }
       if (block.type === 'line') {

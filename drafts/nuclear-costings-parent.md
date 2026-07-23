@@ -24,6 +24,12 @@ aap | AAP FactCheck, April 2025 | AAP | https://www.aap.com.au/factcheck/major-p
 hansard | Senate Hansard, 4 February 2026 | Parliament of Australia | https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827 | The federal ban (ARPANS 1998 + EPBC 1999) still in force; the Canavan repeal bill's second reading.
 mca | Minerals Council on the NSW repeal bill | MCA | https://minerals.org.au/resources/nsw-uranium-bill-marks-a-welcome-first-step-in-consistent-nationwide-approach/ | The NSW upper house passed the state repeal bill on 7 May 2026; not yet law.
 
+::context label="What's not in dispute"
+Two rival costings framed the debate: CSIRO and AEMO's annual GenCost report, and Frontier Economics' modelling commissioned by the Coalition.
+The Coalition's seven-site nuclear plan ended with the May 2025 election; policy under Angus Taylor is now to lift the federal ban if elected, with no reactor commitment.
+Nuclear power generation remained prohibited under federal law (the ARPANS Act 1998 and the EPBC Act 1999) as of the February 2026 Senate record.
+GenCost has kept publishing through the fight: the 2024-25 final in July 2025 and the 2025-26 final in July 2026, both finding firmed renewables the least-cost new build.
+
 ::landscape
 Between December 2024 and the May 2025 election, Australia's nuclear debate ran on two rival costings: CSIRO and AEMO's annual GenCost report, which finds firmed renewables the cheapest new build, and Frontier Economics' modelling for the Coalition, which found a nuclear-inclusive system hundreds of billions cheaper. The politics has since moved: the Coalition's seven-site plan died with the election, its policy under Angus Taylor has shrunk to lifting the federal ban, and repeal bills are moving in the Senate and in New South Wales. The models have not moved. This briefing maps where the two costings actually disagree. It audits neither report in full; each has its own review. [OWNER: link the two sub-article slugs here once named.]
 

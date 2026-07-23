@@ -150,6 +150,11 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       // the marker just carries the name (`::line name="What to measure"`).
       // Body-less: any following prose stays its own block.
       blocks.push({ type: 'line', name: attrs.name ?? '' });
+    } else if (name === 'context') {
+      // "The settled facts" box: the uncontested ground, rendered boxed at the
+      // top of the page (extracted like landscape). One factual line per row.
+      const items = readUntilMarker().split('\n').map((l) => l.trim().replace(/^[-*]\s*/, '')).filter(Boolean);
+      blocks.push({ type: 'context', label: attrs.label ?? 'The settled facts', items });
     } else if (name === 'position') {
       const paragraph = readParagraph();
       // Optional `::structure` between the paragraph and the audit: the argument
