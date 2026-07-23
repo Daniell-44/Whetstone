@@ -3,7 +3,7 @@
 // dependency needed), a `::sources` pipe-table, and `::` block markers in the
 // body. Plain paragraphs between markers become `prose` blocks.
 
-import type { BriefingArticle, BriefingBlock, BriefingSource, BriefingPositionSource, BriefingEvidenceSource, PositionAudit } from './types';
+import type { BriefingArticle, BriefingBlock, BriefingSource, BriefingPositionSource, BriefingEvidenceSource, PositionAudit, PositionStructure, StructureRow } from './types';
 
 // Tolerant number parse — a stray or non-numeric `leaning`/`colour` becomes 0
 // (spectrum centre) rather than NaN, which would break the spectrum maths.
@@ -145,10 +145,52 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       blocks.push({ type: 'landscape', text: readParagraph() });
     } else if (name === 'shared') {
       blocks.push({ type: 'shared', text: readParagraph() });
+    } else if (name === 'line') {
+      // A numbered section marker in the opening run. Auto-numbered at render;
+      // the marker just carries the name (`::line name="What to measure"`).
+      // Body-less: any following prose stays its own block.
+      blocks.push({ type: 'line', name: attrs.name ?? '' });
     } else if (name === 'position') {
       const paragraph = readParagraph();
+      // Optional `::structure` between the paragraph and the audit: the argument
+      // in standard form. Pipe rows `id | provenance | text` until the next
+      // marker, then an optional `::need` paragraph (the "what the step needs"
+      // sentence). supports/asserts ride on the ::structure attrs line.
+      let structure: PositionStructure | undefined;
+      skipBlank();
+      const stm = i < lines.length ? lines[i].match(/^::structure\s*(.*)$/) : null;
+      if (stm) {
+        const sa = parseAttrs(stm[1] ?? '');
+        i += 1;
+        const rows: StructureRow[] = readUntilMarker()
+          .split('\n').map((l) => l.trim()).filter(Boolean)
+          .map((l) => {
+            const p = l.split('|').map((x) => x.trim());
+            const id = p[0] ?? '';
+            const rawProv = (p[1] ?? '').toLowerCase();
+            const provenance: StructureRow['provenance'] =
+              /^c$/i.test(id) ? 'conclusion'
+              : rawProv === 'stated' ? 'stated'
+              : rawProv === 'supplied' ? 'supplied'
+              : 'quoted';
+            return { id, provenance, text: p[2] ?? '' };
+          })
+          .filter((r) => r.text);
+        let need: string | undefined;
+        skipBlank();
+        const nm = i < lines.length ? lines[i].match(/^::need\b/) : null;
+        if (nm) { i += 1; need = readParagraph(); }
+        if (rows.length) {
+          structure = {
+            rows,
+            ...(need ? { need } : {}),
+            ...(sa.supports ? { supports: sa.supports } : {}),
+            ...(sa.asserts ? { asserts: sa.asserts } : {}),
+          };
+        }
+      }
       let audit: PositionAudit = { name: '', kind: 'structural', explanation: '' };
-      skipBlank(); // tolerate a blank line between the paragraph and its ::audit
+      skipBlank(); // tolerate a blank line between the paragraph/structure and its ::audit
       const am = i < lines.length ? lines[i].match(/^::audit\s*(.*)$/) : null;
       if (am) {
         const a = parseAttrs(am[1] ?? '');
@@ -163,6 +205,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
         quote:       attrs.quote ?? '',
         paragraph,
         audit,
+        ...(structure ? { structure } : {}),
       });
     } else if (name === 'editor') {
       const text = readParagraph();
@@ -262,6 +305,33 @@ export function validateBriefing(b: BriefingArticle): string[] {
     if (bl.sourceId && !known) issues.push(`position "${who}" → source=${bl.sourceId} matches no ::positions / ::evidence / ::sources id`);
     if (bl.sourceId && eviIds.has(bl.sourceId)) issues.push(`position "${who}" quotes evidence-source "${bl.sourceId}" — if it argues a stance it belongs in ::positions`);
     if (!bl.audit.name.trim()) issues.push(`position "${who}" has no ::audit beneath it`);
+
+    // ::structure integrity (decided 2026-07-21). The block is optional, but if
+    // present it must be well-formed: capped, exactly one conclusion, and the
+    // overclaim gap comes as a pair or not at all.
+    if (bl.structure) {
+      const s = bl.structure;
+      const concl = s.rows.filter((r) => r.provenance === 'conclusion');
+      if (concl.length !== 1) issues.push(`position "${who}" ::structure needs exactly one conclusion row (id "C"), found ${concl.length}`);
+      const premises = s.rows.length - concl.length;
+      if (premises < 1) issues.push(`position "${who}" ::structure has no premises`);
+      if (s.rows.length > 5) issues.push(`position "${who}" ::structure has ${s.rows.length} rows — cap at 5 (split the position if the argument needs more)`);
+      if ((s.supports && !s.asserts) || (!s.supports && s.asserts)) issues.push(`position "${who}" ::structure overclaim gap needs BOTH supports= and asserts= or neither`);
+      if (!s.need && !s.supports) issues.push(`position "${who}" ::structure has no ::need sentence and no overclaim gap — it must say what the step needs (omit the whole block otherwise: absence is informative)`);
+    }
   }
+
+  // Density advisory (not an error): the opening run before the first position
+  // is where the wall-of-text lives. Flag a long unbroken run so the author
+  // reaches for a ::line marker. ~250 words ≈ a minute with no scan anchor.
+  const firstPos = b.blocks.findIndex((bl) => bl.type === 'position');
+  const opening = (firstPos === -1 ? b.blocks : b.blocks.slice(0, firstPos));
+  let run = 0;
+  for (const bl of opening) {
+    if (bl.type === 'prose' || bl.type === 'landscape') run += (bl.text || '').trim().split(/\s+/).filter(Boolean).length;
+    else if (bl.type === 'line') run = 0;   // a line marker is a scan anchor
+  }
+  if (run > 250) issues.push(`opening run is ~${run} words with no ::line marker — break it into labelled lines (readability, the wall-of-text fix)`);
+
   return issues;
 }

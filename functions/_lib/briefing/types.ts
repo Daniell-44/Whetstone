@@ -44,9 +44,28 @@ export interface PositionAudit {
   explanation: string;
 }
 
+// The argument in standard form, nested in a ::position (decided 2026-07-21).
+// Author-asserted, static, NO strength score of any kind — the "step" is a
+// checkable sentence saying what the inference NEEDS, not a rating. Provenance
+// separates what the source actually said (quoted / stated) from what the audit
+// supplies (supplied ★): a confidently numbered premise attributed to a named
+// author who never said it is a worse error than a wrong fallacy label.
+export interface StructureRow {
+  id:         string;                                    // "1".."n" for premises, "C" for the conclusion
+  provenance: 'quoted' | 'stated' | 'supplied' | 'conclusion';
+  text:       string;
+}
+export interface PositionStructure {
+  rows:      StructureRow[];
+  need?:     string;   // "what the step needs": one checkable sentence, IPCC-gated (omit if no named reason)
+  supports?: string;   // the overclaim gap — what the premises actually support…
+  asserts?:  string;   // …vs what the position asserts
+}
+
 export type BriefingBlock =
   | { type: 'landscape';  text: string }                                   // editor's framing
   | { type: 'prose';      text: string }                                   // connective tissue
+  | { type: 'line';       name: string }                                   // numbered section marker in the opening run (breaks the wall)
   | {
       type:        'position';
       colourIndex: number;       // index into the shared spectrum palette
@@ -55,6 +74,7 @@ export type BriefingBlock =
       quote:       string;       // the verbatim extract (rendered inline, tinted)
       paragraph:   string;       // the whole indented paragraph (contains the quote)
       audit:       PositionAudit;
+      structure?:  PositionStructure;   // optional "the argument, numbered" disclosure
     }
   | { type: 'shared';     text: string }                                   // the shared assumption (bottom line)
   | { type: 'editorView'; text: string; whyWrong?: string }                // opinion, walled off
