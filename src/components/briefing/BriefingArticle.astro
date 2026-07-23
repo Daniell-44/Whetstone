@@ -144,7 +144,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
     <div class="mb-6">
       <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Our read</span>
       <p class="font-serif text-base text-ink-strong leading-relaxed">{editorLead}</p>
-      <a href="#discussion" class="mt-1 inline-block text-xs font-medium text-accent-support hover:underline">Full editor's view, and why it might be wrong →</a>
+      <a href="#discussion" class="mt-1 inline-block text-xs font-medium text-accent-support hover:underline">Full editor's view, and the devil's advocate →</a>
     </div>
   )}
 
@@ -414,7 +414,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
             <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Editor's view · opinion</span>
             <p class="text-base text-ink leading-relaxed">{block.text}</p>
             {block.whyWrong && (
-              <p class="text-sm text-muted mt-2"><span class="font-medium">Why this might be wrong:</span> {block.whyWrong}</p>
+              <p class="text-sm text-muted mt-2"><span class="font-medium">Devil's advocate:</span> {block.whyWrong}</p>
             )}
           </div>
         );
