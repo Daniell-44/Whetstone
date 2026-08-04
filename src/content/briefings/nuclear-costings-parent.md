@@ -6,7 +6,9 @@ axisRight: renewables pathway cheaper
 hook: Two rival models, five method choices. The politics moved on; the disagreement did not.
 publishedDate: 2026-07-21
 otherTakes: none
-image: /briefing-images/nuclear-cooling-tower.svg
+# PD photo: Beaver Valley cooling towers (Wikimedia Commons, public domain, no
+# attribution required) — stock stand-in until a hand-made thumbnail replaces it.
+image: /briefing-images/nuclear-cooling-towers.jpg
 ---
 
 ::principals
@@ -93,8 +95,4 @@ The inference is sound given the 15-year clock and the exit schedule, but both p
 ::shared
 Beneath five lines of disagreement, the combatants share a load-bearing frame: that a cost model, correctly parameterised, is the right instrument to settle a national technology choice, and that its outputs deserve headline status even as every party concedes under pressure that those outputs move with the assumptions. They also share more specific ground: nobody disputes the coal fleet is exiting, both models use similar nuclear build costs per kilowatt, and both publish sensitivity results their own headlines ignore. The AAP FactCheck's finding that both major parties overclaimed is the shared assumption's receipt.
 
-::editor
-The five lines are open at different levels. The first two are resolved questions of method hygiene — compare like scenarios, publish the sensitivities — that neither political headline honoured. The middle two are legitimate open parameter disputes that evidence could narrow but has not, so the two reports' outputs will remain a function of their reference-class and recovery-window conventions until someone runs the sensitivities and shows them. The fifth, timing, is the strongest decided question against the nuclear pathway: the 15-year clock plus a still-standing federal ban leaves the nuclear side answering not by disputing the arithmetic but by attacking the coal-exit schedule that makes the arithmetic bite.
-::why-wrong
-The mapping itself embeds a choice: treating the dispute as five separable lines flatters the tractable parts and understates the possibility that the frame question, whether any such model should carry this decision, swallows the rest. Bruce Mountain's position, that the only honest answer is "it depends on many barely known and many unknown things", would rate this briefing's tidy decomposition as part of the genre it critiques.
 

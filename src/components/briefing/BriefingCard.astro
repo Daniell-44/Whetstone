@@ -113,16 +113,25 @@ const headingCls = size === 'featured'
 >
   {/* Featured + image: full-width banner on mobile (the hero), side image at
      sm+. Non-featured + image: a small right thumb on mobile (order-2), the
-     side treatment at sm+ (order back to DOM = left). */}
+     side treatment at sm+ (order back to DOM = left).
+     The img is absolutely positioned inside a stretching wrapper at sm+ so the
+     TEXT column sets the card height and the image crops to fill (the
+     height-neutral side-image mechanic from Card_Image_Treatments_v1). A bare
+     img with an intrinsic aspect ratio would drive the row height instead —
+     a portrait cover inflated the whole card. */}
   {sideImage && (
-    <img
-      src={b.image}
-      alt=""
-      loading="lazy"
+    <div
       class={compactThumb
-        ? 'order-2 sm:order-none w-[88px] h-[88px] shrink-0 self-center mr-4 rounded-[2px] object-cover sm:w-2/5 sm:h-full sm:self-stretch sm:mr-0 sm:rounded-none'
-        : 'w-full h-36 object-cover sm:w-2/5 sm:shrink-0 sm:h-full sm:self-stretch'}
-    />
+        ? 'order-2 sm:order-none w-[88px] h-[88px] shrink-0 self-center mr-4 rounded-[2px] overflow-hidden sm:w-2/5 sm:h-auto sm:self-stretch sm:mr-0 sm:rounded-none sm:relative'
+        : 'w-full h-36 overflow-hidden sm:w-2/5 sm:shrink-0 sm:h-auto sm:self-stretch sm:relative'}
+    >
+      <img
+        src={b.image}
+        alt=""
+        loading="lazy"
+        class="w-full h-full object-cover sm:absolute sm:inset-0"
+      />
+    </div>
   )}
   <div class={`flex flex-col flex-1 min-w-0 ${compact ? 'p-4 sm:p-6' : 'p-5 sm:p-6'}`}>
     <div class="flex items-center gap-2 mb-2.5 flex-wrap font-mono text-[11px] uppercase tracking-[0.08em]">
