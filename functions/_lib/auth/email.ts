@@ -12,13 +12,9 @@ export function makeEmailSender(resendApiKey: string, fetchFn: FetchFn = fetch):
         'Authorization': `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        // DEPLOY GUARD (2026-07-13): the canonical sender is
-        // noreply@thewhetstone.review, but flipping it there breaks sign-in
-        // until the .review domain is verified in Resend (SPF include + 2 DKIM
-        // CNAMEs + DMARC). Keeping the prior .net sender so live sign-in keeps
-        // working; change this ONE line to noreply@thewhetstone.review the
-        // moment the .review DNS is verified.
-        from:    'noreply@thewhetstone.net',
+        // .review verified in Resend 2026-08-04 (send-subdomain SPF/MX + DKIM
+        // confirmed in public DNS) — sender flipped from the .net deploy guard.
+        from:    'noreply@thewhetstone.review',
         to,
         subject: `Your sign-in code: ${code}`,
         html: [
