@@ -90,20 +90,12 @@ Both sides feed in similar build costs; Grattan's Tony Wood isolated the diverge
 GenCost recovers capital over 30 years and prices the 60-year benefit at 8 per cent net of refurbishment; Frontier amortises over 50. On timing, GenCost holds "at least 15 years remains the most plausible lead time", a clock that starts at repeal of a federal ban still in force on the February 2026 Senate record, while Frontier's pathway holds most of the coal fleet open to bridge the wait: "The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM."
 ::enddiverge
 
-::matrix caption="Where each side lands on the five choices"
- | Frontier | GenCost
-What to measure | whole-system cost | per technology
-Demand future | progressive pairing | step change
-Capacity factor | 90 per cent | 54 to 89 per cent
-Asset life | 50 years | 30 years
-Timing | coal fleet extended | 15-year lead-time clock
-
-::position colour=1 source=cis label="The measure hides the answer"
+::position colour=1 source=cis label="Critics say the new cost measure withheld information"
 The Centre for Independent Studies carries the critics' regrouped objection into the 2025-26 round: after SLCOE replaced the old headline measure, the submission argues the change withheld information from the public and policymakers, shifting the fight from missing system costs to where the system boundary sits.
 ::audit name="Contested Warrant" kind=structural
 The objection assumes the pre-SLCOE presentation informed rather than misled, which is the very point in dispute; CSIRO's stated reason for the change was that per-technology numbers were being read as system claims. Both readings fit the public record. The inference holds given its premise, and the premise is the fight.
 
-::position colour=2 source=grattan label="One parameter, adjudicated" quote="But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic."
+::position colour=2 source=grattan label="The whole gap comes down to how often reactors run" quote="But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic."
 Grattan sits between the models, conceding the build-cost inputs match and locating the gap in the capacity-factor assumption: "While both use similar estimates of the capital cost of nuclear plants, the big difference is that Frontier has assumed nuclear plants would run 90 per cent of the time, while CSIRO has used a range of 54-89 per cent, more akin to what coal currently achieves." On that parameter Grattan lands with GenCost: "But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic."
 ::structure supports="that one parameter explains the arithmetic gap between the two costings" asserts="that the coal-fleet capacity factor is the correct one to use"
 1 | quoted   | Both reports use similar estimates of the capital cost of nuclear plants.
