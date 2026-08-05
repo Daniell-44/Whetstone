@@ -85,10 +85,36 @@ export interface PositionStructure {
   asserts?:  string;   // …vs what the position asserts
 }
 
+// The divergence section as two parallel standard-form arguments (Decision 3,
+// options A+C combined, 2026-08-05). Each column is one principal's argument;
+// pins cross-reference commentary sources onto the premise they contest; the
+// prose register (the ::line run) rides along as the "As written" pane of a
+// CSS-only toggle — both registers ship, premises are the default.
+export interface DivergeArgument {
+  label:     string;         // column head, e.g. "From Frontier Economics"
+  interest?: string;         // cui-bono line under the head
+  rows:      StructureRow[]; // premises + exactly one conclusion (id "C")
+}
+export interface DivergePin {
+  sourceId: string;          // → a ::positions id; card content derives from that source's quote/audit
+  at:       string;          // display target, e.g. "Frontier P3" / "the shared premise"
+  note?:    string;          // optional override for the one-line audit note
+}
+
 export type BriefingBlock =
   | { type: 'landscape';  text: string }                                   // editor's framing
   | { type: 'prose';      text: string }                                   // connective tissue
   | { type: 'line';       name: string }                                   // named section marker in the opening run (breaks the wall; de-numbered 2026-07-21)
+  | {
+      type:       'diverge';         // parallel standard form + prose toggle (Decision 3, A+C)
+      label:      string;            // section heading, e.g. "Where they diverge"
+      house?:     string;            // neutral house line under the heading
+      a:          DivergeArgument;
+      b:          DivergeArgument;
+      sharedNeed?: string;           // "Both arguments need:" spanning row (supplied ★)
+      pins:       DivergePin[];
+      prose:      BriefingBlock[];   // the "As written" pane: line + prose blocks only
+    }
   | { type: 'context';    label: string; items: string[] }                 // "the settled facts" box — uncontested ground, top of page (Verity-style facts/spin separation)
   | { type: 'cruxes';     label: string; items: string[] }                 // the disagreement shown as a named set at once (crux display A)
   | { type: 'matrix';     caption: string; actors: string[]; rows: { crux: string; cells: string[] }[] } // who-disagrees-on-what grid (crux display C, optional)

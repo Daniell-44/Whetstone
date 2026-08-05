@@ -50,6 +50,31 @@ capacity factor
 asset life
 timing
 
+::diverge label="Where they diverge" house="Each report's argument in standard form. Provenance per premise: quoted / stated / ★ supplied — supplied means the report never states it."
+::argument label="From Frontier Economics" interest="commissioned by the Coalition"
+1 | quoted | On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition.
+2 | quoted | The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach.
+3 | stated | Reactors run 90 per cent of the time; capital is amortised over 50 years.
+4 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM.
+C | - | A nuclear-inclusive system is cheaper across the whole pathway.
+::argument label="From CSIRO GenCost" interest="government-funded · AEMO is co-publisher"
+1 | quoted | LCOE does not include renewable integration costs. SLCOE does.
+2 | stated | Capacity factor 54 to 89 per cent — the range Australia's coal fleet achieves.
+3 | stated | Capital recovered over 30 years; the 60-year benefit priced at 8 per cent net of refurbishment.
+4 | quoted | at least 15 years remains the most plausible lead time
+C | - | Firmed renewables are the least-cost new build.
+::sharedneed
+that a cost model, correctly parameterised, is the right instrument to settle a national technology choice — a premise neither report argues for.
+
+::pin source=mountain at="the shared premise"
+Refuses the frame itself: if he is right, the argument between the models is a category error, and this briefing's decomposition inherits the charge.
+
+::pin source=grattan at="Frontier P3"
+Concedes the build costs match and contests one premise — but the adjudication accepts the coal-fleet analogy by proximity, not argument.
+
+::pin source=aemo at="GenCost P4"
+Leans the timing premise into a verdict — and both premises are house numbers: AEMO co-publishes GenCost and forecasts the exits.
+
 ::line name="What to measure"
 GenCost compares technologies by levelised cost, and from 2025-26 by a system-wide levelised cost, conceding in the new edition that "LCOE does not include renewable integration costs. SLCOE does." Frontier refuses per-technology comparison entirely and costs whole system pathways, its principal defending the frame: "On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition." These are different questions, and each side's headline answers only its own.
 
@@ -61,6 +86,7 @@ Both sides feed in similar build costs; Grattan's Tony Wood isolated the diverge
 
 ::line name="How long the asset lives, and when it arrives"
 GenCost recovers capital over 30 years and prices the 60-year benefit at 8 per cent net of refurbishment; Frontier amortises over 50. On timing, GenCost holds "at least 15 years remains the most plausible lead time", a clock that starts at repeal of a federal ban still in force on the February 2026 Senate record, while Frontier's pathway holds most of the coal fleet open to bridge the wait: "The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM."
+::enddiverge
 
 ::matrix caption="Where each side lands on the five choices"
  | Frontier | GenCost

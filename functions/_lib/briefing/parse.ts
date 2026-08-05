@@ -3,7 +3,7 @@
 // dependency needed), a `::sources` pipe-table, and `::` block markers in the
 // body. Plain paragraphs between markers become `prose` blocks.
 
-import type { BriefingArticle, BriefingBlock, BriefingSource, BriefingPositionSource, BriefingEvidenceSource, BriefingPrincipal, PositionAudit, PositionStructure, StructureRow } from './types';
+import type { BriefingArticle, BriefingBlock, BriefingSource, BriefingPositionSource, BriefingEvidenceSource, BriefingPrincipal, PositionAudit, PositionStructure, StructureRow, DivergeArgument, DivergePin } from './types';
 
 // Tolerant number parse — a stray or non-numeric `leaning`/`colour` becomes 0
 // (spectrum centre) rather than NaN, which would break the spectrum maths.
@@ -95,6 +95,25 @@ function parsePrincipals(text: string): BriefingPrincipal[] {
         ...(p[4] ? { reviewSlug: p[4] } : {}),
       };
     });
+}
+
+// Standard-form rows: `id | provenance | text`, id "C" → the conclusion.
+// Shared by ::structure (inside a position) and ::argument (inside ::diverge).
+function parseStructureRows(text: string): StructureRow[] {
+  return text
+    .split('\n').map((l) => l.trim()).filter(Boolean)
+    .map((l) => {
+      const p = l.split('|').map((x) => x.trim());
+      const id = p[0] ?? '';
+      const rawProv = (p[1] ?? '').toLowerCase();
+      const provenance: StructureRow['provenance'] =
+        /^c$/i.test(id) ? 'conclusion'
+        : rawProv === 'stated' ? 'stated'
+        : rawProv === 'supplied' ? 'supplied'
+        : 'quoted';
+      return { id, provenance, text: p[2] ?? '' };
+    })
+    .filter((r) => r.text);
 }
 
 // v2 (D2 Option A): id | label | publication | url | note
@@ -195,6 +214,62 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       const actors = (rowsRaw[0] ?? []).slice(1);
       const rows = rowsRaw.slice(1).map((r) => ({ crux: r[0] ?? '', cells: r.slice(1) }));
       if (rows.length) blocks.push({ type: 'matrix', caption: attrs.caption ?? '', actors, rows });
+    } else if (name === 'diverge') {
+      // Decision 3 (A+C, 2026-08-05): the divergence section as two parallel
+      // standard-form arguments with commentary pinned to premises, plus the
+      // prose register (the ::line run) as the "As written" toggle pane.
+      // Everything until ::enddiverge belongs to this block.
+      const args: DivergeArgument[] = [];
+      const pins: DivergePin[] = [];
+      let sharedNeed: string | undefined;
+      const proseBlocks: BriefingBlock[] = [];
+      let dBuf: string[] = [];
+      const flushDProse = () => {
+        const t = dBuf.join('\n').trim();
+        dBuf = [];
+        for (const para of t.split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean)) {
+          proseBlocks.push({ type: 'prose', text: para });
+        }
+      };
+      while (i < lines.length && !/^::enddiverge\b/.test(lines[i])) {
+        const dl = lines[i];
+        const dm = dl.match(/^::([\w-]+)\s*(.*)$/);
+        if (!dm) { dBuf.push(dl); i += 1; continue; }
+        flushDProse();
+        const dn = dm[1];
+        const da = parseAttrs(dm[2] ?? '');
+        i += 1;
+        if (dn === 'argument') {
+          args.push({ label: da.label ?? '', ...(da.interest ? { interest: da.interest } : {}), rows: parseStructureRows(readUntilMarker()) });
+        } else if (dn === 'sharedneed') {
+          sharedNeed = readParagraph();
+        } else if (dn === 'pin') {
+          const note = readParagraph(); // optional one-liner overriding the source's auditNote
+          pins.push({ sourceId: da.source ?? '', at: da.at ?? '', ...(note ? { note } : {}) });
+        } else if (dn === 'line') {
+          proseBlocks.push({ type: 'line', name: da.name ?? '' });
+        } else {
+          readUntilMarker(); // unknown marker inside diverge — skip its body
+        }
+      }
+      if (i < lines.length) i += 1; // consume ::enddiverge
+      flushDProse();
+      if (args.length >= 1) {
+        // One column is malformed but still pushed (empty second column) so the
+        // validator can report it; zero columns degrades to plain prose.
+        blocks.push({
+          type: 'diverge',
+          label: attrs.label ?? 'Where they diverge',
+          ...(attrs.house ? { house: attrs.house } : {}),
+          a: args[0],
+          b: args[1] ?? { label: '', rows: [] },
+          ...(sharedNeed ? { sharedNeed } : {}),
+          pins,
+          prose: proseBlocks,
+        });
+      } else {
+        blocks.push(...proseBlocks);
+      }
     } else if (name === 'position') {
       const paragraph = readParagraph();
       // Optional `::structure` between the paragraph and the audit: the argument
@@ -207,20 +282,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       if (stm) {
         const sa = parseAttrs(stm[1] ?? '');
         i += 1;
-        const rows: StructureRow[] = readUntilMarker()
-          .split('\n').map((l) => l.trim()).filter(Boolean)
-          .map((l) => {
-            const p = l.split('|').map((x) => x.trim());
-            const id = p[0] ?? '';
-            const rawProv = (p[1] ?? '').toLowerCase();
-            const provenance: StructureRow['provenance'] =
-              /^c$/i.test(id) ? 'conclusion'
-              : rawProv === 'stated' ? 'stated'
-              : rawProv === 'supplied' ? 'supplied'
-              : 'quoted';
-            return { id, provenance, text: p[2] ?? '' };
-          })
-          .filter((r) => r.text);
+        const rows: StructureRow[] = parseStructureRows(readUntilMarker());
         let need: string | undefined;
         skipBlank();
         const nm = i < lines.length ? lines[i].match(/^::need\b/) : null;
@@ -378,6 +440,34 @@ export function validateBriefing(b: BriefingArticle): string[] {
       if ((s.supports && !s.asserts) || (!s.supports && s.asserts)) issues.push(`position "${who}" ::structure overclaim gap needs BOTH supports= and asserts= or neither`);
       if (!s.need && !s.supports) issues.push(`position "${who}" ::structure has no ::need sentence and no overclaim gap — it must say what the step needs (omit the whole block otherwise: absence is informative)`);
     }
+  }
+
+  // ::diverge integrity (Decision 3, A+C, 2026-08-05). Two columns, each a
+  // well-formed standard-form argument; pins must reference audited commentary
+  // sources; the prose pane must exist — the toggle's "As written" register is
+  // part of the contract, not an optional extra.
+  for (const bl of b.blocks) {
+    if (bl.type !== 'diverge') continue;
+    const cols = [bl.a, bl.b];
+    if (!bl.b.rows.length && !bl.b.label) issues.push('`::diverge` needs exactly two `::argument` columns');
+    for (const col of cols) {
+      if (!col.rows.length) continue; // covered by the two-column issue above
+      const who = col.label || 'unnamed argument';
+      const concl = col.rows.filter((r) => r.provenance === 'conclusion');
+      if (concl.length !== 1) issues.push(`diverge argument "${who}" needs exactly one conclusion row (id "C"), found ${concl.length}`);
+      if (col.rows.length - concl.length < 1) issues.push(`diverge argument "${who}" has no premises`);
+      if (col.rows.length > 6) issues.push(`diverge argument "${who}" has ${col.rows.length} rows — cap at 6 (the parallel form is a scan device, not a proof transcript)`);
+    }
+    const audited = new Set([
+      ...b.blocks.flatMap((x) => (x.type === 'position' && x.audit.name ? [x.sourceId] : [])),
+      ...pos.filter((s) => s.quote && s.auditNote).map((s) => s.id),
+    ]);
+    for (const pin of bl.pins) {
+      if (!pin.sourceId || !posIds.has(pin.sourceId)) issues.push(`diverge pin → source=${pin.sourceId || '(missing)'} matches no ::positions id`);
+      else if (!audited.has(pin.sourceId)) issues.push(`diverge pin "${pin.sourceId}" references an unaudited source — a pin is a cross-reference to an audit, not new commentary`);
+      if (!pin.at.trim()) issues.push(`diverge pin "${pin.sourceId}" has no at= target — say which premise it contests`);
+    }
+    if (!bl.prose.some((p) => p.type === 'prose')) issues.push('`::diverge` has no prose inside it — the "As written" pane is empty (move the ::line run inside ::diverge…::enddiverge)');
   }
 
   // Density advisory (not an error): the opening run before the first position
