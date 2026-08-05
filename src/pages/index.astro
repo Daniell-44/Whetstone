@@ -287,6 +287,32 @@ const showFeedFilter = feedGroups.length >= 2;
       )}
     </section>
 
+    <!-- Essays: the editor's own arguments, held to the same audit standard as
+         the briefings. Empty by design until the first piece lands (Daniel,
+         2026-08-05): the section is a promise, not an apology. Section title
+         candidates were ideated 2026-08-05; "Essays" chosen to match the
+         `opinion` kind's "Essay" kicker. Swap the <h2> if Daniel picks another. -->
+    <section id="essays" class="scroll-mt-20 mt-16">
+      <div class="flex items-center gap-4 mb-6 sm:mb-8">
+        <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Essays</h2>
+        <div class="h-px flex-1 bg-hairline" />
+      </div>
+      <div class="grid md:grid-cols-[1fr_2fr] gap-8 items-start">
+        <div>
+          <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Forthcoming</p>
+          <p class="text-sm text-muted leading-relaxed">
+            Arguments in the editor's own voice, run through the same apparatus as everything else:
+            named findings, verified quotes, and a devil's advocate that argues back.
+          </p>
+        </div>
+        <!-- The dummy slot: a card-shaped placeholder holding the section's
+             structure open. Deliberately empty. -->
+        <div class="border border-dashed border-hairline rounded-md min-h-[10rem] flex items-center justify-center" aria-hidden="true">
+          <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted/60">First essay reserved</span>
+        </div>
+      </div>
+    </section>
+
     <style>
       /* Category-filter controls (rail + mobile strip). Active state is driven by
          aria-pressed so the styling stays in sync with the a11y state the script sets. */

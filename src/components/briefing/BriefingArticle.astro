@@ -348,14 +348,19 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   const pairs = Array.from({ length: Math.max(aPrem.length, bPrem.length) }, (_, ri) => ({
                     a: aPrem[ri], b: bPrem[ri], crux: aPrem[ri]?.crux ?? bPrem[ri]?.crux,
                   }));
-                  const cell = (r) => r ? (
+                  {/* When the pair carries a crux, the premise number rides on
+                     the crux label ("3 · capacity factor") and leaves the cell
+                     to chip + text: more horizontal room for the argument
+                     (Daniel, 2026-08-05). Number stays in-cell only for
+                     unlabelled rows. */}
+                  const cell = (r, hasCrux) => r ? (
                     <div class="flex gap-2 py-2 text-[13.5px] leading-snug">
-                      <span class="font-mono text-[10.5px] text-muted pt-0.5 min-w-[1.3rem] tabular-nums shrink-0">{r.id}</span>
+                      {!hasCrux && <span class="font-mono text-[10.5px] text-muted pt-0.5 min-w-[1.3rem] tabular-nums shrink-0">{r.id}</span>}
                       <span class={`shrink-0 self-start mt-0.5 font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${PROV_CHIP[r.provenance]}`}>{r.provenance === 'supplied' ? '★ supplied' : r.provenance}</span>
                       <span class="text-ink">{r.text}</span>
                     </div>
                   ) : (
-                    <div class="py-2 text-[12px] text-muted italic">— no corresponding premise</div>
+                    <div class="py-2 text-[12px] text-muted italic">no corresponding premise</div>
                   );
                   return (
                     <div class="overflow-x-auto">
@@ -370,11 +375,11 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                           <>
                             {p.crux && (
                               <div class="col-span-2 border-t border-hairline pt-1.5 -mb-1">
-                                <span class="font-mono text-[9.5px] uppercase tracking-[0.06em] text-muted">{p.crux}</span>
+                                <span class="font-mono text-[9.5px] uppercase tracking-[0.06em] text-muted"><span class="tabular-nums">{(p.a ?? p.b)?.id}</span> · {p.crux}</span>
                               </div>
                             )}
-                            <div class={p.crux ? '' : 'border-t border-hairline'}>{cell(p.a)}</div>
-                            <div class={p.crux ? '' : 'border-t border-hairline'}>{cell(p.b)}</div>
+                            <div class={p.crux ? '' : 'border-t border-hairline'}>{cell(p.a, !!p.crux)}</div>
+                            <div class={p.crux ? '' : 'border-t border-hairline'}>{cell(p.b, !!p.crux)}</div>
                           </>
                         ))}
                         <div class="border-t border-ink-strong/40 mt-1 pt-2 pb-1">
