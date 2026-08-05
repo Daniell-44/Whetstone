@@ -50,20 +50,20 @@ capacity factor
 asset life
 timing
 
-::diverge label="Where they diverge" house="Each report's argument in standard form. Provenance per premise: quoted / stated / ★ supplied — supplied means the report never states it."
+::diverge label="Where they diverge" house="Each report's argument, laid out step by step. Every premise is marked by where it comes from: quoted (the report's own words), stated (in the report, paraphrased here), or ★ supplied (the report never says it, but the argument needs it). A gap means one report needs a premise the other never uses."
 ::argument label="From Frontier Economics" interest="commissioned by the Coalition"
 1 | quoted | On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition. | what to measure
 2 | quoted | The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach. | which demand future
 3 | stated | Reactors run 90 per cent of the time. | capacity factor
 4 | stated | Capital is amortised over 50 years. | asset life
-5 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM. | timing
+5 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM. | keeping coal running while reactors are built
 C | - | A nuclear-inclusive system is cheaper across the whole pathway.
 ::argument label="From CSIRO GenCost" interest="government-funded · AEMO is co-publisher"
 1 | quoted | LCOE does not include renewable integration costs. SLCOE does.
 2 | quoted | cannot be used to draw any conclusions about the cost of nuclear generation relative to other generation options
-3 | stated | Capacity factor 54 to 89 per cent — the range Australia's coal fleet achieves.
+3 | stated | Capacity factor 54 to 89 per cent, the range Australia's coal fleet achieves.
 4 | stated | Capital recovered over 30 years; the 60-year benefit priced at 8 per cent net of refurbishment.
-5 | quoted | at least 15 years remains the most plausible lead time
+5 | quoted | at least 15 years remains the most plausible lead time | how long before the first reactor runs
 C | - | Firmed renewables are the least-cost new build.
 ::sharedneed
 that a cost model, correctly parameterised, is the right instrument to settle a national technology choice — a premise neither report argues for.
@@ -78,7 +78,7 @@ Concedes the build costs match and contests one premise — but the adjudication
 Leans the timing premise into a verdict — and both premises are house numbers: AEMO co-publishes GenCost and forecasts the exits.
 
 ::line name="What to measure"
-GenCost compares technologies by levelised cost, and from 2025-26 by a system-wide levelised cost, conceding in the new edition that "LCOE does not include renewable integration costs. SLCOE does." Frontier refuses per-technology comparison entirely and costs whole system pathways, its principal defending the frame: "On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition." These are different questions, and each side's headline answers only its own.
+GenCost compares technologies by levelised cost (LCOE: the average lifetime cost of electricity from one kind of plant), and from 2025-26 by a system-wide version of the same measure (SLCOE, which adds the cost of making variable power reliable), conceding in the new edition that "LCOE does not include renewable integration costs. SLCOE does." Frontier refuses per-technology comparison entirely and costs whole system pathways, its principal defending the frame: "On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition." These are different questions, and each side's headline answers only its own.
 
 ::line name="Which demand future to assume"
 The line that moves the most money. Frontier's like-for-like run, nuclear added inside the same Step Change demand scenario AEMO uses, yields "The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach." The campaign headline came from a different pairing, "a Progressive future which includes nuclear power is 44% cheaper than the Step Change future", which changes demand and technology together. GenCost's authors ruled the pairing uninterpretable: the report "cannot be used to draw any conclusions about the cost of nuclear generation relative to other generation options." Nearly half the political claim lived in this scenario choice alone.

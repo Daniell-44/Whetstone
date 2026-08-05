@@ -345,19 +345,33 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   const bPrem = block.b.rows.filter((r) => r.provenance !== 'conclusion');
                   const aConc = block.a.rows.find((r) => r.provenance === 'conclusion');
                   const bConc = block.b.rows.find((r) => r.provenance === 'conclusion');
-                  const pairs = Array.from({ length: Math.max(aPrem.length, bPrem.length) }, (_, ri) => ({
-                    a: aPrem[ri], b: bPrem[ri], crux: aPrem[ri]?.crux ?? bPrem[ri]?.crux,
-                  }));
-                  {/* When the pair carries a crux, the premise number rides on
-                     the crux label ("3 · capacity factor") and leaves the cell
-                     to chip + text: more horizontal room for the argument
-                     (Daniel, 2026-08-05). Number stays in-cell only for
-                     unlabelled rows. */}
+                  {/* Pairing: by index, with one exception that makes
+                     asymmetric premises honest (Daniel, 2026-08-05): when the
+                     two rows at an index carry DIFFERENT crux labels, they are
+                     different claims and each gets its own row with a gap
+                     opposite. A row's crux otherwise comes from whichever side
+                     authored one, so labels need not be duplicated. */}
+                  const pairs = [];
+                  for (let ri = 0; ri < Math.max(aPrem.length, bPrem.length); ri++) {
+                    const a = aPrem[ri];
+                    const b = bPrem[ri];
+                    if (a && b && a.crux && b.crux && a.crux !== b.crux) {
+                      pairs.push({ a, b: undefined, crux: a.crux });
+                      pairs.push({ a: undefined, b, crux: b.crux });
+                    } else {
+                      pairs.push({ a, b, crux: a?.crux ?? b?.crux });
+                    }
+                  }
+                  {/* Cell layout: provenance chip (and number, when no crux
+                     row carries it) on its own line, the argument text below
+                     at full cell width (Daniel, 2026-08-05). */}
                   const cell = (r, hasCrux) => r ? (
-                    <div class="flex gap-2 py-2 text-[13.5px] leading-snug">
-                      {!hasCrux && <span class="font-mono text-[10.5px] text-muted pt-0.5 min-w-[1.3rem] tabular-nums shrink-0">{r.id}</span>}
-                      <span class={`shrink-0 self-start mt-0.5 font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${PROV_CHIP[r.provenance]}`}>{r.provenance === 'supplied' ? '★ supplied' : r.provenance}</span>
-                      <span class="text-ink">{r.text}</span>
+                    <div class="py-2">
+                      <div class="flex items-center gap-2 mb-1">
+                        {!hasCrux && <span class="font-mono text-[10.5px] text-muted tabular-nums">{r.id}</span>}
+                        <span class={`font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${PROV_CHIP[r.provenance]}`}>{r.provenance === 'supplied' ? '★ supplied' : r.provenance}</span>
+                      </div>
+                      <div class="text-[13.5px] text-ink leading-snug">{r.text}</div>
                     </div>
                   ) : (
                     <div class="py-2 text-[12px] text-muted italic">no corresponding premise</div>
