@@ -498,8 +498,14 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
           <div id="discussion" class="rounded-md bg-paper border border-hairline p-4 scroll-mt-24">
             <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Editor's view · opinion</span>
             <p class="text-base text-ink leading-relaxed">{block.text}</p>
+            {/* Devil's advocate lives INSIDE the editor's opinion with its own
+               sub-heading (Daniel, 2026-08-04) — the editor arguing against
+               the view just given, not a footnote trailing it. */}
             {block.whyWrong && (
-              <p class="text-sm text-muted mt-2"><span class="font-medium">Devil's advocate:</span> {block.whyWrong}</p>
+              <div class="mt-3.5 pt-3 border-t border-hairline">
+                <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support mb-1.5">Devil's advocate</span>
+                <p class="text-sm text-ink leading-relaxed">{block.whyWrong}</p>
+              </div>
             )}
           </div>
         );

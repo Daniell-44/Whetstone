@@ -1,0 +1,33 @@
+# The cardinal-sin gate, structural: every quote in a briefing must be
+# verbatim-verifiable at its source URL. Runs only when briefing content
+# changes, so ordinary code pushes never wait on external fetches.
+#
+# Known caveat: some news/think-tank sites block datacenter IPs, so a quote
+# that verifies from a residential machine can read UNREACHABLE here. If that
+# noise materialises, soften with `continue-on-error: true` on the run step
+# (check turns advisory) rather than deleting the workflow — the signal on
+# real content pushes is worth the occasional false red.
+name: Verify quotes
+
+on:
+  push:
+    paths:
+      - 'src/content/briefings/**'
+  pull_request:
+    paths:
+      - 'src/content/briefings/**'
+
+jobs:
+  quotes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify:quotes

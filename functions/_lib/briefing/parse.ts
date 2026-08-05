@@ -314,6 +314,17 @@ export function validateBriefing(b: BriefingArticle): string[] {
     if (!hasTakes && b.otherTakes !== 'none') issues.push('no `::takes` and no `otherTakes: none` front-matter — mark the absence deliberately');
   }
 
+  // Devil's-advocate policy (Daniel, 2026-08-04): the editor's opinion argues
+  // against itself. An ::editor without ::why-wrong is flagged everywhere; an
+  // opinion-kind piece must carry the pair (the whole piece IS the view).
+  const editor = b.blocks.find((bl) => bl.type === 'editorView');
+  if (editor && editor.type === 'editorView' && !editor.whyWrong?.trim()) {
+    issues.push("`::editor` has no `::why-wrong` — the editor's view must carry its devil's advocate");
+  }
+  if (b.kind === 'opinion' && !editor) {
+    issues.push('opinion piece has no `::editor` block — an opinion needs the view + its devil\'s advocate (`::why-wrong`)');
+  }
+
   if (v2 && b.sources.length > 0) issues.push('both `::positions` and legacy `::sources` present — finish the migration (legacy table is ignored by the v2 renderers)');
 
   const ids = new Set(b.sources.map((s) => s.id));
