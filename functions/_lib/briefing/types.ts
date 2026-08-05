@@ -77,6 +77,10 @@ export interface StructureRow {
   id:         string;                                    // "1".."n" for premises, "C" for the conclusion
   provenance: 'quoted' | 'stated' | 'supplied' | 'conclusion';
   text:       string;
+  /** Optional 4th pipe column: the crux this premise answers. In a ::diverge
+     pair, rows align by index and the crux renders as a spanning micro-label —
+     the layout echoes a table without being one (Daniel, 2026-08-05). */
+  crux?:      string;
 }
 export interface PositionStructure {
   rows:      StructureRow[];

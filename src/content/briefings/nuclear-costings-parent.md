@@ -52,16 +52,18 @@ timing
 
 ::diverge label="Where they diverge" house="Each report's argument in standard form. Provenance per premise: quoted / stated / ★ supplied — supplied means the report never states it."
 ::argument label="From Frontier Economics" interest="commissioned by the Coalition"
-1 | quoted | On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition.
-2 | quoted | The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach.
-3 | stated | Reactors run 90 per cent of the time; capital is amortised over 50 years.
-4 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM.
+1 | quoted | On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition. | what to measure
+2 | quoted | The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach. | which demand future
+3 | stated | Reactors run 90 per cent of the time. | capacity factor
+4 | stated | Capital is amortised over 50 years. | asset life
+5 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM. | timing
 C | - | A nuclear-inclusive system is cheaper across the whole pathway.
 ::argument label="From CSIRO GenCost" interest="government-funded · AEMO is co-publisher"
 1 | quoted | LCOE does not include renewable integration costs. SLCOE does.
-2 | stated | Capacity factor 54 to 89 per cent — the range Australia's coal fleet achieves.
-3 | stated | Capital recovered over 30 years; the 60-year benefit priced at 8 per cent net of refurbishment.
-4 | quoted | at least 15 years remains the most plausible lead time
+2 | quoted | cannot be used to draw any conclusions about the cost of nuclear generation relative to other generation options
+3 | stated | Capacity factor 54 to 89 per cent — the range Australia's coal fleet achieves.
+4 | stated | Capital recovered over 30 years; the 60-year benefit priced at 8 per cent net of refurbishment.
+5 | quoted | at least 15 years remains the most plausible lead time
 C | - | Firmed renewables are the least-cost new build.
 ::sharedneed
 that a cost model, correctly parameterised, is the right instrument to settle a national technology choice — a premise neither report argues for.
@@ -72,7 +74,7 @@ Refuses the frame itself: if he is right, the argument between the models is a c
 ::pin source=grattan at="Frontier P3"
 Concedes the build costs match and contests one premise — but the adjudication accepts the coal-fleet analogy by proximity, not argument.
 
-::pin source=aemo at="GenCost P4"
+::pin source=aemo at="GenCost P5"
 Leans the timing premise into a verdict — and both premises are house numbers: AEMO co-publishes GenCost and forecasts the exits.
 
 ::line name="What to measure"

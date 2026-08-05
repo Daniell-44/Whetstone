@@ -334,30 +334,59 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 <label for={`dv-${idx}-prose`} class="font-mono text-[10.5px] uppercase tracking-[0.08em] px-3 py-1.5 cursor-pointer text-muted">As written</label>
               </div>
               <div class="dv-pane dv-pane-prem">
-                <div class="overflow-x-auto">
-                  <div class="grid grid-cols-2 gap-6 min-w-[34rem]">
-                    {[block.a, block.b].map((col) => (
-                      <div>
-                        <div class="border-b border-ink-strong pb-1.5 mb-0.5">
-                          <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-strong">{col.label}</span>
-                          {col.interest && <span class="block text-[11px] text-muted leading-snug mt-0.5">{col.interest}</span>}
-                        </div>
-                        {col.rows.map((r) => r.provenance === 'conclusion' ? (
-                          <div class="flex gap-2.5 border-t border-ink-strong/40 mt-1 pt-2 pb-1 text-[13.5px] font-medium text-ink-strong leading-snug">
-                            <span class="font-mono shrink-0">∴</span>
-                            <span>{r.text}</span>
-                          </div>
-                        ) : (
-                          <div class="flex gap-2 py-2 border-t border-hairline first:border-t-0 text-[13.5px] leading-snug">
-                            <span class="font-mono text-[10.5px] text-muted pt-0.5 min-w-[1.3rem] tabular-nums shrink-0">{r.id}</span>
-                            <span class={`shrink-0 self-start mt-0.5 font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${PROV_CHIP[r.provenance]}`}>{r.provenance === 'supplied' ? '★ supplied' : r.provenance}</span>
-                            <span class="text-ink">{r.text}</span>
+                {/* Premises pair by INDEX across the two columns and share a
+                   grid row, so matching premises sit vertically aligned — the
+                   layout echoes a table without being one (Daniel,
+                   2026-08-05). An optional 4th pipe column names the crux the
+                   pair answers; a missing counterpart renders as an explicit
+                   gap, which is information (absence-as-signal). */}
+                {(() => {
+                  const aPrem = block.a.rows.filter((r) => r.provenance !== 'conclusion');
+                  const bPrem = block.b.rows.filter((r) => r.provenance !== 'conclusion');
+                  const aConc = block.a.rows.find((r) => r.provenance === 'conclusion');
+                  const bConc = block.b.rows.find((r) => r.provenance === 'conclusion');
+                  const pairs = Array.from({ length: Math.max(aPrem.length, bPrem.length) }, (_, ri) => ({
+                    a: aPrem[ri], b: bPrem[ri], crux: aPrem[ri]?.crux ?? bPrem[ri]?.crux,
+                  }));
+                  const cell = (r) => r ? (
+                    <div class="flex gap-2 py-2 text-[13.5px] leading-snug">
+                      <span class="font-mono text-[10.5px] text-muted pt-0.5 min-w-[1.3rem] tabular-nums shrink-0">{r.id}</span>
+                      <span class={`shrink-0 self-start mt-0.5 font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${PROV_CHIP[r.provenance]}`}>{r.provenance === 'supplied' ? '★ supplied' : r.provenance}</span>
+                      <span class="text-ink">{r.text}</span>
+                    </div>
+                  ) : (
+                    <div class="py-2 text-[12px] text-muted italic">— no corresponding premise</div>
+                  );
+                  return (
+                    <div class="overflow-x-auto">
+                      <div class="grid grid-cols-2 gap-x-6 min-w-[34rem]">
+                        {[block.a, block.b].map((col) => (
+                          <div class="border-b border-ink-strong pb-1.5">
+                            <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-strong">{col.label}</span>
+                            {col.interest && <span class="block text-[11px] text-muted leading-snug mt-0.5">{col.interest}</span>}
                           </div>
                         ))}
+                        {pairs.map((p) => (
+                          <>
+                            {p.crux && (
+                              <div class="col-span-2 border-t border-hairline pt-1.5 -mb-1">
+                                <span class="font-mono text-[9.5px] uppercase tracking-[0.06em] text-muted">{p.crux}</span>
+                              </div>
+                            )}
+                            <div class={p.crux ? '' : 'border-t border-hairline'}>{cell(p.a)}</div>
+                            <div class={p.crux ? '' : 'border-t border-hairline'}>{cell(p.b)}</div>
+                          </>
+                        ))}
+                        <div class="border-t border-ink-strong/40 mt-1 pt-2 pb-1">
+                          {aConc && <div class="flex gap-2.5 text-[13.5px] font-medium text-ink-strong leading-snug"><span class="font-mono shrink-0">∴</span><span>{aConc.text}</span></div>}
+                        </div>
+                        <div class="border-t border-ink-strong/40 mt-1 pt-2 pb-1">
+                          {bConc && <div class="flex gap-2.5 text-[13.5px] font-medium text-ink-strong leading-snug"><span class="font-mono shrink-0">∴</span><span>{bConc.text}</span></div>}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  );
+                })()}
                 {block.sharedNeed && (
                   <div class="mt-4 border border-accent-support/40 bg-surface px-3.5 py-2.5 text-[13.5px] text-ink leading-snug">
                     <span class="font-mono text-[9px] font-semibold uppercase tracking-wide text-accent-support mr-2">★ supplied · both arguments need</span>

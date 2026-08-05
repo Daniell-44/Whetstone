@@ -66,6 +66,25 @@ describe('::diverge parsing', () => {
     expect(dv.b.interest).toBeUndefined();
   });
 
+  it('parses the optional 4th crux column on argument rows', () => {
+    const b4 = parseBriefingFile(`${FM}${POSITIONS}
+::diverge
+::argument label="From Camp A"
+1 | quoted | Premise with a crux. | the first crux
+C | - | Conclusion.
+::argument label="From Camp B"
+1 | quoted | Counterpart premise.
+C | - | Conclusion.
+::line name="x"
+Prose.
+::enddiverge
+`, 't');
+    const dv4 = b4.blocks.find((bl) => bl.type === 'diverge');
+    if (dv4?.type !== 'diverge') throw new Error('no diverge block');
+    expect(dv4.a.rows[0].crux).toBe('the first crux');
+    expect(dv4.b.rows[0].crux).toBeUndefined();
+  });
+
   it('captures the shared-need row and the pin with its note', () => {
     if (dv?.type !== 'diverge') return;
     expect(dv.sharedNeed).toBe('that a model settles the question.');

@@ -111,7 +111,7 @@ function parseStructureRows(text: string): StructureRow[] {
         : rawProv === 'stated' ? 'stated'
         : rawProv === 'supplied' ? 'supplied'
         : 'quoted';
-      return { id, provenance, text: p[2] ?? '' };
+      return { id, provenance, text: p[2] ?? '', ...(p[3] ? { crux: p[3] } : {}) };
     })
     .filter((r) => r.text);
 }
