@@ -124,6 +124,17 @@ The inference is sound given the 15-year clock and the exit schedule, but both p
 ::shared
 Beneath five lines of disagreement, the combatants share a load-bearing frame: that a cost model, fed the right numbers, is the right way to settle a national technology choice, and that its outputs deserve headline status even as every party concedes under pressure that those outputs move with the assumptions. They also share more specific ground: nobody disputes the coal fleet is exiting, both models use similar nuclear build costs per kilowatt, and both publish sensitivity results their own headlines ignore. The AAP FactCheck's finding that both major parties overclaimed is the shared assumption's receipt.
 
+::public label="The public" stripcaption="Each tick is one poll's share of Australians who support nuclear power." stripnote="Different pollsters, different question wording: the wording moves the answer by {spread} points. No single number is public opinion." gapnote="No published poll asks this briefing's exact question: which pathway is cheaper on the evidence. These are the nearest neighbours, with pollster and date on every figure. All figures verified against their sources, 2026-08-06." dialquestion="On the question this briefing maps: which pathway reads cheaper to you, on the evidence above?"
+tick | 42 | Essential, Apr 2025
+tick | 52 | Essential, Apr 2026
+tick | 55 | Essential, Feb 2025
+tick | 61 | Lowy, Mar 2024
+q | Which energy source is most expensive? | Guardian Essential, Jul 2024 | nuclear 38, renewables 35, fossil fuels 27 | Three months earlier the order was reversed: renewables 40, nuclear 36. The perception flipped while the argument ran, not after new evidence arrived.
+q | Which goal should be the main priority of energy policy? | Lowy, 2024 | cutting household bills 48, cutting emissions 37, avoiding blackouts 15 | Bills overtook emissions for the first time in 2024, a 16 point jump since 2021. This is why the cheaper-pathway fight decides elections.
+prompt | Contest the 90 per cent capacity factor
+prompt | Contest the coal-fleet reference class
+prompt | Refuse the frame, like Mountain
+
 ::editor
 The editor's view for this briefing is being written and will appear here.
 ::why-wrong

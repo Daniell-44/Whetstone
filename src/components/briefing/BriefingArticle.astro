@@ -499,12 +499,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                            an authored bridge sentence rides the 11th ::positions
                            column and renders before its card. */}
                         {s.bridge && <p class="text-[14px] text-muted italic leading-snug -mb-1">{s.bridge}</p>}
-                        /* S1 row anatomy (Decision 4, 2026-08-05): fixed slots
+                        {/* S1 row anatomy (Decision 4, 2026-08-05): fixed slots
                            learned once — name · outlet · position, hairline,
                            interest, quote, audit. The stance rail is 4px, and
                            position is NEVER colour-only: a tick on a five-step
                            rule plus a text pole label carry it chromatically-
-                           blind (Ground News fixed-row-anatomy pattern). */
+                           blind (Ground News fixed-row-anatomy pattern). */}
                         <div id={`pos-${s.id}`} class="scroll-mt-24 pl-3.5 py-1.5" style={`border-left:4px solid ${rule}`}>
                           <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
                             <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{s.label}</span>
@@ -694,6 +694,94 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
             <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support mb-1.5">The shared assumption</span>
             <p class="text-base text-ink leading-relaxed">{block.text}</p>
           </div>
+        );
+      }
+      if (block.type === 'public') {
+        // "The public" (Decisions 8 C-1 + 9 P-A2, 2026-08-06): three storeys
+        // above the editor's view — what polls find, where you land, join the
+        // conversation. Static, zero JS; the dial renders disabled until its
+        // counter endpoint ships. Only verified figures may be authored in.
+        const vals = block.ticks.map((t) => t.value);
+        const lo = vals.length ? Math.min(...vals) : 0;
+        const hi = vals.length ? Math.max(...vals) : 0;
+        const axLo = Math.max(0, Math.floor((lo - 4) / 5) * 5);
+        const axHi = Math.min(100, Math.ceil((hi + 4) / 5) * 5);
+        const posPct = (v) => ((v - axLo) / Math.max(1, axHi - axLo)) * 100;
+        const spread = hi - lo;
+        const stripNote = (block.stripNote ?? '').replace('{spread}', String(spread));
+        const maxBar = Math.max(1, ...block.questions.flatMap((q) => q.bars.map((b) => b.value)));
+        const BAR_COL = ['#345D7E', '#8C4A2F', '#6E7370', '#24272B'];
+        return (
+          <section id="public" class="not-prose scroll-mt-24">
+            <hr class="border-0 border-t border-ink-strong mb-4" />
+            <h2 class="font-serif text-2xl text-ink-strong mb-4 leading-tight">{block.label}</h2>
+
+            {/* Storey 1 — what polls find */}
+            {block.ticks.length > 0 && (
+              <div class="mb-2">
+                {block.stripCaption && <p class="text-[14px] text-ink leading-snug mb-1"><span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mr-2">What polls find</span>{block.stripCaption}</p>}
+                <div class="relative h-16 mx-2" role="img" aria-label={`Support for nuclear by poll: ${block.ticks.map((t) => `${t.value}% ${t.label}`).join('; ')}`}>
+                  <div class="absolute left-0 right-0 top-6 border-t border-[#B9BCB4]"></div>
+                  <span class="absolute -left-1 top-7 font-mono text-[9px] text-muted">{axLo}%</span>
+                  <span class="absolute -right-1 top-7 font-mono text-[9px] text-muted">{axHi}%</span>
+                  {block.ticks.map((t, ti) => (
+                    <>
+                      <span class={t.value === hi ? 'absolute w-[2px] bg-accent' : 'absolute w-[2px] bg-ink-strong'} style={`left:${posPct(t.value)}%; top:${t.value === hi ? '0.9rem' : '1.1rem'}; height:${t.value === hi ? '1.3rem' : '1.1rem'}`}></span>
+                      <span class="absolute font-mono text-[9px] text-muted whitespace-nowrap" style={`left:${posPct(t.value)}%; top:${ti % 2 === 0 ? '2.4rem' : '3.15rem'}; transform:translateX(-50%)`}>{t.value} {t.label}</span>
+                    </>
+                  ))}
+                </div>
+                {stripNote && <p class="text-[13px] text-ink leading-snug mt-1">{stripNote}</p>}
+              </div>
+            )}
+            {block.questions.length > 0 && (
+              <div class="border-t border-hairline pt-3 mt-4">
+                <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-2.5">Closest to this briefing's question</p>
+                {block.questions.map((q) => (
+                  <div class="border-b border-hairline/60 pb-3 mb-3 last:border-b-0 last:mb-0">
+                    <p class="text-[14.5px] leading-snug"><span class="font-serif italic text-ink-strong">{q.question}</span> <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-muted ml-1">{q.source}</span></p>
+                    <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mt-1.5">
+                      {q.bars.map((b, bi) => (
+                        <span class="text-[13px] text-ink whitespace-nowrap">{b.label} <b class="tabular-nums">{b.value}</b> <span class="inline-block h-2 align-middle ml-0.5" style={`width:${(b.value / maxBar) * 7}rem; background:${BAR_COL[bi % BAR_COL.length]}`}></span></span>
+                      ))}
+                    </div>
+                    {q.note && <p class="text-[12.5px] text-muted leading-snug mt-1.5">{q.note}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+            {block.gapNote && <p class="text-[12px] text-muted leading-snug border-t border-hairline pt-2.5 mt-1">{block.gapNote}</p>}
+
+            {/* Storey 2 — where do you land (dial disabled until the counter ships) */}
+            {block.dialQuestion && (
+              <div class="border-t border-hairline pt-3.5 mt-5">
+                <p class="text-[14px] text-ink leading-snug mb-2"><span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mr-2">Where do you land?</span>{block.dialQuestion}</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-right leading-tight" style="color:#345D7E">{briefing.spectrumAxis.left}</span>
+                  <span class="inline-flex gap-1.5">
+                    {STANCE_STEPS.map((v) => (
+                      <button type="button" disabled title="The counter is being built; the dial opens when it ships." class="w-9 h-7 border font-mono text-[11px] tabular-nums cursor-not-allowed opacity-70" style={`border-color:${stanceCol(v)}; color:${stanceCol(v)}; border-width:${Math.abs(v) === 2 ? '1.5px' : '1px'}`}>{v > 0 ? `+${v}` : v}</button>
+                    ))}
+                  </span>
+                  <span class="font-mono text-[9px] uppercase tracking-[0.05em] leading-tight" style="color:#8C4A2F">{briefing.spectrumAxis.right}</span>
+                </div>
+                <p class="text-[12px] text-muted leading-snug mt-1.5">One tap, anonymous, stored as a count only. Results show once 50 readers have answered, on the same scale the commentators are mapped on. The counter is being built; the dial opens when it ships.</p>
+              </div>
+            )}
+
+            {/* Storey 3 — join the conversation */}
+            {block.prompts && block.prompts.length > 0 && (
+              <div class="border-t border-hairline pt-3.5 mt-5">
+                <p class="text-[14px] text-ink leading-snug mb-2"><span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mr-2">Join the conversation</span>Pick a premise to contest, or start from scratch. Your take runs through the audit first: the same rules as every voice above.</p>
+                <div class="flex flex-wrap gap-2">
+                  {block.prompts.map((pr) => (
+                    <a href={`/audit`} class="border border-hairline px-2.5 py-1 text-[13px] text-accent-support hover:border-accent-support/50 hover:text-accent transition-colors">{pr}</a>
+                  ))}
+                  <a href="/audit" class="border border-hairline px-2.5 py-1 text-[13px] text-muted hover:text-ink transition-colors">Start from scratch →</a>
+                </div>
+              </div>
+            )}
+          </section>
         );
       }
       if (block.type === 'editorView') {

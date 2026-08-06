@@ -137,6 +137,17 @@ export type BriefingBlock =
       structure?:  PositionStructure;   // optional "the argument, numbered" disclosure
     }
   | { type: 'shared';     text: string }                                   // the shared assumption (bottom line)
+  | {
+      type: 'public';               // "The public" section (Decision 8 C-1, 2026-08-06): polls, dial, conversation
+      label: string;                // section heading, default "The public"
+      stripCaption?: string;        // one line over the tick strip saying what a tick is
+      stripNote?: string;           // one line under it; {spread} interpolates max-min
+      ticks: { value: number; label: string }[];        // verified support numbers, one per poll
+      questions: { question: string; source: string; bars: { label: string; value: number }[]; note?: string }[];
+      gapNote?: string;             // the honest-gap line at the section foot
+      dialQuestion?: string;        // storey 2 prompt; dial renders when present
+      prompts?: string[];           // storey 3 crux prompts, each links into /audit
+    }
   | { type: 'editorView'; text: string; whyWrong?: string }                // opinion, walled off
   | { type: 'takes';      items: { source: string; url?: string; quote: string; audit: string }[] }; // curated external takes, audited
 

@@ -30,6 +30,7 @@ const hasShared    = briefing.blocks.some((bl) => bl.type === 'shared');
 const hasEditor    = briefing.blocks.some((bl) => bl.type === 'editorView' || bl.type === 'takes');
 const hasContext   = briefing.blocks.some((bl) => bl.type === 'context');
 const hasDiverge   = briefing.blocks.some((bl) => bl.type === 'diverge');
+const hasPublic    = briefing.blocks.some((bl) => bl.type === 'public');
 
 // Explainers get a pared chassis: essay + one related-briefing link. No ToC,
 // no share/cite rail, no audit CTAs — the full apparatus belongs to briefings.
@@ -166,8 +167,9 @@ const jsonLd = {
           {hasContext && <a href="#context" data-spy="context" class="block text-muted hover:text-accent transition-colors">Common ground</a>}
           {hasDiverge && <a href="#diverge" data-spy="diverge" class="block text-muted hover:text-accent transition-colors">Where they diverge</a>}
           {hasPositions && <a href="#commentary" data-spy="commentary" class="block text-muted hover:text-accent transition-colors">The commentary</a>}
-          {hasPositions && <a href="#sources" data-spy="sources" class="block text-muted hover:text-accent transition-colors">Sources</a>}
+          {hasPublic && <a href="#public" data-spy="public" class="block text-muted hover:text-accent transition-colors">The public</a>}
           {hasEditor && <a href="#discussion" data-spy="discussion" class="block text-muted hover:text-accent transition-colors">Editor's view</a>}
+          {hasPositions && <a href="#sources" data-spy="sources" class="block text-muted hover:text-accent transition-colors">Sources</a>}
         </nav>
         <a href="/" class="mt-6 block text-xs text-muted hover:text-accent transition-colors">← All Briefings</a>
 

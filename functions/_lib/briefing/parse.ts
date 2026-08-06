@@ -276,6 +276,41 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       } else {
         blocks.push(...proseBlocks);
       }
+    } else if (name === 'public') {
+      // "The public" section (Decision 8 C-1 + 9 P-A2, 2026-08-06). Typed
+      // pipe rows: `tick | <number> | <pollster, date>` builds the range
+      // strip; `q | <question> | <source, date> | <label n, label n, …> |
+      // [note]` builds a question row with proportional bars; `prompt | <text>`
+      // adds a storey-3 conversation prompt. Only verified figures may be
+      // authored here — the quote gate's discipline applies to numbers too.
+      const ticks: { value: number; label: string }[] = [];
+      const questions: { question: string; source: string; bars: { label: string; value: number }[]; note?: string }[] = [];
+      const prompts: string[] = [];
+      for (const rline of readUntilMarker().split('\n').map((l) => l.trim()).filter(Boolean)) {
+        const p = rline.split('|').map((x) => x.trim());
+        if (p[0] === 'tick') {
+          const v = toNum(p[1]);
+          if (v > 0 && p[2]) ticks.push({ value: v, label: p[2] });
+        } else if (p[0] === 'q') {
+          const bars = (p[3] ?? '').split(',').map((b) => b.trim()).map((b) => {
+            const m = b.match(/^(.*?)\s+(\d+)$/);
+            return m ? { label: m[1], value: Number(m[2]) } : null;
+          }).filter((b): b is { label: string; value: number } => b !== null);
+          if (p[1] && bars.length) questions.push({ question: p[1], source: p[2] ?? '', bars, ...(p[4] ? { note: p[4] } : {}) });
+        } else if (p[0] === 'prompt' && p[1]) {
+          prompts.push(p[1]);
+        }
+      }
+      blocks.push({
+        type: 'public',
+        label: attrs.label ?? 'The public',
+        ...(attrs.stripcaption ? { stripCaption: attrs.stripcaption } : {}),
+        ...(attrs.stripnote ? { stripNote: attrs.stripnote } : {}),
+        ticks, questions,
+        ...(attrs.gapnote ? { gapNote: attrs.gapnote } : {}),
+        ...(attrs.dialquestion ? { dialQuestion: attrs.dialquestion } : {}),
+        ...(prompts.length ? { prompts } : {}),
+      });
     } else if (name === 'position') {
       const paragraph = readParagraph();
       // Optional `::structure` between the paragraph and the audit: the argument
