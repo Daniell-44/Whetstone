@@ -28,7 +28,7 @@ test('briefing page renders question, audit link, and takes', async ({ page }) =
 
   // ONE Sources section (positions + further evidence), not two competing
   // bibliographies; the old "Evidence cited" label is gone.
-  await expect(page.getByText('Sources', { exact: true })).toBeVisible();
+  await expect(page.locator('#sources').getByText('Sources', { exact: true })).toBeVisible();
   await expect(page.getByText(/Evidence cited/)).toHaveCount(0);
 
   // CTA budget: per-audit chips plus exactly one footer CTA into the tool.

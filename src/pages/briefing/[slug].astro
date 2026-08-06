@@ -28,6 +28,8 @@ const related = relatedPool
 const hasPositions = briefing.blocks.some((bl) => bl.type === 'position');
 const hasShared    = briefing.blocks.some((bl) => bl.type === 'shared');
 const hasEditor    = briefing.blocks.some((bl) => bl.type === 'editorView' || bl.type === 'takes');
+const hasContext   = briefing.blocks.some((bl) => bl.type === 'context');
+const hasDiverge   = briefing.blocks.some((bl) => bl.type === 'diverge');
 
 // Explainers get a pared chassis: essay + one related-briefing link. No ToC,
 // no share/cite rail, no audit CTAs — the full apparatus belongs to briefings.
@@ -154,16 +156,27 @@ const jsonLd = {
     ) : (
     <div class="grid lg:grid-cols-12 gap-8 xl:gap-12 items-start">
 
-      {/* LEFT: Table of contents */}
+      {/* LEFT: the wayfinder (T-A, Daniel 2026-08-06) — fuller page map with
+         a scrollspy bolding the current section, plus the compact audit
+         launcher on this side (opposite the ad). */}
       <aside class="hidden lg:block lg:col-span-2 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
         <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">On this page</p>
-        <nav class="space-y-1.5 text-xs">
-          <a href="#overview" class="block text-muted hover:text-accent transition-colors">Overview</a>
-          {hasPositions && <a href="#positions" class="block text-muted hover:text-accent transition-colors">The positions</a>}
-          {hasShared && <a href="#shared" class="block text-muted hover:text-accent transition-colors">Shared assumption</a>}
-          {hasEditor && <a href="#discussion" class="block text-muted hover:text-accent transition-colors">Editor's view</a>}
+        <nav id="wayfinder" class="space-y-1.5 text-xs border-l-2 border-hairline pl-3">
+          <a href="#overview" data-spy="overview" class="block text-muted hover:text-accent transition-colors">Overview</a>
+          {hasContext && <a href="#context" data-spy="context" class="block text-muted hover:text-accent transition-colors">Common ground</a>}
+          {hasDiverge && <a href="#diverge" data-spy="diverge" class="block text-muted hover:text-accent transition-colors">Where they diverge</a>}
+          {hasPositions && <a href="#commentary" data-spy="commentary" class="block text-muted hover:text-accent transition-colors">The commentary</a>}
+          {hasPositions && <a href="#sources" data-spy="sources" class="block text-muted hover:text-accent transition-colors">Sources</a>}
+          {hasEditor && <a href="#discussion" data-spy="discussion" class="block text-muted hover:text-accent transition-colors">Editor's view</a>}
         </nav>
         <a href="/" class="mt-6 block text-xs text-muted hover:text-accent transition-colors">← All Briefings</a>
+
+        {/* Compact launcher: the tool at hand while reading its product. */}
+        <div class="mt-6 pt-5 border-t border-hairline">
+          <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-2">Audit your own text</p>
+          <input id="rail-audit-input" type="text" placeholder="Paste an argument…" class="w-full bg-paper border border-hairline rounded px-2.5 py-2 text-xs text-ink placeholder:text-muted/70 focus:outline-none focus:ring-1 focus:ring-accent-support/50" />
+          <button id="rail-audit-go" type="button" class="mt-1.5 w-full py-1.5 rounded bg-accent-support text-paper text-xs font-medium hover:bg-accent-support/90 transition-colors">Run the audit</button>
+        </div>
       </aside>
 
       {/* CENTER */}
@@ -256,9 +269,54 @@ const jsonLd = {
           </div>
         )}
 
+        {/* Ad slot (re-decided 2026-08-06, previously rejected: see the shelf
+           file). Quarantined: boxed, hairlined, mono-labelled, last in the
+           rail. Placeholder until an AdSense publisher ID exists; the slot
+           ships dark rather than empty-white. */}
+        <div class="hidden lg:flex rounded-md border border-hairline bg-paper min-h-[15.5rem] flex-col items-center justify-center gap-1.5">
+          <span class="font-mono text-[9px] uppercase tracking-[0.14em] text-muted/70">Advertisement</span>
+          <span class="text-[11px] text-muted/50">slot reserved</span>
+        </div>
+
       </aside>
 
     </div>
     )}
+
+    <script>
+      // Wayfinder scrollspy: bold the section currently in view. Page chrome,
+      // not article content — the briefing article itself stays zero-JS.
+      const spyLinks = Array.from(document.querySelectorAll<HTMLElement>('#wayfinder [data-spy]'));
+      const spyTargets = spyLinks
+        .map((l) => document.getElementById(l.getAttribute('data-spy') || ''))
+        .filter((el): el is HTMLElement => el !== null);
+      if (spyTargets.length > 0) {
+        const setActive = (id: string) => {
+          for (const l of spyLinks) {
+            const on = l.getAttribute('data-spy') === id;
+            l.classList.toggle('text-ink-strong', on);
+            l.classList.toggle('font-semibold', on);
+          }
+        };
+        const io = new IntersectionObserver((entries) => {
+          const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          if (visible[0]) setActive(visible[0].target.id);
+        }, { rootMargin: '-15% 0px -70% 0px' });
+        for (const t of spyTargets) io.observe(t);
+      }
+
+      // Rail launcher → /audit, same handoff contract as the homepage.
+      const railInput = document.getElementById('rail-audit-input') as HTMLInputElement | null;
+      const railGo = document.getElementById('rail-audit-go');
+      function railLaunch() {
+        const v = (railInput?.value ?? '').trim();
+        if (!v) { window.location.href = '/audit'; return; }
+        if (/^https?:\/\//.test(v) && v.length < 1800) { window.location.href = '/audit?url=' + encodeURIComponent(v); return; }
+        try { sessionStorage.setItem('wst_handoff', v); } catch { /* storage unavailable */ }
+        window.location.href = '/audit';
+      }
+      railGo?.addEventListener('click', railLaunch);
+      railInput?.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') railLaunch(); });
+    </script>
   </main>
 </Base>

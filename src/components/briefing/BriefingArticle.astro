@@ -150,7 +150,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
      Instrument register). Static, no redline. Especially load-bearing on
      non-opinion pieces where the reader needs the shared reality first. */}
   {contextBlock && contextBlock.type === 'context' && contextBlock.items.length > 0 && (
-    <div class="mb-7 border border-hairline bg-surface">
+    <div id="context" class="mb-7 border border-hairline bg-surface scroll-mt-24">
       <div class="instrument-rule"></div>
       <div class="px-4 py-3.5">
         <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2.5">{contextBlock.label}</span>
@@ -440,7 +440,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       <span class="font-serif text-lg font-semibold text-ink-strong leading-snug">{p.name}</span>
                     </div>
                   ) : p.type === 'prose' ? (
-                    <p class="text-base text-ink leading-[1.75]">{p.text}</p>
+                    <p class="text-[17px] text-ink leading-[1.75]">{p.text}</p>
                   ) : null
                 )}
               </div>
@@ -454,7 +454,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         if (isExplainer && idx === firstProseIdx) {
           return <p class="text-lg text-ink leading-relaxed">{block.text}</p>;
         }
-        return <p class="text-base text-ink leading-[1.75]">{block.text}</p>;
+        return <p class="text-[17px] text-ink leading-[1.75]">{block.text}</p>;
       }
       if (block.type === 'position') {
         // Stance pole (drafting blue / oxide rust / grey) for migrated briefings;
@@ -494,6 +494,11 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       const rule = stanceCol(s.stance);
                       const kindStyleIC = KIND_STYLE[s.auditKind ?? 'interpretive'] ?? KIND_STYLE.interpretive;
                       return (
+                        <>
+                        {/* Connective tissue between voices (Daniel, 2026-08-06):
+                           an authored bridge sentence rides the 11th ::positions
+                           column and renders before its card. */}
+                        {s.bridge && <p class="text-[14px] text-muted italic leading-snug -mb-1">{s.bridge}</p>}
                         /* S1 row anatomy (Decision 4, 2026-08-05): fixed slots
                            learned once — name · outlet · position, hairline,
                            interest, quote, audit. The stance rail is 4px, and
@@ -521,6 +526,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                             {s.auditNote}
                           </p>
                         </div>
+                        </>
                       );
                     })}
                   </div>
@@ -571,7 +577,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 const { before, pull, after } = splitOnQuote(block.paragraph, block.quote);
                 return (
                   <>
-                    {before && <p class="text-base text-ink leading-[1.75]">{before}</p>}
+                    {before && <p class="text-[17px] text-ink leading-[1.75]">{before}</p>}
                     {/* Pull quote: type carries it, not a second rule (the block
                        already has the stance rule two levels out). */}
                     {pull && (
@@ -752,7 +758,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
   {/* ONE Sources section (a single bibliography, not two competing ones):
      the plotted positions first, then the evidence the argument cites. */}
   {!isExplainer && (v2 || briefing.sources.length > 0) && (
-    <div class="mt-10 pt-6 border-t border-hairline">
+    <div id="sources" class="mt-10 pt-6 border-t border-hairline scroll-mt-24">
       <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-4">Sources</span>
       {v2 ? (
         <div class="space-y-6">

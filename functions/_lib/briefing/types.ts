@@ -38,6 +38,10 @@ export interface BriefingPositionSource {
   quote?:       string;
   auditNote?:   string;
   auditKind?:   'structural' | 'interpretive' | 'empirical';
+  /** Optional 11th column: an authored bridge sentence rendered before this
+     source's commentary card — connective tissue between voices so the tier
+     reads as one conversation (Daniel, 2026-08-06). */
+  bridge?:      string;
 }
 
 // Principals: the primary sources UNDER audit (the reports/models the piece is
