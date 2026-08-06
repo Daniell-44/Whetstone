@@ -92,12 +92,11 @@ const showFeedFilter = feedGroups.length >= 2;
       Not a verdict on who's right — <span class="text-ink-strong font-medium">a structural audit of how each argument works</span>.
     </p>
 
-    {/* Compact audit launcher, moved above the feed (Daniel, 2026-08-04): the
-       tool bar is the site's second-best positioning statement, so it now sits
-       between the standfirst and the Briefings heading. The field hands its
+    {/* Audit launcher as a full-width band (W1, Daniel 2026-08-06): the input
+       stretches to the container edge, the page's second masthead. Hands its
        value to /audit via sessionStorage; example chips deep-link to cached
        samples (no API call). */}
-    <div class="mb-10 max-w-3xl">
+    <div class="mb-10">
       <div id="audit-launcher" class="bg-surface border border-hairline rounded-md p-4 sm:p-5">
         <div class="flex items-baseline gap-2 mb-2 flex-wrap">
           <span class="text-xs font-semibold uppercase tracking-widest font-mono text-muted">Audit your own text</span>

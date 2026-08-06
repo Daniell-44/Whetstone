@@ -31,6 +31,11 @@ const UA =
 // anywhere in it — works on arXiv abstracts, think-tank pages, gov PDFs-as-HTML,
 // etc. Returns null on a non-200 or a genuinely empty page.
 async function fetchPageText(pageUrl: string): Promise<string | null> {
+  // Platform adapters (2026-08-06): social posts don't serve their text to a
+  // plain HTML fetch, but both platforms expose JSON that does.
+  const social = await fetchSocialText(pageUrl);
+  if (social !== undefined) return social;
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20_000);
   try {
@@ -49,6 +54,51 @@ async function fetchPageText(pageUrl: string): Promise<string | null> {
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function fetchJson(url: string): Promise<unknown | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20_000);
+  try {
+    const res = await fetch(url, { signal: controller.signal, headers: { 'User-Agent': UA, 'Accept': 'application/json' } });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Returns the post text for X/Twitter and Bluesky URLs, null when the platform
+// is recognised but unreachable (treated as UNREACHABLE, never "not found"),
+// and undefined for non-social URLs (fall through to the HTML fetch).
+async function fetchSocialText(pageUrl: string): Promise<string | null | undefined> {
+  // X/Twitter: the unofficial syndication endpoint returns full JSON without
+  // auth. Unstable by nature, so fetch twice with different token values and
+  // require the text fields to agree; disagreement or HTML → unreachable.
+  const tw = pageUrl.match(/^https?:\/\/(?:www\.)?(?:twitter|x)\.com\/[^/]+\/status(?:es)?\/(\d+)/i);
+  if (tw) {
+    const id = tw[1];
+    const grab = async (token: string) => {
+      const j = (await fetchJson(`https://cdn.syndication.twimg.com/tweet-result?id=${id}&token=${token}`)) as { text?: string } | null;
+      return typeof j?.text === 'string' ? j.text : null;
+    };
+    const [a, b] = await Promise.all([grab('a'), grab('b')]);
+    if (a !== null && a === b) return a.replace(/\s+/g, ' ').trim();
+    return null;
+  }
+  // Bluesky: public API, no auth. bsky.app/profile/<handle>/post/<rkey> →
+  // at://<handle>/app.bsky.feed.post/<rkey>.
+  const bs = pageUrl.match(/^https?:\/\/bsky\.app\/profile\/([^/]+)\/post\/([A-Za-z0-9]+)/i);
+  if (bs) {
+    const uri = encodeURIComponent(`at://${bs[1]}/app.bsky.feed.post/${bs[2]}`);
+    const j = (await fetchJson(`https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=${uri}&depth=0`)) as
+      { thread?: { post?: { record?: { text?: string } } } } | null;
+    const text = j?.thread?.post?.record?.text;
+    return typeof text === 'string' ? text.replace(/\s+/g, ' ').trim() : null;
+  }
+  return undefined;
 }
 
 async function main(): Promise<void> {
