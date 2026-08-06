@@ -35,6 +35,12 @@ const hasPublic    = briefing.blocks.some((bl) => bl.type === 'public');
 // Explainers get a pared chassis: essay + one related-briefing link. No ToC,
 // no share/cite rail, no audit CTAs — the full apparatus belongs to briefings.
 const isExplainer = briefing.kind === 'explainer';
+// Essays (E-2 + E-3 margin, Daniel 2026-08-06): literary register in the
+// centre, the argument's standard form riding a sticky margin column.
+const isOpinion = briefing.kind === 'opinion';
+const skeletonBlock = briefing.blocks.find((bl) => bl.type === 'skeleton');
+const skeletonRows = skeletonBlock && skeletonBlock.type === 'skeleton' ? skeletonBlock.rows : [];
+const SKEL_PROV: Record<string, string> = { quoted: 'quoted', stated: 'stated', supplied: '★ thesis', conclusion: '∴' };
 
 const shareUrl = `https://thewhetstone.review/briefing/${briefing.slug}`;
 const X_PATH  = 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z';
@@ -136,7 +142,62 @@ const jsonLd = {
     {/* Explainer chassis: the essay plus one related-briefing link. No ToC,
        no share/cite rail, no audit CTAs. Briefings keep the full 3-column
        layout (ToC | content | share+related). */}
-    {isExplainer ? (
+    {isOpinion ? (
+      <div class="grid lg:grid-cols-12 gap-8 xl:gap-12 items-start max-w-[76rem] mx-auto">
+        <div class="lg:col-span-8 lg:col-start-2 max-w-[40rem]">
+          {briefing.draft && (
+            <div class="mb-6 border border-hairline bg-surface px-4 py-2.5">
+              <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-[#8C4A2F]">Draft preview</span>
+              <span class="text-sm text-muted ml-2">Unlisted: this page is live at its URL but off the feed until the draft flag comes out.</span>
+            </div>
+          )}
+          {/* Mobile skeleton: the margin column folds in above the essay. */}
+          {skeletonRows.length > 0 && (
+            <div class="lg:hidden mb-6 border border-hairline bg-surface px-4 py-3">
+              <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-2">This argument, numbered</p>
+              {skeletonRows.map((r) => (
+                <p class={r.provenance === 'conclusion' ? 'text-[13px] font-medium text-ink-strong leading-snug border-t border-hairline mt-1.5 pt-1.5' : 'text-[13px] text-ink leading-snug mb-1'}>
+                  <span class="font-mono text-[10px] text-muted mr-1 tabular-nums">{r.provenance === 'conclusion' ? '∴' : r.id}</span>
+                  {r.provenance !== 'conclusion' && <span class={`mr-1.5 font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${r.provenance === 'supplied' ? 'border-[#8C4A2F]/50 text-[#8C4A2F]' : 'border-hairline text-muted'}`}>{SKEL_PROV[r.provenance]}</span>}
+                  {r.text}
+                </p>
+              ))}
+            </div>
+          )}
+          <BriefingArticle briefing={briefing} />
+          {related[0] && (
+            <div class="mt-12 pt-8 border-t border-hairline">
+              <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">Related briefing</span>
+              <a href={`/briefing/${related[0].slug}`} class="font-serif text-base text-ink-strong hover:text-accent-support transition-colors leading-snug">{related[0].question}</a>
+            </div>
+          )}
+        </div>
+        {/* The E-3 margin: the argument, numbered, riding alongside the prose. */}
+        <aside class="hidden lg:block lg:col-span-3 lg:sticky lg:top-20 lg:self-start space-y-5">
+          {skeletonRows.length > 0 && (
+            <div class="border-l-2 border-hairline pl-4">
+              <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-2.5">This argument, numbered</p>
+              {skeletonRows.map((r) => (
+                <p class={r.provenance === 'conclusion' ? 'text-[12.5px] font-medium text-ink-strong leading-snug border-t border-hairline mt-2 pt-2' : 'text-[12.5px] text-ink leading-snug mb-2'}>
+                  <span class="font-mono text-[10px] text-muted mr-1 tabular-nums">{r.provenance === 'conclusion' ? '∴' : r.id}</span>
+                  {r.provenance !== 'conclusion' && <span class={`mr-1.5 font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${r.provenance === 'supplied' ? 'border-[#8C4A2F]/50 text-[#8C4A2F]' : 'border-hairline text-muted'}`}>{SKEL_PROV[r.provenance]}</span>}
+                  {r.text}
+                </p>
+              ))}
+            </div>
+          )}
+          <div class="rounded-md border border-hairline bg-surface p-4">
+            <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">Share</p>
+            <div class="flex gap-2">
+              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent hover:bg-paper transition-colors" title="X/Twitter" aria-label="Share on X/Twitter">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={X_PATH}/></svg>
+              </a>
+              <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='Link'},1500)})" class="flex-1 py-2 rounded-md text-xs text-muted hover:text-accent hover:bg-paper transition-colors" title="Copy link">Link</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    ) : isExplainer ? (
       <div class="max-w-[36rem] mx-auto">
         <BriefingArticle briefing={briefing} />
         <div class="mt-12 pt-8 border-t border-hairline">

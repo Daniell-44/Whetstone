@@ -137,6 +137,7 @@ export type BriefingBlock =
       structure?:  PositionStructure;   // optional "the argument, numbered" disclosure
     }
   | { type: 'shared';     text: string }                                   // the shared assumption (bottom line)
+  | { type: 'skeleton';   rows: StructureRow[] }                           // essay-level standard form → the E-3 margin column on opinion pages
   | {
       type: 'public';               // "The public" section (Decision 8 C-1, 2026-08-06): polls, dial, conversation
       label: string;                // section heading, default "The public"
@@ -175,5 +176,9 @@ export interface BriefingArticle {
      2026-07-21 clean-slate: the ported corpus archived so only hand-authored
      work shows on the front door. */
   archived?:     true;
+  /** Front-matter `draft: true` — page renders at its URL for preview but is
+     excluded from the feed, related rails, and next links. No archive banner.
+     For work-in-progress essays (Daniel, 2026-08-06). */
+  draft?:        true;
   blocks:        BriefingBlock[];
 }

@@ -20,6 +20,7 @@ const CATEGORY_TO_GROUP: Record<string, string> = {
   education: 'society',
   law: 'society',
   politics: 'society',
+  sport: 'society',
   science: 'science-environment',
   environment: 'science-environment',
   energy: 'science-environment',
