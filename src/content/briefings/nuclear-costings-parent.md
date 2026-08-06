@@ -1,5 +1,5 @@
 ---
-question: Why do Australia's nuclear costings disagree by hundreds of billions?
+question: Why nobody actually knows if nuclear is cheaper
 category: energy
 axisLeft: nuclear pathway cheaper
 axisRight: renewables pathway cheaper
