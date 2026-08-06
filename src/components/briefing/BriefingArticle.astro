@@ -36,6 +36,13 @@ const landscapeText  = landscapeBlock && 'text' in landscapeBlock ? landscapeBlo
 // top (below the deck/date), so the reader meets the uncontested ground before
 // the contested positions — the Verity facts/spin separation, on-brand.
 const contextBlock = briefing.blocks.find((b) => b.type === 'context');
+// Fold the shared assumption INTO the context box when both exist (Daniel,
+// 2026-08-06): "context and common ground" is one object to the reader — the
+// facts nobody disputes plus the premise both camps stand on. The ::shared
+// block stays in the parse tree (feed cards dek from it); only this page
+// merges the rendering. Without a context box it renders standalone as before.
+const sharedBlock = briefing.blocks.find((b) => b.type === 'shared');
+const foldShared = !!(contextBlock && sharedBlock);
 // Explainers have no landscape lede; their first prose paragraph is the dek.
 const firstProseIdx  = briefing.blocks.findIndex((b) => b.type === 'prose');
 
@@ -151,6 +158,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
             </li>
           ))}
         </ul>
+        {foldShared && sharedBlock && 'text' in sharedBlock && (
+          <div id="shared" class="mt-3.5 pt-3 border-t border-hairline scroll-mt-24">
+            <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-accent-support mb-1.5">Both sides assume</span>
+            <p class="text-sm text-ink leading-relaxed">{sharedBlock.text}</p>
+          </div>
+        )}
       </div>
     </div>
   )}
@@ -526,12 +539,32 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 )}
               </div>
             )}
-            <div class="pl-4" style={`border-left:2px solid ${rule}`}>
-              {/* The stance label was authored, typed, and used only on feed
-                 cards; here it is the waypoint that ties a spectrum marker to
-                 its section and breaks the prose run between audit cards. */}
+            <div class="pl-4" style={`border-left:4px solid ${rule}`}>
+              {/* Position anatomy unified with the commentary cards (Daniel,
+                 2026-08-06): the reader must see WHO is speaking before any
+                 claim. Name anchor + outlet + stance tick in fixed slots,
+                 hairline, then the authored label as the claim line — what
+                 this voice argues, scannable without reading the body. */}
+              {(() => {
+                const src = posSourceById.get(block.sourceId);
+                if (!src) return null;
+                return (
+                  <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
+                    <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{src.label}</span>
+                    {src.publication && <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-muted">{src.publication}</span>}
+                    <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(src.stance)}`}>
+                      <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
+                        {STANCE_STEPS.map((v) => (
+                          <span class={v === src.stance ? 'w-[3px] h-[11px]' : 'w-[3px] h-[5px] bg-hairline'} style={v === src.stance ? `background:${rule}` : undefined}></span>
+                        ))}
+                      </span>
+                      <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-muted">{poleLabel(src.stance)}</span>
+                    </span>
+                  </div>
+                );
+              })()}
               {block.label && (
-                <span class="block font-serif text-[15px] font-semibold text-ink-strong leading-snug mb-1.5">{block.label}</span>
+                <span class="block font-serif text-[15px] font-semibold text-ink-strong leading-snug mb-1.5"><span class="font-mono text-[9px] uppercase tracking-[0.06em] text-muted mr-1.5 align-middle">Their claim</span>{block.label}</span>
               )}
               {/* Interest disclosure (cui-bono) — moves from the mini-table
                  into the position body itself, next to the source label,
@@ -659,6 +692,8 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         );
       }
       if (block.type === 'shared') {
+        // Folded into the context box above when one exists; standalone otherwise.
+        if (foldShared) return null;
         return (
           <div id="shared" class="pl-4 scroll-mt-24 border-l-2 border-accent-support">
             <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support mb-1.5">The shared assumption</span>

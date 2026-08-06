@@ -32,7 +32,7 @@ aap | AAP FactCheck, April 2025 | AAP | https://www.aap.com.au/factcheck/major-p
 hansard | Senate Hansard, 4 February 2026 | Parliament of Australia | https://www.openaustralia.org.au/senate/?id=2026-02-04.228.1&m=100827 | The federal ban (ARPANS 1998 + EPBC 1999) still in force; the Canavan repeal bill's second reading.
 mca | Minerals Council on the NSW repeal bill | MCA | https://minerals.org.au/resources/nsw-uranium-bill-marks-a-welcome-first-step-in-consistent-nationwide-approach/ | The NSW upper house passed the state repeal bill on 7 May 2026; not yet law.
 
-::context label="What's not in dispute"
+::context label="Context and common ground"
 Two rival costings framed the debate: CSIRO and AEMO's annual GenCost report, and Frontier Economics' modelling commissioned by the Coalition.
 The Coalition's seven-site nuclear plan ended with the May 2025 election; policy under Angus Taylor is now to lift the federal ban if elected, with no reactor commitment.
 Nuclear power generation remained prohibited under federal law (the ARPANS Act 1998 and the EPBC Act 1999) as of the February 2026 Senate record.
@@ -90,12 +90,12 @@ Both sides feed in similar build costs; Grattan's Tony Wood isolated the diverge
 GenCost recovers capital over 30 years and prices the 60-year benefit at 8 per cent net of refurbishment; Frontier amortises over 50. On timing, GenCost holds "at least 15 years remains the most plausible lead time", a clock that starts at repeal of a federal ban still in force on the February 2026 Senate record, while Frontier's pathway holds most of the coal fleet open to bridge the wait: "The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM."
 ::enddiverge
 
-::position colour=1 source=cis label="Critics say the new cost measure withheld information"
+::position colour=1 source=cis label="The switch to the new cost measure withheld information from the public"
 The Centre for Independent Studies carries the critics' regrouped objection into the 2025-26 round: after SLCOE replaced the old headline measure, the submission argues the change withheld information from the public and policymakers, shifting the fight from missing system costs to where the system boundary sits.
 ::audit name="Contested Warrant" kind=structural
 The objection assumes the pre-SLCOE presentation informed rather than misled, which is the very point in dispute; CSIRO's stated reason for the change was that per-technology numbers were being read as system claims. Both readings fit the public record. The inference holds given its premise, and the premise is the fight.
 
-::position colour=2 source=grattan label="The whole gap comes down to how often reactors run" quote="But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic."
+::position colour=2 source=grattan label="One assumption, how often reactors run, explains the gap between the models" quote="But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic."
 Grattan sits between the models, conceding the build-cost inputs match and locating the gap in the capacity-factor assumption: "While both use similar estimates of the capital cost of nuclear plants, the big difference is that Frontier has assumed nuclear plants would run 90 per cent of the time, while CSIRO has used a range of 54-89 per cent, more akin to what coal currently achieves." On that parameter Grattan lands with GenCost: "But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic."
 ::structure supports="that one parameter explains the arithmetic gap between the two costings" asserts="that the coal-fleet capacity factor is the correct one to use"
 1 | quoted   | Both reports use similar estimates of the capital cost of nuclear plants.
@@ -107,7 +107,7 @@ The conclusion needs premise (3), which the adjudication does not argue for. Whe
 ::audit name="Inherited Reference Class" kind=interpretive
 The adjudication accepts GenCost's coal-fleet analogy by proximity rather than argument. Isolating the load-bearing parameter is the piece's real service; ruling on it by analogy repeats the move under audit.
 
-::position colour=4 source=aemo label="Cost is moot if it misses the exit" quote="Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations."
+::position colour=4 source=aemo label="Nuclear cannot arrive before the coal fleet exits, so the cost contest never starts" quote="Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations."
 AEMO's chief executive moves the ground from cost to timing: "Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations." If the coal exit schedule holds, the cost comparison never gets its chance.
 ::audit name="Interested Premise" kind=interpretive
 The inference is sound given the 15-year clock and the exit schedule, but both premises are house numbers: AEMO co-publishes GenCost and forecasts the exits. Frontier's model attacks the second premise directly by holding 65 per cent of the coal fleet open. The timing argument is strong exactly insofar as the incumbent forecasts are.
