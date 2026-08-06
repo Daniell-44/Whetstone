@@ -36,13 +36,17 @@ const landscapeText  = landscapeBlock && 'text' in landscapeBlock ? landscapeBlo
 // top (below the deck/date), so the reader meets the uncontested ground before
 // the contested positions — the Verity facts/spin separation, on-brand.
 const contextBlock = briefing.blocks.find((b) => b.type === 'context');
-// Fold the shared assumption INTO the context box when both exist (Daniel,
-// 2026-08-06): "context and common ground" is one object to the reader — the
-// facts nobody disputes plus the premise both camps stand on. The ::shared
-// block stays in the parse tree (feed cards dek from it); only this page
-// merges the rendering. Without a context box it renders standalone as before.
+// When a context box exists, the shared premise is authored INTO its lead
+// paragraph (Daniel, 2026-08-06) and the ::shared block renders nowhere on
+// this page — it survives in the parse tree solely as the feed card's dek.
+// Briefings without a context box keep the standalone shared section.
 const sharedBlock = briefing.blocks.find((b) => b.type === 'shared');
 const foldShared = !!(contextBlock && sharedBlock);
+// Premise pins (from ::diverge) render as "contests →" tags on the voices
+// themselves rather than duplicate cards (Daniel, 2026-08-06): each pinned
+// source's block links up to the premise it contests.
+const divergeBlk = briefing.blocks.find((b) => b.type === 'diverge');
+const pinBySource = new Map((divergeBlk && divergeBlk.type === 'diverge' ? divergeBlk.pins : []).map((p) => [p.sourceId, p] as const));
 // Explainers have no landscape lede; their first prose paragraph is the dek.
 const firstProseIdx  = briefing.blocks.findIndex((b) => b.type === 'prose');
 
@@ -150,19 +154,16 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
       <div class="instrument-rule"></div>
       <div class="px-4 py-3.5">
         <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2.5">{contextBlock.label}</span>
-        <ul class="space-y-2">
-          {contextBlock.items.map((it) => (
-            <li class="grid grid-cols-[0.75rem_1fr] gap-2.5 text-[15px] text-ink leading-snug">
-              <span class="text-muted" aria-hidden="true">·</span>
-              <span>{it}</span>
-            </li>
-          ))}
-        </ul>
-        {foldShared && sharedBlock && 'text' in sharedBlock && (
-          <div id="shared" class="mt-3.5 pt-3 border-t border-hairline scroll-mt-24">
-            <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-accent-support mb-1.5">Both sides assume</span>
-            <p class="text-sm text-ink leading-relaxed">{sharedBlock.text}</p>
-          </div>
+        {contextBlock.lead && <p class="text-[15px] text-ink leading-relaxed mb-2.5">{contextBlock.lead}</p>}
+        {contextBlock.items.length > 0 && (
+          <ul class="space-y-2">
+            {contextBlock.items.map((it) => (
+              <li class="grid grid-cols-[0.75rem_1fr] gap-2.5 text-[15px] text-ink leading-snug">
+                <span class="text-muted" aria-hidden="true">·</span>
+                <span>{it}</span>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>
@@ -176,11 +177,19 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
 
   {/* Two-line editor's-read leader: kicker + first sentence of the verdict,
      anchored to the full editor's view below. */}
+  {/* The editor teleport (Daniel, 2026-08-06): contrast box, and this is
+     where authorship is declared — the apparatus above is engine-assisted,
+     the view it jumps to is human-written. Smooth scroll comes from the
+     site-wide rule in global.css, so the reader sees the page travel and
+     can scroll back up to the figures. */}
   {!isExplainer && editorLead && (
-    <div class="mb-6">
+    <div class="mb-6 border border-hairline border-l-[3px] border-l-ink-strong bg-surface px-4 py-3">
       <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Our read</span>
       <p class="font-serif text-base text-ink-strong leading-relaxed">{editorLead}</p>
-      <a href="#discussion" class="mt-1 inline-block text-xs font-medium text-accent-support hover:underline">Full editor's view, and the devil's advocate →</a>
+      <div class="flex items-baseline justify-between gap-3 flex-wrap mt-1.5">
+        <a href="#discussion" class="inline-block text-xs font-medium text-accent-support hover:underline">Full editor's view, and the devil's advocate ↓</a>
+        <span class="font-mono text-[9px] uppercase tracking-[0.06em] text-muted">Briefing: engine-assisted, editor-checked · The view: human-written</span>
+      </div>
     </div>
   )}
 
@@ -200,9 +209,9 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
             <span class="font-serif text-base font-semibold text-ink-strong leading-tight">{p.name}</span>
             {p.finding && <span class="text-[13px] text-ink leading-snug">{p.finding}</span>}
             {p.interest && <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] leading-snug">Interest: {p.interest}</span>}
-            {p.reviewSlug
-              ? <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-accent-support hover:text-accent">Full review →</a>
-              : <span class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-muted">Review forthcoming</span>}
+            {/* No "review forthcoming" promise (Daniel, 2026-08-06): a link
+               renders only when the review exists. */}
+            {p.reviewSlug && <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-accent-support hover:text-accent">Full review →</a>}
           </div>
         ))}
       </div>
@@ -320,25 +329,20 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         // Decision 3 (A+C combined, 2026-08-05): parallel standard form as the
         // default register, the authored prose behind a pure-CSS toggle. Radio
         // inputs + sibling selectors — the briefing pages stay zero-JS.
-        const pinData = block.pins.map((pin) => {
-          const src = posSourceById.get(pin.sourceId);
-          const posBlock = briefing.blocks.find((x) => x.type === 'position' && x.sourceId === pin.sourceId);
-          const audit = posBlock && posBlock.type === 'position' ? posBlock.audit : undefined;
-          return src ? {
-            pin, src,
-            finding: audit?.name,
-            kind: audit?.kind ?? src.auditKind,
-            note: pin.note ?? src.auditNote ?? '',
-            // Quote precedence: the source row's inline quote, else the quote
-            // authored on its full ::position block (grattan/aemo pattern).
-            quote: src.quote ?? (posBlock && posBlock.type === 'position' ? posBlock.quote : '') ?? '',
-          } : null;
-        }).filter((x) => x !== null);
         return (
-          <section class="not-prose">
+          <section id="diverge" class="not-prose scroll-mt-24">
             <hr class="border-0 border-t border-ink-strong mb-4" />
             <h2 class="font-serif text-2xl text-ink-strong mb-1 leading-tight">{block.label}</h2>
-            {block.house && <p class="text-sm text-muted mb-4">{block.house}</p>}
+            {/* Section explainer lives behind a "?" (Daniel, 2026-08-06):
+               apparatus notes are eye clutter for returning readers. */}
+            {block.house && (
+              <details class="mb-3">
+                <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[10px] uppercase tracking-[0.08em] text-muted hover:text-ink">
+                  How to read this <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full text-[10px] normal-case" aria-hidden="true">?</span>
+                </summary>
+                <p class="text-sm text-muted mt-1.5 max-w-xl">{block.house}</p>
+              </details>
+            )}
             <div class="dv">
               <input type="radio" name={`dv-${idx}`} id={`dv-${idx}-prem`} class="dv-r-prem" checked />
               <input type="radio" name={`dv-${idx}`} id={`dv-${idx}-prose`} class="dv-r-prose" />
@@ -375,16 +379,14 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       pairs.push({ a, b, crux: a?.crux ?? b?.crux });
                     }
                   }
-                  {/* Cell layout: provenance chip (and number, when no crux
-                     row carries it) on its own line, the argument text below
-                     at full cell width (Daniel, 2026-08-05). */}
+                  {/* Cell layout: the provenance chip rides INLINE at the head
+                     of the text line (Daniel, 2026-08-06) — no dedicated chip
+                     row, no vertical waste; the paragraph wraps around it. */}
                   const cell = (r, hasCrux) => r ? (
-                    <div class="py-2">
-                      <div class="flex items-center gap-2 mb-1">
-                        {!hasCrux && <span class="font-mono text-[10.5px] text-muted tabular-nums">{r.id}</span>}
-                        <span class={`font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${PROV_CHIP[r.provenance]}`}>{r.provenance === 'supplied' ? '★ supplied' : r.provenance}</span>
-                      </div>
-                      <div class="text-[13.5px] text-ink leading-snug">{r.text}</div>
+                    <div class="py-2 text-[13.5px] leading-snug text-ink">
+                      {!hasCrux && <span class="font-mono text-[10.5px] text-muted mr-1.5 tabular-nums">{r.id}</span>}
+                      <span class={`inline-block align-[1px] mr-1.5 font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${PROV_CHIP[r.provenance]}`}>{r.provenance === 'supplied' ? '★ supplied' : r.provenance}</span>
+                      {r.text}
                     </div>
                   ) : (
                     <div class="py-2 text-[12px] text-muted italic">no corresponding premise</div>
@@ -392,9 +394,11 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   return (
                     <div class="overflow-x-auto">
                       <div class="grid grid-cols-2 gap-x-6 min-w-[34rem]">
-                        {[block.a, block.b].map((col) => (
-                          <div class="border-b border-ink-strong pb-1.5">
-                            <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-ink-strong">{col.label}</span>
+                        {/* Column heads carry the stance-pole hues (text label
+                           stays the primary channel; colour is redundant). */}
+                        {[block.a, block.b].map((col, ci) => (
+                          <div class="border-b pb-1.5" style={`border-color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>
+                            <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.08em]" style={`color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>{col.label}</span>
                             {col.interest && <span class="block text-[11px] text-muted leading-snug mt-0.5">{col.interest}</span>}
                           </div>
                         ))}
@@ -425,26 +429,9 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                     {block.sharedNeed}
                   </div>
                 )}
-                {pinData.length > 0 && (
-                  <div class="mt-4 space-y-2.5">
-                    {pinData.map(({ pin, src, finding, kind, note, quote }) => (
-                      <div class="bg-paper border border-hairline px-3.5 py-2.5" style={`border-left:4px solid ${stanceCol(src.stance)}`}>
-                        <div class="flex items-baseline gap-x-2 gap-y-1 flex-wrap">
-                          <span class="font-serif text-[15px] font-semibold text-ink-strong leading-snug">{src.label}</span>
-                          {src.publication && <span class="font-mono text-[9.5px] uppercase tracking-[0.05em] text-muted">{src.publication}</span>}
-                          <span class="ml-auto font-mono text-[9px] uppercase tracking-[0.06em] text-muted">pinned → {pin.at}</span>
-                        </div>
-                        {quote && <blockquote class="font-serif text-[14px] italic text-ink-strong leading-snug mt-1">“{quote}”</blockquote>}
-                        <p class="text-[12.5px] text-ink leading-snug mt-1.5">
-                          {finding && <span class="font-serif font-semibold text-ink-strong mr-1.5">{finding}.</span>}
-                          {kind && <span class={`inline-block mr-1.5 font-mono text-[9px] uppercase tracking-wide px-1 py-0.5 border align-baseline ${KIND_STYLE[kind]}`}>{KIND_LABEL[kind]}</span>}
-                          {note}
-                          <a href={`#pos-${src.id}`} class="ml-1.5 text-[11px] font-medium text-accent-support hover:underline whitespace-nowrap">full audit ↓</a>
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {/* Pin cards retired (Daniel, 2026-08-06): a voice appears once,
+                   in the commentary tier, wearing a "contests → premise" tag
+                   that links back up here. See pinBySource. */}
               </div>
               <div class="dv-pane dv-pane-prose space-y-5">
                 {block.prose.map((p) =>
@@ -517,6 +504,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                           <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
                             <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{s.label}</span>
                             {s.publication && <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-muted">{s.publication}</span>}
+                            {pinBySource.has(s.id) && <a href="#diverge" class="font-mono text-[9px] uppercase tracking-[0.06em] text-accent-support hover:underline">contests {pinBySource.get(s.id).at} ↑</a>}
                             <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(s.stance)}`}>
                               <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
                                 {STANCE_STEPS.map((v) => (
@@ -552,6 +540,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
                     <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{src.label}</span>
                     {src.publication && <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-muted">{src.publication}</span>}
+                    {pinBySource.has(src.id) && <a href="#diverge" class="font-mono text-[9px] uppercase tracking-[0.06em] text-accent-support hover:underline">contests {pinBySource.get(src.id).at} ↑</a>}
                     <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(src.stance)}`}>
                       <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
                         {STANCE_STEPS.map((v) => (
@@ -704,7 +693,10 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
       if (block.type === 'editorView') {
         return (
           <div id="discussion" class="rounded-md bg-paper border border-hairline p-4 scroll-mt-24">
-            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Editor's view · opinion</span>
+            <div class="flex items-baseline justify-between gap-3 flex-wrap mb-1.5">
+              <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">Editor's view · opinion</span>
+              <span class="font-mono text-[9px] uppercase tracking-[0.06em] text-[#8C4A2F]">Human-written · no engine text</span>
+            </div>
             <p class="text-base text-ink leading-relaxed">{block.text}</p>
             {/* Devil's advocate lives INSIDE the editor's opinion as a normal
                serif heading, not a mono kicker (Daniel, 2026-08-05) — it's a

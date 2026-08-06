@@ -78,6 +78,14 @@
   }
 }
 
+/* Anchor jumps travel visibly (the "slow teleport", Daniel 2026-08-06) so a
+   reader who jumps to the editor's view sees the page move and can scroll
+   back to the figures. Off for reduced-motion users. */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 /* Visible keyboard-focus indicator, applied site-wide at zero specificity
    (:where) so component-level focus styles still override it. Scoped to
    :focus-visible so mouse clicks don't draw a ring — keyboard users only. */

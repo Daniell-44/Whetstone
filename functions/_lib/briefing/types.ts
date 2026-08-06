@@ -119,7 +119,7 @@ export type BriefingBlock =
       pins:       DivergePin[];
       prose:      BriefingBlock[];   // the "As written" pane: line + prose blocks only
     }
-  | { type: 'context';    label: string; items: string[] }                 // "the settled facts" box — uncontested ground, top of page (Verity-style facts/spin separation)
+  | { type: 'context';    label: string; lead?: string; items: string[] }  // "context and common ground" box — short lead para + agreement bullets, top of page
   | { type: 'cruxes';     label: string; items: string[] }                 // the disagreement shown as a named set at once (crux display A)
   | { type: 'matrix';     caption: string; actors: string[]; rows: { crux: string; cells: string[] }[] } // who-disagrees-on-what grid (crux display C, optional)
   | {

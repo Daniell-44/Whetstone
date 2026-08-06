@@ -67,9 +67,14 @@ const height = railTop + 14 + rows * 20 + 16;
             </span>
       ))}
     </div>
-    <p class="text-xs text-muted mt-1.5 leading-snug">
-      Every point is an audited position; tap a number to jump to it, or a name below to read the source.
-      A wider marker means we are less sure exactly where that voice sits on the axis (<a href="/method#placement" class="text-accent-support hover:text-accent">how placement works</a>). Evidence sources are listed below, not plotted.
-    </p>
+    <details class="mt-1.5">
+      <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[10px] uppercase tracking-[0.08em] text-muted hover:text-ink">
+        How to read the map <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full text-[10px] normal-case" aria-hidden="true">?</span>
+      </summary>
+      <p class="text-xs text-muted mt-1 leading-snug max-w-xl">
+        Every point is an audited position; tap a number to jump to it, or a name below to read the source.
+        A wider marker means we are less sure exactly where that voice sits on the axis (<a href="/method#placement" class="text-accent-support hover:text-accent">how placement works</a>). Evidence sources are listed below, not plotted.
+      </p>
+    </details>
   </div>
 )}
