@@ -196,10 +196,14 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       // Body-less: any following prose stays its own block.
       blocks.push({ type: 'line', name: attrs.name ?? '' });
     } else if (name === 'context') {
-      // "The settled facts" box: the uncontested ground, rendered boxed at the
-      // top of the page (extracted like landscape). One factual line per row.
-      const items = readUntilMarker().split('\n').map((l) => l.trim().replace(/^[-*]\s*/, '')).filter(Boolean);
-      blocks.push({ type: 'context', label: attrs.label ?? 'The settled facts', items });
+      // "Context and common ground" box (restructured 2026-08-06): plain lines
+      // form a short lead paragraph, dashed lines ("- ") are the agreement
+      // bullets. Legacy bodies with no dashes still work: their lines all
+      // land in the paragraph unless they carry dashes.
+      const rawLines = readUntilMarker().split('\n').map((l) => l.trim()).filter(Boolean);
+      const items = rawLines.filter((l) => /^[-*]\s/.test(l)).map((l) => l.replace(/^[-*]\s*/, ''));
+      const lead = rawLines.filter((l) => !/^[-*]\s/.test(l)).join(' ');
+      blocks.push({ type: 'context', label: attrs.label ?? 'Context and common ground', ...(lead ? { lead } : {}), items });
     } else if (name === 'principals') {
       // The primary sources under audit (the reports/models), each → a review.
       principals = parsePrincipals(readUntilMarker());

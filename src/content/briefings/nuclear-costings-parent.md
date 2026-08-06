@@ -33,15 +33,15 @@ hansard | Senate Hansard, 4 February 2026 | Parliament of Australia | https://ww
 mca | Minerals Council on the NSW repeal bill | MCA | https://minerals.org.au/resources/nsw-uranium-bill-marks-a-welcome-first-step-in-consistent-nationwide-approach/ | The NSW upper house passed the state repeal bill on 7 May 2026; not yet law.
 
 ::context label="Context and common ground"
-Two rival costings framed the debate: CSIRO and AEMO's annual GenCost report, and Frontier Economics' modelling commissioned by the Coalition.
-The Coalition's seven-site nuclear plan ended with the May 2025 election; policy under Angus Taylor is now to lift the federal ban if elected, with no reactor commitment.
-Nuclear power generation remained prohibited under federal law (the ARPANS Act 1998 and the EPBC Act 1999) as of the February 2026 Senate record.
-GenCost has kept publishing through the fight: the 2024-25 final in July 2025 and the 2025-26 final in July 2026, both finding firmed renewables the least-cost new build.
+Australia's nuclear debate ran on two rival cost estimates: CSIRO and AEMO's annual GenCost report, which finds firmed renewables the cheapest new build, and modelling by Frontier Economics for the Coalition, which found a nuclear-inclusive system hundreds of billions cheaper. Beneath the fight, both camps stand on the same unstated premise: that a cost model, fed the right numbers, is the right way to settle a national technology choice. On the rest, the common ground is wider than the headlines suggest:
+- The Coalition's seven-site nuclear plan ended with the May 2025 election; current policy under Angus Taylor is to lift the federal ban if elected, with no reactor commitment.
+- Nuclear power generation remains prohibited under federal law as of the February 2026 Senate record.
+- Nobody disputes that the coal fleet is exiting.
+- Both models use similar nuclear build costs per kilowatt, and both publish sensitivity results their own headlines ignore.
+- GenCost has kept publishing through the fight; its two latest editions both find firmed renewables the least-cost new build.
 
 ::landscape
-Between December 2024 and the May 2025 election, Australia's nuclear debate ran on two rival costings: CSIRO and AEMO's annual GenCost report, which finds firmed renewables the cheapest new build, and Frontier Economics' modelling for the Coalition, which found a nuclear-inclusive system hundreds of billions cheaper. The politics has since moved: the Coalition's seven-site plan died with the election, its policy under Angus Taylor has shrunk to lifting the federal ban, and repeal bills are moving in the Senate and in New South Wales. The models have not moved. This briefing maps where the two costings actually disagree. It audits neither report in full — dedicated reviews of each are forthcoming.
-
-The disagreement is not one number against another. It is five separate method choices, each defensible, each contested, and their effects compound. A reader who knows which choice drives which headline can predict most participants' conclusions from their inputs, which is itself the finding: the costing fight is an assumptions fight wearing a conclusions costume.
+The disagreement is not one number against another. It is five separate method choices, each defensible, each contested, and their effects compound. A reader who knows which choice drives which headline can predict most participants' conclusions from their inputs, which is itself the finding: the cost fight is an assumptions fight wearing a conclusions costume.
 
 ::cruxes label="The two reports diverge on five method choices"
 what to measure
@@ -66,7 +66,7 @@ C | - | A nuclear-inclusive system is cheaper across the whole pathway.
 5 | quoted | at least 15 years remains the most plausible lead time | how long before the first reactor runs
 C | - | Firmed renewables are the least-cost new build.
 ::sharedneed
-that a cost model, correctly parameterised, is the right instrument to settle a national technology choice — a premise neither report argues for.
+that a cost model, fed the right numbers, is the right way to settle a national technology choice — a premise neither report argues for.
 
 ::pin source=mountain at="the shared premise"
 Refuses the frame itself: if he is right, the argument between the models is a category error, and this briefing's decomposition inherits the charge.
@@ -78,16 +78,16 @@ Concedes the build costs match and contests one premise — but the adjudication
 Leans the timing premise into a verdict — and both premises are house numbers: AEMO co-publishes GenCost and forecasts the exits.
 
 ::line name="What to measure"
-GenCost compares technologies by levelised cost (LCOE: the average lifetime cost of electricity from one kind of plant), and from 2025-26 by a system-wide version of the same measure (SLCOE, which adds the cost of making variable power reliable), conceding in the new edition that "LCOE does not include renewable integration costs. SLCOE does." Frontier refuses per-technology comparison entirely and costs whole system pathways, its principal defending the frame: "On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition." These are different questions, and each side's headline answers only its own.
+GenCost prices each technology on its own (LCOE: the average lifetime cost of electricity from one kind of plant), and from 2025-26 adds a system-wide version that counts the cost of keeping variable power reliable. Frontier refuses the per-technology frame and prices whole pathways instead. Each side's headline answers only its own question, so the two numbers were never comparable to begin with.
 
 ::line name="Which demand future to assume"
-The line that moves the most money. Frontier's like-for-like run, nuclear added inside the same Step Change demand scenario AEMO uses, yields "The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach." The campaign headline came from a different pairing, "a Progressive future which includes nuclear power is 44% cheaper than the Step Change future", which changes demand and technology together. GenCost's authors ruled the pairing uninterpretable: the report "cannot be used to draw any conclusions about the cost of nuclear generation relative to other generation options." Nearly half the political claim lived in this scenario choice alone.
+The line that moves the most money. Frontier's like-for-like run, nuclear inside the same demand future AEMO uses, comes to 25 per cent cheaper. The campaign's 44 per cent came from pairing a different demand future with the technology change, a pairing GenCost's authors ruled uninterpretable. Nearly half the political claim lived in that choice alone.
 
 ::line name="How much a reactor runs"
-Both sides feed in similar build costs; Grattan's Tony Wood isolated the divergence: "While both use similar estimates of the capital cost of nuclear plants, the big difference is that Frontier has assumed nuclear plants would run 90 per cent of the time, while CSIRO has used a range of 54-89 per cent, more akin to what coal currently achieves." The dispute beneath is a reference-class question, whether an Australian reactor's future is better predicted by Australia's coal fleet or the world's nuclear fleet, and it is settled in each model by assumption, not evidence.
+Both sides feed in similar build costs. Frontier assumes reactors run 90 per cent of the time; CSIRO uses the 54 to 89 per cent range Australia's coal fleet manages. The dispute underneath is which past best predicts an Australian reactor, Australian coal or the world's nuclear fleet, and each model settles it by assumption, not evidence.
 
 ::line name="How long the asset lives, and when it arrives"
-GenCost recovers capital over 30 years and prices the 60-year benefit at 8 per cent net of refurbishment; Frontier amortises over 50. On timing, GenCost holds "at least 15 years remains the most plausible lead time", a clock that starts at repeal of a federal ban still in force on the February 2026 Senate record, while Frontier's pathway holds most of the coal fleet open to bridge the wait: "The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM."
+GenCost recovers the build cost over 30 years and holds that a first reactor is at least 15 years away, a clock that starts at repeal of a ban still in force. Frontier spreads the cost over 50 years and keeps most of the coal fleet running to bridge the wait. The longer the life and the fuller the bridge, the cheaper nuclear looks.
 ::enddiverge
 
 ::position colour=1 source=cis label="The switch to the new cost measure withheld information from the public"
@@ -113,7 +113,7 @@ AEMO's chief executive moves the ground from cost to timing: "Even on the most o
 The inference is sound given the 15-year clock and the exit schedule, but both premises are house numbers: AEMO co-publishes GenCost and forecasts the exits. Frontier's model attacks the second premise directly by holding 65 per cent of the coal fleet open. The timing argument is strong exactly insofar as the incumbent forecasts are.
 
 ::shared
-Beneath five lines of disagreement, the combatants share a load-bearing frame: that a cost model, correctly parameterised, is the right instrument to settle a national technology choice, and that its outputs deserve headline status even as every party concedes under pressure that those outputs move with the assumptions. They also share more specific ground: nobody disputes the coal fleet is exiting, both models use similar nuclear build costs per kilowatt, and both publish sensitivity results their own headlines ignore. The AAP FactCheck's finding that both major parties overclaimed is the shared assumption's receipt.
+Beneath five lines of disagreement, the combatants share a load-bearing frame: that a cost model, fed the right numbers, is the right way to settle a national technology choice, and that its outputs deserve headline status even as every party concedes under pressure that those outputs move with the assumptions. They also share more specific ground: nobody disputes the coal fleet is exiting, both models use similar nuclear build costs per kilowatt, and both publish sensitivity results their own headlines ignore. The AAP FactCheck's finding that both major parties overclaimed is the shared assumption's receipt.
 
 ::editor
 The editor's view for this briefing is being written and will appear here.
