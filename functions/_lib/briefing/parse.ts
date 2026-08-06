@@ -276,6 +276,12 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       } else {
         blocks.push(...proseBlocks);
       }
+    } else if (name === 'skeleton') {
+      // Essay-level standard form (E-3, 2026-08-06): the argument, numbered,
+      // rendered as the margin column on opinion pages. Same row grammar as
+      // ::structure; `supplied` rows read as the author's thesis.
+      const rows = parseStructureRows(readUntilMarker());
+      if (rows.length) blocks.push({ type: 'skeleton', rows });
     } else if (name === 'public') {
       // "The public" section (Decision 8 C-1 + 9 P-A2, 2026-08-06). Typed
       // pipe rows: `tick | <number> | <pollster, date>` builds the range
@@ -397,6 +403,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
     ...(principals.length ? { principals } : {}),
     ...(fm.otherTakes === 'none' ? { otherTakes: 'none' as const } : {}),
     ...(fm.archived === 'true' ? { archived: true as const } : {}),
+    ...(fm.draft === 'true' ? { draft: true as const } : {}),
     blocks,
   };
 }

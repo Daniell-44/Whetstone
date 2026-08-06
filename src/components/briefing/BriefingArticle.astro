@@ -131,6 +131,10 @@ const inlineCommentary = posSrc
 // review = drafting-blue, opinion = oxide-rust (clearly the author's voice),
 // explainer = accent-support, briefing = muted. Decided 2026-07-21.
 const KIND = briefing.kind ?? 'briefing';
+// E-2 register for essays (Daniel, 2026-08-06): serif body one size up, the
+// hook as a large italic standfirst. The ::skeleton block renders in the page
+// margin (E-3), not inline — see /briefing/[slug].astro.
+const isOpinion = KIND === 'opinion';
 const kickerLabel = KIND === 'explainer' ? 'Explainer' : KIND === 'review' ? 'Review' : KIND === 'opinion' ? 'Essay' : 'Briefing';
 const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' || KIND === 'review') ? 'text-accent-support' : 'text-muted';
 ---
@@ -141,7 +145,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
      One serif line under the headline, the first anchor before the long
      opening run (the question-as-deck convention). */}
   {briefing.hook && (
-    <p class="font-serif text-lg sm:text-xl text-ink leading-snug mb-3">{briefing.hook}</p>
+    <p class={isOpinion ? 'font-serif text-xl sm:text-2xl italic text-muted leading-snug mb-4' : 'font-serif text-lg sm:text-xl text-ink leading-snug mb-3'}>{briefing.hook}</p>
   )}
   <p class="text-xs text-muted mb-6 tabular-nums">{fmtDate}</p>
 
@@ -448,11 +452,19 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
           </section>
         );
       }
+      if (block.type === 'skeleton') {
+        // Rendered in the page margin on desktop and above the essay on
+        // mobile by /briefing/[slug].astro — never inline here.
+        return null;
+      }
       if (block.type === 'prose') {
         // An explainer's first paragraph is its dek: lede-sized, like the
         // landscape opening on a briefing.
         if (isExplainer && idx === firstProseIdx) {
           return <p class="text-lg text-ink leading-relaxed">{block.text}</p>;
+        }
+        if (isOpinion) {
+          return <p class="font-serif text-[18px] text-ink leading-[1.8]">{block.text}</p>;
         }
         return <p class="text-[17px] text-ink leading-[1.75]">{block.text}</p>;
       }

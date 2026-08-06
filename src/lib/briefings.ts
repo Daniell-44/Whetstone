@@ -31,7 +31,7 @@ export function getAllBriefings(): BriefingArticle[] {
    show only non-archived work. Archived pieces keep their pages, deep links,
    and citations — use getAllBriefings for anything that resolves a slug. */
 export function getLiveBriefings(): BriefingArticle[] {
-  return getAllBriefings().filter((b) => !b.archived);
+  return getAllBriefings().filter((b) => !b.archived && !b.draft);
 }
 
 export function getArchivedBriefings(): BriefingArticle[] {
