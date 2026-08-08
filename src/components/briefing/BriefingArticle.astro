@@ -103,12 +103,6 @@ const v2 = posSrc.length > 0;
 const hasTakes = briefing.blocks.some((b) => b.type === 'takes');
 // Stance poles — the Instrument palette: drafting blue vs oxide rust (never the redline).
 const stanceCol = (s: number) => (s < 0 ? '#345D7E' : s > 0 ? '#8C4A2F' : '#6E7370');
-// Provenance chips for standard-form rows (diverge columns).
-const PROV_CHIP: Record<string, string> = {
-  quoted:   'bg-logic-bg text-logic border-logic/30',
-  stated:   'border-hairline text-muted',
-  supplied: 'border-accent-support/40 text-accent-support',
-};
 // Colour is never the only channel (Daniel is colourblind; so are ~8% of male
 // readers): every stance encoding carries a positional tick-rule and a text
 // pole label alongside the hue. The tick device is the calibration-rule motif.
@@ -330,127 +324,104 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         );
       }
       if (block.type === 'diverge') {
-        // Decision 3 (A+C combined, 2026-08-05): parallel standard form as the
-        // default register, the authored prose behind a pure-CSS toggle. Radio
-        // inputs + sibling selectors — the briefing pages stay zero-JS.
-        return (
-          <section id="diverge" class="scroll-mt-24">
-            <hr class="border-0 border-t border-ink-strong mb-4" />
-            <h2 class="font-serif text-2xl text-ink-strong mb-1 leading-tight">{block.label}</h2>
-            {/* Section explainer lives behind a "?" (Daniel, 2026-08-06):
-               apparatus notes are eye clutter for returning readers. */}
-            {block.house && (
-              <details class="mb-3">
-                <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[10px] uppercase tracking-[0.08em] text-muted hover:text-ink">
-                  How to read this <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full text-[10px] normal-case" aria-hidden="true">?</span>
-                </summary>
-                <p class="text-sm text-muted mt-1.5 max-w-xl">{block.house}</p>
-              </details>
-            )}
-            <div class="dv">
-              <input type="radio" name={`dv-${idx}`} id={`dv-${idx}-prem`} class="dv-r-prem" checked />
-              <input type="radio" name={`dv-${idx}`} id={`dv-${idx}-prose`} class="dv-r-prose" />
-              <div class="dv-tabs flex w-max border border-ink-strong mb-5">
-                <label for={`dv-${idx}-prem`} class="font-mono text-[10.5px] uppercase tracking-[0.08em] px-3 py-1.5 cursor-pointer text-muted">The arguments, numbered</label>
-                <label for={`dv-${idx}-prose`} class="font-mono text-[10.5px] uppercase tracking-[0.08em] px-3 py-1.5 cursor-pointer text-muted">As written</label>
-              </div>
-              <div class="dv-pane dv-pane-prem">
-                {/* Premises pair by INDEX across the two columns and share a
-                   grid row, so matching premises sit vertically aligned — the
-                   layout echoes a table without being one (Daniel,
-                   2026-08-05). An optional 4th pipe column names the crux the
-                   pair answers; a missing counterpart renders as an explicit
-                   gap, which is information (absence-as-signal). */}
-                {(() => {
-                  const aPrem = block.a.rows.filter((r) => r.provenance !== 'conclusion');
-                  const bPrem = block.b.rows.filter((r) => r.provenance !== 'conclusion');
-                  const aConc = block.a.rows.find((r) => r.provenance === 'conclusion');
-                  const bConc = block.b.rows.find((r) => r.provenance === 'conclusion');
-                  {/* Pairing: by index, with one exception that makes
-                     asymmetric premises honest (Daniel, 2026-08-05): when the
-                     two rows at an index carry DIFFERENT crux labels, they are
-                     different claims and each gets its own row with a gap
-                     opposite. A row's crux otherwise comes from whichever side
-                     authored one, so labels need not be duplicated. */}
-                  const pairs = [];
-                  for (let ri = 0; ri < Math.max(aPrem.length, bPrem.length); ri++) {
-                    const a = aPrem[ri];
-                    const b = bPrem[ri];
-                    if (a && b && a.crux && b.crux && a.crux !== b.crux) {
-                      pairs.push({ a, b: undefined, crux: a.crux });
-                      pairs.push({ a: undefined, b, crux: b.crux });
-                    } else {
-                      pairs.push({ a, b, crux: a?.crux ?? b?.crux });
-                    }
-                  }
-                  {/* Cell layout: the provenance chip rides INLINE at the head
-                     of the text line (Daniel, 2026-08-06) — no dedicated chip
-                     row, no vertical waste; the paragraph wraps around it. */}
-                  const cell = (r, hasCrux) => r ? (
-                    <div class="py-2 text-[13.5px] leading-snug text-ink">
-                      {!hasCrux && <span class="font-mono text-[10.5px] text-muted mr-1.5 tabular-nums">{r.id}</span>}
-                      <span class={`inline-block align-[1px] mr-1.5 font-mono text-[8.5px] uppercase tracking-wide px-1 py-0.5 border ${PROV_CHIP[r.provenance]}`}>{r.provenance === 'supplied' ? '★ supplied' : r.provenance}</span>
-                      {r.text}
-                    </div>
-                  ) : (
-                    <div class="py-2 text-[12px] text-muted italic">no corresponding premise</div>
-                  );
-                  return (
-                    <div class="overflow-x-auto">
-                      <div class="grid grid-cols-2 gap-x-6 min-w-[34rem]">
-                        {/* Column heads carry the stance-pole hues (text label
-                           stays the primary channel; colour is redundant). */}
-                        {[block.a, block.b].map((col, ci) => (
-                          <div class="border-b pb-1.5" style={`border-color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>
-                            <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.08em]" style={`color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>{col.label}</span>
-                            {col.interest && <span class="block text-[11px] text-muted leading-snug mt-0.5">{col.interest}</span>}
-                          </div>
-                        ))}
-                        {pairs.map((p) => (
-                          <>
-                            {p.crux && (
-                              <div class="col-span-2 border-t border-hairline pt-1.5 -mb-1">
-                                <span class="font-mono text-[9.5px] uppercase tracking-[0.06em] text-muted"><span class="tabular-nums">{(p.a ?? p.b)?.id}</span> · {p.crux}</span>
-                              </div>
-                            )}
-                            <div class={p.crux ? '' : 'border-t border-hairline'}>{cell(p.a, !!p.crux)}</div>
-                            <div class={p.crux ? '' : 'border-t border-hairline'}>{cell(p.b, !!p.crux)}</div>
-                          </>
-                        ))}
-                        <div class="border-t border-ink-strong/40 mt-1 pt-2 pb-1">
-                          {aConc && <div class="flex gap-2.5 text-[13.5px] font-medium text-ink-strong leading-snug"><span class="font-mono shrink-0">∴</span><span>{aConc.text}</span></div>}
-                        </div>
-                        <div class="border-t border-ink-strong/40 mt-1 pt-2 pb-1">
-                          {bConc && <div class="flex gap-2.5 text-[13.5px] font-medium text-ink-strong leading-snug"><span class="font-mono shrink-0">∴</span><span>{bConc.text}</span></div>}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-                {block.sharedNeed && (
-                  <div class="mt-4 border border-accent-support/40 bg-surface px-3.5 py-2.5 text-[13.5px] text-ink leading-snug">
-                    <span class="font-mono text-[9px] font-semibold uppercase tracking-wide text-accent-support mr-2">★ supplied · both arguments need</span>
-                    {block.sharedNeed}
-                  </div>
-                )}
-                {/* Pin cards retired (Daniel, 2026-08-06): a voice appears once,
-                   in the commentary tier, wearing a "contests → premise" tag
-                   that links back up here. See pinBySource. */}
-              </div>
-              <div class="dv-pane dv-pane-prose space-y-5">
-                {block.prose.map((p) =>
-                  p.type === 'line' ? (
-                    <div class="border-t border-hairline pt-2.5">
-                      <span class="font-serif text-lg font-semibold text-ink-strong leading-snug">{p.name}</span>
-                    </div>
-                  ) : p.type === 'prose' ? (
-                    <p class="text-[17px] text-ink leading-[1.75]">{p.text}</p>
-                  ) : null
-                )}
-              </div>
+        // Decision 14-C (2026-08-08, supersedes Decision 3's toggle): ONE
+        // pass. The chips and the premise/prose tabs are gone; each crux is
+        // a numbered serif heading, then the authored paragraph that used to
+        // hide behind "As written", then the two reports' premises side by
+        // side. 15-C: paired columns on desktop, a labelled stack on phones —
+        // no sideways scroll, content before metadata (provenance rides the
+        // cell FOOT, not its head).
+        return (() => {
+          const aPrem = block.a.rows.filter((r) => r.provenance !== 'conclusion');
+          const bPrem = block.b.rows.filter((r) => r.provenance !== 'conclusion');
+          const aConc = block.a.rows.find((r) => r.provenance === 'conclusion');
+          const bConc = block.b.rows.find((r) => r.provenance === 'conclusion');
+          {/* Pairing by index; rows whose crux labels differ are different
+             claims — each gets its own row with an explicit gap opposite. */}
+          const pairs = [];
+          for (let ri = 0; ri < Math.max(aPrem.length, bPrem.length); ri++) {
+            const a = aPrem[ri];
+            const b = bPrem[ri];
+            if (a && b && a.crux && b.crux && a.crux !== b.crux) {
+              pairs.push({ a, b: undefined, crux: a.crux });
+              pairs.push({ a: undefined, b, crux: b.crux });
+            } else {
+              pairs.push({ a, b, crux: a?.crux ?? b?.crux });
+            }
+          }
+          {/* The paragraphs authored inside ::diverge pair with the rows 1:1
+             by order — the i-th paragraph explains the i-th crux. This is
+             the prose that used to live behind the closed tab. */}
+          const rowProse = block.prose.filter((p) => p.type === 'prose');
+          const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
+          const sideName = (l) => l.replace(/^From\s+/i, '');
+          {/* One premise cell: the claim first; provenance + side in one mono
+             foot line, so stacked mobile cells stay labelled without a
+             colour-only channel. ★ supplied keeps its glyph. */}
+          const cell = (r, side, colour) => r ? (
+            <div class="pl-3 py-1 border-l-2" style={`border-color:${colour}`}>
+              <p class="text-[14px] text-ink leading-snug">{r.text}</p>
+              <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.05em] text-muted">
+                {r.provenance === 'supplied' ? <span class="text-accent-support">★ supplied</span> : r.provenance}{' · '}{side}
+              </p>
             </div>
-          </section>
-        );
+          ) : (
+            <div class="pl-3 py-1 border-l-2 border-hairline text-[12px] text-muted italic">no premise on this side</div>
+          );
+          return (
+            <section id="diverge" class="scroll-mt-24">
+              <hr class="border-0 border-t border-ink-strong mb-4" />
+              <h2 class="font-serif text-2xl text-ink-strong mb-1 leading-tight">{block.label}</h2>
+              {/* Apparatus note stays behind the "?" — it teaches the one
+                 genuinely unfamiliar convention (quoted/stated/supplied). */}
+              {block.house && (
+                <details class="mb-2">
+                  <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[10px] uppercase tracking-[0.08em] text-muted hover:text-ink">
+                    How to read this <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full text-[10px] normal-case" aria-hidden="true">?</span>
+                  </summary>
+                  <p class="text-sm text-muted mt-1.5 max-w-xl">{block.house}</p>
+                </details>
+              )}
+              {/* The two reports, named once. Text label is the primary
+                 channel; the stance hue is redundant on top of it. */}
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 mt-3 mb-2">
+                {[block.a, block.b].map((col, ci) => (
+                  <div class="border-b pb-1.5" style={`border-color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>
+                    <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.08em]" style={`color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>{col.label}</span>
+                    {col.interest && <span class="block text-[11px] text-muted leading-snug mt-0.5">{col.interest}</span>}
+                  </div>
+                ))}
+              </div>
+              {pairs.map((p, pi) => (
+                <div class="border-t border-hairline first:border-t-0 pt-3 pb-2.5">
+                  <h3 class="font-serif text-[17px] font-semibold text-ink-strong leading-snug mb-1"><span class="font-mono text-[13px] font-normal text-muted mr-1.5 tabular-nums">{pi + 1}</span>{cap(p.crux)}</h3>
+                  {rowProse[pi] && rowProse[pi].type === 'prose' && (
+                    <p class="text-[15px] text-ink leading-relaxed mb-2.5 max-w-[34rem]">{rowProse[pi].text}</p>
+                  )}
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                    {cell(p.a, sideName(block.a.label), '#345D7E')}
+                    {cell(p.b, sideName(block.b.label), '#8C4A2F')}
+                  </div>
+                </div>
+              ))}
+              {/* Where each report lands. */}
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 border-t border-ink-strong/40 pt-3">
+                {[{ c: aConc, col: block.a, hue: '#345D7E' }, { c: bConc, col: block.b, hue: '#8C4A2F' }].map(({ c, col, hue }) => c && (
+                  <div class="pl-3 border-l-2" style={`border-color:${hue}`}>
+                    <div class="flex gap-2.5 text-[15px] font-medium text-ink-strong leading-snug"><span class="font-mono shrink-0">∴</span><span>{c.text}</span></div>
+                    <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.05em] text-muted">conclusion · {sideName(col.label)}</p>
+                  </div>
+                ))}
+              </div>
+              {block.sharedNeed && (
+                <div class="mt-4 border border-accent-support/40 bg-surface px-3.5 py-2.5 text-[13.5px] text-ink leading-snug">
+                  <span class="font-mono text-[9px] font-semibold uppercase tracking-wide text-accent-support mr-2">★ supplied · both arguments need</span>
+                  {block.sharedNeed}
+                </div>
+              )}
+            </section>
+          );
+        })();
       }
       if (block.type === 'skeleton') {
         // Rendered in the page margin on desktop and above the essay on
@@ -958,22 +929,4 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
   .audit-chevron { transition: transform 0.15s ease; }
   .audit-disclosure[open] > summary .audit-chevron { transform: rotate(180deg); }
 
-  /* Diverge premise ⇄ prose toggle (Decision 3, A+C): pure CSS, zero JS. The
-     radios sit visually removed but focusable; their labels are the tabs. */
-  .dv { position: relative; }
-  .dv > input { position: absolute; opacity: 0; pointer-events: none; }
-  .dv .dv-pane { display: none; }
-  .dv .dv-r-prem:checked ~ .dv-pane-prem { display: block; }
-  .dv .dv-r-prose:checked ~ .dv-pane-prose { display: block; }
-  .dv .dv-r-prem:checked ~ .dv-tabs label[for$="-prem"],
-  .dv .dv-r-prose:checked ~ .dv-tabs label[for$="-prose"] {
-    background: var(--color-ink-strong);
-    color: var(--color-paper);
-  }
-  /* Keyboard affordance: when a hidden radio holds focus, ring its tab. */
-  .dv .dv-r-prem:focus-visible ~ .dv-tabs label[for$="-prem"],
-  .dv .dv-r-prose:focus-visible ~ .dv-tabs label[for$="-prose"] {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
 </style>
