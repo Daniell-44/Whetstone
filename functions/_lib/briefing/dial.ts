@@ -7,6 +7,8 @@
 // Kept behind a narrow interface so the handler tests run against an
 // in-memory fake (same shape as the email-capture module).
 
+import { checkAndIncrementQuota, type RateLimitKV } from '../rate-limit';
+
 export const DIAL_STEPS = [-2, -1, 0, 1, 2] as const;
 export type DialStep = (typeof DIAL_STEPS)[number];
 
@@ -55,40 +57,59 @@ export function parseDialStep(raw: string | null): DialStep | null {
 
 export interface DialVoteDeps {
   db: Pick<DialDb, 'increment'>;
-  /** KV guard: a handful of taps per IP per briefing per day. Not identity —
-     a spam damper. Absent KV (tests) means no limit. */
-  rateLimitKv?: {
-    get(key: string): Promise<string | null>;
-    put(key: string, value: string, opts?: { expirationTtl?: number }): Promise<void>;
-  };
+  /** KV guard: a handful of taps per IP per briefing per UTC day (the house
+     quota mechanism). Not identity — a spam damper. Absent in tests = no cap. */
+  rateLimitKv?: RateLimitKV;
   dailyCap?: number;
+  /** Hosts allowed to POST the form. A cross-site page distributing votes
+     across its visitors' IPs would defeat the per-IP cap AND the n=50
+     gate's meaning, so anything else bounces uncounted. Browsers always
+     send Origin on a form POST; a missing Origin is accepted only with
+     Sec-Fetch-Site: same-origin. */
+  allowedHosts?: string[];
 }
 
-/** Handle the dial form POST. Always answers with a 303 back to the
-   briefing's Your-turn storey — a vote is fire-and-forget for the reader;
-   invalid input just bounces without counting. */
+function originAllowed(request: Request, allowed?: string[]): boolean {
+  if (!allowed || allowed.length === 0) return true; // tests / explicit opt-out
+  const origin = request.headers.get('Origin');
+  if (origin) {
+    try { return allowed.includes(new URL(origin).hostname); } catch { return false; }
+  }
+  return request.headers.get('Sec-Fetch-Site') === 'same-origin';
+}
+
+/** Handle the dial form POST. Always answers with a 303 back to the page —
+   a vote is fire-and-forget for the reader. Counted taps land on the
+   thanks line; capped taps land on an HONEST limit line (never "Counted.");
+   invalid or cross-site input bounces without a message. */
 export async function handleDialVote(request: Request, deps: DialVoteDeps): Promise<Response> {
   const form = await request.formData().catch(() => null);
   const slug = String(form?.get('slug') ?? '');
   const step = parseDialStep(form ? String(form.get('step') ?? '') : null);
 
-  const back = (frag: string, ok: boolean) =>
-    new Response(null, { status: 303, headers: { Location: `/briefing/${SLUG_RE.test(slug) ? slug : ''}#${frag}`, 'X-Dial': ok ? 'counted' : 'ignored' } });
+  const back = (frag: string, marker: string) =>
+    new Response(null, { status: 303, headers: { Location: `/briefing/${slug}#${frag}`, 'X-Dial': marker } });
 
   if (!SLUG_RE.test(slug) || step === null) {
     return new Response(null, { status: 303, headers: { Location: '/', 'X-Dial': 'ignored' } });
   }
+  if (!originAllowed(request, deps.allowedHosts)) {
+    return back('public', 'ignored');
+  }
 
   if (deps.rateLimitKv) {
     const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
-    const key = `dial:${slug}:ip:${ip}`;
-    const used = Number((await deps.rateLimitKv.get(key)) ?? '0');
-    if (used >= (deps.dailyCap ?? 5)) return back('dial-thanks', false);
-    await deps.rateLimitKv.put(key, String(used + 1), { expirationTtl: 60 * 60 * 24 });
+    try {
+      const quota = await checkAndIncrementQuota(deps.rateLimitKv, `dial:${slug}:ip:${ip}`, deps.dailyCap ?? 5);
+      if (!quota.allowed) return back('dial-limit', 'capped');
+    } catch {
+      // KV trouble must not cost the reader their vote or show them a 500:
+      // fail open — count the tap, skip the damper this once.
+    }
   }
 
   await deps.db.increment(slug, step);
-  return back('dial-thanks', true);
+  return back('dial-thanks', 'counted');
 }
 
 /** Results for one briefing, gated: below the floor the caller learns only
