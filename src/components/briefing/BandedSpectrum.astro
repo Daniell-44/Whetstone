@@ -28,12 +28,12 @@ const height = railTop + 14 + rows * 20 + 16;
 ---
 {positions.length > 0 && (
   <div>
-    <p class="text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1">The map · {positions.length} audited {positions.length === 1 ? 'position' : 'positions'}</p>
+    <p class="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted mb-1">The map · {positions.length} audited {positions.length === 1 ? 'position' : 'positions'}</p>
     <div class="relative" style={`height:${height}px;`}>
-      {/* rail + band ticks */}
-      <div class="absolute" style={`top:${railTop + 7}px;left:2%;right:2%;height:2px;background:#E0D8CA;`}></div>
+      {/* rail + band ticks — Instrument hairline, not the old Ink & Ledger beige */}
+      <div class="absolute" style={`top:${railTop + 7}px;left:2%;right:2%;height:2px;background:var(--color-hairline);`}></div>
       {(['-2','-1','0','1','2'] as const).map((b) => (
-        <div class="absolute" style={`left:${PCT[b]}%;top:${railTop + 2}px;width:1px;height:12px;background:#C9BFAE;`}></div>
+        <div class="absolute" style={`left:${PCT[b]}%;top:${railTop + 2}px;width:1px;height:12px;background:var(--color-hairline);`}></div>
       ))}
       <span class="absolute text-[9px] text-muted" style={`top:0;left:2%;`}>{axis.left}</span>
       <span class="absolute text-[9px] text-muted" style={`top:0;right:2%;`}>{axis.right}</span>
@@ -48,7 +48,7 @@ const height = railTop + 14 + rows * 20 + 16;
           href={`#pos-${s.id}`}
           title={`${s.label}${s.publication ? ' · ' + s.publication : ''}, placed ${s.stance > 0 ? '+' + s.stance : s.stance} (${s.confidence} confidence). Jump to this position.`}
           class="absolute flex items-center justify-center text-white text-[10px] font-semibold hover:opacity-100 transition-opacity"
-          style={`left:${PCT[String(s.stance)]}%;top:${railTop + 8 + within * 20}px;width:${W[s.confidence]}px;height:15px;border-radius:8px;background:${COL(s.stance)};opacity:${OP[s.confidence]};transform:translate(-50%,-50%);box-shadow:0 0 0 3px #FBF7F0;`}
+          style={`left:${PCT[String(s.stance)]}%;top:${railTop + 8 + within * 20}px;width:${W[s.confidence]}px;height:15px;border-radius:8px;background:${COL(s.stance)};opacity:${OP[s.confidence]};transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--color-paper);`}
         >{n}</a>
       ))}
     </div>
