@@ -137,15 +137,15 @@ const kickerLabel = KIND === 'explainer' ? 'Explainer' : KIND === 'review' ? 'Re
 const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' || KIND === 'review') ? 'text-accent-support' : 'text-muted';
 ---
 <article class="max-w-[36rem] mx-auto">
-  <span class={`font-mono text-[11px] uppercase tracking-[0.1em] ${kickerCls}`}>{kickerLabel}{briefing.category ? ` · ${briefing.category}` : ''}</span>
-  <h1 id="overview" class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mt-2 mb-2 scroll-mt-24">{briefing.question}</h1>
+  <span class={`font-mono text-[13px] uppercase tracking-[0.08em] ${kickerCls}`}>{kickerLabel}{briefing.category ? ` · ${briefing.category}` : ''}</span>
+  <h1 id="overview" class="font-serif text-[34px] text-ink-strong leading-tight mt-2 mb-2 scroll-mt-24">{briefing.question}</h1>
   {/* The deck: front-matter `hook` was parsed and typed but rendered nowhere.
      One serif line under the headline, the first anchor before the long
      opening run (the question-as-deck convention). */}
   {briefing.hook && (
-    <p class={isOpinion ? 'font-serif text-xl sm:text-2xl italic text-muted leading-snug mb-4' : 'font-serif text-lg sm:text-xl text-ink leading-snug mb-3'}>{briefing.hook}</p>
+    <p class={isOpinion ? 'font-serif text-[20px] italic text-muted leading-snug mb-4' : 'font-serif text-[20px] text-ink leading-snug mb-3'}>{briefing.hook}</p>
   )}
-  <p class="text-xs text-muted mb-6 tabular-nums">{fmtDate}</p>
+  <p class="font-mono text-[13px] text-muted mb-6 tabular-nums">{fmtDate}</p>
 
   {/* The settled facts: the uncontested ground, boxed and set apart from the
      contested positions below (the Verity facts/spin separation, in the
@@ -155,12 +155,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
     <div id="context" class="mb-7 border border-hairline bg-surface scroll-mt-24">
       <div class="instrument-rule"></div>
       <div class="px-4 py-3.5">
-        <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2.5">{contextBlock.label}</span>
-        {contextBlock.lead && <p class="text-[15px] text-ink leading-relaxed mb-2.5">{contextBlock.lead}</p>}
+        <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2.5">{contextBlock.label}</span>
+        {contextBlock.lead && <p class="font-serif text-[15px] text-ink leading-relaxed mb-2.5">{contextBlock.lead}</p>}
         {contextBlock.items.length > 0 && (
           <ul class="space-y-2">
             {contextBlock.items.map((it) => (
-              <li class="grid grid-cols-[0.75rem_1fr] gap-2.5 text-[15px] text-ink leading-snug">
+              <li class="grid grid-cols-[0.75rem_1fr] gap-2.5 font-serif text-[15px] text-ink leading-snug">
                 <span class="text-muted" aria-hidden="true">·</span>
                 <span>{it}</span>
               </li>
@@ -174,7 +174,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
   {/* The lede opens the piece; the map (spectrum) follows it, so the reader
      meets a claim about the world before a methodology diagram. */}
   {!isExplainer && landscapeText && (
-    <p class="text-lg text-ink leading-relaxed mb-6">{landscapeText}</p>
+    <p class="font-serif text-[20px] text-ink leading-relaxed mb-6">{landscapeText}</p>
   )}
 
   {/* Two-line editor's-read leader: kicker + first sentence of the verdict,
@@ -186,11 +186,11 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
      can scroll back up to the figures. */}
   {!isExplainer && editorLead && (
     <div class="mb-6 border border-hairline border-l-[3px] border-l-ink-strong bg-surface px-4 py-3">
-      <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Our read</span>
-      <p class="font-serif text-base text-ink-strong leading-relaxed">{editorLead}</p>
+      <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1.5">Our read</span>
+      <p class="font-serif text-[17px] text-ink-strong leading-relaxed">{editorLead}</p>
       <div class="flex items-baseline justify-between gap-3 flex-wrap mt-1.5">
-        <a href="#discussion" class="inline-block text-xs font-medium text-accent-support hover:underline">Full editor's view, and the devil's advocate ↓</a>
-        <span class="font-mono text-[9px] uppercase tracking-[0.06em] text-muted">Briefing: engine-assisted, editor-checked · The view: human-written</span>
+        <a href="#discussion" class="inline-block text-[13px] font-medium text-accent-support hover:underline">Full editor's view, and the devil's advocate ↓</a>
+        <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">Briefing: engine-assisted · view: human</span>
       </div>
     </div>
   )}
@@ -201,19 +201,21 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
      decided 2026-07-21). Not audited inline: their audit is the review. */}
   {!isExplainer && briefing.principals && briefing.principals.length > 0 && (
     <div class="mb-7">
+      {/* Rank-2 heading (23-A): serif semibold, one level under the chapter
+         heads — the lone ink-strong mono label was a rank of its own. */}
       <div class="flex items-center gap-3 mb-3">
-        <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-strong">The sources under audit</span>
+        <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">The sources under audit</span>
         <span class="h-px flex-1 bg-hairline"></span>
       </div>
       <div class="grid sm:grid-cols-2 gap-3">
         {briefing.principals.map((p) => (
           <div class="bg-paper border border-hairline border-t-[3px] border-t-ink-strong px-4 py-3 flex flex-col gap-1.5">
-            <span class="font-serif text-base font-semibold text-ink-strong leading-tight">{p.name}</span>
-            {p.finding && <span class="text-[13px] text-ink leading-snug">{p.finding}</span>}
-            {p.interest && <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] leading-snug">Stake: {p.interest}</span>}
+            <span class="font-serif text-[17px] font-semibold text-ink-strong leading-tight">{p.name}</span>
+            {p.finding && <span class="font-serif text-[15px] text-ink leading-snug">{p.finding}</span>}
+            {p.interest && <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F] leading-snug">Stake: {p.interest}</span>}
             {/* No "review forthcoming" promise (Daniel, 2026-08-06): a link
                renders only when the review exists. */}
-            {p.reviewSlug && <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-accent-support hover:text-accent">Full review →</a>}
+            {p.reviewSlug && <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:text-accent">Full review →</a>}
           </div>
         ))}
       </div>
@@ -249,7 +251,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         // implied a false order). A hairline + serif name, no number.
         return (
           <div class="border-t border-hairline pt-2.5">
-            <span class="font-serif text-lg font-semibold text-ink-strong leading-snug">{block.name}</span>
+            <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{block.name}</span>
           </div>
         );
       }
@@ -258,10 +260,10 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         // reader sees the whole shape before the prose walks it. No numbers.
         return (
           <div class="bg-surface border border-hairline px-4 py-3.5">
-            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2.5">{block.label}</span>
+            <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2.5">{block.label}</span>
             <div class="flex flex-wrap gap-2">
               {block.items.map((it) => (
-                <span class="border border-hairline bg-paper px-2.5 py-1 text-sm text-ink-strong">{it}</span>
+                <span class="border border-hairline bg-paper px-2.5 py-1 font-serif text-[15px] text-ink-strong">{it}</span>
               ))}
             </div>
           </div>
@@ -280,19 +282,19 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
             {/* A small heading for the block so it reads as an anchor, not
                an inline afterthought. Serif h3, matching the tier heading
                grammar but one level down. */}
-            {block.caption && <h3 class="font-serif text-lg text-ink-strong mb-3 leading-snug">{block.caption}</h3>}
+            {block.caption && <h3 class="font-serif text-[17px] font-semibold text-ink-strong mb-3 leading-snug">{block.caption}</h3>}
             {twoActor ? (
               <div class="grid gap-2">
                 {/* Column headers — the two actors, coloured by stance. */}
                 <div class="grid grid-cols-[6.5rem_1fr_1fr] gap-2 pb-2 border-b border-hairline">
                   <span></span>
                   {block.actors.map((a, i) => (
-                    <span class={`font-mono text-[10px] font-semibold uppercase tracking-[0.06em] ${i === 0 ? 'text-[#345D7E]' : 'text-[#8C4A2F]'}`}>{a}</span>
+                    <span class={`font-mono text-[13px] font-semibold uppercase tracking-[0.08em] ${i === 0 ? 'text-[#345D7E]' : 'text-[#8C4A2F]'}`}>{a}</span>
                   ))}
                 </div>
                 {block.rows.map((r) => (
                   <div class="grid grid-cols-[6.5rem_1fr_1fr] gap-2 items-baseline border-b border-hairline/60 pb-2">
-                    <span class="font-mono text-[10.5px] uppercase tracking-[0.05em] text-muted leading-snug">{r.crux}</span>
+                    <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted leading-snug">{r.crux}</span>
                     {r.cells.map((c, i) => (
                       <span class={`font-serif text-[15px] leading-tight ${i === 0 ? 'text-[#345D7E]' : 'text-[#8C4A2F]'}`}>{c}</span>
                     ))}
@@ -305,9 +307,9 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 <table class="w-full border-collapse text-[13px]">
                   <thead>
                     <tr>
-                      <th class="text-left align-bottom p-2 border-b border-hairline bg-paper font-mono text-[10px] uppercase tracking-wide text-muted font-semibold">Crux</th>
+                      <th class="text-left align-bottom p-2 border-b border-hairline bg-paper font-mono text-[13px] uppercase tracking-[0.08em] text-muted font-semibold">Crux</th>
                       {block.actors.map((a) => (
-                        <th class="text-left align-bottom p-2 border-b border-l border-hairline bg-paper font-mono text-[10px] uppercase tracking-wide text-muted font-semibold whitespace-nowrap">{a}</th>
+                        <th class="text-left align-bottom p-2 border-b border-l border-hairline bg-paper font-mono text-[13px] uppercase tracking-[0.08em] text-muted font-semibold whitespace-nowrap">{a}</th>
                       ))}
                     </tr>
                   </thead>
@@ -364,26 +366,26 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
              colour-only channel. ★ supplied keeps its glyph. */}
           const cell = (r, side, colour) => r ? (
             <div class="pl-3 py-1 border-l-2" style={`border-color:${colour}`}>
-              <p class="text-[14px] text-ink leading-snug">{r.text}</p>
-              <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.05em] text-muted">
+              <p class="font-serif text-[15px] text-ink leading-snug">{r.text}</p>
+              <p class="mt-1 font-mono text-[13px] uppercase tracking-[0.08em] text-muted">
                 {r.provenance === 'supplied' ? <span class="text-accent-support">★ supplied</span> : r.provenance}{' · '}{side}
               </p>
             </div>
           ) : (
-            <div class="pl-3 py-1 border-l-2 border-hairline text-[12px] text-muted italic">no premise on this side</div>
+            <div class="pl-3 py-1 border-l-2 border-hairline font-serif text-[13px] text-muted italic">no premise on this side</div>
           );
           return (
             <section id="diverge" class="scroll-mt-24">
               <hr class="border-0 border-t border-ink-strong mb-4" />
-              <h2 class="font-serif text-2xl text-ink-strong mb-1 leading-tight">{block.label}</h2>
+              <h2 class="font-serif text-[26px] text-ink-strong mb-1 leading-tight">{block.label}</h2>
               {/* Apparatus note stays behind the "?" — it teaches the one
                  genuinely unfamiliar convention (quoted/stated/supplied). */}
               {block.house && (
                 <details class="mb-2">
-                  <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[10px] uppercase tracking-[0.08em] text-muted hover:text-ink">
-                    How to read this <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full text-[10px] normal-case" aria-hidden="true">?</span>
+                  <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[13px] uppercase tracking-[0.08em] text-muted hover:text-ink">
+                    How to read this <span class="inline-flex items-center justify-center w-5 h-5 border border-hairline rounded-full text-[13px] normal-case" aria-hidden="true">?</span>
                   </summary>
-                  <p class="text-sm text-muted mt-1.5 max-w-xl">{block.house}</p>
+                  <p class="font-serif text-[15px] text-muted mt-1.5 max-w-xl">{block.house}</p>
                 </details>
               )}
               {/* The two reports, named once. Text label is the primary
@@ -391,16 +393,16 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 mt-3 mb-2">
                 {[block.a, block.b].map((col, ci) => (
                   <div class="border-b pb-1.5" style={`border-color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>
-                    <span class="font-mono text-[10px] font-semibold uppercase tracking-[0.08em]" style={`color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>{col.label}</span>
-                    {col.interest && <span class="block text-[11px] text-muted leading-snug mt-0.5">{col.interest}</span>}
+                    <span class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em]" style={`color:${ci === 0 ? '#345D7E' : '#8C4A2F'}`}>{col.label}</span>
+                    {col.interest && <span class="block font-serif text-[13px] text-muted leading-snug mt-0.5">{col.interest}</span>}
                   </div>
                 ))}
               </div>
               {pairs.map((p, pi) => (
                 <div class="border-t border-hairline first:border-t-0 pt-3 pb-2.5">
-                  <h3 class="font-serif text-[17px] font-semibold text-ink-strong leading-snug mb-1"><span class="font-mono text-[13px] font-normal text-muted mr-1.5 tabular-nums">{pi + 1}</span>{cap(p.crux)}</h3>
+                  <h3 class="font-serif text-[20px] font-semibold text-ink-strong leading-snug mb-1"><span class="font-mono text-[13px] font-normal text-muted mr-1.5 tabular-nums">{pi + 1}</span>{cap(p.crux)}</h3>
                   {rowProse[pi] && rowProse[pi].type === 'prose' && (
-                    <p class="text-[15px] text-ink leading-relaxed mb-2.5 max-w-[34rem]">{rowProse[pi].text}</p>
+                    <p class="font-serif text-[15px] text-ink leading-relaxed mb-2.5 max-w-[34rem]">{rowProse[pi].text}</p>
                   )}
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
                     {cell(p.a, sideName(block.a.label), '#345D7E')}
@@ -413,13 +415,13 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 {[{ c: aConc, col: block.a, hue: '#345D7E' }, { c: bConc, col: block.b, hue: '#8C4A2F' }].map(({ c, col, hue }) => c && (
                   <div class="pl-3 border-l-2" style={`border-color:${hue}`}>
                     <div class="flex gap-2.5 text-[15px] font-medium text-ink-strong leading-snug"><span class="font-mono shrink-0">∴</span><span>{c.text}</span></div>
-                    <p class="mt-1 font-mono text-[9px] uppercase tracking-[0.05em] text-muted">conclusion · {sideName(col.label)}</p>
+                    <p class="mt-1 font-mono text-[13px] uppercase tracking-[0.08em] text-muted">conclusion · {sideName(col.label)}</p>
                   </div>
                 ))}
               </div>
               {block.sharedNeed && (
-                <div class="mt-4 border border-accent-support/40 bg-surface px-3.5 py-2.5 text-[13.5px] text-ink leading-snug">
-                  <span class="font-mono text-[9px] font-semibold uppercase tracking-wide text-accent-support mr-2">★ supplied · both arguments need</span>
+                <div class="mt-4 border border-accent-support/40 bg-surface px-3.5 py-2.5 font-serif text-[15px] text-ink leading-snug">
+                  <span class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-accent-support mr-2">★ supplied · both arguments need</span>
                   {block.sharedNeed}
                 </div>
               )}
@@ -436,12 +438,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         // An explainer's first paragraph is its dek: lede-sized, like the
         // landscape opening on a briefing.
         if (isExplainer && idx === firstProseIdx) {
-          return <p class="text-lg text-ink leading-relaxed">{block.text}</p>;
+          return <p class="font-serif text-[20px] text-ink leading-relaxed">{block.text}</p>;
         }
         if (isOpinion) {
-          return <p class="font-serif text-[18px] text-ink leading-[1.8]">{block.text}</p>;
+          return <p class="font-serif text-[17px] text-ink leading-[1.8]">{block.text}</p>;
         }
-        return <p class="text-[17px] text-ink leading-[1.75]">{block.text}</p>;
+        return <p class="font-serif text-[17px] text-ink leading-[1.75]">{block.text}</p>;
       }
       if (block.type === 'position') {
         // Stance pole (drafting blue / oxide rust / grey) for migrated briefings;
@@ -458,7 +460,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
             {idx === firstPositionIdx && (
               <div id="positions" class="scroll-mt-24">
                 <hr class="border-0 border-t border-ink-strong mb-4" />
-                <h2 class="font-serif text-2xl text-ink-strong mb-4 leading-tight">The positions</h2>
+                <h2 class="font-serif text-[26px] text-ink-strong mb-4 leading-tight">The positions</h2>
               </div>
             )}
             {/* The turn before a full position block — same register as the
@@ -468,7 +470,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               const src = posSourceById.get(block.sourceId);
               return src?.bridge && (
                 <div class="pl-3.5 border-l border-ink-strong mb-4">
-                  <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
+                  <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
                   <p class="font-serif text-[17px] text-ink leading-relaxed">{src.bridge}</p>
                 </div>
               );
@@ -484,16 +486,16 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 if (!src) return null;
                 return (
                   <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
-                    <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{src.label}</span>
-                    {src.publication && <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-muted">{src.publication}</span>}
-                    {pinBySource.has(src.id) && <a href="#diverge" class="font-mono text-[9px] uppercase tracking-[0.06em] text-accent-support hover:underline">contests {pinBySource.get(src.id).at} ↑</a>}
+                    <span class="font-serif text-[20px] font-semibold text-ink-strong leading-snug">{src.label}</span>
+                    {src.publication && <span class="font-serif text-[15px] text-muted">{src.publication}</span>}
+                    {pinBySource.has(src.id) && <a href="#diverge" class="font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:underline">contests {pinBySource.get(src.id).at} ↑</a>}
                     <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(src.stance)}`}>
                       <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
                         {STANCE_STEPS.map((v) => (
                           <span class={v === src.stance ? 'w-[3px] h-[11px]' : 'w-[3px] h-[5px] bg-hairline'} style={v === src.stance ? `background:${rule}` : undefined}></span>
                         ))}
                       </span>
-                      <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-muted">{poleLabel(src.stance)}</span>
+                      <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">{poleLabel(src.stance)}</span>
                     </span>
                   </div>
                 );
@@ -501,7 +503,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               {/* The claim line carries itself — bold serif directly under the
                  name needs no "Their claim" kicker (Decision 21). */}
               {block.label && (
-                <span class="block font-serif text-[15px] font-semibold text-ink-strong leading-snug mb-1.5">{block.label}</span>
+                <span class="block font-serif text-[17px] font-semibold text-ink-strong leading-snug mb-1.5">{block.label}</span>
               )}
               {/* Interest disclosure (cui-bono) — moves from the mini-table
                  into the position body itself, next to the source label,
@@ -510,7 +512,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 const src = posSourceById.get(block.sourceId);
                 return src?.interest && (
                   <p class="text-[13px] leading-snug text-muted mb-2.5">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1.5">Stake</span>
+                    <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F] mr-1.5">Stake</span>
                     {src.interest}
                   </p>
                 );
@@ -519,15 +521,15 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 const { before, pull, after } = splitOnQuote(block.paragraph, block.quote);
                 return (
                   <>
-                    {before && <p class="text-[17px] text-ink leading-[1.75]">{before}</p>}
+                    {before && <p class="font-serif text-[17px] text-ink leading-[1.75]">{before}</p>}
                     {/* Pull quote: type carries it, not a second rule (the block
                        already has the stance rule two levels out). */}
                     {pull && (
-                      <blockquote class={`font-serif text-lg italic text-ink-strong leading-snug ${before ? 'mt-3' : ''}`}>
+                      <blockquote class={`font-serif text-[20px] italic text-ink-strong leading-snug ${before ? 'mt-3' : ''}`}>
                         “{pull}”
                       </blockquote>
                     )}
-                    {after && <p class="text-[17px] text-ink leading-[1.75] mt-3">{after}</p>}
+                    {after && <p class="font-serif text-[17px] text-ink leading-[1.75] mt-3">{after}</p>}
                   </>
                 );
               })()}
@@ -541,11 +543,11 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 const kindStyleSrc = KIND_STYLE[src.auditKind ?? 'interpretive'] ?? KIND_STYLE.interpretive;
                 return (
                   <div class="mt-4 pt-3 border-t border-hairline/60">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.06em] text-muted mb-1.5 block">Their own words</span>
-                    <blockquote class="font-serif text-base italic text-ink-strong leading-snug mb-2">“{src.quote}”</blockquote>
+                    <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1.5 block">Their own words</span>
+                    <blockquote class="font-serif text-[17px] italic text-ink-strong leading-snug mb-2">“{src.quote}”</blockquote>
                     {src.auditNote && (
-                      <p class="text-[13.5px] text-ink leading-snug pl-3 border-l-2 border-hairline">
-                        <span class={`inline-block mr-2 font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border ${kindStyleSrc}`}>{KIND_LABEL[src.auditKind ?? 'interpretive']}</span>
+                      <p class="font-serif text-[15px] text-ink leading-snug pl-3 border-l-2 border-hairline">
+                        <span class={`inline-block mr-2 font-mono text-[13px] font-semibold uppercase tracking-[0.08em] px-1.5 py-0.5 border ${kindStyleSrc}`}>{KIND_LABEL[src.auditKind ?? 'interpretive']}</span>
                         {src.auditNote}
                       </p>
                     )}
@@ -563,21 +565,21 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               <details class="audit-disclosure mt-3 bg-surface border border-hairline">
                 <div class="instrument-rule"></div>
                 <summary class="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer">
-                  <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted shrink-0">The argument, numbered</span>
+                  <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted shrink-0">The argument, numbered</span>
                   <svg class="audit-chevron ml-auto shrink-0 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </summary>
                 <div class="px-3.5 pb-3.5">
                   <dl class="text-[15px] leading-snug">
                     {block.structure.rows.map((r) => (
                       <div class={`grid grid-cols-[1.4rem_1fr] gap-2.5 py-1.5 ${r.provenance === 'conclusion' ? 'border-t border-ink-strong/40 mt-1 pt-2.5' : 'border-t border-hairline first:border-t-0'}`}>
-                        <dt class={`font-mono text-[11px] tabular-nums ${r.provenance === 'conclusion' ? 'text-ink-strong font-semibold' : 'text-muted'}`}>{r.provenance === 'conclusion' ? '∴' : r.id}</dt>
+                        <dt class={`font-mono text-[13px] tabular-nums ${r.provenance === 'conclusion' ? 'text-ink-strong font-semibold' : 'text-muted'}`}>{r.provenance === 'conclusion' ? '∴' : r.id}</dt>
                         <dd class={r.provenance === 'conclusion' ? 'text-ink-strong font-medium' : 'text-ink'}>
                           <span>{r.text}</span>
                           {r.provenance === 'supplied' && (
-                            <span class="ml-1.5 font-mono text-[10px] uppercase tracking-wide text-accent-support align-baseline" title="Not stated by the source — supplied by this audit">★ supplied</span>
+                            <span class="ml-1.5 font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support align-baseline" title="Not stated by the source — supplied by this audit">★ supplied</span>
                           )}
                           {r.provenance === 'stated' && (
-                            <span class="ml-1.5 font-mono text-[10px] uppercase tracking-wide text-muted align-baseline">stated</span>
+                            <span class="ml-1.5 font-mono text-[13px] uppercase tracking-[0.08em] text-muted align-baseline">stated</span>
                           )}
                         </dd>
                       </div>
@@ -585,19 +587,19 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   </dl>
                   {block.structure.need && (
                     <div class="mt-3 pl-3 border-l-2 border-accent-support">
-                      <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-1">What the step needs</span>
-                      <p class="text-sm text-ink leading-relaxed">{block.structure.need}</p>
+                      <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">What the step needs</span>
+                      <p class="font-serif text-[15px] text-ink leading-relaxed">{block.structure.need}</p>
                     </div>
                   )}
                   {block.structure.supports && block.structure.asserts && (
-                    <div class="mt-3 grid grid-cols-[4.5rem_1fr] gap-x-3 gap-y-1.5 text-sm">
-                      <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted pt-0.5">Supports</span>
+                    <div class="mt-3 grid grid-cols-[6rem_1fr] gap-x-3 gap-y-1.5 font-serif text-[15px]">
+                      <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted pt-0.5">Supports</span>
                       <span class="text-ink">{block.structure.supports}</span>
-                      <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted pt-0.5">Asserts</span>
+                      <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted pt-0.5">Asserts</span>
                       <span class="text-ink-strong font-medium">{block.structure.asserts}</span>
                       {/* The pair was undefined anywhere on the page — one
                          line says what the gap between them means. */}
-                      <p class="col-span-2 text-[11px] text-muted leading-snug">The distance between the two is the overclaim: the part asserted but not supported.</p>
+                      <p class="col-span-2 font-serif text-[13px] text-muted leading-snug">The distance between the two is the overclaim: the part asserted but not supported.</p>
                     </div>
                   )}
                 </div>
@@ -607,9 +609,9 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               <details class="audit-disclosure mt-3 bg-surface border border-hairline" open={idx === firstPositionIdx}>
                 <div class="instrument-rule"></div>
                 <summary class="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer">
-                  <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted shrink-0">Audit</span>
-                  <span class="font-serif text-[15px] font-semibold text-ink-strong">{block.audit.name}</span>
-                  <span class={`font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border shrink-0 ${kindStyle}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
+                  <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted shrink-0">Audit</span>
+                  <span class="font-serif text-[17px] font-semibold text-ink-strong">{block.audit.name}</span>
+                  <span class={`font-mono text-[13px] font-semibold uppercase tracking-[0.08em] px-1.5 py-0.5 border shrink-0 ${kindStyle}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
                   <svg class="audit-chevron ml-auto shrink-0 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </summary>
                 {/* The audit body matches the position paragraph's size (17px):
@@ -622,7 +624,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   {/* One audit deep-link per card; the fallibility line moved
                      to a single instance at the article's foot (Decision 21). */}
                   <div class="flex items-center flex-wrap gap-x-3 gap-y-2">
-                    <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1.5 text-xs font-medium text-accent-support hover:text-accent hover:border-accent-support/50 border border-hairline rounded px-3 py-2 transition-colors">Audit this argument →</a>
+                    <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent-support hover:text-accent hover:border-accent-support/50 border border-hairline rounded px-3 py-2 transition-colors">Audit this argument →</a>
                   </div>
                 </div>
               </details>
@@ -635,7 +637,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 {briefing.principals && briefing.principals.length > 0 && (
                   <>
                     <hr class="border-0 border-t border-ink-strong mb-4" />
-                    <h2 class="font-serif text-2xl text-ink-strong mb-4 leading-tight">The commentary</h2>
+                    <h2 class="font-serif text-[26px] text-ink-strong mb-4 leading-tight">The commentary</h2>
                   </>
                 )}
                 <div class="mb-4">
@@ -655,7 +657,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                            register — the editor is the guide, not marginalia. */}
                         {s.bridge && (
                           <div class="pl-3.5 border-l border-ink-strong mt-1.5">
-                            <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
+                            <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
                             <p class="font-serif text-[17px] text-ink leading-relaxed">{s.bridge}</p>
                           </div>
                         )}
@@ -667,22 +669,22 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                            blind (Ground News fixed-row-anatomy pattern). */}
                         <div id={`pos-${s.id}`} class="scroll-mt-24 pl-3.5 py-1.5" style={`border-left:4px solid ${rule}`}>
                           <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
-                            <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{s.label}</span>
-                            {s.publication && <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-muted">{s.publication}</span>}
-                            {pinBySource.has(s.id) && <a href="#diverge" class="font-mono text-[9px] uppercase tracking-[0.06em] text-accent-support hover:underline">contests {pinBySource.get(s.id).at} ↑</a>}
+                            <span class="font-serif text-[20px] font-semibold text-ink-strong leading-snug">{s.label}</span>
+                            {s.publication && <span class="font-serif text-[15px] text-muted">{s.publication}</span>}
+                            {pinBySource.has(s.id) && <a href="#diverge" class="font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:underline">contests {pinBySource.get(s.id).at} ↑</a>}
                             <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(s.stance)}`}>
                               <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
                                 {STANCE_STEPS.map((v) => (
                                   <span class={v === s.stance ? 'w-[3px] h-[11px]' : 'w-[3px] h-[5px] bg-hairline'} style={v === s.stance ? `background:${rule}` : undefined}></span>
                                 ))}
                               </span>
-                              <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-muted">{poleLabel(s.stance)}</span>
+                              <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">{poleLabel(s.stance)}</span>
                             </span>
                           </div>
-                          {s.interest && <p class="text-[12px] text-muted leading-snug mb-1"><span class="font-mono text-[9px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1">Stake</span>{s.interest}</p>}
-                          <blockquote class="font-serif text-[15px] italic text-ink-strong leading-snug mb-1.5">“{s.quote}”</blockquote>
-                          <p class="text-[13px] text-ink leading-snug pl-3 border-l-2 border-hairline">
-                            <span class={`inline-block mr-2 font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border ${kindStyleIC}`}>{KIND_LABEL[s.auditKind ?? 'interpretive']}</span>
+                          {s.interest && <p class="font-serif text-[13px] text-muted leading-snug mb-1"><span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F] mr-1">Stake</span>{s.interest}</p>}
+                          <blockquote class="font-serif text-[17px] italic text-ink-strong leading-snug mb-1.5">“{s.quote}”</blockquote>
+                          <p class="font-serif text-[15px] text-ink leading-snug pl-3 border-l-2 border-hairline">
+                            <span class={`inline-block mr-2 font-mono text-[13px] font-semibold uppercase tracking-[0.08em] px-1.5 py-0.5 border ${kindStyleIC}`}>{KIND_LABEL[s.auditKind ?? 'interpretive']}</span>
                             {s.auditNote}
                           </p>
                         </div>
@@ -701,8 +703,8 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         if (foldShared) return null;
         return (
           <div id="shared" class="pl-4 scroll-mt-24 border-l-2 border-accent-support">
-            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support mb-1.5">The shared assumption</span>
-            <p class="text-base text-ink leading-relaxed">{block.text}</p>
+            <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support mb-1.5">The shared assumption</span>
+            <p class="font-serif text-[17px] text-ink leading-relaxed">{block.text}</p>
           </div>
         );
       }
@@ -722,7 +724,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         return (
           <section id="public" class="scroll-mt-24">
             <hr class="border-0 border-t border-ink-strong mb-4" />
-            <h2 class="font-serif text-2xl text-ink-strong mb-4 leading-tight">{block.label}</h2>
+            <h2 class="font-serif text-[26px] text-ink-strong mb-4 leading-tight">{block.label}</h2>
 
             {/* V1 (Daniel, 2026-08-06): each storey is its own card in the
                context-box grammar with a numbered kicker. Poll rows are cut
@@ -734,14 +736,14 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               <div class="mb-4 border border-hairline bg-surface">
                 <div class="instrument-rule"></div>
                 <div class="px-4 py-3.5">
-                  <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">1 · What polls find</span>
-                  {block.stripCaption && <p class="text-[14px] text-ink leading-snug mb-1.5">{block.stripCaption}</p>}
+                  <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">1 · What polls find</span>
+                  {block.stripCaption && <p class="font-serif text-[15px] text-ink leading-snug mb-1.5">{block.stripCaption}</p>}
                   {block.ticks.length > 0 && (
                     <>
                       <div class="relative h-11 mx-1" role="img" aria-label={`Support for nuclear by poll: ${block.ticks.map((t) => `${t.value}% ${t.label}`).join('; ')}`}>
                         <div class="absolute left-0 right-0 top-6 border-t-[1.5px] border-ink"></div>
-                        <span class="absolute left-0 top-7 font-mono text-[9px] text-muted">{axLo}% support</span>
-                        <span class="absolute right-0 top-7 font-mono text-[9px] text-muted">{axHi}% support</span>
+                        <span class="absolute left-0 top-7 font-mono text-[13px] text-muted">{axLo}% support</span>
+                        <span class="absolute right-0 top-7 font-mono text-[13px] text-muted">{axHi}% support</span>
                         {/* The highest figure is marked on THREE channels — a
                            taller, wider tick and a semibold numeral alongside
                            the hue — so the emphasis survives colourblind eyes
@@ -749,12 +751,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                         {block.ticks.map((t) => (
                           <>
                             <span class={t.value === hi ? 'absolute w-[3px] bg-accent' : 'absolute w-[2px] bg-ink-strong'} style={t.value === hi ? `left:${posPct(t.value)}%; top:0.8rem; height:1.2rem` : `left:${posPct(t.value)}%; top:1.05rem; height:0.95rem`}></span>
-                            <span class={t.value === hi ? 'absolute font-mono text-[9.5px] font-semibold text-accent whitespace-nowrap' : 'absolute font-mono text-[9.5px] text-muted whitespace-nowrap'} style={`left:${posPct(t.value)}%; top:0.15rem; transform:translateX(-50%)`}>{t.value}</span>
+                            <span class={t.value === hi ? 'absolute font-mono text-[13px] font-semibold text-accent whitespace-nowrap' : 'absolute font-mono text-[13px] text-muted whitespace-nowrap'} style={`left:${posPct(t.value)}%; top:0.05rem; transform:translateX(-50%)`}>{t.value}</span>
                           </>
                         ))}
                       </div>
-                      <p class="font-mono text-[10px] text-muted leading-snug mt-1">{block.ticks.map((t) => `${t.value} ${t.label}`).join(' · ')}</p>
-                      {stripNote && <p class="text-[13.5px] text-ink leading-snug mt-1.5">{stripNote}</p>}
+                      <p class="font-mono text-[13px] text-muted leading-snug mt-1">{block.ticks.map((t) => `${t.value} ${t.label}`).join(' · ')}</p>
+                      {stripNote && <p class="font-serif text-[15px] text-ink leading-snug mt-1.5">{stripNote}</p>}
                     </>
                   )}
                   {/* Poll bars (Decision 18-B visual, 18-C ordering): each
@@ -767,10 +769,10 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   {block.questions.length > 0 && (
                     <div class="border-t border-hairline mt-3 pt-2.5">
                       <div class="flex items-baseline justify-between gap-3">
-                        <span class="font-mono text-[9px] uppercase tracking-[0.05em]" style="color:#345D7E">← reads for {briefing.spectrumAxis.left}</span>
-                        <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-right" style="color:#8C4A2F">reads for {briefing.spectrumAxis.right} →</span>
+                        <span class="font-mono text-[13px] uppercase tracking-[0.08em]" style="color:#345D7E">← reads for {briefing.spectrumAxis.left}</span>
+                        <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-right" style="color:#8C4A2F">reads for {briefing.spectrumAxis.right} →</span>
                       </div>
-                      <p class="text-[12px] text-muted leading-snug mt-0.5 mb-1">Answers that favour one pathway sit on that side of their bar, in that side's colour. Grey answers favour neither.</p>
+                      <p class="font-serif text-[13px] text-muted leading-snug mt-0.5 mb-1">Answers that favour one pathway sit on that side of their bar, in that side's colour. Grey answers favour neither.</p>
                       {block.questions.map((q) => {
                         const total = q.bars.reduce((s, b) => s + b.value, 0);
                         const rest = Math.max(0, 100 - total);
@@ -779,13 +781,13 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                           <details class="border-b border-hairline/60 last:border-b-0">
                             <summary class="py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                               <span class="flex justify-between items-baseline gap-x-4">
-                                <span class="font-serif italic text-[14.5px] text-ink-strong leading-snug">{q.question}</span>
-                                <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full font-mono text-[10px] text-muted shrink-0" aria-hidden="true">?</span>
+                                <span class="font-serif italic text-[15px] text-ink-strong leading-snug">{q.question}</span>
+                                <span class="inline-flex items-center justify-center w-5 h-5 border border-hairline rounded-full font-mono text-[13px] text-muted shrink-0" aria-hidden="true">?</span>
                               </span>
                               <span class="flex h-5 mt-1.5 border border-hairline" role="img" aria-label={`${q.question} ${q.bars.map((b) => `${b.label} ${b.value}%`).join(', ')}${rest > 0 ? `, other or unsure ${rest}%` : ''}`}>
                                 {q.bars.map((b) => (
                                   <span class="inline-flex items-center justify-center overflow-hidden" style={`width:${b.value}%;background:${segCol(b)}`}>
-                                    {b.value >= 8 && <b class="font-mono text-[10px] text-white tabular-nums">{b.value}</b>}
+                                    {b.value >= 8 && <b class="font-mono text-[13px] text-white tabular-nums">{b.value}</b>}
                                   </span>
                                 ))}
                                 {rest > 0 && <span style={`width:${rest}%`} class="bg-paper"></span>}
@@ -797,13 +799,13 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                                 {rest > 0 && <span class="text-muted">{' · '}other or unsure{' '}<span class="tabular-nums">{rest}</span></span>}
                               </span>
                             </summary>
-                            <p class="text-[12.5px] text-muted leading-snug pb-2"><span class="font-mono text-[9px] uppercase tracking-[0.05em] mr-1.5">{q.source}</span>{q.note}</p>
+                            <p class="font-serif text-[13px] text-muted leading-snug pb-2"><span class="font-mono text-[13px] uppercase tracking-[0.08em] mr-1.5">{q.source}</span>{q.note}</p>
                           </details>
                         );
                       })}
                     </div>
                   )}
-                  {block.gapNote && <p class="text-[12px] text-muted leading-snug border-t border-hairline pt-2 mt-2">{block.gapNote}</p>}
+                  {block.gapNote && <p class="font-serif text-[13px] text-muted leading-snug border-t border-hairline pt-2 mt-2">{block.gapNote}</p>}
                 </div>
               </div>
             )}
@@ -817,26 +819,26 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               <div class="border border-hairline bg-surface">
                 <div class="instrument-rule"></div>
                 <div class="px-4 py-3.5">
-                  <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">2 · Your turn</span>
+                  <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">2 · Your turn</span>
                   {block.dialQuestion && (
                     <>
-                      <p class="text-[14px] text-ink leading-snug mb-2.5">{block.dialQuestion}</p>
+                      <p class="font-serif text-[15px] text-ink leading-snug mb-2.5">{block.dialQuestion}</p>
                       {/* LIVE dial: a zero-JS POST form. Each step is a submit
                          button; /api/briefing-dial counts the tap and 303s
                          back to #dial-thanks, whose :target style shows the
                          confirmation — no script anywhere in the article. */}
                       <form method="post" action="/api/briefing-dial" class="flex items-center gap-2 flex-wrap">
                         <input type="hidden" name="slug" value={briefing.slug} />
-                        <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-right leading-tight" style="color:#345D7E">{briefing.spectrumAxis.left}</span>
+                        <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-right leading-tight" style="color:#345D7E">{briefing.spectrumAxis.left}</span>
                         <span class="inline-flex gap-1.5">
                           {STANCE_STEPS.map((v) => (
-                            <button type="submit" name="step" value={String(v)} aria-label={`Answer: ${poleLabel(v)}`} class="w-9 h-7 border font-mono text-[11px] tabular-nums bg-paper hover:bg-surface cursor-pointer transition-colors" style={`border-color:${stanceCol(v)}; color:${stanceCol(v)}; border-width:${Math.abs(v) === 2 ? '1.5px' : '1px'}`}>{v > 0 ? `+${v}` : v}</button>
+                            <button type="submit" name="step" value={String(v)} aria-label={`Answer: ${poleLabel(v)}`} class="w-10 h-8 border font-mono text-[13px] tabular-nums bg-paper hover:bg-surface cursor-pointer transition-colors" style={`border-color:${stanceCol(v)}; color:${stanceCol(v)}; border-width:${Math.abs(v) === 2 ? '1.5px' : '1px'}`}>{v > 0 ? `+${v}` : v}</button>
                           ))}
                         </span>
-                        <span class="font-mono text-[9px] uppercase tracking-[0.05em] leading-tight" style="color:#8C4A2F">{briefing.spectrumAxis.right}</span>
+                        <span class="font-mono text-[13px] uppercase tracking-[0.08em] leading-tight" style="color:#8C4A2F">{briefing.spectrumAxis.right}</span>
                       </form>
-                      <p id="dial-thanks" class="hidden target:block scroll-mt-40 text-[12px] text-ink leading-snug mt-2 border-l-2 border-accent-support pl-2">Counted. Results appear once fifty readers have answered.</p>
-                      <p class="text-[12px] text-muted leading-snug mt-2">One anonymous tap. Results appear once fifty readers have answered.</p>
+                      <p id="dial-thanks" class="hidden target:block scroll-mt-40 font-serif text-[13px] text-ink leading-snug mt-2 border-l-2 border-accent-support pl-2">Counted. Results appear once fifty readers have answered.</p>
+                      <p class="font-serif text-[13px] text-muted leading-snug mt-2">One anonymous tap. Results appear once fifty readers have answered.</p>
                     </>
                   )}
                   {/* The invitation box: a zero-JS GET form into the audit.
@@ -846,12 +848,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                      the audit page's shared-text threshold. */}
                   {block.prompts && block.prompts.length > 0 && (
                     <form method="get" action="/audit" class={block.dialQuestion ? 'mt-3 pt-3 border-t border-hairline' : ''}>
-                      <p class="text-[14px] text-ink leading-snug mb-2">Or make the case yourself. It runs through the audit before it runs anywhere.</p>
+                      <p class="font-serif text-[15px] text-ink leading-snug mb-2">Or make the case yourself. It runs through the audit before it runs anywhere.</p>
                       <div class="flex gap-1.5">
                         <input name="text" type="text" required minlength="50" placeholder="Contest a premise, or argue your own…" class="flex-1 min-w-0 bg-paper border border-hairline px-2.5 py-2 text-[13px] text-ink placeholder:text-muted/70 focus:outline-none focus:ring-1 focus:ring-accent-support/50" />
                         <button type="submit" class="px-3 py-2 bg-accent-support text-paper text-[13px] font-medium hover:bg-accent-support/90 transition-colors shrink-0">Audit it →</button>
                       </div>
-                      <p class="text-[12.5px] text-muted leading-snug mt-2">Start from a premise:{' '}
+                      <p class="font-serif text-[13px] text-muted leading-snug mt-2">Start from a premise:{' '}
                         {block.prompts.map((pr, pi) => (
                           <>{pi > 0 && <span>{' · '}</span>}<a href={`/audit?text=${encodeURIComponent(pr.prefill ?? pr.label)}`} class="text-accent-support hover:underline">{pr.label}</a></>
                         ))}
@@ -865,43 +867,43 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         );
       }
       if (block.type === 'editorView') {
+        // Decision 20-B (2026-08-08): a real section, not a grey box. Square
+        // like everything else, the same rule + serif h2 as its peers (the
+        // rail promised them as equals; the type finally agrees), a plain
+        // provenance line where two competing mono labels used to sit, and
+        // body at reading size. Devil's advocate stays inside as a normal
+        // serif heading (Daniel, 2026-08-05) — the editor arguing against
+        // the view just given. Future: community takes, editor-steelmanned,
+        // organised by philosophical framework.
         return (
-          <div id="discussion" class="rounded-md bg-paper border border-hairline p-4 scroll-mt-24">
-            {/* One provenance label per page: the teleport at the top already
-               declares the human/engine split (Decision 21). */}
-            <div class="flex items-baseline justify-between gap-3 flex-wrap mb-1.5">
-              <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">Editor's view · opinion</span>
-            </div>
-            <p class="text-base text-ink leading-relaxed">{block.text}</p>
-            {/* Devil's advocate lives INSIDE the editor's opinion as a normal
-               serif heading, not a mono kicker (Daniel, 2026-08-05) — it's a
-               first-class part of the opinion, the editor arguing against the
-               view just given. Future direction (recorded in the shelf file):
-               community takes an editor steelmans, organised by philosophical
-               framework. */}
+          <section id="discussion" class="scroll-mt-24">
+            <hr class="border-0 border-t border-ink-strong mb-4" />
+            <h2 class="font-serif text-[26px] text-ink-strong mb-1 leading-tight">The editor's view</h2>
+            <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-3">written by hand · no engine text</p>
+            <p class="font-serif text-[17px] text-ink leading-[1.75]">{block.text}</p>
             {block.whyWrong && (
-              <div class="mt-3.5 pt-3 border-t border-hairline">
-                <h3 class="font-serif text-lg font-semibold text-ink-strong mb-1.5 leading-snug">Devil's advocate</h3>
-                <p class="text-sm text-ink leading-relaxed">{block.whyWrong}</p>
+              <div class="mt-4 pt-3 border-t border-hairline">
+                <h3 class="font-serif text-[17px] font-semibold text-ink-strong mb-1.5 leading-snug">Devil's advocate</h3>
+                <p class="font-serif text-[17px] text-ink leading-[1.75]">{block.whyWrong}</p>
               </div>
             )}
-          </div>
+          </section>
         );
       }
       if (block.type === 'takes') {
         return (
           <div>
-            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2.5">Other takes · audited</span>
+            <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2.5">Other takes · audited</span>
             <div class="space-y-2.5">
               {block.items.map((t) => (
-                <div class="rounded-md border border-hairline bg-surface p-3">
-                  <p class="text-base text-ink leading-snug">“{t.quote}”</p>
-                  <p class="text-xs text-muted mt-1.5">
+                <div class="border border-hairline bg-surface p-3">
+                  <p class="font-serif text-[17px] italic text-ink leading-snug">“{t.quote}”</p>
+                  <p class="font-serif text-[13px] text-muted mt-1.5">
                     {t.url
                       ? <a href={t.url} target="_blank" rel="noopener noreferrer" class="hover:text-accent">{t.source}</a>
                       : t.source}
                   </p>
-                  <p class="text-[13px] text-muted mt-2 pl-2.5 leading-relaxed border-l-2 border-accent-support"><span class="font-medium text-ink">Audit:</span> {t.audit}</p>
+                  <p class="font-serif text-[15px] text-muted mt-2 pl-2.5 leading-relaxed border-l-2 border-accent-support"><span class="font-medium text-ink">Audit:</span> {t.audit}</p>
                 </div>
               ))}
             </div>
@@ -915,7 +917,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
   {/* The single fallibility line (Decision 21: it appeared on every audit
      card; a publication should invite scrutiny once, at the exit). */}
   {!isExplainer && (v2 || briefing.sources.length > 0) && (
-    <p class="mt-8 text-xs text-muted">Does a reading here seem wrong? <a href="/feedback" class="text-accent-support hover:underline">Tell the editor →</a></p>
+    <p class="mt-8 font-serif text-[13px] text-muted">Does a reading here seem wrong? <a href="/feedback" class="text-accent-support hover:underline">Tell the editor →</a></p>
   )}
 
   {/* Other-takes absence stated (D2 policy) — but only if there IS no
@@ -925,36 +927,39 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
      commentary sources. */}
   {!isExplainer && !hasTakes && briefing.otherTakes === 'none' && posSrc.length === 0 && (
     <div class="mt-8">
-      <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-1.5">Other takes</span>
-      <p class="text-sm text-muted italic">No further takes surveyed for this question.</p>
+      <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1.5">Other takes</span>
+      <p class="font-serif text-[15px] text-muted italic">No further takes surveyed for this question.</p>
     </div>
   )}
 
   {/* ONE Sources section (a single bibliography, not two competing ones):
      the plotted positions first, then the evidence the argument cites. */}
+  {/* Sources at rank 1 (23-A): the rail lists it as a peer of the chapter
+     heads, so it gets the same rule + serif h2 — not a box label. */}
   {!isExplainer && (v2 || briefing.sources.length > 0) && (
-    <div id="sources" class="mt-10 pt-6 border-t border-hairline scroll-mt-24">
-      <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-4">Sources</span>
+    <div id="sources" class="mt-10 scroll-mt-24">
+      <hr class="border-0 border-t border-ink-strong mb-4" />
+      <h2 class="font-serif text-[26px] text-ink-strong mb-4 leading-tight">Sources</h2>
       {v2 ? (
         <div class="space-y-6">
           <div>
-            <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted/80 mb-2">Positions · {posSrc.length}</span>
+            <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted/80 mb-2">Positions · {posSrc.length}</span>
             <ul class="space-y-1.5">
               {posSrc.map((s) => (
                 <li class="flex items-baseline gap-2">
-                  <span class="shrink-0 text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded border" style={`color:${stanceCol(s.stance)};border-color:${stanceCol(s.stance)}55;`}>{s.stance > 0 ? `+${s.stance}` : s.stance}</span>
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
-                  <span class="text-[10px] text-muted">(placement: {s.confidence})</span>
+                  <span class="shrink-0 font-mono text-[13px] font-semibold tabular-nums px-1.5 py-0.5 border" style={`color:${stanceCol(s.stance)};border-color:${stanceCol(s.stance)}55;`}>{s.stance > 0 ? `+${s.stance}` : s.stance}</span>
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
+                  <span class="font-serif text-[13px] text-muted">(placement: {s.confidence})</span>
                 </li>
               ))}
             </ul>
           </div>
           {eviSrc.length > 0 && (
             <div>
-              <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted/80 mb-2">Further evidence · {eviSrc.length}</span>
+              <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted/80 mb-2">Further evidence · {eviSrc.length}</span>
               <ul class="space-y-1.5">
                 {eviSrc.map((s) => (
-                  <li class="text-xs leading-relaxed">
+                  <li class="font-serif text-[15px] leading-relaxed">
                     <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-medium text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
                     {s.note && <span class="text-muted">: {s.note}</span>}
                   </li>
@@ -965,21 +970,21 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         </div>
       ) : (
         <div>
-          <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted/80 mb-2">Positions · {briefing.sources.length}</span>
+          <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted/80 mb-2">Positions · {briefing.sources.length}</span>
           <div class="grid sm:grid-cols-2 gap-5">
             <div class="border-l-2 border-spec-left pl-3">
-              <span class="text-xs font-semibold uppercase tracking-wide text-spec-left">{briefing.spectrumAxis.left}</span>
+              <span class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-spec-left">{briefing.spectrumAxis.left}</span>
               <ul class="mt-1.5 space-y-1">
                 {leftSources.map((s) => (
-                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
+                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
                 ))}
               </ul>
             </div>
             <div class="border-l-2 border-spec-right pl-3">
-              <span class="text-xs font-semibold uppercase tracking-wide text-spec-right">{briefing.spectrumAxis.right}</span>
+              <span class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-spec-right">{briefing.spectrumAxis.right}</span>
               <ul class="mt-1.5 space-y-1">
                 {rightSources.map((s) => (
-                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="text-xs text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
+                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
                 ))}
               </ul>
             </div>
