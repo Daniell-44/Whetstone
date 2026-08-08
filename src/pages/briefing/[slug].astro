@@ -234,9 +234,10 @@ const jsonLd = {
         </nav>
         <a href="/" class="mt-6 block text-xs text-muted hover:text-accent transition-colors">← All Briefings</a>
 
-        {/* Compact launcher: the tool at hand while reading its product. */}
+        {/* Compact launcher: the tool at hand while reading its product.
+           No heading — the placeholder and the button are the label
+           (Decision 21: three labels on one input was two too many). */}
         <div class="mt-6 pt-5 border-t border-hairline">
-          <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-2">Audit your own text</p>
           <input id="rail-audit-input" type="text" placeholder="Paste an argument…" class="w-full bg-paper border border-hairline rounded px-2.5 py-2 text-xs text-ink placeholder:text-muted/70 focus:outline-none focus:ring-1 focus:ring-accent-support/50" />
           <button id="rail-audit-go" type="button" class="mt-1.5 w-full py-1.5 rounded bg-accent-support text-paper text-xs font-medium hover:bg-accent-support/90 transition-colors">Run the audit</button>
         </div>
@@ -261,7 +262,6 @@ const jsonLd = {
            link plus the page's single footer CTA; the per-audit chips above
            are the only other route into the tool. */}
         <div class="mt-12 pt-8 border-t border-hairline">
-          <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-4">Next</p>
           <div class="grid sm:grid-cols-2 gap-4">
             {related[0] && (
               <a href={`/briefing/${related[0].slug}`} class="group block rounded-md border border-hairline bg-surface p-4 hover:border-accent-support/40 transition-all">
@@ -272,7 +272,7 @@ const jsonLd = {
             <div class="rounded-md border border-hairline bg-surface p-4 flex flex-col justify-between gap-3">
               <div>
                 <p class="text-xs font-semibold uppercase tracking-widest text-muted mb-1.5">Run the engine yourself</p>
-                <p class="text-sm text-ink leading-relaxed">The same audit that produced the cards above is free on any text.</p>
+                <p class="text-sm text-ink leading-relaxed">Run the same audit on any argument you like.</p>
               </div>
               <a href="/audit" class="text-sm font-semibold text-accent-support hover:underline">Open the Audit →</a>
             </div>
@@ -336,9 +336,8 @@ const jsonLd = {
            file). Quarantined: boxed, hairlined, mono-labelled, last in the
            rail. Placeholder until an AdSense publisher ID exists; the slot
            ships dark rather than empty-white. */}
-        <div class="hidden lg:flex rounded-md border border-hairline bg-paper min-h-[15.5rem] flex-col items-center justify-center gap-1.5">
+        <div class="hidden lg:flex rounded-md border border-hairline bg-paper min-h-[15.5rem] flex-col items-center justify-center">
           <span class="font-mono text-[9px] uppercase tracking-[0.14em] text-muted/70">Advertisement</span>
-          <span class="text-[11px] text-muted/50">slot reserved</span>
         </div>
 
       </aside>
