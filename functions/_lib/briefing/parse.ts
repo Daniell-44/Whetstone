@@ -77,6 +77,8 @@ function parsePositions(text: string): BriefingPositionSource[] {
         ...(p[9] && (p[9] === 'structural' || p[9] === 'interpretive' || p[9] === 'empirical') ? { auditKind: p[9] as BriefingPositionSource['auditKind'] } : {}),
         // Optional 11: bridge sentence rendered before this source's card.
         ...(p[10] ? { bridge: p[10] } : {}),
+        // Optional 12: landscape camp (26-B) — the field's grouping key.
+        ...(p[11] ? { camp: p[11] } : {}),
       };
     });
 }

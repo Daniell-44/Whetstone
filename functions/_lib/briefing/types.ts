@@ -42,6 +42,13 @@ export interface BriefingPositionSource {
      source's commentary card — connective tissue between voices so the tier
      reads as one conversation (Daniel, 2026-08-06). */
   bridge?:      string;
+  /** Optional 12th column (Decision 26-B, 2026-08-09): the CAMP this field
+     voice belongs to — the landscape key, authored per briefing. On an
+     economics fight the key is the kind of move ("Fighting inside the
+     models"); on an ethics fight it can be the framework ("Outcome-first
+     arguments"). Field cards group under camp kickers in authored order;
+     absent camps = the flat run. */
+  camp?:        string;
 }
 
 // Principals: the primary sources UNDER audit (the reports/models the piece is
