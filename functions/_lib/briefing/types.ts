@@ -139,15 +139,18 @@ export type BriefingBlock =
   | { type: 'shared';     text: string }                                   // the shared assumption (bottom line)
   | { type: 'skeleton';   rows: StructureRow[] }                           // essay-level standard form → the E-3 margin column on opinion pages
   | {
-      type: 'public';               // "The public" section (Decision 8 C-1, 2026-08-06): polls, dial, conversation
+      type: 'public';               // "The public" section (Decisions 8, 18-B/C, 19-B): polls + your turn
       label: string;                // section heading, default "The public"
       stripCaption?: string;        // one line over the tick strip saying what a tick is
       stripNote?: string;           // one line under it; {spread} interpolates max-min
       ticks: { value: number; label: string }[];        // verified support numbers, one per poll
-      questions: { question: string; source: string; bars: { label: string; value: number }[]; note?: string }[];
+      // A bar's side maps its answer onto the briefing's axis (18-C): 'left'
+      // reads for axisLeft, 'right' for axisRight, absent = neither (grey).
+      // Authored with </> markers in the md — the engine never guesses.
+      questions: { question: string; source: string; bars: { label: string; value: number; side?: 'left' | 'right' }[]; note?: string }[];
       gapNote?: string;             // the honest-gap line at the section foot
-      dialQuestion?: string;        // storey 2 prompt; dial renders when present
-      prompts?: string[];           // storey 3 crux prompts, each links into /audit
+      dialQuestion?: string;        // Your-turn prompt; dial renders when present
+      prompts?: { label: string; prefill?: string }[];  // premise-contest links; prefill carries a scaffold into /audit?text=
     }
   | { type: 'editorView'; text: string; whyWrong?: string }                // opinion, walled off
   | { type: 'takes';      items: { source: string; url?: string; quote: string; audit: string }[] }; // curated external takes, audited

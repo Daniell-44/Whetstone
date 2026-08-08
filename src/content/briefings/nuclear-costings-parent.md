@@ -112,14 +112,14 @@ tick | 42 | Essential, Apr 2025
 tick | 52 | Essential, Apr 2026
 tick | 55 | Essential, Feb 2025
 tick | 61 | Lowy, Mar 2024
-q | Which energy source is most expensive? | Guardian Essential, Jul 2024 | nuclear 38, renewables 35, fossil fuels 27 | Three months earlier the order was reversed: renewables 40, nuclear 36. The perception flipped while the argument ran, not after new evidence arrived.
-q | Which pathway for the grid? | Resolve, Jun 2024 | renewables plan 43, nuclear plan 33 | The friendliest framing for a clean answer: the same poll's three-way question found only 32 per cent behind nuclear, and Newspoll ran 45 to 42 against the plan the same week. Framing moves this one too.
-q | What more would you pay on your bill for nuclear? | Australia Institute, May 2024 | nothing 65, something 23 | Full split: up to $250 a year 13, up to $500 6, more than $500 4, unsure 12. An anti-nuclear commissioner, and the question presupposes nuclear costs more. Even so, most Coalition voters would pay nothing.
-q | Do you accept Labor's $600 billion cost claim? | RedBridge, marginal seats, Apr 2025 | agreed 56, disagreed 13 | One account of the same poll says 51 per cent accepted. Either way: a contested modelling claim moved votes while the models stayed contested.
+q | Which energy source is most expensive? | Guardian Essential, Jul 2024 | <renewables 35, fossil fuels 27, >nuclear 38 | Three months earlier the order was reversed: renewables 40, nuclear 36. The perception flipped while the argument ran, not after new evidence arrived.
+q | Which pathway for the grid? | Resolve, Jun 2024 | <nuclear plan 33, >renewables plan 43 | The friendliest framing for a clean answer: the same poll's three-way question found only 32 per cent behind nuclear, and Newspoll ran 45 to 42 against the plan the same week. Framing moves this one too.
+q | What more would you pay on your bill for nuclear? | Australia Institute, May 2024 | nothing 65, something 23 | Full split: up to $250 a year 13, up to $500 6, more than $500 4, unsure 12. An anti-nuclear commissioner, and the question presupposes nuclear costs more, so it maps to neither side here. Even so, most Coalition voters would pay nothing.
+q | Do you accept Labor's $600 billion cost claim? | RedBridge, marginal seats, Apr 2025 | <disagreed 13, >agreed 56 | One account of the same poll says 51 per cent accepted. Either way: a contested modelling claim moved votes while the models stayed contested.
 q | Which goal should be the main priority of energy policy? | Lowy, 2024 | cutting household bills 48, cutting emissions 37, avoiding blackouts 15 | Bills overtook emissions for the first time in 2024, a 16 point jump since 2021. This is why the cheaper-pathway fight decides elections.
-prompt | Contest the 90 per cent capacity factor
-prompt | Contest the coal-fleet reference class
-prompt | Refuse the frame, like Mountain
+prompt | The 90 per cent premise | Frontier assumes reactors run 90 per cent of the time (its premise 3). My contest:
+prompt | The coal-fleet reference class | GenCost prices a reactor's running time from Australian coal's record (its premise 3). My contest:
+prompt | The shared frame | Both models assume a cost model, fed the right numbers, settles a national technology choice. My contest:
 
 
 
