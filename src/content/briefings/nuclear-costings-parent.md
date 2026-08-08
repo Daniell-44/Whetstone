@@ -50,14 +50,14 @@ The disagreement is not one number against another. It is five separate method c
 ::argument label="From Frontier Economics" interest="commissioned by the Coalition"
 1 | quoted | On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition. | what to measure
 2 | quoted | The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach. | which demand future
-3 | stated | Reactors run 90 per cent of the time. | how often a reactor runs
+3 | supplied | Reactors run 90 per cent of the time. | how often a reactor runs
 4 | stated | The build cost is spread over 50 years. | how long the asset lives
 5 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM. | timing
 C | - | A nuclear-inclusive system is cheaper across the whole pathway.
 ::argument label="From CSIRO GenCost" interest="government-funded · AEMO is co-publisher"
 1 | quoted | LCOE does not include renewable integration costs. SLCOE does.
 2 | quoted | cannot be used to draw any conclusions about the cost of nuclear generation relative to other generation options
-3 | stated | 54 to 89 per cent of the time, the range Australia's coal fleet achieves.
+3 | stated | 53 to 89 per cent of the time: coal's best ten-year performance, down to ten points below its average.
 4 | stated | The build cost is recovered over 30 years; the 60-year benefit priced at 8 per cent net of refurbishment.
 5 | quoted | at least 15 years remains the most plausible lead time | timing
 C | - | Firmed renewables are the least-cost new build.
@@ -74,7 +74,7 @@ GenCost prices each technology on its own (LCOE: the average lifetime cost of el
 
 The line that moves the most money. Frontier's like-for-like run, nuclear inside the same demand future AEMO uses, comes to 25 per cent cheaper. The campaign's 44 per cent came from pairing a different demand future with the technology change, a pairing GenCost's authors ruled uninterpretable. Nearly half the political claim lived in that choice alone.
 
-The dispute underneath is which past best predicts an Australian reactor: Australian coal, or the world's nuclear fleet. Each model settles it by assumption, not evidence.
+The dispute underneath is which past best predicts an Australian reactor: Australian coal, or the world's nuclear fleet. Each model settles it by assumption, not evidence. One provenance note: the 90 per cent figure never appears in Frontier's nuclear report itself. It runs through the modelling the report mirrors and through Frontier's public defence, which is why it wears the supplied star here. GenCost prints its range as 53 to 89; the 54 in Grattan's quote below is his rounding, not CSIRO's.
 
 The longer the recovery window, the cheaper each year of nuclear looks. Neither report argues for its window; each asserts one.
 
