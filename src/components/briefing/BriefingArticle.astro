@@ -821,15 +821,21 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   {block.dialQuestion && (
                     <>
                       <p class="text-[14px] text-ink leading-snug mb-2.5">{block.dialQuestion}</p>
-                      <div class="flex items-center gap-2 flex-wrap">
+                      {/* LIVE dial: a zero-JS POST form. Each step is a submit
+                         button; /api/briefing-dial counts the tap and 303s
+                         back to #dial-thanks, whose :target style shows the
+                         confirmation — no script anywhere in the article. */}
+                      <form method="post" action="/api/briefing-dial" class="flex items-center gap-2 flex-wrap">
+                        <input type="hidden" name="slug" value={briefing.slug} />
                         <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-right leading-tight" style="color:#345D7E">{briefing.spectrumAxis.left}</span>
                         <span class="inline-flex gap-1.5">
                           {STANCE_STEPS.map((v) => (
-                            <button type="button" disabled class="w-9 h-7 border font-mono text-[11px] tabular-nums cursor-not-allowed opacity-70 bg-paper" style={`border-color:${stanceCol(v)}; color:${stanceCol(v)}; border-width:${Math.abs(v) === 2 ? '1.5px' : '1px'}`}>{v > 0 ? `+${v}` : v}</button>
+                            <button type="submit" name="step" value={String(v)} aria-label={`Answer: ${poleLabel(v)}`} class="w-9 h-7 border font-mono text-[11px] tabular-nums bg-paper hover:bg-surface cursor-pointer transition-colors" style={`border-color:${stanceCol(v)}; color:${stanceCol(v)}; border-width:${Math.abs(v) === 2 ? '1.5px' : '1px'}`}>{v > 0 ? `+${v}` : v}</button>
                           ))}
                         </span>
                         <span class="font-mono text-[9px] uppercase tracking-[0.05em] leading-tight" style="color:#8C4A2F">{briefing.spectrumAxis.right}</span>
-                      </div>
+                      </form>
+                      <p id="dial-thanks" class="hidden target:block scroll-mt-40 text-[12px] text-ink leading-snug mt-2 border-l-2 border-accent-support pl-2">Counted. Results appear once fifty readers have answered.</p>
                       <p class="text-[12px] text-muted leading-snug mt-2">One anonymous tap. Results appear once fifty readers have answered.</p>
                     </>
                   )}
