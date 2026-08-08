@@ -23,20 +23,24 @@ const placed = positions.map((s, i) => {
   return { s, n: i + 1, within };
 });
 const rows = Math.max(1, ...Object.values(seen));
-const railTop = 18;
+const railTop = 4;
 const height = railTop + 14 + rows * 20 + 16;
 ---
 {positions.length > 0 && (
   <div>
     <p class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-muted mb-1">The map · {positions.length} audited {positions.length === 1 ? 'position' : 'positions'}</p>
+    {/* Normal-flow axis labels (critic MF1): at 13px the absolute pair
+       overlapped mid-map on phones; a flex row wraps instead. */}
+    <div class="flex justify-between gap-3 mb-0.5">
+      <span class="font-mono text-[13px] text-muted leading-tight">{axis.left}</span>
+      <span class="font-mono text-[13px] text-muted leading-tight text-right">{axis.right}</span>
+    </div>
     <div class="relative" style={`height:${height}px;`}>
       {/* rail + band ticks — Instrument hairline, not the old Ink & Ledger beige */}
       <div class="absolute" style={`top:${railTop + 7}px;left:2%;right:2%;height:2px;background:var(--color-hairline);`}></div>
       {(['-2','-1','0','1','2'] as const).map((b) => (
         <div class="absolute" style={`left:${PCT[b]}%;top:${railTop + 2}px;width:1px;height:12px;background:var(--color-hairline);`}></div>
       ))}
-      <span class="absolute font-mono text-[13px] text-muted" style={`top:0;left:2%;`}>{axis.left}</span>
-      <span class="absolute font-mono text-[13px] text-muted" style={`top:0;right:2%;`}>{axis.right}</span>
       {/* markers: width = confidence; stacked rows within a band. The marker is
          an IN-PAGE index — it jumps to that position's block (and its audit
          card) rather than ejecting to an external site. This is the only
@@ -62,14 +66,14 @@ const height = railTop + 14 + rows * 20 + 16;
           ? <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={`${s.label}${s.publication ? ', ' + s.publication : ''} — read the source`} title={`${s.label}${s.publication ? ' · ' + s.publication : ''} — read the source`} class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white font-mono text-[13px] font-semibold hover:opacity-80 transition-opacity" style={`background:${COL(s.stance)};`}>{n}</a>
           : <span aria-label={s.label} title={s.label} class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white font-mono text-[13px] font-semibold" style={`background:${COL(s.stance)};`}>{n}</span>
       ))}
-      <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted ml-1">tap a disc for the source</span>
+      <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted ml-1">numbers match the cards below · tap a disc to read the source</span>
     </div>
     <details class="mt-1.5">
       <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[13px] uppercase tracking-[0.08em] text-muted hover:text-ink">
         How to read the map <span class="inline-flex items-center justify-center w-5 h-5 border border-hairline rounded-full text-[13px] normal-case" aria-hidden="true">?</span>
       </summary>
       <p class="font-serif text-[13px] text-muted mt-1 leading-snug max-w-xl">
-        A wider marker means we are less sure exactly where that voice sits on the axis (<a href="/method#placement" class="text-accent-support hover:text-accent">how placement works</a>).
+        Tap a numbered marker to jump to that voice’s card; the same number sits on the card. A wider marker means we are less sure exactly where that voice sits on the axis (<a href="/method#placement" class="text-accent-support hover:text-accent">how placement works</a>).
       </p>
     </details>
   </div>

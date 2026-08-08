@@ -131,7 +131,7 @@ const jsonLd = {
 
     {briefing.archived && (
       <div class="mb-8 border border-hairline bg-paper px-4 py-3 max-w-[36rem]">
-        <p class="text-sm text-ink leading-relaxed">
+        <p class="text-[15px] text-ink leading-relaxed">
           <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mr-2">From the archive</span>
           A piece from the site's earlier corpus, kept for reference. New briefings are written by
           hand. <a href="/archive" class="text-accent-support hover:underline">Browse the archive →</a>
@@ -167,8 +167,8 @@ const jsonLd = {
           <BriefingArticle briefing={briefing} />
           {related[0] && (
             <div class="mt-12 pt-8 border-t border-hairline">
-              <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">Related briefing</span>
-              <a href={`/briefing/${related[0].slug}`} class="font-serif text-base text-ink-strong hover:text-accent-support transition-colors leading-snug">{related[0].question}</a>
+              <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Related briefing</span>
+              <a href={`/briefing/${related[0].slug}`} class="font-serif text-[17px] text-ink-strong hover:text-accent-support transition-colors leading-snug">{related[0].question}</a>
             </div>
           )}
         </div>
@@ -210,8 +210,8 @@ const jsonLd = {
         </div>
         {related[0] && (
           <div class="mt-12 pt-8 border-t border-hairline">
-            <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">Related briefing</span>
-            <a href={`/briefing/${related[0].slug}`} class="font-serif text-base text-ink-strong hover:text-accent-support transition-colors leading-snug">{related[0].question}</a>
+            <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Related briefing</span>
+            <a href={`/briefing/${related[0].slug}`} class="font-serif text-[17px] text-ink-strong hover:text-accent-support transition-colors leading-snug">{related[0].question}</a>
           </div>
         )}
       </div>
@@ -268,13 +268,13 @@ const jsonLd = {
             {related[0] && (
               <a href={`/briefing/${related[0].slug}`} class="group block rounded-md border border-hairline bg-surface p-4 hover:border-accent-support/40 transition-all">
                 <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support mb-1.5">Another briefing</p>
-                <p class="font-serif text-base text-ink-strong group-hover:text-accent-support transition-colors leading-snug">{related[0].question}</p>
+                <p class="font-serif text-[17px] text-ink-strong group-hover:text-accent-support transition-colors leading-snug">{related[0].question}</p>
               </a>
             )}
             <div class="rounded-md border border-hairline bg-surface p-4 flex flex-col justify-between gap-3">
               <div>
                 <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1.5">Run the engine yourself</p>
-                <p class="text-[15px] text-ink leading-relaxed">Run the same audit on any argument you like.</p>
+                <p class="text-[15px] text-ink leading-relaxed">The audit behind every card on this page runs free on any text.</p>
               </div>
               <a href="/audit" class="text-[15px] font-semibold text-accent-support hover:underline">Open the Audit →</a>
             </div>

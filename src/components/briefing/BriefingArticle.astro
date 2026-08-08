@@ -116,6 +116,10 @@ const poleLabel = (s: number) =>
   : `${Math.abs(s) === 1 ? 'leans ' : ''}${s < 0 ? briefing.spectrumAxis.left : briefing.spectrumAxis.right}`;
 const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
 const posSourceById = new Map(posSrc.map((s) => [s.id, s] as const));
+// Map <-> card index: the spectrum numbers its markers in authored order;
+// the same number rides each card's name row so a reader can get from a
+// disc to a voice without hover (touch has no title text).
+const numberById = new Map(posSrc.map((s, i) => [s.id, i + 1] as const));
 // Sources plotted on the spectrum but WITHOUT a full ::position block —
 // they get an inline commentary card (label + interest + their quote + one-
 // line audit). This is the merged-in former ::takes format for sources
@@ -462,7 +466,8 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               <div id="commentary" class="scroll-mt-24">
                 <hr class="border-0 border-t border-ink-strong mb-4" />
                 <h2 class="font-serif text-[26px] text-ink-strong mb-4 leading-tight">The commentary</h2>
-                <h3 id="positions" class="font-serif text-[17px] font-semibold text-ink-strong leading-snug border-t border-hairline pt-2.5 mb-4 scroll-mt-24">Three positions, audited in full</h3>
+                <h3 id="positions" class="font-serif text-[17px] font-semibold text-ink-strong leading-snug border-t border-hairline pt-2.5 scroll-mt-24">Three positions, audited in full</h3>
+                <p class="font-serif text-[13px] text-muted mt-0.5 mb-4">Each makes a different kind of case against the reports: the measure, the load-bearing input, the clock.</p>
               </div>
             )}
             {/* The turn before a full position block — same register as the
@@ -490,6 +495,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 if (!src) return null;
                 return (
                   <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
+                    {numberById.has(src.id) && <span class="inline-flex items-center justify-center w-5 h-5 rounded-full self-center text-white font-mono text-[13px] font-semibold shrink-0" style={`background:${rule}`} aria-label={`Marker ${numberById.get(src.id)} on the map`}>{numberById.get(src.id)}</span>}
                     <span class="font-serif text-[15px] font-semibold text-ink-strong leading-snug">{src.label}</span>
                     {src.publication && <span class="font-serif text-[15px] text-muted">{src.publication}</span>}
                     {pinBySource.has(src.id) && <a href="#diverge" class="font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:underline">contests {pinBySource.get(src.id).at} ↑</a>}
@@ -609,7 +615,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               </details>
             )}
             {block.audit.name && (
-              <details class="audit-disclosure mt-3 bg-surface border border-hairline" open={idx === firstPositionIdx}>
+              <details class="audit-disclosure mt-3 bg-surface border border-hairline">
                 <div class="instrument-rule"></div>
                 <summary class="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer">
                   <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted shrink-0">Audit</span>
@@ -667,6 +673,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                            blind (Ground News fixed-row-anatomy pattern). */}
                         <div id={`pos-${s.id}`} class="scroll-mt-24 pl-3.5 py-1.5" style={`border-left:4px solid ${rule}`}>
                           <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
+                            {numberById.has(s.id) && <span class="inline-flex items-center justify-center w-5 h-5 rounded-full self-center text-white font-mono text-[13px] font-semibold shrink-0" style={`background:${rule}`} aria-label={`Marker ${numberById.get(s.id)} on the map`}>{numberById.get(s.id)}</span>}
                             <span class="font-serif text-[20px] font-semibold text-ink-strong leading-snug">{s.label}</span>
                             {s.publication && <span class="font-serif text-[15px] text-muted">{s.publication}</span>}
                             {pinBySource.has(s.id) && <a href="#diverge" class="font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:underline">contests {pinBySource.get(s.id).at} ↑</a>}
@@ -784,7 +791,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                               </span>
                               <span class="flex h-5 mt-1.5 border border-hairline" role="img" aria-label={`${q.question} ${q.bars.map((b) => `${b.label} ${b.value}%`).join(', ')}${rest > 0 ? `, other or unsure ${rest}%` : ''}`}>
                                 {q.bars.map((b) => (
-                                  <span class="inline-flex items-center justify-center overflow-hidden" style={`width:${b.value}%;background:${segCol(b)}`}>
+                                  <span class="inline-flex items-center justify-center overflow-hidden border-r border-paper last:border-r-0" style={`width:${b.value}%;background:${segCol(b)}`}>
                                     {b.value >= 8 && <b class="font-mono text-[13px] text-white tabular-nums">{b.value}</b>}
                                   </span>
                                 ))}
@@ -835,8 +842,9 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                         </span>
                         <span class="font-mono text-[13px] uppercase tracking-[0.08em] leading-tight" style="color:#8C4A2F">{briefing.spectrumAxis.right}</span>
                       </form>
-                      <p id="dial-thanks" class="hidden target:block scroll-mt-40 font-serif text-[13px] text-ink leading-snug mt-2 border-l-2 border-accent-support pl-2">Counted. Results appear once fifty readers have answered.</p>
-                      <p class="font-serif text-[13px] text-muted leading-snug mt-2">One anonymous tap. Results appear once fifty readers have answered.</p>
+                      <p id="dial-thanks" class="hidden target:block scroll-mt-40 font-serif text-[13px] text-ink leading-snug mt-2 border-l-2 border-accent-support pl-2">Counted. Results will be published once fifty readers have answered.</p>
+                      <p id="dial-limit" class="hidden target:block scroll-mt-40 font-serif text-[13px] text-ink leading-snug mt-2 border-l-2 border-hairline pl-2">That is the limit from this connection for today. Earlier taps stand.</p>
+                      <p class="font-serif text-[13px] text-muted leading-snug mt-2">One anonymous tap. Results will be published once fifty readers have answered.</p>
                     </>
                   )}
                   {/* The invitation box: a zero-JS GET form into the audit.
