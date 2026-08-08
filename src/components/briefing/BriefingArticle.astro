@@ -27,6 +27,10 @@ const rightSources = briefing.sources.filter((s) => s.side === 'right');
 const isExplainer  = briefing.kind === 'explainer';
 const fmtDate = new Date(briefing.publishedDate + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 const firstPositionIdx = briefing.blocks.findIndex((b) => b.type === 'position');
+// Decision 22-B (2026-08-08): the audited positions render FIRST, straight
+// after the diverge grid (they are the page's argument); the commentary tier
+// (map + shorter voices) follows the last of them as the survey of the field.
+const lastPositionIdx = briefing.blocks.reduce((acc, b, i) => (b.type === 'position' ? i : acc), -1);
 // The landscape block is the LEDE — it renders before the spectrum (the map is
 // a figure that follows the opening claim, not a diagram the reader hits before
 // any prose). Pulled out here and skipped in the block map below.
@@ -447,84 +451,14 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         const kindStyle = KIND_STYLE[block.audit.kind] ?? KIND_STYLE.structural;
         return (
           <div id={`pos-${block.sourceId}`} class="scroll-mt-24">
-            {/* Keeps the ToC "#positions" anchor working on the first position
-               (a block can't carry two ids; the spectrum markers jump here by
-               `pos-<sourceId>`). Zero-height, no layout impact. */}
-            {idx === firstPositionIdx && <span id="positions" class="block scroll-mt-24" aria-hidden="true"></span>}
-            {/* The commentary tier — spectrum + cui-bono interest — renders once,
-               immediately above the first position, so it follows any cruxes/
-               matrix and introduces the audited commentary. */}
+            {/* The positions get their own rank-1 heading: with the
+               commentary tier moved below them (22-B) they follow the
+               diverge grid directly and need their chapter mark. The id
+               doubles as the wayfinder anchor. */}
             {idx === firstPositionIdx && (
-              <div id="commentary" class="mb-8 scroll-mt-24">
-                {/* Full-width tier heading — the reader needs to know the
-                   register just changed (principals → commentary). Serif h2 +
-                   rule across the reading column, not a mono kicker. */}
-                {/* No dek under the heading: the cards themselves show what
-                   they are (Decision 21 — the sentence explained furniture). */}
-                {briefing.principals && briefing.principals.length > 0 && (
-                  <>
-                    <hr class="border-0 border-t border-ink-strong mb-4" />
-                    <h2 class="font-serif text-2xl text-ink-strong mb-4 leading-tight">The commentary</h2>
-                  </>
-                )}
-                <div class="mb-4">
-                  {v2
-                    ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
-                    : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
-                </div>
-                {inlineCommentary.length > 0 && (
-                  <div class="grid gap-4">
-                    {inlineCommentary.map((s) => {
-                      const rule = stanceCol(s.stance);
-                      const kindStyleIC = KIND_STYLE[s.auditKind ?? 'interpretive'] ?? KIND_STYLE.interpretive;
-                      return (
-                        <>
-                        {/* The turn (Decision 17-B, 2026-08-08): the editor's
-                           connective sentence rides the 11th ::positions column
-                           and renders BEFORE its card at full body register —
-                           serif, ink, roman — behind a standing mono kicker and
-                           a thin ink rule. The old treatment (small, grey,
-                           italic) styled the editor's voice as marginalia,
-                           which is exactly backwards: the quotes are the
-                           excerpts, the editor is the guide. */}
-                        {s.bridge && (
-                          <div class="pl-3.5 border-l border-ink-strong mt-1.5">
-                            <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
-                            <p class="font-serif text-[17px] text-ink leading-relaxed">{s.bridge}</p>
-                          </div>
-                        )}
-                        {/* S1 row anatomy (Decision 4, 2026-08-05): fixed slots
-                           learned once — name · outlet · position, hairline,
-                           interest, quote, audit. The stance rail is 4px, and
-                           position is NEVER colour-only: a tick on a five-step
-                           rule plus a text pole label carry it chromatically-
-                           blind (Ground News fixed-row-anatomy pattern). */}
-                        <div id={`pos-${s.id}`} class="scroll-mt-24 pl-3.5 py-1.5" style={`border-left:4px solid ${rule}`}>
-                          <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
-                            <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{s.label}</span>
-                            {s.publication && <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-muted">{s.publication}</span>}
-                            {pinBySource.has(s.id) && <a href="#diverge" class="font-mono text-[9px] uppercase tracking-[0.06em] text-accent-support hover:underline">contests {pinBySource.get(s.id).at} ↑</a>}
-                            <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(s.stance)}`}>
-                              <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
-                                {STANCE_STEPS.map((v) => (
-                                  <span class={v === s.stance ? 'w-[3px] h-[11px]' : 'w-[3px] h-[5px] bg-hairline'} style={v === s.stance ? `background:${rule}` : undefined}></span>
-                                ))}
-                              </span>
-                              <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-muted">{poleLabel(s.stance)}</span>
-                            </span>
-                          </div>
-                          {s.interest && <p class="text-[12px] text-muted leading-snug mb-1"><span class="font-mono text-[9px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1">Stake</span>{s.interest}</p>}
-                          <blockquote class="font-serif text-[15px] italic text-ink-strong leading-snug mb-1.5">“{s.quote}”</blockquote>
-                          <p class="text-[13px] text-ink leading-snug pl-3 border-l-2 border-hairline">
-                            <span class={`inline-block mr-2 font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border ${kindStyleIC}`}>{KIND_LABEL[s.auditKind ?? 'interpretive']}</span>
-                            {s.auditNote}
-                          </p>
-                        </div>
-                        </>
-                      );
-                    })}
-                  </div>
-                )}
+              <div id="positions" class="scroll-mt-24">
+                <hr class="border-0 border-t border-ink-strong mb-4" />
+                <h2 class="font-serif text-2xl text-ink-strong mb-4 leading-tight">The positions</h2>
               </div>
             )}
             {/* The turn before a full position block — same register as the
@@ -692,6 +626,72 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   </div>
                 </div>
               </details>
+            )}
+            {/* The commentary tier — the map and the shorter audited voices —
+               renders once, after the LAST position (22-B): the survey of
+               where the wider field landed, following the page's argument. */}
+            {idx === lastPositionIdx && (
+              <div id="commentary" class="mt-10 scroll-mt-24">
+                {briefing.principals && briefing.principals.length > 0 && (
+                  <>
+                    <hr class="border-0 border-t border-ink-strong mb-4" />
+                    <h2 class="font-serif text-2xl text-ink-strong mb-4 leading-tight">The commentary</h2>
+                  </>
+                )}
+                <div class="mb-4">
+                  {v2
+                    ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
+                    : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
+                </div>
+                {inlineCommentary.length > 0 && (
+                  <div class="grid gap-4">
+                    {inlineCommentary.map((s) => {
+                      const rule = stanceCol(s.stance);
+                      const kindStyleIC = KIND_STYLE[s.auditKind ?? 'interpretive'] ?? KIND_STYLE.interpretive;
+                      return (
+                        <>
+                        {/* The turn (17-B): the editor's connective sentence
+                           rides the 11th ::positions column, full body
+                           register — the editor is the guide, not marginalia. */}
+                        {s.bridge && (
+                          <div class="pl-3.5 border-l border-ink-strong mt-1.5">
+                            <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
+                            <p class="font-serif text-[17px] text-ink leading-relaxed">{s.bridge}</p>
+                          </div>
+                        )}
+                        {/* S1 row anatomy (Decision 4, 2026-08-05): fixed slots
+                           learned once — name · outlet · position, hairline,
+                           interest, quote, audit. The stance rail is 4px, and
+                           position is NEVER colour-only: a tick on a five-step
+                           rule plus a text pole label carry it chromatically-
+                           blind (Ground News fixed-row-anatomy pattern). */}
+                        <div id={`pos-${s.id}`} class="scroll-mt-24 pl-3.5 py-1.5" style={`border-left:4px solid ${rule}`}>
+                          <div class="flex items-baseline gap-x-2.5 gap-y-1 flex-wrap border-b border-hairline pb-1.5 mb-1.5">
+                            <span class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{s.label}</span>
+                            {s.publication && <span class="font-mono text-[10px] uppercase tracking-[0.05em] text-muted">{s.publication}</span>}
+                            {pinBySource.has(s.id) && <a href="#diverge" class="font-mono text-[9px] uppercase tracking-[0.06em] text-accent-support hover:underline">contests {pinBySource.get(s.id).at} ↑</a>}
+                            <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(s.stance)}`}>
+                              <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
+                                {STANCE_STEPS.map((v) => (
+                                  <span class={v === s.stance ? 'w-[3px] h-[11px]' : 'w-[3px] h-[5px] bg-hairline'} style={v === s.stance ? `background:${rule}` : undefined}></span>
+                                ))}
+                              </span>
+                              <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-muted">{poleLabel(s.stance)}</span>
+                            </span>
+                          </div>
+                          {s.interest && <p class="text-[12px] text-muted leading-snug mb-1"><span class="font-mono text-[9px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1">Stake</span>{s.interest}</p>}
+                          <blockquote class="font-serif text-[15px] italic text-ink-strong leading-snug mb-1.5">“{s.quote}”</blockquote>
+                          <p class="text-[13px] text-ink leading-snug pl-3 border-l-2 border-hairline">
+                            <span class={`inline-block mr-2 font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border ${kindStyleIC}`}>{KIND_LABEL[s.auditKind ?? 'interpretive']}</span>
+                            {s.auditNote}
+                          </p>
+                        </div>
+                        </>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         );
