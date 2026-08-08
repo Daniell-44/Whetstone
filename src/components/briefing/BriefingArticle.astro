@@ -757,31 +757,50 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       {stripNote && <p class="text-[13.5px] text-ink leading-snug mt-1.5">{stripNote}</p>}
                     </>
                   )}
+                  {/* Poll bars (Decision 18-B visual, 18-C ordering): each
+                     answer is a proportional segment; sided answers wear the
+                     axis colour AND sit on that side of the bar, so hue,
+                     position, and the values line all carry the mapping.
+                     Unmapped polls render neutral grey. Numbers ride inside
+                     segments wide enough to hold them; the values line below
+                     repeats every figure in the same order. */}
                   {block.questions.length > 0 && (
-                    <div class="border-t border-hairline mt-3 pt-1">
-                      {block.questions.map((q) => q.note ? (
-                        <details class="border-b border-hairline/60 last:border-b-0">
-                          <summary class="flex justify-between items-baseline gap-x-4 py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                            <span class="font-serif italic text-[14.5px] text-ink-strong leading-snug">{q.question}</span>
-                            <span class="text-[13.5px] text-ink whitespace-nowrap shrink-0">
-                              {q.bars.map((b, bi) => (
-                                <>{bi > 0 && <span class="text-muted">{' · '}</span>}{b.label}{' '}<b class="tabular-nums">{b.value}</b></>
-                              ))}
-                              <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full font-mono text-[10px] text-muted ml-1.5 align-[1px]" aria-hidden="true">?</span>
-                            </span>
-                          </summary>
-                          <p class="text-[12.5px] text-muted leading-snug pb-2 -mt-0.5"><span class="font-mono text-[9px] uppercase tracking-[0.05em] mr-1.5">{q.source}</span>{q.note}</p>
-                        </details>
-                      ) : (
-                        <div class="flex justify-between items-baseline gap-x-4 py-2 border-b border-hairline/60 last:border-b-0">
-                          <span class="font-serif italic text-[14.5px] text-ink-strong leading-snug">{q.question} <span class="font-mono text-[10px] not-italic uppercase tracking-[0.05em] text-muted ml-1">{q.source}</span></span>
-                          <span class="text-[13.5px] text-ink whitespace-nowrap shrink-0">
-                            {q.bars.map((b, bi) => (
-                              <>{bi > 0 && <span class="text-muted"> · </span>}{b.label} <b class="tabular-nums">{b.value}</b></>
-                            ))}
-                          </span>
-                        </div>
-                      ))}
+                    <div class="border-t border-hairline mt-3 pt-2.5">
+                      <div class="flex items-baseline justify-between gap-3">
+                        <span class="font-mono text-[9px] uppercase tracking-[0.05em]" style="color:#345D7E">← reads for {briefing.spectrumAxis.left}</span>
+                        <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-right" style="color:#8C4A2F">reads for {briefing.spectrumAxis.right} →</span>
+                      </div>
+                      <p class="text-[12px] text-muted leading-snug mt-0.5 mb-1">Answers that favour one pathway sit on that side of their bar, in that side's colour. Grey answers favour neither.</p>
+                      {block.questions.map((q) => {
+                        const total = q.bars.reduce((s, b) => s + b.value, 0);
+                        const rest = Math.max(0, 100 - total);
+                        const segCol = (b) => b.side === 'left' ? '#345D7E' : b.side === 'right' ? '#8C4A2F' : '#6E7370';
+                        return (
+                          <details class="border-b border-hairline/60 last:border-b-0">
+                            <summary class="py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                              <span class="flex justify-between items-baseline gap-x-4">
+                                <span class="font-serif italic text-[14.5px] text-ink-strong leading-snug">{q.question}</span>
+                                <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full font-mono text-[10px] text-muted shrink-0" aria-hidden="true">?</span>
+                              </span>
+                              <span class="flex h-5 mt-1.5 border border-hairline" role="img" aria-label={`${q.question} ${q.bars.map((b) => `${b.label} ${b.value}%`).join(', ')}${rest > 0 ? `, other or unsure ${rest}%` : ''}`}>
+                                {q.bars.map((b) => (
+                                  <span class="inline-flex items-center justify-center overflow-hidden" style={`width:${b.value}%;background:${segCol(b)}`}>
+                                    {b.value >= 8 && <b class="font-mono text-[10px] text-white tabular-nums">{b.value}</b>}
+                                  </span>
+                                ))}
+                                {rest > 0 && <span style={`width:${rest}%`} class="bg-paper"></span>}
+                              </span>
+                              <span class="block text-[13px] text-ink leading-snug mt-1">
+                                {q.bars.map((b, bi) => (
+                                  <>{bi > 0 && <span class="text-muted">{' · '}</span>}{b.label}{' '}<b class="tabular-nums">{b.value}</b></>
+                                ))}
+                                {rest > 0 && <span class="text-muted">{' · '}other or unsure{' '}<span class="tabular-nums">{rest}</span></span>}
+                              </span>
+                            </summary>
+                            <p class="text-[12.5px] text-muted leading-snug pb-2"><span class="font-mono text-[9px] uppercase tracking-[0.05em] mr-1.5">{q.source}</span>{q.note}</p>
+                          </details>
+                        );
+                      })}
                     </div>
                   )}
                   {block.gapNote && <p class="text-[12px] text-muted leading-snug border-t border-hairline pt-2 mt-2">{block.gapNote}</p>}
@@ -789,40 +808,50 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               </div>
             )}
 
-            {/* Storey 2 — where do you land (dial disabled until the counter ships) */}
-            {block.dialQuestion && (
-              <div class="mb-4 border border-hairline bg-surface">
-                <div class="instrument-rule"></div>
-                <div class="px-4 py-3.5">
-                  <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">2 · Where do you land?</span>
-                  <p class="text-[14px] text-ink leading-snug mb-2.5">{block.dialQuestion}</p>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-right leading-tight" style="color:#345D7E">{briefing.spectrumAxis.left}</span>
-                    <span class="inline-flex gap-1.5">
-                      {STANCE_STEPS.map((v) => (
-                        <button type="button" disabled title="The counter is being built." class="w-9 h-7 border font-mono text-[11px] tabular-nums cursor-not-allowed opacity-70 bg-paper" style={`border-color:${stanceCol(v)}; color:${stanceCol(v)}; border-width:${Math.abs(v) === 2 ? '1.5px' : '1px'}`}>{v > 0 ? `+${v}` : v}</button>
-                      ))}
-                    </span>
-                    <span class="font-mono text-[9px] uppercase tracking-[0.05em] leading-tight" style="color:#8C4A2F">{briefing.spectrumAxis.right}</span>
-                  </div>
-                  <p class="text-[12px] text-muted leading-snug mt-2">One anonymous tap, stored as a count. Results appear once fifty readers have answered, on the scale the commentators are plotted on. The counter is being built.</p>
-                </div>
-              </div>
-            )}
-
-            {/* Storey 3 — join the conversation */}
-            {block.prompts && block.prompts.length > 0 && (
+            {/* Storey 2 — Your turn (Decision 19-B: the dial and the
+               conversation merged; the dial is the ask, the invitation box
+               and premise links are the follow-up for readers with more to
+               say). The dial stays inert until its counter endpoint ships —
+               with ONE line saying when results appear, not three apologies. */}
+            {(block.dialQuestion || (block.prompts && block.prompts.length > 0)) && (
               <div class="border border-hairline bg-surface">
                 <div class="instrument-rule"></div>
                 <div class="px-4 py-3.5">
-                  <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">3 · Join the conversation</span>
-                  <p class="text-[14px] text-ink leading-snug mb-2.5">Pick a premise to contest, or start from scratch. Every take runs through the audit first.</p>
-                  <div class="flex flex-wrap gap-2">
-                    {block.prompts.map((pr) => (
-                      <a href={`/audit`} class="border border-hairline bg-paper px-2.5 py-1 text-[13px] text-accent-support hover:border-accent-support/50 hover:text-accent transition-colors">{pr}</a>
-                    ))}
-                    <a href="/audit" class="border border-hairline bg-paper px-2.5 py-1 text-[13px] text-muted hover:text-ink transition-colors">Start from scratch →</a>
-                  </div>
+                  <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">2 · Your turn</span>
+                  {block.dialQuestion && (
+                    <>
+                      <p class="text-[14px] text-ink leading-snug mb-2.5">{block.dialQuestion}</p>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-right leading-tight" style="color:#345D7E">{briefing.spectrumAxis.left}</span>
+                        <span class="inline-flex gap-1.5">
+                          {STANCE_STEPS.map((v) => (
+                            <button type="button" disabled class="w-9 h-7 border font-mono text-[11px] tabular-nums cursor-not-allowed opacity-70 bg-paper" style={`border-color:${stanceCol(v)}; color:${stanceCol(v)}; border-width:${Math.abs(v) === 2 ? '1.5px' : '1px'}`}>{v > 0 ? `+${v}` : v}</button>
+                          ))}
+                        </span>
+                        <span class="font-mono text-[9px] uppercase tracking-[0.05em] leading-tight" style="color:#8C4A2F">{briefing.spectrumAxis.right}</span>
+                      </div>
+                      <p class="text-[12px] text-muted leading-snug mt-2">One anonymous tap. Results appear once fifty readers have answered.</p>
+                    </>
+                  )}
+                  {/* The invitation box: a zero-JS GET form into the audit.
+                     The reader's take rides ?text= (the audit page already
+                     honours it); the premise links carry an authored
+                     scaffold the same way. Fifty-character floor matches
+                     the audit page's shared-text threshold. */}
+                  {block.prompts && block.prompts.length > 0 && (
+                    <form method="get" action="/audit" class={block.dialQuestion ? 'mt-3 pt-3 border-t border-hairline' : ''}>
+                      <p class="text-[14px] text-ink leading-snug mb-2">Or make the case yourself. It runs through the audit before it runs anywhere.</p>
+                      <div class="flex gap-1.5">
+                        <input name="text" type="text" required minlength="50" placeholder="Contest a premise, or argue your own…" class="flex-1 min-w-0 bg-paper border border-hairline px-2.5 py-2 text-[13px] text-ink placeholder:text-muted/70 focus:outline-none focus:ring-1 focus:ring-accent-support/50" />
+                        <button type="submit" class="px-3 py-2 bg-accent-support text-paper text-[13px] font-medium hover:bg-accent-support/90 transition-colors shrink-0">Audit it →</button>
+                      </div>
+                      <p class="text-[12.5px] text-muted leading-snug mt-2">Start from a premise:{' '}
+                        {block.prompts.map((pr, pi) => (
+                          <>{pi > 0 && <span>{' · '}</span>}<a href={`/audit?text=${encodeURIComponent(pr.prefill ?? pr.label)}`} class="text-accent-support hover:underline">{pr.label}</a></>
+                        ))}
+                      </p>
+                    </form>
+                  )}
                 </div>
               </div>
             )}

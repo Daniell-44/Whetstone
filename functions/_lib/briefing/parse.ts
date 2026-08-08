@@ -290,21 +290,27 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       // adds a storey-3 conversation prompt. Only verified figures may be
       // authored here — the quote gate's discipline applies to numbers too.
       const ticks: { value: number; label: string }[] = [];
-      const questions: { question: string; source: string; bars: { label: string; value: number }[]; note?: string }[] = [];
-      const prompts: string[] = [];
+      const questions: { question: string; source: string; bars: { label: string; value: number; side?: 'left' | 'right' }[]; note?: string }[] = [];
+      const prompts: { label: string; prefill?: string }[] = [];
       for (const rline of readUntilMarker().split('\n').map((l) => l.trim()).filter(Boolean)) {
         const p = rline.split('|').map((x) => x.trim());
         if (p[0] === 'tick') {
           const v = toNum(p[1]);
           if (v > 0 && p[2]) ticks.push({ value: v, label: p[2] });
         } else if (p[0] === 'q') {
+          // Bar entries: "[<|>]label value". A leading < maps the answer to
+          // the axis's left pole, > to the right; no marker = neither side.
+          // The mapping is authored, never inferred (18-C discipline).
           const bars = (p[3] ?? '').split(',').map((b) => b.trim()).map((b) => {
-            const m = b.match(/^(.*?)\s+(\d+)$/);
-            return m ? { label: m[1], value: Number(m[2]) } : null;
-          }).filter((b): b is { label: string; value: number } => b !== null);
+            const m = b.match(/^([<>])?\s*(.*?)\s+(\d+)$/);
+            if (!m) return null;
+            const side = m[1] === '<' ? 'left' as const : m[1] === '>' ? 'right' as const : undefined;
+            return { label: m[2], value: Number(m[3]), ...(side ? { side } : {}) };
+          }).filter((b): b is { label: string; value: number; side?: 'left' | 'right' } => b !== null);
           if (p[1] && bars.length) questions.push({ question: p[1], source: p[2] ?? '', bars, ...(p[4] ? { note: p[4] } : {}) });
         } else if (p[0] === 'prompt' && p[1]) {
-          prompts.push(p[1]);
+          // prompt | label | optional scaffold text carried into /audit?text=
+          prompts.push({ label: p[1], ...(p[2] ? { prefill: p[2] } : {}) });
         }
       }
       blocks.push({
