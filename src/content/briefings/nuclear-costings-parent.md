@@ -53,32 +53,29 @@ capacity factor
 asset life
 timing
 
-::diverge label="Where they diverge" house="Each report's argument, laid out step by step. Every premise is marked by where it comes from: quoted (the report's own words), stated (in the report, paraphrased here), or ★ supplied (the report never says it, but the argument needs it). A gap means one report needs a premise the other never uses."
+::diverge label="Where they diverge" house="Every premise is marked by where it comes from: quoted (the report's own words), stated (in the report, paraphrased here), or ★ supplied (the report never says it, but the argument needs it)."
 ::argument label="From Frontier Economics" interest="commissioned by the Coalition"
 1 | quoted | On a system-wide average economic cost basis, including nuclear remains cheaper than a renewables-only system in equilibrium and in transition. | what to measure
 2 | quoted | The inclusion of nuclear power in the NEM in the Step Change scenario is 25% cheaper than AEMO's renewables and storage approach. | which demand future
 3 | stated | Reactors run 90 per cent of the time. | capacity factor
 4 | stated | Capital is amortised over 50 years. | asset life
-5 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM. | keeping coal running while reactors are built
+5 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM. | timing
 C | - | A nuclear-inclusive system is cheaper across the whole pathway.
 ::argument label="From CSIRO GenCost" interest="government-funded · AEMO is co-publisher"
 1 | quoted | LCOE does not include renewable integration costs. SLCOE does.
 2 | quoted | cannot be used to draw any conclusions about the cost of nuclear generation relative to other generation options
 3 | stated | Capacity factor 54 to 89 per cent, the range Australia's coal fleet achieves.
 4 | stated | Capital recovered over 30 years; the 60-year benefit priced at 8 per cent net of refurbishment.
-5 | quoted | at least 15 years remains the most plausible lead time | how long before the first reactor runs
+5 | quoted | at least 15 years remains the most plausible lead time | timing
 C | - | Firmed renewables are the least-cost new build.
 ::sharedneed
 that a cost model, fed the right numbers, is the right way to settle a national technology choice — a premise neither report argues for.
 
 ::pin source=mountain at="the shared premise"
-Refuses the frame itself: if he is right, the argument between the models is a category error, and this briefing's decomposition inherits the charge.
 
 ::pin source=grattan at="Frontier P3"
-Concedes the build costs match and contests one premise — but the adjudication accepts the coal-fleet analogy by proximity, not argument.
 
 ::pin source=aemo at="GenCost P5"
-Leans the timing premise into a verdict — and both premises are house numbers: AEMO co-publishes GenCost and forecasts the exits.
 
 ::line name="What to measure"
 GenCost prices each technology on its own (LCOE: the average lifetime cost of electricity from one kind of plant), and from 2025-26 adds a system-wide version that counts the cost of keeping variable power reliable. Frontier refuses the per-technology frame and prices whole pathways instead. Each side's headline answers only its own question, so the two numbers were never comparable to begin with.
@@ -124,7 +121,7 @@ The inference is sound given the 15-year clock and the exit schedule, but both p
 ::shared
 Beneath five lines of disagreement, the combatants share a load-bearing frame: that a cost model, fed the right numbers, is the right way to settle a national technology choice, and that its outputs deserve headline status even as every party concedes under pressure that those outputs move with the assumptions. They also share more specific ground: nobody disputes the coal fleet is exiting, both models use similar nuclear build costs per kilowatt, and both publish sensitivity results their own headlines ignore. The AAP FactCheck's finding that both major parties overclaimed is the shared assumption's receipt.
 
-::public label="The public" stripcaption="Each tick is one poll's headline support number. No two pollsters word the question the same way." stripnote="The wording moves the answer by {spread} points. No single number is public opinion." gapnote="No poll asks this briefing's question: which pathway is cheaper on the evidence. These are the nearest neighbours, each verified against its source on 6 August 2026. Open a row for the catch in its wording." dialquestion="On the question this briefing maps: which pathway reads cheaper to you, on the evidence above?"
+::public label="The public" stripcaption="Each tick is one poll's headline figure for support for nuclear power. No two pollsters word the question the same way." stripnote="The five numbers span {spread} points. Wording and timing both move it. No single number is public opinion." gapnote="No poll asks this briefing's question: which pathway is cheaper on the evidence. These are the nearest neighbours, each verified against its source on 6 August 2026. Open a row for the catch in its wording." dialquestion="On the question this briefing maps: which pathway reads cheaper to you, on the evidence above?"
 tick | 37 | DemosAU, 2025
 tick | 42 | Essential, Apr 2025
 tick | 52 | Essential, Apr 2026
@@ -139,9 +136,5 @@ prompt | Contest the 90 per cent capacity factor
 prompt | Contest the coal-fleet reference class
 prompt | Refuse the frame, like Mountain
 
-::editor
-The editor's view for this briefing is being written and will appear here.
-::why-wrong
-The devil's advocate, arguing against that view, will appear with it.
 
 
