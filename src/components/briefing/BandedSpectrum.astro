@@ -28,15 +28,15 @@ const height = railTop + 14 + rows * 20 + 16;
 ---
 {positions.length > 0 && (
   <div>
-    <p class="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted mb-1">The map · {positions.length} audited {positions.length === 1 ? 'position' : 'positions'}</p>
+    <p class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-muted mb-1">The map · {positions.length} audited {positions.length === 1 ? 'position' : 'positions'}</p>
     <div class="relative" style={`height:${height}px;`}>
       {/* rail + band ticks — Instrument hairline, not the old Ink & Ledger beige */}
       <div class="absolute" style={`top:${railTop + 7}px;left:2%;right:2%;height:2px;background:var(--color-hairline);`}></div>
       {(['-2','-1','0','1','2'] as const).map((b) => (
         <div class="absolute" style={`left:${PCT[b]}%;top:${railTop + 2}px;width:1px;height:12px;background:var(--color-hairline);`}></div>
       ))}
-      <span class="absolute text-[9px] text-muted" style={`top:0;left:2%;`}>{axis.left}</span>
-      <span class="absolute text-[9px] text-muted" style={`top:0;right:2%;`}>{axis.right}</span>
+      <span class="absolute font-mono text-[13px] text-muted" style={`top:0;left:2%;`}>{axis.left}</span>
+      <span class="absolute font-mono text-[13px] text-muted" style={`top:0;right:2%;`}>{axis.right}</span>
       {/* markers: width = confidence; stacked rows within a band. The marker is
          an IN-PAGE index — it jumps to that position's block (and its audit
          card) rather than ejecting to an external site. This is the only
@@ -47,7 +47,7 @@ const height = railTop + 14 + rows * 20 + 16;
         <a
           href={`#pos-${s.id}`}
           title={`${s.label}${s.publication ? ' · ' + s.publication : ''}, placed ${s.stance > 0 ? '+' + s.stance : s.stance} (${s.confidence} confidence). Jump to this position.`}
-          class="absolute flex items-center justify-center text-white text-[10px] font-semibold hover:opacity-100 transition-opacity"
+          class="absolute flex items-center justify-center text-white font-mono text-[13px] font-semibold hover:opacity-100 transition-opacity"
           style={`left:${PCT[String(s.stance)]}%;top:${railTop + 8 + within * 20}px;width:${W[s.confidence]}px;height:15px;border-radius:8px;background:${COL(s.stance)};opacity:${OP[s.confidence]};transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--color-paper);`}
         >{n}</a>
       ))}
@@ -59,16 +59,16 @@ const height = railTop + 14 + rows * 20 + 16;
     <div class="flex flex-wrap gap-x-2 gap-y-1.5 mt-1 items-center">
       {placed.map(({ s, n }) => (
         s.url
-          ? <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={`${s.label}${s.publication ? ', ' + s.publication : ''} — read the source`} title={`${s.label}${s.publication ? ' · ' + s.publication : ''} — read the source`} class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-[9px] font-semibold hover:opacity-80 transition-opacity" style={`background:${COL(s.stance)};`}>{n}</a>
-          : <span aria-label={s.label} title={s.label} class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white text-[9px] font-semibold" style={`background:${COL(s.stance)};`}>{n}</span>
+          ? <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={`${s.label}${s.publication ? ', ' + s.publication : ''} — read the source`} title={`${s.label}${s.publication ? ' · ' + s.publication : ''} — read the source`} class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white font-mono text-[13px] font-semibold hover:opacity-80 transition-opacity" style={`background:${COL(s.stance)};`}>{n}</a>
+          : <span aria-label={s.label} title={s.label} class="inline-flex items-center justify-center w-5 h-5 rounded-full text-white font-mono text-[13px] font-semibold" style={`background:${COL(s.stance)};`}>{n}</span>
       ))}
-      <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-muted ml-1">tap a disc for the source</span>
+      <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted ml-1">tap a disc for the source</span>
     </div>
     <details class="mt-1.5">
-      <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[10px] uppercase tracking-[0.08em] text-muted hover:text-ink">
-        How to read the map <span class="inline-flex items-center justify-center w-4 h-4 border border-hairline rounded-full text-[10px] normal-case" aria-hidden="true">?</span>
+      <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[13px] uppercase tracking-[0.08em] text-muted hover:text-ink">
+        How to read the map <span class="inline-flex items-center justify-center w-5 h-5 border border-hairline rounded-full text-[13px] normal-case" aria-hidden="true">?</span>
       </summary>
-      <p class="text-xs text-muted mt-1 leading-snug max-w-xl">
+      <p class="font-serif text-[13px] text-muted mt-1 leading-snug max-w-xl">
         A wider marker means we are less sure exactly where that voice sits on the axis (<a href="/method#placement" class="text-accent-support hover:text-accent">how placement works</a>).
       </p>
     </details>
