@@ -206,7 +206,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
           <div class="bg-paper border border-hairline border-t-[3px] border-t-ink-strong px-4 py-3 flex flex-col gap-1.5">
             <span class="font-serif text-base font-semibold text-ink-strong leading-tight">{p.name}</span>
             {p.finding && <span class="text-[13px] text-ink leading-snug">{p.finding}</span>}
-            {p.interest && <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] leading-snug">Interest: {p.interest}</span>}
+            {p.interest && <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] leading-snug">Stake: {p.interest}</span>}
             {/* No "review forthcoming" promise (Daniel, 2026-08-06): a link
                renders only when the review exists. */}
             {p.reviewSlug && <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[10px] uppercase tracking-[0.04em] text-accent-support hover:text-accent">Full review →</a>}
@@ -459,11 +459,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 {/* Full-width tier heading — the reader needs to know the
                    register just changed (principals → commentary). Serif h2 +
                    rule across the reading column, not a mono kicker. */}
+                {/* No dek under the heading: the cards themselves show what
+                   they are (Decision 21 — the sentence explained furniture). */}
                 {briefing.principals && briefing.principals.length > 0 && (
                   <>
                     <hr class="border-0 border-t border-ink-strong mb-4" />
-                    <h2 class="font-serif text-2xl text-ink-strong mb-1 leading-tight">The commentary</h2>
-                    <p class="text-sm text-muted mb-5">How others read the two reports — each source's stance, its interest, and one quoted line audited.</p>
+                    <h2 class="font-serif text-2xl text-ink-strong mb-4 leading-tight">The commentary</h2>
                   </>
                 )}
                 <div class="mb-4">
@@ -478,10 +479,20 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       const kindStyleIC = KIND_STYLE[s.auditKind ?? 'interpretive'] ?? KIND_STYLE.interpretive;
                       return (
                         <>
-                        {/* Connective tissue between voices (Daniel, 2026-08-06):
-                           an authored bridge sentence rides the 11th ::positions
-                           column and renders before its card. */}
-                        {s.bridge && <p class="text-[14px] text-muted italic leading-snug -mb-1">{s.bridge}</p>}
+                        {/* The turn (Decision 17-B, 2026-08-08): the editor's
+                           connective sentence rides the 11th ::positions column
+                           and renders BEFORE its card at full body register —
+                           serif, ink, roman — behind a standing mono kicker and
+                           a thin ink rule. The old treatment (small, grey,
+                           italic) styled the editor's voice as marginalia,
+                           which is exactly backwards: the quotes are the
+                           excerpts, the editor is the guide. */}
+                        {s.bridge && (
+                          <div class="pl-3.5 border-l border-ink-strong mt-1.5">
+                            <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
+                            <p class="font-serif text-[17px] text-ink leading-relaxed">{s.bridge}</p>
+                          </div>
+                        )}
                         {/* S1 row anatomy (Decision 4, 2026-08-05): fixed slots
                            learned once — name · outlet · position, hairline,
                            interest, quote, audit. The stance rail is 4px, and
@@ -502,7 +513,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                               <span class="font-mono text-[9px] uppercase tracking-[0.05em] text-muted">{poleLabel(s.stance)}</span>
                             </span>
                           </div>
-                          {s.interest && <p class="text-[12px] text-muted leading-snug mb-1"><span class="font-mono text-[9px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1">Interest</span>{s.interest}</p>}
+                          {s.interest && <p class="text-[12px] text-muted leading-snug mb-1"><span class="font-mono text-[9px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1">Stake</span>{s.interest}</p>}
                           <blockquote class="font-serif text-[15px] italic text-ink-strong leading-snug mb-1.5">“{s.quote}”</blockquote>
                           <p class="text-[13px] text-ink leading-snug pl-3 border-l-2 border-hairline">
                             <span class={`inline-block mr-2 font-mono text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 border ${kindStyleIC}`}>{KIND_LABEL[s.auditKind ?? 'interpretive']}</span>
@@ -516,6 +527,18 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 )}
               </div>
             )}
+            {/* The turn before a full position block — same register as the
+               commentary-card bridges: ONE mechanism for the editor's
+               connective voice everywhere (Decision 17-B). */}
+            {(() => {
+              const src = posSourceById.get(block.sourceId);
+              return src?.bridge && (
+                <div class="pl-3.5 border-l border-ink-strong mb-4">
+                  <span class="block font-mono text-[10px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
+                  <p class="font-serif text-[17px] text-ink leading-relaxed">{src.bridge}</p>
+                </div>
+              );
+            })()}
             <div class="pl-4" style={`border-left:4px solid ${rule}`}>
               {/* Position anatomy unified with the commentary cards (Daniel,
                  2026-08-06): the reader must see WHO is speaking before any
@@ -541,8 +564,10 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   </div>
                 );
               })()}
+              {/* The claim line carries itself — bold serif directly under the
+                 name needs no "Their claim" kicker (Decision 21). */}
               {block.label && (
-                <span class="block font-serif text-[15px] font-semibold text-ink-strong leading-snug mb-1.5"><span class="font-mono text-[9px] uppercase tracking-[0.06em] text-muted mr-1.5 align-middle">Their claim</span>{block.label}</span>
+                <span class="block font-serif text-[15px] font-semibold text-ink-strong leading-snug mb-1.5">{block.label}</span>
               )}
               {/* Interest disclosure (cui-bono) — moves from the mini-table
                  into the position body itself, next to the source label,
@@ -551,7 +576,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 const src = posSourceById.get(block.sourceId);
                 return src?.interest && (
                   <p class="text-[13px] leading-snug text-muted mb-2.5">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1.5">Interest</span>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.03em] text-[#8C4A2F] mr-1.5">Stake</span>
                     {src.interest}
                   </p>
                 );
@@ -636,6 +661,9 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       <span class="text-ink">{block.structure.supports}</span>
                       <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted pt-0.5">Asserts</span>
                       <span class="text-ink-strong font-medium">{block.structure.asserts}</span>
+                      {/* The pair was undefined anywhere on the page — one
+                         line says what the gap between them means. */}
+                      <p class="col-span-2 text-[11px] text-muted leading-snug">The distance between the two is the overclaim: the part asserted but not supported.</p>
                     </div>
                   )}
                 </div>
@@ -657,11 +685,10 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                    exports. The deep-link is a chip, not a footnote link. */}
                 <div class="px-3.5 pb-3.5">
                   <p class="text-[17px] text-ink leading-relaxed mb-2.5">{block.audit.explanation}</p>
-                  {/* Fallibility line: a publication whose product is scrutiny
-                     should invite it. Converts a sceptic's bounce into a click. */}
+                  {/* One audit deep-link per card; the fallibility line moved
+                     to a single instance at the article's foot (Decision 21). */}
                   <div class="flex items-center flex-wrap gap-x-3 gap-y-2">
                     <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1.5 text-xs font-medium text-accent-support hover:text-accent hover:border-accent-support/50 border border-hairline rounded px-3 py-2 transition-colors">Audit this argument →</a>
-                    <a href="/feedback" class="text-xs text-muted hover:text-ink transition-colors">Does this reading seem wrong? →</a>
                   </div>
                 </div>
               </details>
@@ -805,9 +832,10 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
       if (block.type === 'editorView') {
         return (
           <div id="discussion" class="rounded-md bg-paper border border-hairline p-4 scroll-mt-24">
+            {/* One provenance label per page: the teleport at the top already
+               declares the human/engine split (Decision 21). */}
             <div class="flex items-baseline justify-between gap-3 flex-wrap mb-1.5">
               <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">Editor's view · opinion</span>
-              <span class="font-mono text-[9px] uppercase tracking-[0.06em] text-[#8C4A2F]">Human-written · no engine text</span>
             </div>
             <p class="text-base text-ink leading-relaxed">{block.text}</p>
             {/* Devil's advocate lives INSIDE the editor's opinion as a normal
@@ -848,6 +876,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
       return null;
     })}
   </div>
+
+  {/* The single fallibility line (Decision 21: it appeared on every audit
+     card; a publication should invite scrutiny once, at the exit). */}
+  {!isExplainer && (v2 || briefing.sources.length > 0) && (
+    <p class="mt-8 text-xs text-muted">Does a reading here seem wrong? <a href="/feedback" class="text-accent-support hover:underline">Tell the editor →</a></p>
+  )}
 
   {/* Other-takes absence stated (D2 policy) — but only if there IS no
      commentary tier absorbing them. Since the 2026-07-21 takes-merge, a
