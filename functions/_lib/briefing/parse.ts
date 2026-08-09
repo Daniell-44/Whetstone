@@ -229,6 +229,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
       // Everything until ::enddiverge belongs to this block.
       const args: DivergeArgument[] = [];
       const pins: DivergePin[] = [];
+      const solos: { side: 'a' | 'b'; provenance: 'quoted' | 'stated' | 'supplied'; tag: string; text: string }[] = [];
       let sharedNeed: string | undefined;
       const proseBlocks: BriefingBlock[] = [];
       let dBuf: string[] = [];
@@ -254,6 +255,17 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
         } else if (dn === 'pin') {
           const note = readParagraph(); // optional one-liner overriding the source's auditNote
           pins.push({ sourceId: da.source ?? '', at: da.at ?? '', ...(note ? { note } : {}) });
+        } else if (dn === 'solo') {
+          // One-sided premise (Decision 29-4, 2026-08-09): a claim only one
+          // argument needs, rendered in the zone between the paired rows and
+          // the shared premise. side=a|b, provenance, tag (short name).
+          const sp = (da.provenance ?? '').toLowerCase();
+          solos.push({
+            side: da.side === 'b' ? 'b' as const : 'a' as const,
+            provenance: sp === 'stated' ? 'stated' as const : sp === 'supplied' ? 'supplied' as const : 'quoted' as const,
+            tag: da.tag ?? '',
+            text: readParagraph(),
+          });
         } else if (dn === 'line') {
           proseBlocks.push({ type: 'line', name: da.name ?? '' });
         } else {
@@ -272,6 +284,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
           a: args[0],
           b: args[1] ?? { label: '', rows: [] },
           ...(sharedNeed ? { sharedNeed } : {}),
+          ...(solos.length ? { solos } : {}),
           pins,
           prose: proseBlocks,
         });
@@ -412,6 +425,7 @@ export function parseBriefingFile(raw: string, slug: string): BriefingArticle {
     ...(fm.otherTakes === 'none' ? { otherTakes: 'none' as const } : {}),
     ...(fm.archived === 'true' ? { archived: true as const } : {}),
     ...(fm.draft === 'true' ? { draft: true as const } : {}),
+    ...(fm.editorPending === 'true' ? { editorPending: true as const } : {}),
     blocks,
   };
 }

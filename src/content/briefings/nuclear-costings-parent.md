@@ -6,6 +6,7 @@ axisRight: renewables pathway cheaper
 hook: Two rival models, five method choices. The politics moved on; the disagreement did not.
 publishedDate: 2026-07-21
 otherTakes: none
+editorPending: true
 # PD photo: Beaver Valley cooling towers (Wikimedia Commons, public domain, no
 # attribution required) — stock stand-in until a hand-made thumbnail replaces it.
 image: /briefing-images/nuclear-cooling-towers.jpg
@@ -36,15 +37,14 @@ hansard | Senate Hansard, 4 February 2026 | Parliament of Australia | https://ww
 mca | Minerals Council on the NSW repeal bill | MCA | https://minerals.org.au/resources/nsw-uranium-bill-marks-a-welcome-first-step-in-consistent-nationwide-approach/ | The NSW upper house passed the state repeal bill on 7 May 2026; not yet law.
 
 ::context label="Common ground"
-Uncontested, whichever model you trust:
+The disagreement is not one number against another. It is seven method choices, each defensible, and they stack. Uncontested, whichever model you trust:
 - The Coalition's seven-site nuclear plan ended with the May 2025 election; current policy under Angus Taylor is to lift the federal ban if elected, with no reactor commitment.
 - Nuclear power generation remains prohibited under federal law as of the February 2026 Senate record.
 - Nobody disputes that the coal fleet is exiting.
-- Both models use similar nuclear build costs per kilowatt, and both publish sensitivity results their own headlines ignore.
+- Both models use similar nuclear build costs per kilowatt for an established plant, and both publish sensitivity results their own headlines ignore. What the first plant costs is contested: that fight is row 6 below.
 - GenCost has kept publishing through the fight.
 
-::landscape
-The disagreement is not one number against another. It is five separate method choices, each defensible, each contested, and they stack. A reader who knows which choice drives which headline can predict most participants' conclusions from their inputs: the cost fight is an assumptions fight wearing a conclusions costume.
+
 
 ::diverge label="Where they diverge" house="Every premise is marked by where it comes from: quoted (the report's own words), stated (in the report, paraphrased here), or ★ supplied (the report never says it, but the argument needs it)."
 ::argument label="From Frontier Economics" interest="commissioned by the Coalition"
@@ -53,6 +53,8 @@ The disagreement is not one number against another. It is five separate method c
 3 | supplied | Reactors run 90 per cent of the time. | how often a reactor runs
 4 | stated | The build cost is spread over 50 years. | how long the asset lives
 5 | quoted | The delay to early closure of coal affects about 65% of current coal generation fleet in the NEM. | timing
+6 | quoted | These costs reflect a reasonable cost in equilibrium (i.e. not the costs associated with a first of a kind) | what the first plant costs
+7 | supplied | The whole-pathway saving is a net-present-value figure, computed at a cost of capital the report does not disclose: the footnote meant to name it reads "Error! Reference source not found." | opportunity cost
 C | - | A nuclear-inclusive system is cheaper across the whole pathway.
 ::argument label="From CSIRO GenCost" interest="government-funded · AEMO is co-publisher"
 1 | quoted | LCOE does not include renewable integration costs. SLCOE does.
@@ -60,6 +62,8 @@ C | - | A nuclear-inclusive system is cheaper across the whole pathway.
 3 | stated | 53 to 89 per cent of the time: coal's best ten-year performance, down to ten points below its average.
 4 | stated | The build cost is recovered over 30 years; the 60-year benefit priced at 8 per cent net of refurbishment.
 5 | quoted | at least 15 years remains the most plausible lead time | timing
+6 | quoted | The report initially considers a 10% premium but then removes that premium by the time nuclear is developed. Based on global experience, a premium of over 100% is more appropriate for the first plant. | what the first plant costs
+7 | quoted | The discount rate or the weighted average cost of capital used in the LCOE formula has increased from 6% (used consistently since 2018) to 7%. This change is to align with AEMO and Infrastructure Australia. | opportunity cost
 C | - | Firmed renewables are the least-cost new build.
 ::sharedneed
 that a cost model, fed the right numbers, is the right way to settle a national technology choice — a premise neither report argues for.
@@ -72,13 +76,26 @@ that a cost model, fed the right numbers, is the right way to settle a national 
 
 GenCost prices each technology on its own (LCOE: the average lifetime cost of electricity from one kind of plant), and from 2025-26 adds a system-wide version (SLCOE) that counts the cost of keeping variable power reliable. Frontier refuses the per-technology frame and prices whole pathways instead. Each side's headline answers only its own question, so the two numbers were never comparable to begin with.
 
-The line that moves the most money. Frontier's like-for-like run, nuclear inside the same demand future AEMO uses, comes to 25 per cent cheaper. The campaign's 44 per cent came from pairing a different demand future with the technology change, a pairing GenCost's authors ruled uninterpretable. Nearly half the political claim lived in that choice alone.
+The line that moves the most money. Frontier's like-for-like run, nuclear inside the same demand future AEMO uses, comes to 25 per cent cheaper. The campaign's 44 per cent came from pairing a different demand future with the technology change, a pairing GenCost's authors ruled uninterpretable. Nearly half the political claim lived in that choice alone. The climate question hides here too: Frontier says its modelling meets net zero by 2050 with lower average emissions sooner than AEMO's plan; GenCost's stated reason for ruling the comparison out is that the savings bundle "delayed emissions reduction, lower economic growth and increased nuclear generation", three factors it says cannot be separated.
 
 The dispute underneath is which past best predicts an Australian reactor: Australian coal, or the world's nuclear fleet. Each model settles it by assumption, not evidence. One provenance note: the 90 per cent figure never appears in Frontier's nuclear report itself. It runs through the modelling the report mirrors and through Frontier's public defence, which is why it wears the supplied star here. GenCost prints its range as 53 to 89; the 54 in Grattan's quote below is his rounding, not CSIRO's.
 
-The longer the recovery window, the cheaper each year of nuclear looks. Neither report argues for its window; each asserts one.
+The longer the recovery window, the cheaper each year of nuclear looks. Neither report argues for its window; each asserts one. GenCost's reply on long life: wind and solar sites can also run 50 to 60 years by rebuilding at falling cost, capturing a similar benefit.
 
-GenCost holds that a first reactor is at least 15 years away, a clock that starts at repeal of a ban still in force. Frontier keeps most of the coal fleet running to bridge the wait. The fuller the bridge, the cheaper the pathway looks.
+GenCost holds that a first reactor is at least 15 years away, a clock that starts at repeal of a ban still in force. Frontier keeps most of the coal fleet running to bridge the wait, and answers the feasibility worry by noting AEMO's closure schedule runs well ahead of the owners' own announced dates. The fuller the bridge, the cheaper the pathway looks.
+
+Both models use similar build costs for an established plant. The fight is the first one. Frontier confines its costs to equilibrium, meaning a plant built once the industry already exists. GenCost says global experience puts the first plant at more than double, and Australia has no industry to learn from. Whether the learning arrives before or after the bill does a large share of the work in both conclusions.
+
+Opportunity cost is what the money could earn elsewhere: a model prices it as a discount rate, and the higher the rate, the less a saving in 2050 is worth today. GenCost discloses its rate and the reason for it. Frontier's report leaves its rate behind a broken footnote, so the 25 per cent margin cannot be recomputed by a reader. One side can be checked; the other has to be trusted.
+
+::solo side=a provenance=quoted tag="the transmission dividend"
+To the extent that nuclear generators can be co-located on existing strong transmission lines, this can reduce the need to build such an extensive network across rural and regional Australia
+
+::solo side=a provenance=quoted tag="running costs"
+This amount is considered sufficient to cover fuel costs, variable and fixed operating and maintenance cost, network costs and decommissioning costs over the life of the power stations.
+
+::solo side=b provenance=quoted tag="worst-weather pricing"
+We use the maximum cost across all weather years as the resulting integration cost on the basis that the maximum cost represents a system that has been planned to be reliable across the worst outcomes from weather variation.
 ::enddiverge
 
 ::position colour=1 source=cis label="The switch to the new cost measure withheld information from the public"

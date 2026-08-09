@@ -27,7 +27,7 @@ const related = relatedPool
 
 const hasPositions = briefing.blocks.some((bl) => bl.type === 'position');
 const hasShared    = briefing.blocks.some((bl) => bl.type === 'shared');
-const hasEditor    = briefing.blocks.some((bl) => bl.type === 'editorView' || bl.type === 'takes');
+const hasEditor    = briefing.blocks.some((bl) => bl.type === 'editorView' || bl.type === 'takes') || briefing.editorPending === true;
 const hasContext   = briefing.blocks.some((bl) => bl.type === 'context');
 const hasDiverge   = briefing.blocks.some((bl) => bl.type === 'diverge');
 const hasPublic    = briefing.blocks.some((bl) => bl.type === 'public');
@@ -61,6 +61,9 @@ function trimToWord(t: string, max = 155): string {
 }
 function metaDescription(): string {
   for (const bl of briefing.blocks) {
+    // The context lead took over the lede's job when ::landscape folded
+    // into Common ground (2026-08-09) — it is the first substantive text.
+    if (bl.type === 'context' && bl.lead && bl.lead.length > 40) return trimToWord(bl.lead);
     if (bl.type === 'landscape' || bl.type === 'prose') {
       const t = bl.text.replace(/\s+/g, ' ').trim();
       if (t.length > 40) return trimToWord(t);

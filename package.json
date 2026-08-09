@@ -53,6 +53,7 @@
     "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.4",
+    "pdfjs-dist": "^6.2.108",
     "satori": "^0.28.0",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.2.4",
