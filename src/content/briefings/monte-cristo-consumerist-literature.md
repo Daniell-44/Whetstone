@@ -6,7 +6,7 @@ hook: Written for money, still read 180 years on. The case for the books people 
 publishedDate: 2026-08-09
 otherTakes: none
 draft: true
-image: /briefing-images/monte-cristo-books.jpg
+image: /briefing-images/monte-cristo-open-books.jpg
 ---
 
 ::skeleton

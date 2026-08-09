@@ -6,7 +6,7 @@ hook: A standfirst goes here. One italic line carrying the stake, not the method
 publishedDate: 2026-08-06
 otherTakes: none
 draft: true
-image: /briefing-images/chelsea-floodlights.jpg
+image: /briefing-images/chelsea-stamford-bridge.jpg
 ---
 
 ::skeleton
