@@ -3,7 +3,7 @@ question: Why nobody actually knows if nuclear is cheaper
 category: energy
 axisLeft: nuclear pathway cheaper
 axisRight: renewables pathway cheaper
-hook: Two rival models, five method choices. The politics moved on; the disagreement did not.
+hook: Australia's political economy: headlines were picked seven assumptions earlier.
 publishedDate: 2026-07-21
 otherTakes: none
 editorPending: true
