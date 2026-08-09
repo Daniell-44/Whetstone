@@ -21,6 +21,7 @@ const CATEGORY_TO_GROUP: Record<string, string> = {
   law: 'society',
   politics: 'society',
   sport: 'society',
+  culture: 'society',
   science: 'science-environment',
   environment: 'science-environment',
   energy: 'science-environment',

@@ -289,50 +289,39 @@ const showFeedFilter = feedGroups.length >= 2;
     </section>
 
     <!-- Essays: the editor's own arguments, held to the same audit standard as
-         the briefings. Empty by design until the first piece lands (Daniel,
-         2026-08-05): the section is a promise, not an apology. Section title
-         candidates were ideated 2026-08-05; "Essays" chosen to match the
-         `opinion` kind's "Essay" kicker. Swap the <h2> if Daniel picks another. -->
+         the briefings. Full-width shelf, three cards across at desktop (Daniel,
+         2026-08-09; replaces the 1fr_2fr split whose "Forthcoming" intro column
+         read as apology once real cards were up — card width is unchanged).
+         Draft essays surface HERE deliberately (the shelf is the editor's own;
+         their pages carry the draft banner) while staying out of the briefings
+         feed. Swap the dummy content by writing the essays. -->
     <section id="essays" class="scroll-mt-20 mt-16">
       <div class="flex items-center gap-4 mb-6 sm:mb-8">
         <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Essays</h2>
         <div class="h-px flex-1 bg-hairline" />
       </div>
-      <div class="grid md:grid-cols-[1fr_2fr] gap-8 items-start">
-        <div>
-          <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">Forthcoming</p>
-          <p class="text-sm text-muted leading-relaxed">
-            Arguments in the editor's own voice, run through the same apparatus as everything else:
-            named findings, verified quotes, and a devil's advocate that argues back.
-          </p>
-        </div>
-        {/* The first essay card (Daniel, 2026-08-09: a dummy with a thumbnail
-           so the section's real shape is visible). Draft essays surface HERE
-           deliberately — the shelf is the editor's own — while staying out
-           of the briefings feed. Swap the dummy content by writing the essay. */}
-        {essays.length > 0 ? (
-          <div class="grid sm:grid-cols-2 gap-4">
-            {essays.map((e) => (
-              <a href={`/briefing/${e.slug}`} class="group block border border-hairline bg-surface hover:border-accent-support/40 transition-colors">
-                {e.image && (
-                  <div class="border-b border-hairline bg-paper">
-                    <img src={e.image} alt="" width="640" height="360" class="w-full h-auto block" loading="lazy" />
-                  </div>
-                )}
-                <div class="px-4 py-3">
-                  <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F]">Essay{e.category ? ` · ${e.category}` : ''}{e.draft ? ' · draft' : ''}</span>
-                  <p class="font-serif text-[20px] font-semibold text-ink-strong leading-snug mt-1 group-hover:text-accent-support transition-colors">{e.question}</p>
-                  {e.hook && <p class="font-serif text-[15px] italic text-muted leading-snug mt-1">{e.hook}</p>}
+      {essays.length > 0 ? (
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {essays.map((e) => (
+            <a href={`/briefing/${e.slug}`} class="group block border border-hairline bg-surface hover:border-accent-support/40 transition-colors">
+              {e.image && (
+                <div class="border-b border-hairline bg-paper">
+                  <img src={e.image} alt="" width="640" height="360" class="w-full h-auto block" loading="lazy" />
                 </div>
-              </a>
-            ))}
-          </div>
-        ) : (
-          <div class="border border-dashed border-hairline rounded-md min-h-[10rem] flex items-center justify-center" aria-hidden="true">
-            <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted/60">First essay reserved</span>
-          </div>
-        )}
-      </div>
+              )}
+              <div class="px-4 py-3">
+                <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F]">Essay{e.category ? ` · ${e.category}` : ''}{e.draft ? ' · draft' : ''}</span>
+                <p class="font-serif text-[20px] font-semibold text-ink-strong leading-snug mt-1 group-hover:text-accent-support transition-colors">{e.question}</p>
+                {e.hook && <p class="font-serif text-[15px] italic text-muted leading-snug mt-1">{e.hook}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="border border-dashed border-hairline rounded-md min-h-[10rem] flex items-center justify-center" aria-hidden="true">
+          <span class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted/60">First essay reserved</span>
+        </div>
+      )}
     </section>
 
     <style>
