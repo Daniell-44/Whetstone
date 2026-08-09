@@ -105,8 +105,13 @@ export const FindingSchema = z.object({
   severity: z.enum(['high', 'medium', 'low']),
   /** The site's groundedness vocabulary: Logic / Judgment call / Factual. */
   groundedness: z.enum(['structural', 'interpretive', 'empirical']),
-  /** Where it sits in the argument — one of the three fatal-bar conditions. */
+  /** Where it sits in the argument — one of the fatal-bar conditions. */
   location: z.enum(['conclusion', 'crux-premise', 'aside', 'unknown']),
+  /** Engine calibration (0..1), INTERNAL ONLY — never rendered (the
+     no-numeric-scores law). Consumed by the fatal bar: when present it must
+     clear the bar's confidence floor; when absent the categorical conditions
+     stand alone. */
+  confidence: z.number().min(0).max(1).optional(),
 });
 
 export const ArgumentMapSchema = z.object({

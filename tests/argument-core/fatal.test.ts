@@ -36,6 +36,13 @@ describe('the provisional fatal bar (all three conditions)', () => {
     expect(isFatal({ ...fatal, location: 'unknown' })).toBe(false);
   });
 
+  it('v2: an emitted confidence must clear the floor; absence leaves the categorical bar standing', () => {
+    expect(isFatal({ ...fatal, confidence: 0.92 })).toBe(true);
+    expect(isFatal({ ...fatal, confidence: 0.84 })).toBe(false);
+    expect(isFatal({ ...fatal, confidence: 0.5 })).toBe(false);
+    expect(isFatal(fatal)).toBe(true); // no confidence emitted — v1 behaviour, never less conservative
+  });
+
   it('fixture truth: fatalDemo carries exactly one fatal, the others none', () => {
     expect(fatalFindings(FIXTURES.fatalDemo)).toHaveLength(1);
     expect(fatalFindings(FIXTURES.briefingHit)).toHaveLength(0);

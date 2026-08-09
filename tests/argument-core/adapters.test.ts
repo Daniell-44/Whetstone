@@ -117,6 +117,15 @@ describe('findingsFromAudit + the fatal bar, end to end', () => {
     expect(findings[1]).toMatchObject({ location: 'aside' });
   });
 
+  it('carries the engine calibration through to the fatal bar (internal only)', () => {
+    const withConf: AuditLike = {
+      namedFallacies: [{ ...audit.namedFallacies[0]!, _debugConfidence: 0.6 }],
+    };
+    const findings = findingsFromAudit(withConf, skeleton);
+    expect(findings[0]?.confidence).toBe(0.6);
+    expect(findings.filter(isFatal)).toHaveLength(0); // located on the conclusion, but under the floor
+  });
+
   it('only the load-bearing finding clears the fatal bar', () => {
     const findings = findingsFromAudit(audit, skeleton);
     expect(findings.filter(isFatal)).toHaveLength(1);
