@@ -399,7 +399,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               {block.house && (
                 <details class="mb-2">
                   <summary class="inline-flex items-center gap-1.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[13px] uppercase tracking-[0.08em] text-muted hover:text-ink">
-                    How to read this <span class="inline-flex items-center justify-center w-5 h-5 border border-hairline rounded-full text-[13px] normal-case" aria-hidden="true">?</span>
+                    how to read <span aria-hidden="true">⌄</span>
                   </summary>
                   <p class="font-serif text-[15px] text-muted mt-1.5 max-w-xl">{block.house}</p>
                 </details>
@@ -444,7 +444,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                     <details class="mb-1">
                       <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                         <h3 class="inline font-serif text-[20px] font-semibold text-ink-strong leading-snug"><span class="font-mono text-[13px] font-normal text-muted mr-1.5 tabular-nums">{pi + 1}</span>{cap(p.crux)}</h3>
-                        <span class="inline-flex items-center justify-center w-5 h-5 border border-hairline rounded-full font-mono text-[13px] text-muted ml-2 align-[2px]" aria-hidden="true">?</span>
+                        <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted ml-2" aria-hidden="true">the story ⌄</span>
                       </summary>
                       <p class="font-serif text-[15px] text-ink leading-relaxed mt-1.5 mb-1 max-w-[34rem]">{rowProse[pi].text}</p>
                     </details>
@@ -529,16 +529,13 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 <p class="font-serif text-[13px] text-muted mt-0.5 mb-4">Each makes a different kind of case against the reports: the measure, the load-bearing input, the clock.</p>
               </div>
             )}
-            {/* The turn before a full position block — same register as the
-               commentary-card bridges: ONE mechanism for the editor's
-               connective voice everywhere (Decision 17-B). */}
+            {/* The bridge before a full position block (T1, 2026-08-09: the
+               label died — the editor's connective voice reads as plain
+               narration; the camp kickers carry the signposting now). */}
             {(() => {
               const src = posSourceById.get(block.sourceId);
               return src?.bridge && (
-                <div class="mb-4">
-                  <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
-                  <p class="font-serif text-[17px] text-ink leading-relaxed">{src.bridge}</p>
-                </div>
+                <p class="font-serif text-[17px] text-ink leading-relaxed mb-4">{src.bridge}</p>
               );
             })()}
             <div class="pl-4" style={`border-left:4px solid ${rule}`}>
@@ -739,14 +736,11 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                           <span class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-muted">{campStart}</span>
                         </div>
                       )}
-                      {/* The turn (17-B): the editor's connective sentence
-                         rides the 11th ::positions column, full body
-                         register — the editor is the guide, not marginalia. */}
+                      {/* The bridge (T1, 2026-08-09): unlabelled, full body
+                         register — the editor's connective voice as plain
+                         narration between cards. */}
                       {s.bridge && (
-                        <div class="mt-1.5">
-                          <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-0.5">The turn</span>
-                          <p class="font-serif text-[17px] text-ink leading-relaxed">{s.bridge}</p>
-                        </div>
+                        <p class="font-serif text-[17px] text-ink leading-relaxed mt-1.5">{s.bridge}</p>
                       )}
                       {/* S1 row anatomy (Decision 4, 2026-08-05): fixed slots
                          learned once — name · outlet · position, hairline,
@@ -884,7 +878,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                             <summary class="py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                               <span class="flex justify-between items-baseline gap-x-4">
                                 <span class="font-serif italic text-[15px] text-ink-strong leading-snug">{q.question}</span>
-                                <span class="inline-flex items-center justify-center w-5 h-5 border border-hairline rounded-full font-mono text-[13px] text-muted shrink-0" aria-hidden="true">?</span>
+                                <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted shrink-0" aria-hidden="true">the catch ⌄</span>
                               </span>
                               <span class="flex h-5 mt-1.5 border border-hairline" role="img" aria-label={`${q.question} ${q.bars.map((b) => `${b.label} ${b.value}%`).join(', ')}${rest > 0 ? `, other or unsure ${rest}%` : ''}`}>
                                 {q.bars.map((b) => (
