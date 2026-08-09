@@ -158,6 +158,12 @@ export function resolvePlacement(
 
 // --- Suggestions -----------------------------------------------------------
 
+/** Field-voice labels are often bare personal names; compose the publication
+   into the title so a suggestion never reads as just "Ted O'Brien". */
+function suggestionTitle(p: CatalogPosition): string {
+  return p.label.length < 24 && p.publication ? `${p.label} · ${p.publication}` : p.label;
+}
+
 export function buildSuggestions(
   briefing: CatalogBriefing,
   stance: Stance,
@@ -182,7 +188,7 @@ export function buildSuggestions(
     if (strongest && strongest.stance !== 0) {
       out.push({
         kind: 'adjacent',
-        title: strongest.label,
+        title: suggestionTitle(strongest),
         source: strongest.publication ?? 'audited on The Whetstone',
         url: strongest.url,
         stance: strongest.stance,
@@ -201,7 +207,7 @@ export function buildSuggestions(
   if (strongest) {
     out.push({
       kind: 'opposing',
-      title: strongest.label,
+      title: suggestionTitle(strongest),
       source: strongest.publication ?? 'audited on The Whetstone',
       url: strongest.url,
       stance: strongest.stance,
@@ -209,6 +215,76 @@ export function buildSuggestions(
     });
   }
   return out;
+}
+
+// --- The placement cache (tier 2) ------------------------------------------
+// Placements computed for a URL are cached so the conversation map compounds:
+// the end-of-article card fills it as people read, and hover lookups answer
+// from it with ZERO model spend (cacheOnly). Null placements cache too, on a
+// shorter TTL, so unmapped pages don't re-bill daily readers.
+
+export interface PlacementCacheKV {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string, opts?: { expirationTtl?: number }): Promise<unknown>;
+}
+
+export const CACHE_HIT_TTL_S = 7 * 86_400;
+export const CACHE_NULL_TTL_S = 86_400;
+
+interface CachedPlacement {
+  placement: Placement | null;
+  suggestions: Suggestion[];
+}
+
+/** http(s) only; hash and tracking params stripped; host lowercased. */
+export function normalizeCacheUrl(raw: string): string | null {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    u.hash = '';
+    for (const k of [...u.searchParams.keys()]) {
+      if (/^(utm_|fbclid|gclid|mc_cid|mc_eid)/i.test(k)) u.searchParams.delete(k);
+    }
+    u.host = u.host.toLowerCase();
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+async function cacheKeyFor(normalizedUrl: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalizedUrl));
+  const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  return `placecache:v1:${hex}`;
+}
+
+async function cacheRead(kv: PlacementCacheKV, url: string): Promise<CachedPlacement | null> {
+  const norm = normalizeCacheUrl(url);
+  if (!norm) return null;
+  try {
+    const raw = await kv.get(await cacheKeyFor(norm));
+    if (!raw) return null;
+    return JSON.parse(raw) as CachedPlacement;
+  } catch {
+    return null; // a broken cache entry is a miss, never an error
+  }
+}
+
+async function cacheWrite(kv: PlacementCacheKV, url: string, value: CachedPlacement): Promise<void> {
+  const norm = normalizeCacheUrl(url);
+  if (!norm) return;
+  try {
+    await kv.put(await cacheKeyFor(norm), JSON.stringify(value), {
+      expirationTtl: value.placement ? CACHE_HIT_TTL_S : CACHE_NULL_TTL_S,
+    });
+  } catch {
+    // cache write failure never fails the request
+  }
+}
+
+/** Cache hits report how they resolved: tier 'cache'. */
+function asCacheTier(c: CachedPlacement): CachedPlacement {
+  return c.placement ? { ...c, placement: { ...c.placement, tier: 'cache' } } : c;
 }
 
 // --- Handler ---------------------------------------------------------------
@@ -224,14 +300,24 @@ export interface PlacementHandlerDeps {
   /** Injectable for tests; defaults to the real model call. */
   runModel?: (text: string, catalog: CatalogBriefing[]) => Promise<ModelPlacement>;
   siteBase?: string;
+  /** The tier-2 conversation cache; absent = caching off, behaviour unchanged. */
+  cacheKv?: PlacementCacheKV;
 }
 
-const BodySchema = z.object({
+// Two request shapes: text (optionally carrying its URL so the result caches)
+// and cache-only URL lookup (the hover path — never spends a model call).
+const CacheOnlyBody = z.object({
+  url: z.string().url(),
+  cacheOnly: z.literal(true),
+});
+const TextBody = z.object({
   text: z
     .string()
     .min(50, 'Text must be at least 50 characters')
     .max(20_000, 'Text must be at most 20,000 characters'),
+  url: z.string().url().optional(),
 });
+const BodySchema = z.union([CacheOnlyBody, TextBody]);
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -267,26 +353,6 @@ export async function handlePlacementRequest(
   request: Request,
   deps: PlacementHandlerDeps,
 ): Promise<Response> {
-  const session = deps.getSession ? await deps.getSession(request) : null;
-
-  if (deps.rateLimitKv) {
-    const key = session
-      ? `place:user:${session.userId}`
-      : `place:ip:${
-          request.headers.get('CF-Connecting-IP') ??
-          request.headers.get('X-Forwarded-For') ??
-          'unknown'
-        }`;
-    const cap = session ? (deps.userDailyCap ?? 50) : deps.dailyCap;
-    const quota = await checkAndIncrementQuota(deps.rateLimitKv, key, cap);
-    if (!quota.allowed) {
-      return json({
-        ok: false,
-        error: { code: 'RATE_LIMITED', message: 'Daily limit reached — try again tomorrow.' },
-      });
-    }
-  }
-
   let rawBody: unknown;
   try {
     rawBody = await request.json();
@@ -307,10 +373,50 @@ export async function handlePlacementRequest(
       400,
     );
   }
+  const body = parsed.data;
+
+  // The hover path: answer from the cache or say so — no quota, no model, ever.
+  if ('cacheOnly' in body) {
+    if (!deps.cacheKv) return json({ ok: true, placement: null, suggestions: [], uncached: true });
+    const hit = await cacheRead(deps.cacheKv, body.url);
+    if (!hit) return json({ ok: true, placement: null, suggestions: [], uncached: true });
+    const out = asCacheTier(hit);
+    return json({ ok: true, placement: out.placement, suggestions: out.suggestions });
+  }
+
+  // A text request that knows its URL reads the cache first — a repeat page
+  // costs nothing and answers instantly.
+  if (body.url && deps.cacheKv) {
+    const hit = await cacheRead(deps.cacheKv, body.url);
+    if (hit) {
+      const out = asCacheTier(hit);
+      return json({ ok: true, placement: out.placement, suggestions: out.suggestions });
+    }
+  }
 
   // No live catalog = no map is possible; that is the honest null, not an error.
   if (deps.catalog.length === 0) {
     return json({ ok: true, placement: null, suggestions: [] });
+  }
+
+  // Quota only guards model spend — cache reads above are free.
+  const session = deps.getSession ? await deps.getSession(request) : null;
+  if (deps.rateLimitKv) {
+    const key = session
+      ? `place:user:${session.userId}`
+      : `place:ip:${
+          request.headers.get('CF-Connecting-IP') ??
+          request.headers.get('X-Forwarded-For') ??
+          'unknown'
+        }`;
+    const cap = session ? (deps.userDailyCap ?? 50) : deps.dailyCap;
+    const quota = await checkAndIncrementQuota(deps.rateLimitKv, key, cap);
+    if (!quota.allowed) {
+      return json({
+        ok: false,
+        error: { code: 'RATE_LIMITED', message: 'Daily limit reached — try again tomorrow.' },
+      });
+    }
   }
 
   if (!deps.geminiApiKey) {
@@ -322,10 +428,7 @@ export async function handlePlacementRequest(
 
   let model: ModelPlacement;
   try {
-    model = await (deps.runModel ?? ((t) => defaultRunModel(deps, t)))(
-      parsed.data.text,
-      deps.catalog,
-    );
+    model = await (deps.runModel ?? ((t) => defaultRunModel(deps, t)))(body.text, deps.catalog);
   } catch {
     // Infra failure is "couldn't check", not "no map" — the panel words differ.
     return json(
@@ -334,14 +437,18 @@ export async function handlePlacementRequest(
     );
   }
 
-  const resolved = resolvePlacement(model, deps.catalog, parsed.data.text);
-  if (!resolved) {
-    return json({ ok: true, placement: null, suggestions: [] });
+  const resolved = resolvePlacement(model, deps.catalog, body.text);
+  const result: { placement: Placement | null; suggestions: Suggestion[] } = resolved
+    ? {
+        placement: resolved.placement,
+        suggestions: buildSuggestions(resolved.briefing, resolved.placement.stance, deps.siteBase),
+      }
+    : { placement: null, suggestions: [] };
+
+  // Fill the tier-2 cache so the next reader of this URL costs nothing.
+  if (body.url && deps.cacheKv) {
+    await cacheWrite(deps.cacheKv, body.url, result);
   }
 
-  return json({
-    ok: true,
-    placement: resolved.placement,
-    suggestions: buildSuggestions(resolved.briefing, resolved.placement.stance, deps.siteBase),
-  });
+  return json({ ok: true, ...result });
 }
