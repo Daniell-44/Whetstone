@@ -25,5 +25,8 @@ export const POST: APIRoute = async ({ request }) => {
     userDailyCap: parseInt(env.AUDIT_USER_DAILY_CAP ?? '50', 10),
     getSession: (req) => getSessionFromRequest(req, db).then((s) => (s ? { userId: s.user_id } : null)),
     siteBase: env.SITE_URL ?? 'https://thewhetstone.review',
+    // Tier-2 conversation cache rides the RATE_LIMIT namespace under its own
+    // key prefix (placecache:v1:) — a separate binding is a later decision.
+    cacheKv: env.RATE_LIMIT,
   });
 };
