@@ -1,0 +1,160 @@
+---
+// P0 fixtures page for the extension rebuild (Extension_Rebuild_Plan_v1.md §8):
+// the SITE-side render target of the argument-core contract. Never linked from
+// nav, noindexed. The extension's PlacementPreview renders these same FIXTURES;
+// if the two surfaces drift, P0 is broken.
+import Base from '../../layouts/Base.astro';
+import { FIXTURES, fatalFindings, stanceLabel } from '../../lib/argument-core';
+
+const entries = Object.entries(FIXTURES);
+const stancePct = (stance: number): number => ((stance + 2) / 4) * 100;
+const tierWord = (tier: string): string =>
+  tier === 'briefing' ? 'audited question' : tier === 'cache' ? 'mapped conversation' : 'best effort';
+---
+
+<Base title="Extension fixtures (labs) - The Whetstone">
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+  <div class="max-w-3xl mx-auto px-4 py-10">
+    <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">Labs · argument-core P0 · render contract</p>
+    <h1 class="font-serif text-[26px] font-semibold text-ink-strong mt-1 mb-2">Extension fixtures</h1>
+    <p class="font-serif text-[15px] text-muted mb-10 leading-relaxed">
+      Three synthetic states of the reading moment, rendered from the shared schema.
+      The rebuilt extension panel renders these same fixtures; drift between the two surfaces is a P0 failure.
+      All content is invented except the Whetstone's own briefing references.
+    </p>
+
+    {entries.map(([name, map]) => {
+      const fatals = fatalFindings(map);
+      const nonFatalCount = map.findings.length - fatals.length;
+      return (
+        <section class="mb-12 border border-hairline bg-surface p-5">
+          <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">fixture · {name}</p>
+          <p class="font-serif text-[17px] font-semibold text-ink-strong mb-4">{map.meta.title}</p>
+
+          {map.placement ? (
+            <div class="border border-hairline bg-paper p-4 mb-4">
+              <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">
+                Where this sits · {tierWord(map.placement.tier)}
+              </p>
+              <p class="font-serif text-[20px] font-semibold text-ink-strong mt-1">{map.placement.question}</p>
+              <div class="mt-4">
+                <div class="relative h-px bg-hairline">
+                  <div
+                    class="absolute -top-[5px] w-[11px] h-[11px] rounded-full bg-ink-strong border-2 border-surface"
+                    style={`left: calc(${stancePct(map.placement.stance)}% - 5px)`}
+                  />
+                </div>
+                <div class="flex justify-between gap-4 mt-1.5">
+                  <span class="font-mono text-[13px] text-muted">{map.placement.axisLeft}</span>
+                  <span class="font-mono text-[13px] text-muted text-right">{map.placement.axisRight}</span>
+                </div>
+              </div>
+              <p class="font-serif text-[15px] text-ink mt-3">
+                This piece argues {stanceLabel(map.placement.stance, map.placement.axisLeft, map.placement.axisRight)}.
+                {map.placement.confidence === 'low' && (
+                  <span class="text-muted"> Placement is a judgment call on this one; read it as best effort.</span>
+                )}
+              </p>
+              <blockquote class="border-l-2 border-hairline pl-3 mt-2">
+                <p class="font-serif text-[15px] italic text-ink">&ldquo;{map.placement.basisQuote}&rdquo;</p>
+                <p class="font-mono text-[13px] text-muted mt-1">the line the stance call rests on</p>
+              </blockquote>
+              {map.placement.camp && (
+                <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mt-3">Camp · {map.placement.camp}</p>
+              )}
+              {map.placement.respondsTo && (
+                <p class="font-mono text-[13px] text-muted mt-1">Responds to · {map.placement.respondsTo}</p>
+              )}
+            </div>
+          ) : (
+            <div class="border border-dashed border-hairline p-4 mb-4">
+              <p class="font-serif text-[15px] text-muted">
+                No conversation map yet for this piece. The skeleton below still stands on its own.
+              </p>
+            </div>
+          )}
+
+          {map.suggestions.length > 0 && (
+            <div class="mb-4">
+              <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">The other side · strongest first</p>
+              <ul class="space-y-3">
+                {map.suggestions.map((s) => (
+                  <li class="border border-hairline bg-paper p-3">
+                    <a href={s.url} class="font-serif text-[17px] font-semibold text-ink-strong hover:text-accent-support">
+                      {s.title}
+                    </a>
+                    <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mt-0.5">
+                      {s.source} · {s.kind}
+                    </p>
+                    <p class="font-serif text-[15px] text-ink mt-1">{s.whyWorthIt}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {fatals.length > 0 ? (
+            <details class="border-2 border-accent bg-paper">
+              <summary class="cursor-pointer p-3 font-serif text-[17px] font-semibold text-ink-strong">
+                There is an error in this argument
+                <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted ml-2">open ⌄</span>
+              </summary>
+              <div class="px-3 pb-3">
+                {fatals.map((f) => (
+                  <div class="mt-2">
+                    <p class="font-serif text-[17px] font-semibold text-ink-strong">{f.name}</p>
+                    <blockquote class="border-l-2 border-accent pl-3 mt-1">
+                      <p class="font-serif text-[15px] italic text-ink">&ldquo;{f.quote}&rdquo;</p>
+                    </blockquote>
+                    <p class="font-serif text-[15px] text-ink mt-1">{f.explanation}</p>
+                  </div>
+                ))}
+              </div>
+            </details>
+          ) : map.findings.length > 0 ? (
+            <details class="border border-hairline bg-paper">
+              <summary class="cursor-pointer p-3 font-mono text-[13px] uppercase tracking-[0.08em] text-muted">
+                the full audit ⌄ · {nonFatalCount} note{nonFatalCount === 1 ? '' : 's'}, none load-bearing
+              </summary>
+              <div class="px-3 pb-3">
+                {map.findings.map((f) => (
+                  <div class="mt-2">
+                    <p class="font-serif text-[15px] font-semibold text-ink-strong">{f.name}</p>
+                    <p class="font-serif text-[15px] text-ink">{f.explanation}</p>
+                  </div>
+                ))}
+              </div>
+            </details>
+          ) : (
+            <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">No reasoning defects surfaced.</p>
+          )}
+
+          <details class="mt-4">
+            <summary class="cursor-pointer font-mono text-[13px] uppercase tracking-[0.08em] text-muted">
+              the skeleton ⌄
+            </summary>
+            <div class="mt-2 border-l-2 border-hairline pl-3">
+              <p class="font-serif text-[15px] font-semibold text-ink-strong">{map.skeleton.claims[0]}</p>
+              <ul class="mt-2 space-y-1.5">
+                {map.skeleton.premises.map((p) => (
+                  <li class="font-serif text-[15px] text-ink">
+                    <span class="font-mono text-[13px] text-muted mr-1">{p.id}</span>
+                    {p.text}
+                    <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted ml-2 border border-hairline px-1">
+                      {p.tag}{p.crux ? ' · crux' : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {map.skeleton.warrants.length > 0 && (
+                <p class="font-serif text-[15px] text-muted mt-2">
+                  Unstated: {map.skeleton.warrants.map((w) => w.text).join(' ')}
+                </p>
+              )}
+            </div>
+          </details>
+        </section>
+      );
+    })}
+  </div>
+</Base>
