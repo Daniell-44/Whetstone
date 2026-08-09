@@ -421,7 +421,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       </div>
                     ))}
                   </div>
-                  <p class="font-serif text-[15px] text-ink leading-snug mt-3 mb-1">The gap between those two sentences is five method choices:</p>
+                  <p class="font-serif text-[15px] text-ink leading-snug mt-3 mb-1">The gap between those two sentences is {['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][pairs.length] ?? pairs.length} method choices:</p>
                 </>
               )}
               {/* The two reports, named once. Text label is the primary
@@ -457,7 +457,30 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   </div>
                 </div>
               ))}
-              {/* The shared premise closes the section (CN-2): after the five
+              {/* One-sided premises (29-4): the zone where the two arguments
+                 stop answering each other — no fake gap cells, the absence
+                 IS the content. Between the paired rows and the close. */}
+              {block.solos && block.solos.length > 0 && (
+                <div class="border-t border-hairline mt-1 pt-3">
+                  <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">Premises only one side needs</span>
+                  <p class="font-serif text-[13px] text-muted mb-2.5">Here the arguments stop answering each other: no counterpart exists on the other side.</p>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                    {(['a', 'b'] as const).map((side) => (
+                      <div class="space-y-2.5">
+                        {block.solos.filter((so) => so.side === side).map((so) => (
+                          <div class="pl-3 py-1 border-l-2" style={`border-color:${side === 'a' ? '#345D7E' : '#8C4A2F'}`}>
+                            <p class="font-serif text-[15px] text-ink leading-snug">{so.text}</p>
+                            <p class="mt-1 font-mono text-[13px] uppercase tracking-[0.08em] text-muted">
+                              {so.provenance === 'supplied' ? <span class="text-accent-support">★ supplied</span> : so.provenance}{' · '}{sideName(side === 'a' ? block.a.label : block.b.label)}{so.tag ? ` · ${so.tag}` : ''}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* The shared premise closes the section (CN-2): after the
                  disagreements, the thing neither report argues for. */}
               {block.sharedNeed && (
                 <div class="mt-4 border border-accent-support/40 bg-surface px-3.5 py-2.5 font-serif text-[15px] text-ink leading-snug">
@@ -993,6 +1016,18 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
       return null;
     })}
   </div>
+
+  {/* The editor's-view shell (Daniel, 2026-08-09): when the view is coming
+     but unwritten, the section keeps its home — heading + provenance line,
+     NO placeholder prose. The "Our read" top box stays absent until a real
+     first sentence exists to lift. */}
+  {!isExplainer && briefing.editorPending && !editorBlock && (
+    <section id="discussion" class="scroll-mt-24 mt-10">
+      <hr class="border-0 border-t border-ink-strong mb-4" />
+      <h2 class="font-serif text-[26px] text-ink-strong mb-1 leading-tight">The editor's view</h2>
+      <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">written by hand · to come</p>
+    </section>
+  )}
 
   {/* The single fallibility line (Decision 21: it appeared on every audit
      card; a publication should invite scrutiny once, at the exit). */}

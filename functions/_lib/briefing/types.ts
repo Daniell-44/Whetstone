@@ -126,7 +126,10 @@ export type BriefingBlock =
       house?:     string;            // neutral house line under the heading
       a:          DivergeArgument;
       b:          DivergeArgument;
-      sharedNeed?: string;           // "Both arguments need:" spanning row (supplied ★)
+      sharedNeed?: string;
+      /** One-sided premises (29-4): claims only one argument needs — the zone
+         where the two arguments stop answering each other. */
+      solos?: { side: 'a' | 'b'; provenance: 'quoted' | 'stated' | 'supplied'; tag: string; text: string }[];           // "Both arguments need:" spanning row (supplied ★)
       pins:       DivergePin[];
       prose:      BriefingBlock[];   // the "As written" pane: line + prose blocks only
     }
@@ -190,5 +193,8 @@ export interface BriefingArticle {
      excluded from the feed, related rails, and next links. No archive banner.
      For work-in-progress essays (Daniel, 2026-08-06). */
   draft?:        true;
+  /** The editor's view is coming but unwritten: render the section shell
+     (heading + provenance line, no placeholder prose) and the rail link. */
+  editorPending?: true;
   blocks:        BriefingBlock[];
 }
