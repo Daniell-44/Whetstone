@@ -109,6 +109,10 @@ const tierWord = (tier: string): string =>
                     <p class="font-serif text-[15px] text-ink mt-1">{f.explanation}</p>
                   </div>
                 ))}
+                <p class="font-mono text-[13px] text-muted mt-3 pt-2 border-t border-hairline">
+                  automated · structural · checkable against the quote above ·{' '}
+                  <a href="/feedback" class="underline hover:text-ink">disagree? say so</a>
+                </p>
               </div>
             </details>
           ) : map.findings.length > 0 ? (

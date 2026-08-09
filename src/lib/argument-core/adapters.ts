@@ -64,6 +64,8 @@ export interface AuditFallacyLike {
   explanation: string;
   severity: 'high' | 'medium' | 'low';
   groundedness: { kind: 'structural' | 'interpretive' | 'empirical' };
+  /** Engine calibration; feeds the fatal bar's confidence floor, never the UI. */
+  _debugConfidence?: number;
 }
 
 export interface AuditWarrantLike {
@@ -89,6 +91,7 @@ export function findingsFromAudit(a: AuditLike, skeleton: Skeleton): Finding[] {
     severity: f.severity,
     groundedness: f.groundedness.kind,
     location: locateQuote(f.quote, skeleton),
+    ...(f._debugConfidence !== undefined ? { confidence: f._debugConfidence } : {}),
   }));
 }
 
