@@ -1,0 +1,63 @@
+---
+// Shared shell for the three "Quiet" iterations (2026-08-10). One page body,
+// three routes, so the only difference a reader can see between them is the
+// treatment itself and not some incidental wording.
+import Base from '../../layouts/Base.astro';
+import BriefingArticle from '../briefing/BriefingArticle.astro';
+import QuietStyle from './QuietStyle.astro';
+import { getAllBriefings } from '../../lib/briefings';
+
+interface Props {
+  variant: 'none' | 'apparatus' | 'deep';
+  number: string;
+  name: string;
+  blurb: string;
+  look: string;
+  risk: string;
+}
+const { variant, number, name, blurb, look, risk } = Astro.props;
+
+const briefing = getAllBriefings().find((b) => b.slug === 'nuclear-costings-parent');
+
+const ROUTES = [
+  { href: '/labs/quiet-1', label: '1 · Quiet' },
+  { href: '/labs/quiet-2', label: '2 · One margin' },
+  { href: '/labs/quiet-3', label: '3 · Deep margin' },
+];
+const here = `/labs/quiet-${number}`;
+---
+
+<Base title={`Iteration ${number}: ${name} (labs) - The Whetstone`}>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+  <div class="max-w-[46rem] mx-auto px-4 py-8">
+    <div class="border-b border-hairline pb-4 mb-8">
+      <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">
+        Labs · visual density · iteration {number} of 3
+      </p>
+      <p class="font-serif text-[20px] text-ink-strong leading-snug mt-1">{name}</p>
+      <p class="font-serif text-[15px] text-muted leading-snug mt-1.5">{blurb}</p>
+      <p class="font-serif text-[15px] text-ink leading-snug mt-2.5"><b class="font-semibold">What to look at:</b> {look}</p>
+      <p class="font-serif text-[15px] text-ink leading-snug mt-1"><b class="font-semibold">What could be wrong with it:</b> {risk}</p>
+      <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mt-3.5">Compare</p>
+      <p class="font-serif text-[15px] leading-snug mt-1">
+        {ROUTES.map((r, i) => (
+          <>
+            {i > 0 && <span class="text-muted">{' · '}</span>}
+            {r.href === here
+              ? <span class="text-ink-strong font-semibold">{r.label}</span>
+              : <a href={r.href} class="underline">{r.label}</a>}
+          </>
+        ))}
+        <span class="text-muted">{' · '}</span>
+        <a href="/briefing/nuclear-costings-parent" class="underline">the live page</a>
+      </p>
+    </div>
+    {briefing ? (
+      <QuietStyle variant={variant}>
+        <BriefingArticle briefing={briefing} />
+      </QuietStyle>
+    ) : (
+      <p class="font-serif text-[15px] text-muted">Briefing not found.</p>
+    )}
+  </div>
+</Base>
