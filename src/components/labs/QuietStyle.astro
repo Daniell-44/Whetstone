@@ -26,8 +26,10 @@
 interface Props {
   /** none = everything flush. apparatus = machinery indented. deep = machinery + argument indented. */
   variant: 'none' | 'apparatus' | 'deep';
+  /** Type sizes. 'current' = the live page's, which Daniel prefers. 'd4lite' = 18px prose. */
+  sizes?: 'current' | 'd4lite';
 }
-const { variant } = Astro.props;
+const { variant, sizes = 'current' } = Astro.props;
 ---
 
 <style is:global>
@@ -47,13 +49,22 @@ const { variant } = Astro.props;
   .qz b, .qz strong { font-weight: 600; }
 
   /* =========================================================
-     2. READING MECHANICS (D4-lite, already chosen).
+     2. READING MECHANICS. This was D4-lite (prose to 18px/1.65,
+        headline to 36px), but Daniel judged the live sizes
+        better on 2026-08-10, so it is now OPT-IN behind
+        ?type=d4lite and OFF by default.
+
+        The reason it stays available rather than being deleted:
+        D4-lite changed size AND dissolved boxes at the same
+        time, and the density work changes size AND everything
+        else. Two variables, one judgement. Toggling this is how
+        the density question gets asked on its own.
      ========================================================= */
-  .qz .text-\[15px\],
-  .qz .text-\[17px\] { font-size: 18px !important; line-height: 1.65 !important; }
-  .qz .font-mono.text-\[15px\],
-  .qz .font-mono.text-\[17px\] { font-size: 13px !important; line-height: 1.4 !important; }
-  .qz .text-\[34px\] { font-size: 36px !important; }
+  .qz-18 .text-\[15px\],
+  .qz-18 .text-\[17px\] { font-size: 18px !important; line-height: 1.65 !important; }
+  .qz-18 .font-mono.text-\[15px\],
+  .qz-18 .font-mono.text-\[17px\] { font-size: 13px !important; line-height: 1.4 !important; }
+  .qz-18 .text-\[34px\] { font-size: 36px !important; }
 
   /* =========================================================
      3. BOXES, FILLS, RADII AND THE TICK DEVICE DISSOLVE.
@@ -189,15 +200,15 @@ const { variant } = Astro.props;
   /* Consulted material also recedes in size. Where there is no margin
      (iteration 1) nothing recedes, which is exactly the thing being tested:
      whether size and quiet alone are enough to tell reading from machinery. */
-  .qz-apparatus [data-plane='apparatus'] .text-\[15px\],
-  .qz-apparatus [data-plane='apparatus'] .text-\[17px\],
-  .qz-deep [data-plane='apparatus'] .text-\[15px\],
-  .qz-deep [data-plane='apparatus'] .text-\[17px\] {
+  .qz-18.qz-apparatus [data-plane='apparatus'] .text-\[15px\],
+  .qz-18.qz-apparatus [data-plane='apparatus'] .text-\[17px\],
+  .qz-18.qz-deep [data-plane='apparatus'] .text-\[15px\],
+  .qz-18.qz-deep [data-plane='apparatus'] .text-\[17px\] {
     font-size: 15px !important;
     line-height: 1.5 !important;
   }
 </style>
 
-<div class:list={['qz', variant === 'apparatus' && 'qz-apparatus', variant === 'deep' && 'qz-deep']}>
+<div class:list={['qz', sizes === 'd4lite' && 'qz-18', variant === 'apparatus' && 'qz-apparatus', variant === 'deep' && 'qz-deep']}>
   <slot />
 </div>

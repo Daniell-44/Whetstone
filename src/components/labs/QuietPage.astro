@@ -19,12 +19,19 @@ const { variant, number, name, blurb, look, risk } = Astro.props;
 
 const briefing = getAllBriefings().find((b) => b.slug === 'nuclear-costings-parent');
 
+// Daniel judged D4-lite's sizes worse than the live page's on 2026-08-10, so
+// these render at the LIVE sizes by default. ?type=d4lite puts the 18px prose
+// back. The point of the switch is to separate two questions that were being
+// asked at once: is the type too small, and are there too many visual systems.
+const sizes = Astro.url.searchParams.get('type') === 'd4lite' ? 'd4lite' : 'current';
+const q = sizes === 'd4lite' ? '?type=d4lite' : '';
+
 const ROUTES = [
   { href: '/labs/quiet-1', label: '1 · Quiet' },
   { href: '/labs/quiet-2', label: '2 · One margin' },
   { href: '/labs/quiet-3', label: '3 · Deep margin' },
-];
-const here = `/labs/quiet-${number}`;
+].map((r) => ({ ...r, href: r.href + q }));
+const here = `/labs/quiet-${number}${q}`;
 ---
 
 <Base title={`Iteration ${number}: ${name} (labs) - The Whetstone`}>
@@ -51,9 +58,21 @@ const here = `/labs/quiet-${number}`;
         <span class="text-muted">{' · '}</span>
         <a href="/briefing/nuclear-costings-parent" class="underline">the live page</a>
       </p>
+      <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mt-3.5">Type sizes</p>
+      <p class="font-serif text-[15px] leading-snug mt-1">
+        {sizes === 'current'
+          ? <><span class="text-ink-strong font-semibold">The live page's sizes</span><span class="text-muted">{' · '}</span><a href={`/labs/quiet-${number}?type=d4lite`} class="underline">try D4-lite's 18px prose</a></>
+          : <><a href={`/labs/quiet-${number}`} class="underline">back to the live page's sizes</a><span class="text-muted">{' · '}</span><span class="text-ink-strong font-semibold">D4-lite's 18px prose</span></>}
+      </p>
+      <p class="font-serif text-[13px] text-muted leading-snug mt-1">
+        You said the live sizes beat D4-lite, so these open at the live sizes. The switch is here
+        because D4-lite changed the type and the boxes at once, and this page changes the type and
+        everything else at once. Two variables, one judgement. Flip it and the density question gets
+        asked on its own.
+      </p>
     </div>
     {briefing ? (
-      <QuietStyle variant={variant}>
+      <QuietStyle variant={variant} sizes={sizes}>
         <BriefingArticle briefing={briefing} />
       </QuietStyle>
     ) : (
