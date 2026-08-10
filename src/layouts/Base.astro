@@ -15,7 +15,14 @@ interface Props {
   /** Pages that mount their own inline EmailCapture pass true so the page
      doesn't ask for the same address twice (inline block + footer). */
   hideFooterCapture?: boolean;
+  /** Suppress the AdSense tag. Set on labs and admin surfaces. */
+  noAds?: boolean;
 }
+
+// Daniel's AdSense publisher ID, supplied 2026-08-10. Not a secret (it ships
+// in the page source of every AdSense site by design), so it lives in code
+// rather than an env var, where it is greppable and reviewable.
+const ADSENSE_CLIENT = 'ca-pub-7549919425238742';
 
 const {
   title,
@@ -25,6 +32,7 @@ const {
   ogType = 'website',
   ogImage: ogImageProp,
   hideFooterCapture = false,
+  noAds = false,
 } = Astro.props;
 
 const siteUrl = SITE_URL;
@@ -105,6 +113,22 @@ const currentPath = canonicalPath;
         } catch (_) {}
       })();
     </script>
+
+    {/* Google AdSense (Daniel's publisher account, ID supplied 2026-08-10).
+       This tag is BOTH the site-verification method and the ad loader, which
+       is why it ships before any ad unit exists: AdSense reads it to confirm
+       Daniel owns the domain when he applies.
+
+       Daniel is applying once three finished articles are up, because the
+       usual rejection is "low value content" and re-applying costs weeks.
+       Until approval it loads, finds no ad units, and renders nothing.
+
+       Deliberately NOT loaded on the labs pages or any admin route: those are
+       noindexed working surfaces and there is no reason to hand a third party
+       a request from them. `noAds` is the opt-out. */}
+    {!noAds && (
+      <script async src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`} crossorigin="anonymous"></script>
+    )}
 
     {/* Page-specific head tags (e.g. per-briefing JSON-LD structured data,
        article:published_time). Injected via <... slot="head">. */}

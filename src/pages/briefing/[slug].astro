@@ -110,23 +110,23 @@ const jsonLd = {
 
     <!-- Top nav -->
     <nav class="mb-8 flex items-center justify-between">
-      <a href="/" class="text-[13px] text-muted hover:text-accent transition-colors">← Briefings</a>
+      <a href="/" class="text-[13px] text-muted hover:text-accent-support transition-colors">← Briefings</a>
       {!isExplainer && <div class="flex items-center gap-2 lg:hidden">
         {/* Native share sheet first (where briefing links actually travel:
            WhatsApp/Messages), clipboard fallback. X/LinkedIn stay as
            direct targets. */}
         <button
           onclick="if(navigator.share){navigator.share({title:document.title,url:window.location.href}).catch(()=>{})}else{navigator.clipboard.writeText(window.location.href).then(()=>{const s=this.querySelector('span');if(s){s.textContent='✓';setTimeout(()=>{s.textContent='Share'},1500)}})}"
-          class="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-md text-[13px] font-medium text-muted hover:text-accent hover:bg-paper"
+          class="inline-flex items-center justify-center gap-1.5 min-h-[44px] px-3 rounded-md text-[13px] font-semibold text-muted hover:text-accent-support hover:bg-paper"
           title="Share" aria-label="Share this briefing"
         >
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>
           <span>Share</span>
         </button>
-        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-muted hover:text-accent hover:bg-paper" title="Share on X/Twitter" aria-label="Share on X/Twitter">
+        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-muted hover:text-accent-support hover:bg-paper" title="Share on X/Twitter" aria-label="Share on X/Twitter">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={X_PATH}/></svg>
         </a>
-        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-muted hover:text-accent hover:bg-paper" title="Share on LinkedIn" aria-label="Share on LinkedIn">
+        <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-md text-muted hover:text-accent-support hover:bg-paper" title="Share on LinkedIn" aria-label="Share on LinkedIn">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={LI_PATH}/></svg>
         </a>
       </div>}
@@ -159,7 +159,7 @@ const jsonLd = {
             <div class="lg:hidden mb-6 border border-hairline bg-surface px-4 py-3">
               <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">This argument, numbered</p>
               {skeletonRows.map((r) => (
-                <p class={r.provenance === 'conclusion' ? 'text-[13px] font-medium text-ink-strong leading-snug border-t border-hairline mt-1.5 pt-1.5' : 'text-[13px] text-ink leading-snug mb-1'}>
+                <p class={r.provenance === 'conclusion' ? 'text-[13px] font-semibold text-ink-strong leading-snug border-t border-hairline mt-1.5 pt-1.5' : 'text-[13px] text-ink leading-snug mb-1'}>
                   <span class="font-mono text-[13px] text-muted mr-1 tabular-nums">{r.provenance === 'conclusion' ? '∴' : r.id}</span>
                   {r.provenance !== 'conclusion' && <span class={`mr-1.5 font-mono text-[13px] uppercase tracking-[0.08em] px-1 py-0.5 border ${r.provenance === 'supplied' ? 'border-[#8C4A2F]/50 text-[#8C4A2F]' : 'border-hairline text-muted'}`}>{SKEL_PROV[r.provenance]}</span>}
                   {r.text}
@@ -181,7 +181,7 @@ const jsonLd = {
             <div class="border-l-2 border-hairline pl-4">
               <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2.5">This argument, numbered</p>
               {skeletonRows.map((r) => (
-                <p class={r.provenance === 'conclusion' ? 'text-[13px] font-medium text-ink-strong leading-snug border-t border-hairline mt-2 pt-2' : 'text-[13px] text-ink leading-snug mb-2'}>
+                <p class={r.provenance === 'conclusion' ? 'text-[13px] font-semibold text-ink-strong leading-snug border-t border-hairline mt-2 pt-2' : 'text-[13px] text-ink leading-snug mb-2'}>
                   <span class="font-mono text-[13px] text-muted mr-1 tabular-nums">{r.provenance === 'conclusion' ? '∴' : r.id}</span>
                   {r.provenance !== 'conclusion' && <span class={`mr-1.5 font-mono text-[13px] uppercase tracking-[0.08em] px-1 py-0.5 border ${r.provenance === 'supplied' ? 'border-[#8C4A2F]/50 text-[#8C4A2F]' : 'border-hairline text-muted'}`}>{SKEL_PROV[r.provenance]}</span>}
                   {r.text}
@@ -192,10 +192,10 @@ const jsonLd = {
           <div class="rounded-md border border-hairline bg-surface p-4">
             <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-3">Share</p>
             <div class="flex gap-2">
-              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent hover:bg-paper transition-colors" title="X/Twitter" aria-label="Share on X/Twitter">
+              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent-support hover:bg-paper transition-colors" title="X/Twitter" aria-label="Share on X/Twitter">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={X_PATH}/></svg>
               </a>
-              <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='Link'},1500)})" class="flex-1 py-2 rounded-md text-[13px] text-muted hover:text-accent hover:bg-paper transition-colors" title="Copy link">Link</button>
+              <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='Link'},1500)})" class="flex-1 py-2 rounded-md text-[13px] text-muted hover:text-accent-support hover:bg-paper transition-colors" title="Copy link">Link</button>
             </div>
           </div>
         </aside>
@@ -227,24 +227,24 @@ const jsonLd = {
       <aside class="hidden lg:block lg:col-span-2 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
         <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-3">On this page</p>
         <nav id="wayfinder" class="space-y-1.5 text-[13px] border-l-2 border-hairline pl-3">
-          <a href="#overview" data-spy="overview" class="block text-muted hover:text-accent transition-colors">Overview</a>
-          {hasContext && <a href="#context" data-spy="context" class="block text-muted hover:text-accent transition-colors">Common ground</a>}
-          {hasDiverge && <a href="#diverge" data-spy="diverge" class="block text-muted hover:text-accent transition-colors">Where they diverge</a>}
+          <a href="#overview" data-spy="overview" class="block text-muted hover:text-accent-support transition-colors">Overview</a>
+          {hasContext && <a href="#context" data-spy="context" class="block text-muted hover:text-accent-support transition-colors">Common ground</a>}
+          {hasDiverge && <a href="#diverge" data-spy="diverge" class="block text-muted hover:text-accent-support transition-colors">Where they diverge</a>}
           {/* One overarching commentary section (2026-08-09): both depths
              live under #commentary, so the rail lists it once. */}
-          {hasPositions && <a href="#commentary" data-spy="commentary" class="block text-muted hover:text-accent transition-colors">The commentary</a>}
-          {hasPublic && <a href="#public" data-spy="public" class="block text-muted hover:text-accent transition-colors">The public</a>}
-          {hasEditor && <a href="#discussion" data-spy="discussion" class="block text-muted hover:text-accent transition-colors">Editor's view</a>}
-          {hasPositions && <a href="#sources" data-spy="sources" class="block text-muted hover:text-accent transition-colors">Sources</a>}
+          {hasPositions && <a href="#commentary" data-spy="commentary" class="block text-muted hover:text-accent-support transition-colors">The commentary</a>}
+          {hasPublic && <a href="#public" data-spy="public" class="block text-muted hover:text-accent-support transition-colors">The public</a>}
+          {hasEditor && <a href="#discussion" data-spy="discussion" class="block text-muted hover:text-accent-support transition-colors">Editor's view</a>}
+          {hasPositions && <a href="#sources" data-spy="sources" class="block text-muted hover:text-accent-support transition-colors">Sources</a>}
         </nav>
-        <a href="/" class="mt-6 block text-[13px] text-muted hover:text-accent transition-colors">← All Briefings</a>
+        <a href="/" class="mt-6 block text-[13px] text-muted hover:text-accent-support transition-colors">← All Briefings</a>
 
         {/* Compact launcher: the tool at hand while reading its product.
            No heading — the placeholder and the button are the label
            (Decision 21: three labels on one input was two too many). */}
         <div class="mt-6 pt-5 border-t border-hairline">
-          <input id="rail-audit-input" type="text" placeholder="Paste an argument…" class="w-full bg-paper border border-hairline rounded px-2.5 py-2 text-[13px] text-ink placeholder:text-muted/70 focus:outline-none focus:ring-1 focus:ring-accent-support/50" />
-          <button id="rail-audit-go" type="button" class="mt-1.5 w-full py-1.5 rounded bg-accent-support text-paper text-[13px] font-medium hover:bg-accent-support/90 transition-colors">Run the audit</button>
+          <input id="rail-audit-input" type="text" placeholder="Paste an argument…" class="w-full bg-paper border border-hairline rounded px-2.5 py-2 text-[13px] text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent-support/50" />
+          <button id="rail-audit-go" type="button" class="mt-1.5 w-full py-1.5 rounded bg-accent-support text-paper text-[13px] font-semibold hover:bg-accent-support/90 transition-colors">Run the audit</button>
         </div>
       </aside>
 
@@ -292,13 +292,13 @@ const jsonLd = {
         <div class="rounded-md border border-hairline bg-surface p-4">
           <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-3">Share</p>
           <div class="flex gap-2">
-            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent hover:bg-paper transition-colors" title="X/Twitter" aria-label="Share on X/Twitter">
+            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(briefing.question)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent-support hover:bg-paper transition-colors" title="X/Twitter" aria-label="Share on X/Twitter">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={X_PATH}/></svg>
             </a>
-            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent hover:bg-paper transition-colors" title="LinkedIn" aria-label="Share on LinkedIn">
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" class="flex-1 flex items-center justify-center py-2 rounded-md text-muted hover:text-accent-support hover:bg-paper transition-colors" title="LinkedIn" aria-label="Share on LinkedIn">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={LI_PATH}/></svg>
             </a>
-            <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='Link'},1500)})" class="flex-1 py-2 rounded-md text-[13px] text-muted hover:text-accent hover:bg-paper transition-colors" title="Copy link">Link</button>
+            <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.textContent='✓';setTimeout(()=>{this.textContent='Link'},1500)})" class="flex-1 py-2 rounded-md text-[13px] text-muted hover:text-accent-support hover:bg-paper transition-colors" title="Copy link">Link</button>
           </div>
         </div>
 
@@ -306,11 +306,11 @@ const jsonLd = {
         <div class="rounded-md border border-hairline bg-surface p-4">
           <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-3">Cite this Briefing</p>
           <div class="flex flex-col gap-1.5">
-            <a href={`/briefing/${briefing.slug}/citations.bib`} class="text-[13px] text-muted hover:text-accent transition-colors flex items-center justify-between" download>
+            <a href={`/briefing/${briefing.slug}/citations.bib`} class="text-[13px] text-muted hover:text-accent-support transition-colors flex items-center justify-between" download>
               <span class="font-mono">.bib</span>
               <span class="text-[13px] text-muted">BibTeX</span>
             </a>
-            <a href={`/briefing/${briefing.slug}/citations.ris`} class="text-[13px] text-muted hover:text-accent transition-colors flex items-center justify-between" download>
+            <a href={`/briefing/${briefing.slug}/citations.ris`} class="text-[13px] text-muted hover:text-accent-support transition-colors flex items-center justify-between" download>
               <span class="font-mono">.ris</span>
               <span class="text-[13px] text-muted">EndNote, Mendeley</span>
             </a>
@@ -329,7 +329,7 @@ const jsonLd = {
                     {rel.category && (
                       <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">{rel.category}</p>
                     )}
-                    <p class="text-[13px] font-medium text-ink group-hover:text-accent leading-snug transition-colors">{rel.question}</p>
+                    <p class="text-[13px] font-semibold text-ink group-hover:text-accent-support leading-snug transition-colors">{rel.question}</p>
                   </a>
                 </li>
               ))}
@@ -342,7 +342,7 @@ const jsonLd = {
            rail. Placeholder until an AdSense publisher ID exists; the slot
            ships dark rather than empty-white. */}
         <div class="hidden lg:flex rounded-md border border-hairline bg-paper min-h-[15.5rem] flex-col items-center justify-center">
-          <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted/70">Advertisement</span>
+          <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">Advertisement</span>
         </div>
 
       </aside>

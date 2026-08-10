@@ -141,13 +141,13 @@ const headingCls = size === 'featured'
         <span class={`text-muted ${compact ? 'hidden sm:inline' : ''}`}>· {positions.length} positions · {sourceCount} sources</span>
       )}
     </div>
-    <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>
+    <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent-support transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>
       {b.question}
     </h3>
     {!isExplainer && (
       <div class={compact ? 'hidden sm:block' : ''}>
         <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-3">
-          <span class="font-medium text-muted">{dekLabel}</span>: {dek}
+          <span class="font-semibold text-muted">{dekLabel}</span>: {dek}
         </p>
       </div>
     )}
@@ -159,10 +159,10 @@ const headingCls = size === 'featured'
     {!isExplainer && chipFallacies.length > 0 && (
       <div class="flex items-center gap-1.5 flex-wrap mb-3">
         {chipFallacies.map((f) => (
-          <span class="font-mono text-[10px] font-medium uppercase tracking-wide text-ink border border-hairline px-1.5 py-0.5">{f}</span>
+          <span class="font-mono text-[10px] font-semibold uppercase tracking-wide text-ink border border-hairline px-1.5 py-0.5">{f}</span>
         ))}
         {kindMix.length > 0 && (
-          <span class="font-mono text-[10px] font-medium uppercase tracking-wide bg-logic-bg text-logic border border-logic/30 px-1.5 py-0.5">{kindMix.join(' · ')}</span>
+          <span class="font-mono text-[10px] font-semibold uppercase tracking-wide bg-logic-bg text-logic border border-logic/30 px-1.5 py-0.5">{kindMix.join(' · ')}</span>
         )}
         <span class="font-mono text-[10px] uppercase tracking-wide text-muted">
           <span class="text-accent font-semibold">{sig.auditedPositions}</span> audited{sig.auditedTakes > 0 ? ` · ${sig.auditedTakes} take${sig.auditedTakes === 1 ? '' : 's'}` : ''}
