@@ -16,11 +16,17 @@ const COLOURS = [
   { rule: '#534AB7', chipBg: '#EEEDFE', chipText: '#3C3489' },
 ];
 const KIND_LABEL: Record<string, string> = { structural: 'Logic', interpretive: 'Judgment call', empirical: 'Factual' };
-// Groundedness chips via semantic tokens (the Instrument wiring — squared, mono).
+// Groundedness labels. These were tinted, bordered chips until 2026-08-10.
+// The word was always doing the work (a chip reading "Judgment call" says
+// judgment call), and the fill and border around it were a fourth and fifth
+// visual system on a page that had far too many. Daniel approved dropping
+// them, which reverses his 2026-08-08 call to keep box and tint at 13px.
+// The hue stays as text colour: it is a scan aid for readers who see it and
+// costs nothing to readers who do not, because the word never left.
 const KIND_STYLE: Record<string, string> = {
-  structural:   'bg-logic-bg text-logic border-logic/30',
-  interpretive: 'bg-judgment-bg text-judgment border-judgment/30',
-  empirical:    'bg-factual-bg text-factual border-factual/30',
+  structural:   'text-logic',
+  interpretive: 'text-judgment',
+  empirical:    'text-factual',
 };
 
 const leftSources  = briefing.sources.filter((s) => s.side === 'left');
@@ -204,7 +210,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
       <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1.5">Our read</span>
       <p class="font-serif text-[17px] text-ink-strong leading-relaxed">{editorLead}</p>
       <div class="flex items-baseline justify-between gap-3 flex-wrap mt-1.5">
-        <a href="#discussion" class="inline-block text-[13px] font-medium text-accent-support hover:underline">Full editor's view, and the devil's advocate ↓</a>
+        <a href="#discussion" class="inline-block text-[13px] font-semibold text-accent-support hover:underline">Full editor's view, and the devil's advocate ↓</a>
         <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">Briefing: engine-assisted · view: human</span>
       </div>
     </div>
@@ -230,7 +236,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
             {p.interest && <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F] leading-snug">Stake: {p.interest}</span>}
             {/* No "review forthcoming" promise (Daniel, 2026-08-06): a link
                renders only when the review exists. */}
-            {p.reviewSlug && <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:text-accent">Full review →</a>}
+            {p.reviewSlug && <a href={`/briefing/${p.reviewSlug}`} class="mt-auto pt-1 font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:text-accent-support">Full review →</a>}
           </div>
         ))}
       </div>
@@ -308,7 +314,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   ))}
                 </div>
                 {block.rows.map((r) => (
-                  <div class="grid grid-cols-[6.5rem_1fr_1fr] gap-2 items-baseline border-b border-hairline/60 pb-2">
+                  <div class="grid grid-cols-[6.5rem_1fr_1fr] gap-2 items-baseline border-b border-hairline pb-2">
                     <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted leading-snug">{r.crux}</span>
                     {r.cells.map((c, i) => (
                       <span class={`font-serif text-[15px] leading-tight ${i === 0 ? 'text-[#345D7E]' : 'text-[#8C4A2F]'}`}>{c}</span>
@@ -558,7 +564,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                     {/* 27-A: the tier word, law-report style — treatment
                        depth in the citation itself, never a rank. Ink
                        border here, hairline on the Digest cards. */}
-                    <span class="font-mono text-[13px] uppercase tracking-[0.08em] border border-ink-strong text-ink-strong px-1.5 py-0.5">Full audit</span>
+                    <span class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-ink-strong">Full audit</span>
                     {pinBySource.has(src.id) && <a href="#diverge" class="font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:underline">contests {pinBySource.get(src.id).at} ↑</a>}
                     <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(src.stance)}`}>
                       <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
@@ -576,8 +582,11 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                  where it disambiguates the voice speaking. */}
               {(() => {
                 const src = posSourceById.get(block.sourceId);
+                // This line rendered sans while the identical Stake line on a
+                // field card rendered serif, so the same content wore two
+                // faces on one page. Serif is the correct one.
                 return src?.interest && (
-                  <p class="text-[13px] leading-snug text-muted mb-2.5" data-plane="apparatus">
+                  <p class="font-serif text-[13px] leading-snug text-muted mb-2.5" data-plane="apparatus">
                     <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F] mr-1.5">Stake</span>
                     {src.interest}
                   </p>
@@ -612,12 +621,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 if (!src?.quote) return null;
                 const kindStyleSrc = KIND_STYLE[src.auditKind ?? 'interpretive'] ?? KIND_STYLE.interpretive;
                 return (
-                  <div class="mt-4 pt-3 border-t border-hairline/60" data-plane="argument">
+                  <div class="mt-4 pt-3 border-t border-hairline" data-plane="argument">
                     <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1.5 block">Their own words</span>
                     <blockquote class="font-serif text-[17px] italic text-ink-strong leading-snug mb-2">“{src.quote}”</blockquote>
                     {src.auditNote && (
                       <p class="font-serif text-[15px] text-ink leading-snug pl-3 border-l-2 border-hairline">
-                        <span class={`inline-block mr-2 font-mono text-[13px] font-semibold uppercase tracking-[0.08em] px-1.5 py-0.5 border ${kindStyleSrc}`}>{KIND_LABEL[src.auditKind ?? 'interpretive']}</span>
+                        <span class={`inline-block mr-2 font-mono text-[13px] font-semibold uppercase tracking-[0.08em] ${kindStyleSrc}`}>{KIND_LABEL[src.auditKind ?? 'interpretive']}</span>
                         {src.auditNote}
                       </p>
                     )}
@@ -636,14 +645,14 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 <div class="instrument-rule"></div>
                 <summary class="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer">
                   <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted shrink-0">The argument, numbered</span>
-                  <svg class="audit-chevron ml-auto shrink-0 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                  <span class="audit-chevron ml-auto shrink-0 inline-block font-mono text-[13px] text-muted" aria-hidden="true">⌄</span>
                 </summary>
                 <div class="px-3.5 pb-3.5">
-                  <dl class="text-[15px] leading-snug">
+                  <dl class="font-serif text-[15px] leading-snug">
                     {block.structure.rows.map((r) => (
                       <div class={`grid grid-cols-[1.4rem_1fr] gap-2.5 py-1.5 ${r.provenance === 'conclusion' ? 'border-t border-ink-strong/40 mt-1 pt-2.5' : 'border-t border-hairline first:border-t-0'}`}>
                         <dt class={`font-mono text-[13px] tabular-nums ${r.provenance === 'conclusion' ? 'text-ink-strong font-semibold' : 'text-muted'}`}>{r.provenance === 'conclusion' ? '∴' : r.id}</dt>
-                        <dd class={r.provenance === 'conclusion' ? 'text-ink-strong font-medium' : 'text-ink'}>
+                        <dd class={r.provenance === 'conclusion' ? 'text-ink-strong font-semibold' : 'text-ink'}>
                           <span>{r.text}</span>
                           {r.provenance === 'supplied' && (
                             <span class="ml-1.5 font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support align-baseline" title="Not stated by the source — supplied by this audit">★ supplied</span>
@@ -666,7 +675,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted pt-0.5">Supports</span>
                       <span class="text-ink">{block.structure.supports}</span>
                       <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted pt-0.5">Asserts</span>
-                      <span class="text-ink-strong font-medium">{block.structure.asserts}</span>
+                      <span class="text-ink-strong font-semibold">{block.structure.asserts}</span>
                       {/* The pair was undefined anywhere on the page — one
                          line says what the gap between them means. */}
                       <p class="col-span-2 font-serif text-[13px] text-muted leading-snug">The distance between the two is the overclaim: the part asserted but not supported.</p>
@@ -681,8 +690,8 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 <summary class="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer">
                   <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted shrink-0">Audit</span>
                   <span class="font-serif text-[17px] font-semibold text-ink-strong">{block.audit.name}</span>
-                  <span class={`font-mono text-[13px] font-semibold uppercase tracking-[0.08em] px-1.5 py-0.5 border shrink-0 ${kindStyle}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
-                  <svg class="audit-chevron ml-auto shrink-0 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                  <span class={`font-mono text-[13px] font-semibold uppercase tracking-[0.08em] shrink-0 ${kindStyle}`}>{KIND_LABEL[block.audit.kind] ?? block.audit.kind}</span>
+                  <span class="audit-chevron ml-auto shrink-0 inline-block font-mono text-[13px] text-muted" aria-hidden="true">⌄</span>
                 </summary>
                 {/* The audit body matches the position paragraph's size (17px):
                    the per-claim audit is the differentiator, it must not read
@@ -690,11 +699,14 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                    line was in-page noise (8.5px) and now lives only on share
                    exports. The deep-link is a chip, not a footnote link. */}
                 <div class="px-3.5 pb-3.5">
-                  <p class="text-[17px] text-ink leading-relaxed mb-2.5">{block.audit.explanation}</p>
+                  {/* The per-claim audit is what this publication exists to
+                     do, and it was set in the chrome grotesque while every
+                     word around it was Besley. Reading text is serif. */}
+                  <p class="font-serif text-[17px] text-ink leading-relaxed mb-2.5">{block.audit.explanation}</p>
                   {/* One audit deep-link per card; the fallibility line moved
                      to a single instance at the article's foot (Decision 21). */}
                   <div class="flex items-center flex-wrap gap-x-3 gap-y-2">
-                    <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent-support hover:text-accent hover:border-accent-support/50 border border-hairline rounded px-3 py-2 transition-colors">Audit this argument →</a>
+                    <a href={`/audit?audit=${briefing.slug}&pos=${encodeURIComponent(block.sourceId)}`} class="inline-flex items-center gap-1.5 text-[13px] font-semibold text-accent-support hover:text-accent-support hover:border-accent-support/50 border border-hairline rounded px-3 py-2 transition-colors">Audit this argument →</a>
                   </div>
                 </div>
               </details>
@@ -757,7 +769,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                           {/* 27-A: the law-report tier word — depth of
                              treatment, never a rank. Digest here, Full audit
                              on the three positions. */}
-                          <span class="font-mono text-[13px] uppercase tracking-[0.08em] border border-hairline text-muted px-1.5 py-0.5">Digest</span>
+                          <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">Digest</span>
                           {pinBySource.has(s.id) && <a href="#diverge" class="font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:underline">contests {pinBySource.get(s.id).at} ↑</a>}
                           <span class="ml-auto inline-flex items-center gap-1.5" title={`Position: ${poleLabel(s.stance)}`}>
                             <span class="inline-flex items-end gap-[3px] h-[11px]" aria-hidden="true">
@@ -771,7 +783,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                         {s.interest && <p class="font-serif text-[13px] text-muted leading-snug mb-1"><span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F] mr-1">Stake</span>{s.interest}</p>}
                         <blockquote class="font-serif text-[17px] italic text-ink-strong leading-snug mb-1.5">“{s.quote}”</blockquote>
                         <p class="font-serif text-[15px] text-ink leading-snug pl-3 border-l-2 border-hairline" data-plane="apparatus">
-                          <span class={`inline-block mr-2 font-mono text-[13px] font-semibold uppercase tracking-[0.08em] px-1.5 py-0.5 border ${kindStyleIC}`}>{KIND_LABEL[s.auditKind ?? 'interpretive']}</span>
+                          <span class={`inline-block mr-2 font-mono text-[13px] font-semibold uppercase tracking-[0.08em] ${kindStyleIC}`}>{KIND_LABEL[s.auditKind ?? 'interpretive']}</span>
                           {s.auditNote}
                         </p>
                       </div>
@@ -783,7 +795,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                       {flat.map(card)}
                       {tail.length > 0 && (
                         <details class="border-t border-hairline pt-2">
-                          <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:underline">Show {tail.length} more {tail.length === 1 ? 'voice' : 'voices'} ↓</summary>
+                          <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden font-mono text-[13px] uppercase tracking-[0.08em] text-accent-support hover:underline">Show {tail.length} more {tail.length === 1 ? "voice" : "voices"} ⌄</summary>
                           <div class="grid gap-4 mt-3">{tail.map(card)}</div>
                         </details>
                       )}
@@ -841,14 +853,21 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                         <div class="absolute left-0 right-0 top-6 border-t-[1.5px] border-ink"></div>
                         <span class="absolute left-0 top-7 font-mono text-[13px] text-muted">{axLo}% support</span>
                         <span class="absolute right-0 top-7 font-mono text-[13px] text-muted">{axHi}% support</span>
-                        {/* The highest figure is marked on THREE channels — a
-                           taller, wider tick and a semibold numeral alongside
-                           the hue — so the emphasis survives colourblind eyes
-                           (the redline alone does not: same L* as the greys). */}
+                        {/* The highest figure is marked on three channels: a
+                           taller tick, a wider tick, and a semibold numeral.
+                           It used to wear the redline as a fourth. That was
+                           wrong twice over. The token reserves #CE2B14 for
+                           "the engine detected something" and says never
+                           decoration, and a dataset maximum is not a detection.
+                           It also never worked as a channel here: the redline
+                           sits at the same lightness as the greys around it,
+                           so a colourblind reader was seeing the three that
+                           remain and nothing more. Removing it costs nothing
+                           and gives the reserved colour its meaning back. */}
                         {block.ticks.map((t) => (
                           <>
-                            <span class={t.value === hi ? 'absolute w-[3px] bg-accent' : 'absolute w-[2px] bg-ink-strong'} style={t.value === hi ? `left:${posPct(t.value)}%; top:0.8rem; height:1.2rem` : `left:${posPct(t.value)}%; top:1.05rem; height:0.95rem`}></span>
-                            <span class={t.value === hi ? 'absolute font-mono text-[13px] font-semibold text-accent whitespace-nowrap' : 'absolute font-mono text-[13px] text-muted whitespace-nowrap'} style={`left:${posPct(t.value)}%; top:0.05rem; transform:translateX(-50%)`}>{t.value}</span>
+                            <span class={t.value === hi ? 'absolute w-[3px] bg-ink-strong' : 'absolute w-[2px] bg-ink-strong'} style={t.value === hi ? `left:${posPct(t.value)}%; top:0.8rem; height:1.2rem` : `left:${posPct(t.value)}%; top:1.05rem; height:0.95rem`}></span>
+                            <span class={t.value === hi ? 'absolute font-mono text-[13px] font-semibold text-ink-strong whitespace-nowrap' : 'absolute font-mono text-[13px] text-muted whitespace-nowrap'} style={`left:${posPct(t.value)}%; top:0.05rem; transform:translateX(-50%)`}>{t.value}</span>
                           </>
                         ))}
                       </div>
@@ -893,7 +912,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                         const bars = sortBarsByPole(q.bars);
                         const poleOf = (s?: 'left' | 'right') => poleFor(s, briefing.spectrumAxis);
                         return (
-                          <details class="border-b border-hairline/60 last:border-b-0">
+                          <details class="border-b border-hairline last:border-b-0">
                             <summary class="py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                               <span class="flex justify-between items-baseline gap-x-4">
                                 <span class="font-serif italic text-[15px] text-ink-strong leading-snug">{q.question}</span>
@@ -902,14 +921,14 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                               <span class="flex h-5 mt-1.5 border border-hairline" role="img" aria-label={`${q.question} ${bars.map((b) => `${b.label} ${b.value}%${b.side ? `, favours ${poleOf(b.side)}` : ''}`).join(', ')}${rest > 0 ? `, other or unsure ${rest}%` : ''}`}>
                                 {bars.map((b) => (
                                   <span class="inline-flex items-center justify-center overflow-hidden border-r border-paper last:border-r-0" style={`width:${b.value}%;background:${segCol(b)}`}>
-                                    {b.value >= 8 && <b class="font-mono text-[13px] text-white tabular-nums">{b.value}</b>}
+                                    {b.value >= 8 && <b class="font-mono text-[13px] font-semibold text-white tabular-nums">{b.value}</b>}
                                   </span>
                                 ))}
                                 {rest > 0 && <span style={`width:${rest}%`} class="bg-paper"></span>}
                               </span>
-                              <span class="block text-[13px] text-ink leading-snug mt-1">
+                              <span class="block font-serif text-[13px] text-ink leading-snug mt-1">
                                 {bars.map((b, bi) => (
-                                  <>{bi > 0 && <span class="text-muted">{' · '}</span>}{b.label}{' '}<b class="tabular-nums">{b.value}</b>{b.side && <span class="text-muted">{' (favours '}{poleOf(b.side)}{')'}</span>}</>
+                                  <>{bi > 0 && <span class="text-muted">{' · '}</span>}{b.label}{' '}<b class="font-semibold tabular-nums">{b.value}</b>{b.side && <span class="text-muted">{' (favours '}{poleOf(b.side)}{')'}</span>}</>
                                 ))}
                                 {rest > 0 && <span class="text-muted">{' · '}other or unsure{' '}<span class="tabular-nums">{rest}</span></span>}
                               </span>
@@ -966,8 +985,8 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                     <form method="get" action="/audit" class={block.dialQuestion ? 'mt-3 pt-3 border-t border-hairline' : ''}>
                       <p class="font-serif text-[15px] text-ink leading-snug mb-2">Or make the case yourself. It runs through the audit before it runs anywhere.</p>
                       <div class="flex gap-1.5">
-                        <input name="text" type="text" required minlength="50" placeholder="Contest a premise, or argue your own…" class="flex-1 min-w-0 bg-paper border border-hairline px-2.5 py-2 text-[13px] text-ink placeholder:text-muted/70 focus:outline-none focus:ring-1 focus:ring-accent-support/50" />
-                        <button type="submit" class="px-3 py-2 bg-accent-support text-paper text-[13px] font-medium hover:bg-accent-support/90 transition-colors shrink-0">Audit it →</button>
+                        <input name="text" type="text" required minlength="50" placeholder="Contest a premise, or argue your own…" class="flex-1 min-w-0 bg-paper border border-hairline px-2.5 py-2 text-[13px] text-ink placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent-support/50" />
+                        <button type="submit" class="px-3 py-2 bg-accent-support text-paper text-[13px] font-semibold hover:bg-accent-support/90 transition-colors shrink-0">Audit it →</button>
                       </div>
                       <p class="font-serif text-[13px] text-muted leading-snug mt-2">Start from a premise:{' '}
                         {block.prompts.map((pr, pi) => (
@@ -1016,10 +1035,10 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   <p class="font-serif text-[17px] italic text-ink leading-snug">“{t.quote}”</p>
                   <p class="font-serif text-[13px] text-muted mt-1.5">
                     {t.url
-                      ? <a href={t.url} target="_blank" rel="noopener noreferrer" class="hover:text-accent">{t.source}</a>
+                      ? <a href={t.url} target="_blank" rel="noopener noreferrer" class="hover:text-accent-support">{t.source}</a>
                       : t.source}
                   </p>
-                  <p class="font-serif text-[15px] text-muted mt-2 pl-2.5 leading-relaxed border-l-2 border-accent-support"><span class="font-medium text-ink">Audit:</span> {t.audit}</p>
+                  <p class="font-serif text-[15px] text-muted mt-2 pl-2.5 leading-relaxed border-l-2 border-accent-support"><span class="font-semibold text-ink">Audit:</span> {t.audit}</p>
                 </div>
               ))}
             </div>
@@ -1071,12 +1090,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
       {v2 ? (
         <div class="space-y-6">
           <div>
-            <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted/80 mb-2">Positions · {posSrc.length}</span>
+            <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Positions · {posSrc.length}</span>
             <ul class="space-y-1.5">
               {posSrc.map((s) => (
                 <li class="flex items-baseline gap-2">
                   <span class="shrink-0 font-mono text-[13px] font-semibold tabular-nums px-1.5 py-0.5 border" style={`color:${stanceCol(s.stance)};border-color:${stanceCol(s.stance)}55;`}>{s.stance > 0 ? `+${s.stance}` : s.stance}</span>
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent-support">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
                   <span class="font-serif text-[13px] text-muted">(placement: {s.confidence})</span>
                 </li>
               ))}
@@ -1084,11 +1103,11 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
           </div>
           {eviSrc.length > 0 && (
             <div>
-              <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted/80 mb-2">Further evidence · {eviSrc.length}</span>
+              <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Further evidence · {eviSrc.length}</span>
               <ul class="space-y-1.5">
                 {eviSrc.map((s) => (
                   <li class="font-serif text-[15px] leading-relaxed">
-                    <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-medium text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" class="font-semibold text-ink hover:text-accent-support">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a>
                     {s.note && <span class="text-muted">: {s.note}</span>}
                   </li>
                 ))}
@@ -1098,13 +1117,13 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
         </div>
       ) : (
         <div>
-          <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted/80 mb-2">Positions · {briefing.sources.length}</span>
+          <span class="block font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Positions · {briefing.sources.length}</span>
           <div class="grid sm:grid-cols-2 gap-5">
             <div class="border-l-2 border-spec-left pl-3">
               <span class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-spec-left">{briefing.spectrumAxis.left}</span>
               <ul class="mt-1.5 space-y-1">
                 {leftSources.map((s) => (
-                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
+                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent-support">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
                 ))}
               </ul>
             </div>
@@ -1112,7 +1131,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
               <span class="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-spec-right">{briefing.spectrumAxis.right}</span>
               <ul class="mt-1.5 space-y-1">
                 {rightSources.map((s) => (
-                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
+                  <li><a href={s.url} target="_blank" rel="noopener noreferrer" class="font-serif text-[15px] text-ink hover:text-accent-support">{s.label}{s.publication ? ` · ${s.publication}` : ''}</a></li>
                 ))}
               </ul>
             </div>

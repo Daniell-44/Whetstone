@@ -24,8 +24,10 @@ import { CONTACT_EMAIL } from '../lib/contact';
       <section>
         <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">The short version</h2>
         <p>
-          No tracking cookies, no advertising, no analytics unless you opt in. We do not sell, share,
-          or profile your data. We store only what a feature you chose to use needs in order to work:
+          No analytics unless you opt in, and we do not sell, share, or profile your data. We do carry
+          advertising: Google AdSense runs on the public pages, sets its own cookies, and is the one
+          third party that sees your visit. There is a section on it below and you can turn its
+          personalisation off. We store only what a feature you chose to use needs in order to work:
           nothing for anonymous reading and auditing beyond a rate-limit counter; your email and your
           saved drafts if you create an account and use Studio; a shared audit's text for 30 days if
           you create a share link. Text you send for analysis goes straight to an AI provider under a
@@ -106,11 +108,32 @@ import { CONTACT_EMAIL } from '../lib/contact';
       <section>
         <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Cookies</h2>
         <p>
-          We set no tracking or analytics cookies. Signing in sets one functional first-party cookie
-          (<code class="text-xs bg-hairline/40 px-1 py-0.5 rounded">whetstone_session</code>) that keeps
-          you signed in and does nothing else. The site does not use any third-party scripts
-          (no Google Analytics, no Meta Pixel, no ad networks). Your browser may cache static assets
-          as normal HTTP caching - that is not a cookie.
+          We set no tracking or analytics cookies of our own. Signing in sets one functional
+          first-party cookie (<code class="text-xs bg-hairline/40 px-1 py-0.5 rounded">whetstone_session</code>)
+          that keeps you signed in and does nothing else. There is no Google Analytics and no Meta
+          Pixel. Google AdSense does set its own cookies, and it is the only third-party script on
+          the site: see the advertising section below. Your browser may cache static assets as normal
+          HTTP caching - that is not a cookie.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">Advertising</h2>
+        <p>
+          The public pages carry advertising through Google AdSense, which is how the briefings get
+          paid for. Google places cookies or similar identifiers in your browser and may use them,
+          along with your visit to this site and to other sites, to choose which ads you see. We
+          never send Google the text you submit for analysis, your drafts, your email address, or
+          anything from your account. We do not receive any personal data back from Google, only
+          aggregate earnings figures.
+        </p>
+        <p class="mt-3">
+          You can turn off personalised advertising for your Google account at
+          <a href="https://myadcenter.google.com/" target="_blank" rel="noopener noreferrer" class="text-accent-support hover:underline">myadcenter.google.com</a>,
+          which works across every AdSense site and not only this one. Google's own account of what
+          it collects is at
+          <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer" class="text-accent-support hover:underline">policies.google.com/technologies/partner-sites</a>.
+          Ads are not loaded on the internal labs pages or on any admin page.
         </p>
       </section>
 
