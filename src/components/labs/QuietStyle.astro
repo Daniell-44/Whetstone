@@ -1,0 +1,203 @@
+---
+// The "Quiet" treatment, as a scoped stylesheet over the REAL briefing
+// component (2026-08-10). Same technique as labs/reading-d4.astro: nothing is
+// rewritten, the mechanics are remapped, so Daniel judges real content.
+//
+// The problem it answers, in his words: "too many visuals and different fonts
+// and separations that it feels like an overload... all the features are
+// important." So this deletes no features. It collapses the VOCABULARY the
+// features speak: 87 distinct type treatments and 34 separator systems, built
+// up one module at a time, each inventing its own way of saying "new thing".
+//
+// Three things happen here and nothing else:
+//   1. One face for everything read, one label style for everything else.
+//   2. Every four-sided box, fill, radius and duplicate rule dissolves into
+//      space. Boxing a module does not protect it: NN/g's banner-blindness
+//      work says a boxed block gets SKIPPED, so removing the box is how you
+//      get the feature read.
+//   3. No text is coloured. Colour survives only on plotted marks (map
+//      markers, poll segments, the stance gauge), where a word already sits
+//      within a few pixels of it.
+//
+// The reading mechanics (18px/1.65, 36px headline) are D4-lite, which Daniel
+// already picked, so they are held constant across all three iterations. The
+// ONLY thing that varies is `variant`: how much of the page steps into an
+// indented consult margin.
+interface Props {
+  /** none = everything flush. apparatus = machinery indented. deep = machinery + argument indented. */
+  variant: 'none' | 'apparatus' | 'deep';
+}
+const { variant } = Astro.props;
+---
+
+<style is:global>
+  /* The gutter is the page's only separator in iterations 2 and 3, so its
+     contrast is load-bearing in a way no rule on the current page is. The
+     existing hairline (#D7D9D3 on paper #F3F4F1) is about 1.3:1 and vanishes
+     on a dim screen, which would take the whole signal with it. */
+  .qz { --qz-gutter: #9A9D95; }
+  /* =========================================================
+     1. ONE FACE. Six passages currently render in the chrome
+        grotesque, including the per-claim audit explanation,
+        which is the product's whole differentiator. Inheritance
+        fixes them all at once rather than line by line.
+     ========================================================= */
+  .qz article { font-family: var(--font-serif); }
+  .qz .font-sans { font-family: var(--font-serif) !important; }
+  .qz b, .qz strong { font-weight: 600; }
+
+  /* =========================================================
+     2. READING MECHANICS (D4-lite, already chosen).
+     ========================================================= */
+  .qz .text-\[15px\],
+  .qz .text-\[17px\] { font-size: 18px !important; line-height: 1.65 !important; }
+  .qz .font-mono.text-\[15px\],
+  .qz .font-mono.text-\[17px\] { font-size: 13px !important; line-height: 1.4 !important; }
+  .qz .text-\[34px\] { font-size: 36px !important; }
+
+  /* =========================================================
+     3. BOXES, FILLS, RADII AND THE TICK DEVICE DISSOLVE.
+        26 hairlined boxes down one page read as 26 separate
+        documents rather than one argument, because common
+        region is the strongest grouping signal there is and it
+        overrides both proximity and similarity.
+     ========================================================= */
+  .qz div.border, .qz details.border,
+  .qz div.border-2, .qz details.border-2 {
+    border-width: 0 !important;
+    background-color: transparent !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .qz .bg-surface, .qz .bg-paper { background-color: transparent !important; }
+  .qz .rounded, .qz .rounded-md { border-radius: 0 !important; }
+  .qz .instrument-rule { display: none !important; }
+
+  /* Every hairline rule goes quiet. The ink-strong chapter rule survives:
+     it is the one separator that earns its keep, six times a page. */
+  .qz .border-hairline,
+  .qz .border-hairline\/60,
+  .qz .border-hairline\/80,
+  .qz .border-accent-support\/40 { border-color: transparent !important; }
+  /* Restored deliberately: the poll bar's outline is what keeps the
+     unanswered remainder visible, so it is a figure, not furniture. */
+  .qz span.border.border-hairline { border-color: var(--color-hairline) !important; }
+
+  /* Seven left-rule idioms at three widths collapse to none. In the
+     iterations below exactly one comes back, doing exactly one job. */
+  .qz [style*="border-left"],
+  .qz .border-l-2,
+  .qz .border-l-\[3px\] {
+    border-left-width: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  /* =========================================================
+     4. ONE LABEL STYLE. A single apparatus label currently
+        carries mono AND uppercase AND tracking AND a border AND
+        a fill: five channels for one job, 109 times a page.
+        The words all survive. The boxes around them do not.
+     ========================================================= */
+  .qz .font-mono.uppercase {
+    color: var(--color-muted) !important;
+    font-weight: 400 !important;
+    border-width: 0 !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+  }
+
+  /* =========================================================
+     5. NO COLOURED TEXT. #345D7E currently means link AND
+        editor-supplied AND left stance pole, sometimes within
+        four lines of itself; #8C4A2F carries four meanings. In
+        every case a word already says it: Stake, supplied, the
+        pole name, Logic, Judgment call. Marks keep their hue.
+     ========================================================= */
+  .qz .text-\[\#8C4A2F\], .qz .text-\[\#345D7E\],
+  .qz .text-accent-support, .qz .text-accent,
+  .qz .text-logic, .qz .text-judgment, .qz .text-factual,
+  .qz .text-spec-left, .qz .text-spec-right,
+  .qz [style*="color:#"] { color: var(--color-muted) !important; }
+  .qz .bg-accent-support, .qz .bg-accent { background-color: transparent !important; }
+
+  /* Controls are controls. A dial step does not also need to carry a stance
+     in its border: the signed numeral, the row position and the two flanking
+     pole captions already say it three times over. */
+  .qz button {
+    border-color: var(--color-ink-strong) !important;
+    border-width: 1px !important;
+    color: var(--color-ink-strong) !important;
+    background-color: transparent !important;
+  }
+  /* The Sources stance chips: the signed numeral is the channel, not the box. */
+  .qz #sources span[style*="border-color"] {
+    border-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Links are a shape, not a hue: available to a colourblind reader,
+     and one rule replaces 28 redline hover states. */
+  .qz article a {
+    color: var(--color-ink-strong) !important;
+    text-decoration: underline;
+    text-decoration-color: var(--color-hairline);
+    text-underline-offset: 3px;
+  }
+
+  /* =========================================================
+     6. ONE DISCLOSURE GRAMMAR. Four grammars teach the same
+        affordance four ways, which costs the reader learning
+        rather than space.
+     ========================================================= */
+  .qz .audit-chevron { display: none !important; }
+  .qz .audit-disclosure > summary::after {
+    content: '+';
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-muted);
+    margin-left: auto;
+  }
+  .qz .audit-disclosure[open] > summary::after { content: '\2212'; }
+  .qz .audit-disclosure > summary { padding-left: 0 !important; padding-right: 0 !important; }
+  .qz .audit-disclosure > div { padding-left: 0 !important; padding-right: 0 !important; }
+
+  /* =========================================================
+     7. SPACING DOES THE GROUPING THE BOXES USED TO DO.
+     ========================================================= */
+  .qz [data-plane] { margin-top: 20px; }
+
+  /* =========================================================
+     8. THE ONLY THING THAT VARIES BETWEEN ITERATIONS: how much
+        of the page hangs off one consult margin. One indent,
+        one rule, learned once, and it is spatial rather than
+        chromatic so it costs a colourblind reader nothing.
+     ========================================================= */
+  .qz-apparatus [data-plane='apparatus'],
+  .qz-deep [data-plane='apparatus'],
+  .qz-deep [data-plane='argument'] {
+    border-left: 1px solid var(--qz-gutter) !important;
+    padding-left: 16px !important;
+  }
+  /* Nested gutters are illegal: a consult block inside a consult block would
+     regenerate the boundaries this whole treatment removes. */
+  .qz-apparatus [data-plane] [data-plane],
+  .qz-deep [data-plane] [data-plane] {
+    border-left-width: 0 !important;
+    padding-left: 0 !important;
+  }
+  /* Consulted material also recedes in size. Where there is no margin
+     (iteration 1) nothing recedes, which is exactly the thing being tested:
+     whether size and quiet alone are enough to tell reading from machinery. */
+  .qz-apparatus [data-plane='apparatus'] .text-\[15px\],
+  .qz-apparatus [data-plane='apparatus'] .text-\[17px\],
+  .qz-deep [data-plane='apparatus'] .text-\[15px\],
+  .qz-deep [data-plane='apparatus'] .text-\[17px\] {
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+  }
+</style>
+
+<div class:list={['qz', variant === 'apparatus' && 'qz-apparatus', variant === 'deep' && 'qz-deep']}>
+  <slot />
+</div>
