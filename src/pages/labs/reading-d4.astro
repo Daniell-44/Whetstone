@@ -1,0 +1,84 @@
+---
+// D4-lite reading-treatment preview (Daniel's pick, 2026-08-10 — see
+// Research_Reading_Experience_v1.md). The REAL nuclear briefing rendered
+// through the REAL component, with only the reading mechanics remapped by a
+// scoped stylesheet: prose 15/17px → 18px at 1.65 leading, measure capped
+// near 70ch, four-sided boxed modules dissolved into top rules. Identity
+// untouched: Besley everywhere, paper ground, mono kickers, left rules,
+// chips keep their boxes. Never linked, noindexed; judgement page only.
+export const prerender = false;
+
+import Base from '../../layouts/Base.astro';
+import BriefingArticle from '../../components/briefing/BriefingArticle.astro';
+import { getAllBriefings } from '../../lib/briefings';
+
+const briefing = getAllBriefings().find((b) => b.slug === 'nuclear-costings-parent');
+---
+
+<Base title="Reading treatment D4-lite (labs) - The Whetstone">
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+  <div class="max-w-[46rem] mx-auto px-4 py-8">
+    <div class="border-b border-hairline pb-3 mb-8">
+      <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">
+        Labs · reading treatment D4-lite
+      </p>
+      <p class="font-serif text-[15px] text-muted mt-1">
+        The live briefing with three mechanics changed: prose at 18px / 1.65, measure ~70ch,
+        boxed modules dissolved into rules. Compare against
+        <a href="/briefing/nuclear-costings-parent" class="underline">the live page</a>.
+        Everything else — Besley, paper, mono apparatus, chips — is untouched.
+      </p>
+    </div>
+    {briefing ? (
+      <div class="d4lite">
+        <BriefingArticle briefing={briefing} />
+      </div>
+    ) : (
+      <p class="font-serif text-[15px] text-muted">Briefing not found.</p>
+    )}
+  </div>
+</Base>
+
+<style is:global>
+  /* D4-lite remap — scoped, additive, judgement-page only.
+     Lever 1: body size + leading (the research's dominant lever). */
+  .d4lite .text-\[15px\] {
+    font-size: 18px !important;
+    line-height: 1.65 !important;
+  }
+  .d4lite .text-\[17px\] {
+    font-size: 18px !important;
+    line-height: 1.65 !important;
+  }
+  /* Chips, kickers, and labels stay small: mono elements keep their size. */
+  .d4lite .font-mono.text-\[15px\],
+  .d4lite .font-mono.text-\[17px\] {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+  /* Headline breathes up one step with the new scale. */
+  .d4lite .text-\[34px\] {
+    font-size: 36px !important;
+  }
+
+  /* Lever 3: four-sided boxed MODULES dissolve into a top rule + open space.
+     Chips and tags are inline elements and keep their boxes; left/top rules
+     (border-l-2, border-t) are untouched — they are already rules. */
+  .d4lite div.border:not(.rounded-full),
+  .d4lite details.border {
+    border-width: 0 !important;
+    border-top-width: 1px !important;
+    background: transparent !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .d4lite div.border-2:not(.rounded-full),
+  .d4lite details.border-2 {
+    border-left-width: 0 !important;
+    border-right-width: 0 !important;
+    border-bottom-width: 0 !important;
+    background: transparent !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+</style>
