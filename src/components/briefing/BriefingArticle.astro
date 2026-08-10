@@ -2,6 +2,7 @@
 import PopulatedSpectrum from './PopulatedSpectrum.astro';
 import BandedSpectrum from './BandedSpectrum.astro';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
+import { sortBarsByPole, poleFor } from '../../../functions/_lib/briefing/poll';
 
 interface Props { briefing: BriefingArticle }
 const { briefing } = Astro.props;
@@ -861,7 +862,14 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                      position, and the values line all carry the mapping.
                      Unmapped polls render neutral grey. Numbers ride inside
                      segments wide enough to hold them; the values line below
-                     repeats every figure in the same order. */}
+                     repeats every figure in the same order.
+                     2026-08-10: position and words are now ENFORCED, not just
+                     an authoring convention. The old code rendered bars in
+                     whatever order the markdown listed them, so the claim
+                     above was true only while every author remembered to type
+                     left-pole answers first, and the values line named no side
+                     at all. A sided poll authored the other way round would
+                     have left hue as the only channel, silently. */}
                   {block.questions.length > 0 && (
                     <div class="border-t border-hairline mt-3 pt-2.5">
                       <div class="flex items-baseline justify-between gap-3">
@@ -873,6 +881,17 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                         const total = q.bars.reduce((s, b) => s + b.value, 0);
                         const rest = Math.max(0, 100 - total);
                         const segCol = (b) => b.side === 'left' ? '#345D7E' : b.side === 'right' ? '#8C4A2F' : '#6E7370';
+                        // The side channel must not depend on the order the
+                        // author happened to type the answers in. A STABLE sort
+                        // puts left-pole answers left, unsided in the middle,
+                        // right-pole answers right, so the segment's POSITION
+                        // carries the mapping whatever the authoring order —
+                        // and unsided polls keep their authored order exactly.
+                        // The values line below then names each sided answer's
+                        // pole in words. Hue is the third channel, never the
+                        // first: this row must stay readable in greyscale.
+                        const bars = sortBarsByPole(q.bars);
+                        const poleOf = (s?: 'left' | 'right') => poleFor(s, briefing.spectrumAxis);
                         return (
                           <details class="border-b border-hairline/60 last:border-b-0">
                             <summary class="py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
@@ -880,8 +899,8 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                                 <span class="font-serif italic text-[15px] text-ink-strong leading-snug">{q.question}</span>
                                 <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted shrink-0" aria-hidden="true">the catch ⌄</span>
                               </span>
-                              <span class="flex h-5 mt-1.5 border border-hairline" role="img" aria-label={`${q.question} ${q.bars.map((b) => `${b.label} ${b.value}%`).join(', ')}${rest > 0 ? `, other or unsure ${rest}%` : ''}`}>
-                                {q.bars.map((b) => (
+                              <span class="flex h-5 mt-1.5 border border-hairline" role="img" aria-label={`${q.question} ${bars.map((b) => `${b.label} ${b.value}%${b.side ? `, favours ${poleOf(b.side)}` : ''}`).join(', ')}${rest > 0 ? `, other or unsure ${rest}%` : ''}`}>
+                                {bars.map((b) => (
                                   <span class="inline-flex items-center justify-center overflow-hidden border-r border-paper last:border-r-0" style={`width:${b.value}%;background:${segCol(b)}`}>
                                     {b.value >= 8 && <b class="font-mono text-[13px] text-white tabular-nums">{b.value}</b>}
                                   </span>
@@ -889,8 +908,8 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                                 {rest > 0 && <span style={`width:${rest}%`} class="bg-paper"></span>}
                               </span>
                               <span class="block text-[13px] text-ink leading-snug mt-1">
-                                {q.bars.map((b, bi) => (
-                                  <>{bi > 0 && <span class="text-muted">{' · '}</span>}{b.label}{' '}<b class="tabular-nums">{b.value}</b></>
+                                {bars.map((b, bi) => (
+                                  <>{bi > 0 && <span class="text-muted">{' · '}</span>}{b.label}{' '}<b class="tabular-nums">{b.value}</b>{b.side && <span class="text-muted">{' (favours '}{poleOf(b.side)}{')'}</span>}</>
                                 ))}
                                 {rest > 0 && <span class="text-muted">{' · '}other or unsure{' '}<span class="tabular-nums">{rest}</span></span>}
                               </span>

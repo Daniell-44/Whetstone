@@ -10,7 +10,15 @@ test('briefing page renders question, audit link, and takes', async ({ page }) =
   // "Audit this argument →" deep-links into the tool at /audit with the
   // briefing slug + position id (D1 Option B, 2026-07-07: the tool moved off
   // the homepage; per-position links carry the exact assessed text).
-  const auditLink = page.getByRole('link', { name: /audit this argument/i }).first();
+  //
+  // The link lives inside the per-claim audit disclosure, and the 2026-08-09
+  // critic pass stopped that disclosure defaulting open. This test had asserted
+  // visibility on collapsed content ever since and has been red on clean HEAD;
+  // opening the fold first is both the fix and the honest reader path, so it
+  // now covers the disclosure affordance as well as the link.
+  const auditFold = page.locator('details.audit-disclosure').filter({ hasText: 'Audit' }).first();
+  await auditFold.locator('summary').click();
+  const auditLink = auditFold.getByRole('link', { name: /audit this argument/i }).first();
   await expect(auditLink).toBeVisible();
   await expect(auditLink).toHaveAttribute('href', /^\/audit\?audit=/);
 
