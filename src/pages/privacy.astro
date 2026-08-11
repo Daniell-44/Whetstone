@@ -6,6 +6,7 @@ import { CONTACT_EMAIL } from '../lib/contact';
   title="Privacy - The Whetstone"
   description="How The Whetstone handles your data."
   canonicalPath="/privacy"
+  noAds={true}
 >
   <main class="max-w-2xl mx-auto px-6 pt-16 pb-24">
 
@@ -133,27 +134,31 @@ import { CONTACT_EMAIL } from '../lib/contact';
           which works across every AdSense site and not only this one. Google's own account of what
           it collects is at
           <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer" class="text-accent-support hover:underline">policies.google.com/technologies/partner-sites</a>.
-          Ads are not loaded on the internal labs pages or on any admin page.
+          Ads are not loaded on this page, on the extension privacy policy, on the internal labs
+          pages, or on any admin page.
         </p>
       </section>
 
       <section>
         <h2 class="text-xs font-semibold tracking-widest text-muted uppercase mb-3">The Chrome extension</h2>
         <p class="mb-3">
-          The Whetstone extension audits the argument on a page you choose. When you run an audit, the
-          selected passage or article text is sent to the same AI provider (Google Gemini, under the
-          zero-retention policy above) and the result is shown in the side panel. The page content is
-          not stored on our servers.
+          The extension maps the argument on a page you choose. When you run a mapping, that text is
+          sent to the same AI provider (Google Gemini, under the zero-retention policy above) and the
+          result appears in the side panel. The page content is not stored on our servers.
         </p>
         <p class="mb-3">
-          The extension reads a single cookie - your <code class="text-xs bg-hairline/40 px-1 py-0.5 rounded">whetstone_session</code>
-          sign-in cookie - only to recognise whether you have an account, so it can show the right
-          features. It does not read other cookies or track your browsing.
+          It has its own policy, and that one is authoritative:
+          <a href="/extension-privacy" class="text-accent-support hover:underline">the extension privacy policy</a>.
+          It covers three things this page cannot summarise fairly: the small script that runs on
+          every page so the selection pill can appear, the optional ambient mode that is switched off
+          when you install it, and the placement cache, which is keyed on a page's address for up to
+          seven days.
         </p>
         <p>
-          Optional usage analytics are off by default and can be enabled in the extension's settings;
-          no page content is ever included. If you paste your own Gemini API key for deeper analysis, it
-          is stored locally in your browser and never sent to us.
+          Read that page rather than this paragraph. This section previously said usage analytics
+          were off by default and could be changed in the extension's settings. Both had stopped
+          being true: the analytics switch defaults to on, and it now lives in the panel under
+          Options. Corrected 11 August 2026.
         </p>
       </section>
 
