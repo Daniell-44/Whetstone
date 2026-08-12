@@ -1,6 +1,5 @@
 ---
 import BandedSpectrum from './BandedSpectrum.astro';
-import ContestedFooting from './ContestedFooting.astro';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 import { sortBarsByPole, poleFor } from '../../../functions/_lib/briefing/poll';
 
@@ -429,12 +428,6 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   <p class="font-serif text-[15px] text-ink leading-snug mt-3 mb-1">The gap between those two sentences is {['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][pairs.length] ?? pairs.length} method choices:</p>
                 </>
               )}
-              {/* The Contested Footing (2026-08-12): the counting sentence above
-                 promises N method choices, and this is the answer to it at a
-                 glance before the full rows below. Capped at four and led by the
-                 unstated ones, which is what keeps it a lead rather than a
-                 second copy of the rows. */}
-              <ContestedFooting block={block} axis={briefing.spectrumAxis} />
               {/* The two reports, named once. Text label is the primary
                  channel; the stance hue is redundant on top of it. */}
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 mt-2 mb-2" data-plane="apparatus">
