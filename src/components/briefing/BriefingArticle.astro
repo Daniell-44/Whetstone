@@ -1,6 +1,6 @@
 ---
-import PopulatedSpectrum from './PopulatedSpectrum.astro';
 import BandedSpectrum from './BandedSpectrum.astro';
+import ContestedFooting from './ContestedFooting.astro';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 import { sortBarsByPole, poleFor } from '../../../functions/_lib/briefing/poll';
 
@@ -247,11 +247,9 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
      the first position (so cruxes/matrix come first). Fallback: a briefing with
      NO ::position blocks (legacy ::sources only) still needs its spectrum, so
      render it here in that case. */}
-  {!isExplainer && firstPositionIdx === -1 && (posSrc.length > 0 || briefing.sources.length > 0) && (
+  {!isExplainer && firstPositionIdx === -1 && posSrc.length > 0 && (
     <div class="mb-7">
-      {v2
-        ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
-        : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
+      <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
       <div class="border-b border-hairline mt-4"></div>
     </div>
   )}
@@ -431,6 +429,12 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                   <p class="font-serif text-[15px] text-ink leading-snug mt-3 mb-1">The gap between those two sentences is {['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][pairs.length] ?? pairs.length} method choices:</p>
                 </>
               )}
+              {/* The Contested Footing (2026-08-12): the counting sentence above
+                 promises N method choices, and this is the answer to it at a
+                 glance before the full rows below. Capped at four and led by the
+                 unstated ones, which is what keeps it a lead rather than a
+                 second copy of the rows. */}
+              <ContestedFooting block={block} axis={briefing.spectrumAxis} />
               {/* The two reports, named once. Text label is the primary
                  channel; the stance hue is redundant on top of it. */}
               <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 mt-2 mb-2" data-plane="apparatus">
@@ -722,9 +726,7 @@ const kickerCls = KIND === 'opinion' ? 'text-[#8C4A2F]' : (KIND === 'explainer' 
                 <h3 class="font-serif text-[17px] font-semibold text-ink-strong leading-snug border-t border-hairline pt-2.5">The field: who stands where</h3>
                 <p class="font-serif text-[13px] text-muted mt-0.5 mb-4">Each voice in its strongest form. Inclusion is not agreement.</p>
                 <div class="mb-4" data-plane="apparatus">
-                  {v2
-                    ? <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
-                    : <PopulatedSpectrum sources={briefing.sources} axis={briefing.spectrumAxis} />}
+                  <BandedSpectrum positions={posSrc} axis={briefing.spectrumAxis} />
                 </div>
                 {inlineCommentary.length > 0 && (() => {
                   {/* Camp kickers ride the card stream: one kicker where a
