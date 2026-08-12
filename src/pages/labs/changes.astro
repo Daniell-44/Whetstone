@@ -1,0 +1,324 @@
+---
+// Every pending visual change, in one place, 2026-08-12.
+//
+// Daniel: "visualise all the visual changes." This renders each proposed change
+// against what is on the page today, using real data from the nuclear briefing.
+// Nothing here is shipped. Noindex, unlinked, no ads.
+//
+// Architecture note that changes what is drawn: he has ruled that the beat stays
+// broad (book reviews, financial analysis, philosophy), that the tool "cannot be
+// reliant on completed briefings", and that the no-corpus path gets built. So the
+// NO MATCH state below is the primary extension screen, not the fallback, and it
+// is drawn at full size accordingly.
+import Base from '../../layouts/Base.astro';
+
+const POLES = ['nuclear cheaper', 'renewables cheaper'];
+const QUESTION = 'Is a nuclear pathway cheaper than a renewables-only one for Australia?';
+
+// Real crux premises from nuclear-costings-parent.md, capped at four.
+const ROWS = [
+  { v: 'unstated', t: 'How often a reactor runs', k: 'Supplied', bang: true,
+    f: 'Frontier needs 90 per cent uptime and never states it. GenCost prices 53 to 89 per cent, from coal’s own record.',
+    a: '90% of the time (never stated)', b: '53 to 89%, coal’s best decade' },
+  { v: 'contested', t: 'What the first plant costs', k: 'Factual', bang: false,
+    f: 'Frontier removes the first-of-a-kind premium by the time nuclear is built. GenCost puts it above 100 per cent.',
+    a: 'premium removed', b: 'over 100% premium' },
+  { v: 'contested', t: 'How long the asset lives', k: 'Judgment call', bang: false,
+    f: 'The same build cost spread over 50 years or recovered over 30. Neither side argues for its choice.',
+    a: 'spread over 50 years', b: 'recovered over 30 years' },
+  { v: 'unstated', t: 'What the money could have earned instead', k: 'Supplied', bang: true,
+    f: 'Frontier’s discount rate is undisclosed. The footnote that should name it reads “Error! Reference source not found.”',
+    a: 'undisclosed', b: 'raised 6% to 7%, stated' },
+];
+const WORD: Record<string, string> = { holds: 'HOLDS', contested: 'CONTESTED', unstated: 'UNSTATED' };
+---
+
+<Base title="Pending visual changes (labs) - The Whetstone" noAds={true}>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <div class="vc">
+    <p class="kicker">The Whetstone · labs · 12 August 2026</p>
+    <h1>Every pending visual change</h1>
+    <p class="lede">Each proposed change against what the page does today, on real data. Nothing here is shipped.</p>
+    <p class="note">No colour is used to carry meaning anywhere in the new work. Every verdict is an English word; the geometry only repeats it. The one place colour still carries meaning alone is change 2 below, which is the argument for removing it.</p>
+
+    <!-- ============ 1. THE FOOTING, THREE GEOMETRIES ============ -->
+    <hr class="rule" />
+    <p class="tag">Change 1 · the briefing page and the extension card</p>
+    <h2>The Contested Footing</h2>
+    <p class="note">What the argument rests on, and what happened when each part was checked. Three geometries, same content. Nothing HOLDS on this briefing: two premises are contested and two were never stated. That is the real result.</p>
+
+    <p class="sizetag">A · beam and struts</p>
+    <div class="card">
+      <p class="eyebrow">The Whetstone · this question is mapped</p>
+      <p class="q">{QUESTION}</p>
+      <div class="poles"><span>← {POLES[0]}</span><span>{POLES[1]} →</span></div>
+      <div class="beam"></div>
+      <div class="struts">
+        {ROWS.map((r, i) => (
+          <div class="strutcol" style={`left:${((i + 0.5) / ROWS.length) * 100}%`}>
+            <div class={`strut ${r.v}`}></div>
+          </div>
+        ))}
+      </div>
+      <div class="baseline"></div>
+      <div class="words">
+        {ROWS.map((r, i) => (
+          <div class="wordcol" style={`left:${((i + 0.5) / ROWS.length) * 100}%`}>
+            <span class="word">{WORD[r.v]}</span><span class="ord">{i + 1}</span>
+          </div>
+        ))}
+      </div>
+      <div class="rows">
+        {ROWS.map((r, i) => (
+          <div class="row">
+            <span class="rnum">{i + 1}</span>
+            <span class="rverdict">{WORD[r.v]}</span>
+            <span class="rtext">{r.t}
+              <span class="rfind">{r.bang && <span class="bang">! </span>}<b>{r.k}.</b> {r.f}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <p class="sizetag">B · rows only, the "delete the diagram" option</p>
+    <div class="card">
+      <p class="eyebrow">The Whetstone · this question is mapped</p>
+      <p class="q">{QUESTION}</p>
+      <div class="rows tophair">
+        {ROWS.map((r, i) => (
+          <div class="row">
+            <span class="rnum">{i + 1}</span>
+            <span class="rverdict">{WORD[r.v]}</span>
+            <span class="rtext">{r.t}
+              <span class="rfind">{r.bang && <span class="bang">! </span>}<b>{r.k}.</b> {r.f}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <p class="sizetag">C · the ledger, diagram and text as one object</p>
+    <div class="card">
+      <p class="eyebrow">The Whetstone · this question is mapped</p>
+      <p class="q">{QUESTION}</p>
+      <div class="poles"><span>← {POLES[0]}</span><span>{POLES[1]} →</span></div>
+      <div class="beam"></div>
+      <div style="height:10px"></div>
+      {ROWS.map((r) => (
+        <div class="lrow">
+          <div class="gauge">
+            <span class="bar">
+              {r.v === 'holds' && <span class="seg" style="width:54px"></span>}
+              {r.v === 'contested' && <><span class="seg" style="width:34px"></span><span class="seg miss" style="width:20px"></span></>}
+              {r.v === 'unstated' && <span class="seg gap" style="width:54px"></span>}
+            </span>
+            <span class="gword">{WORD[r.v]}</span>
+          </div>
+          <div>
+            <span class="rtext">{r.t}</span>
+            <span class="rfind">{r.bang && <span class="bang">! </span>}<b>{r.k}.</b> {r.f}</span>
+            <div class="cmp">
+              <div class="side"><b>{POLES[0]}</b>{r.a}</div>
+              <div class="side"><b>{POLES[1]}</b>{r.b}</div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- ============ 2. WHAT COMES OFF ============ -->
+    <hr class="rule" />
+    <p class="tag">Change 2 · the briefing page</p>
+    <h2>What the Footing displaces</h2>
+    <p class="note">Today's small spectrum graphic, reproduced faithfully below. Each source is a dot whose side is carried by colour and nothing else: blue for one pole, rust for the other, grey for neither. There is no text label saying which side a dot is on. The big map above it on the same page shows the same dataset with numerals and pole words.</p>
+
+    <p class="sizetag">Today · colour is the only channel</p>
+    <div class="card">
+      <div class="oldspec">
+        <div class="oldrail"></div>
+        <span class="olddot" style="left:8%;background:#345D7E"></span>
+        <span class="olddot" style="left:19%;background:#345D7E"></span>
+        <span class="olddot" style="left:34%;background:#345D7E"></span>
+        <span class="olddot" style="left:50%;background:#6E7370"></span>
+        <span class="olddot" style="left:66%;background:#8C4A2F"></span>
+        <span class="olddot" style="left:81%;background:#8C4A2F"></span>
+        <span class="olddot" style="left:92%;background:#8C4A2F"></span>
+      </div>
+      <p class="micro">Try to say which of those seven sit on which side without reading the code.</p>
+    </div>
+
+    <!-- ============ 3. NO MATCH, NOW THE PRIMARY SCREEN ============ -->
+    <hr class="rule" />
+    <p class="tag">Change 3 · the extension, and the biggest change here</p>
+    <h2>When we have no briefing for it</h2>
+    <p class="note">Your ruling that the tool cannot depend on finished briefings makes this the screen most people see most of the time, so it is drawn at full size rather than as an error. It shows the argument's own structure, which needs no corpus, then says plainly that no map exists and offers to log the gap.</p>
+
+    <p class="sizetag">Extension card · no briefing matched</p>
+    <div class="card panel">
+      <p class="eyebrow">The Whetstone · no map for this yet</p>
+      <p class="q">What this piece rests on</p>
+      <div class="rows tophair">
+        <div class="row"><span class="rnum">1</span><span class="rverdict">STATED</span><span class="rtext">Emissions targets will be missed on current policy
+          <span class="rfind"><b>Factual.</b> Attributed to departmental data in the piece.</span></span></div>
+        <div class="row"><span class="rnum">2</span><span class="rverdict">UNSTATED</span><span class="rtext">Missing a target means the policy was wrong
+          <span class="rfind"><span class="bang">! </span><b>Supplied.</b> The argument needs this step and never makes it.</span></span></div>
+        <div class="row"><span class="rnum">3</span><span class="rverdict">STATED</span><span class="rtext">Rooftop solar expansion is a distraction from the record
+          <span class="rfind"><b>Judgment call.</b> Turns on what counts as relevant to the target.</span></span></div>
+      </div>
+      <div class="gap">
+        <p class="gaptitle">No briefing covers this question yet.</p>
+        <p class="gapbody">We map questions people actually read. Log this one and it joins the queue.</p>
+        <p class="gapbtn">Log this gap →</p>
+      </div>
+    </div>
+    <p class="micro wide">The three verdict words here are STATED, UNSTATED and CONTESTED. CONTESTED cannot appear without a briefing, because there is nothing to contest it against. That is the visible difference between a mapped question and an unmapped one, and it is the argument for making briefings.</p>
+
+    <!-- ============ 4. THE AXIS ============ -->
+    <hr class="rule" />
+    <p class="tag">Change 4 · the extension card</p>
+    <h2>The stance axis, notched</h2>
+    <p class="note">Today the marker sits at a continuous percentage on a bare hairline, so at panel width a centre stance and a leaning one are indistinguishable by position. Five notches make the position readable, and the pole words carry it in text regardless.</p>
+
+    <div class="two">
+      <div>
+        <p class="sizetag">Today</p>
+        <div class="card panel">
+          <div class="poles"><span>← {POLES[0]}</span><span>{POLES[1]} →</span></div>
+          <div class="oldaxis"><span class="oldmark" style="left:31%"></span></div>
+          <p class="micro">Leans nuclear cheaper.</p>
+        </div>
+      </div>
+      <div>
+        <p class="sizetag">Proposed</p>
+        <div class="card panel">
+          <div class="poles"><span>← {POLES[0]}</span><span>{POLES[1]} →</span></div>
+          <div class="newaxis">
+            <span class="notch" style="left:0%"></span><span class="notch" style="left:25%"></span>
+            <span class="notch" style="left:50%"></span><span class="notch" style="left:75%"></span>
+            <span class="notch" style="left:100%"></span>
+            <span class="newmark" style="left:25%"></span>
+          </div>
+          <p class="micro"><b>Leans nuclear cheaper.</b> Second notch of five.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rule" />
+    <p class="note wide">Greyscale proof. Everything above except change 2 is unchanged below, because none of it uses colour to mean anything. Change 2 collapses, which is the point.</p>
+    <div class="grey two">
+      <div class="card panel">
+        <div class="oldspec">
+          <div class="oldrail"></div>
+          <span class="olddot" style="left:8%;background:#345D7E"></span>
+          <span class="olddot" style="left:34%;background:#345D7E"></span>
+          <span class="olddot" style="left:50%;background:#6E7370"></span>
+          <span class="olddot" style="left:81%;background:#8C4A2F"></span>
+        </div>
+        <p class="micro">Change 2 in greyscale.</p>
+      </div>
+      <div class="card panel">
+        <div class="rows tophair">
+          {ROWS.map((r, i) => (
+            <div class="row"><span class="rnum">{i + 1}</span><span class="rverdict">{WORD[r.v]}</span><span class="rtext">{r.t}</span></div>
+          ))}
+        </div>
+        <p class="micro">The Footing in greyscale.</p>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style is:global>
+  .vc {
+    --pp:#F3F4F1; --ss:#FBFBF9; --ii:#24272B; --is:#121417; --mm:#5C6167; --hh:#D7D9D3;
+    --sf: 'Besley Variable', Georgia, serif;
+    --mo: ui-monospace, Menlo, Consolas, monospace;
+    max-width: 60rem; margin: 0 auto; padding: 32px 20px 80px;
+    font-family: var(--sf); color: var(--ii); line-height: 1.6;
+  }
+  .vc h1 { font-size: 32px; color: var(--is); font-weight: 400; margin: 0 0 8px; line-height: 1.15; }
+  .vc h2 { font-size: 24px; color: var(--is); font-weight: 400; margin: 0 0 8px; line-height: 1.2; }
+  .vc .kicker, .vc .tag, .vc .sizetag {
+    font-family: var(--mo); font-size: 12px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--mm); margin: 0 0 6px;
+  }
+  .vc .sizetag { margin: 22px 0 6px; }
+  .vc .lede { font-size: 18px; margin: 0 0 10px; max-width: 44rem; }
+  .vc .note { font-size: 15px; color: var(--mm); max-width: 44rem; margin: 0 0 6px; }
+  .vc .note.wide, .vc .micro.wide { max-width: 52rem; }
+  .vc .micro { font-family: var(--sf); font-size: 13px; color: var(--mm); margin: 8px 0 0; }
+  .vc hr.rule { border: 0; border-top: 1px solid var(--is); margin: 46px 0 18px; }
+  .vc .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 720px) { .vc .two { grid-template-columns: 1fr; } }
+
+  .vc .card { background: var(--ss); border: 1px solid var(--hh); padding: 20px 22px; max-width: 42rem; }
+  .vc .card.panel { max-width: 26rem; }
+  .vc .eyebrow { font-family: var(--mo); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); margin: 0 0 8px; }
+  .vc .q { font-size: 18px; font-weight: 600; color: var(--is); line-height: 1.3; margin: 0 0 18px; }
+
+  .vc .poles { display: flex; justify-content: space-between; font-family: var(--mo);
+    font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--mm); margin-bottom: 5px; }
+  .vc .beam { height: 2px; background: var(--is); }
+  .vc .struts { position: relative; height: 52px; }
+  .vc .strutcol { position: absolute; top: 0; bottom: 0; transform: translateX(-50%); }
+  .vc .strut { width: 2px; background: var(--is); }
+  .vc .strut.holds { height: 100%; }
+  .vc .strut.contested { height: calc(100% - 10px); }
+  .vc .strut.unstated { height: 100%; width: 0; background: none; border-left: 2px dashed var(--is); }
+  .vc .baseline { height: 1px; background: var(--hh); }
+  .vc .words { position: relative; height: 34px; margin-top: 6px; }
+  .vc .wordcol { position: absolute; top: 0; text-align: center; transform: translateX(-50%); }
+  .vc .word { font-family: var(--mo); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--is); display: block; white-space: nowrap; }
+  .vc .ord { font-family: var(--mo); font-size: 11px; color: var(--mm); display: block; margin-top: 2px; }
+
+  .vc .rows { margin-top: 14px; }
+  .vc .rows.tophair { border-top: 1px solid var(--hh); }
+  .vc .row { display: grid; grid-template-columns: 16px 96px 1fr; gap: 10px; align-items: baseline;
+    padding: 11px 0; border-bottom: 1px solid var(--hh); }
+  .vc .card.panel .row { grid-template-columns: 14px 84px 1fr; gap: 8px; }
+  .vc .row:last-child { border-bottom: 0; }
+  .vc .rnum { font-family: var(--mo); font-size: 11px; color: var(--mm); }
+  .vc .rverdict { font-family: var(--mo); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--is); }
+  .vc .rtext { font-size: 15px; line-height: 1.45; }
+  .vc .card.panel .rtext { font-size: 14px; }
+  .vc .rfind { display: block; font-size: 14px; color: var(--mm); margin-top: 4px; line-height: 1.4; }
+  .vc .rfind b { color: var(--is); font-weight: 600; }
+  .vc .bang { font-weight: 600; color: var(--is); }
+
+  .vc .lrow { display: grid; grid-template-columns: 74px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--hh); }
+  .vc .lrow:last-child { border-bottom: 0; }
+  .vc .gauge { display: flex; flex-direction: column; gap: 4px; }
+  .vc .bar { display: flex; align-items: center; height: 11px; }
+  .vc .seg { height: 2px; background: var(--is); }
+  .vc .seg.miss { background: var(--hh); }
+  .vc .seg.gap { background: transparent; border-top: 2px dashed var(--is); height: 0; }
+  .vc .gword { font-family: var(--mo); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--is); }
+  .vc .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 6px; }
+  .vc .side { font-size: 13px; color: var(--mm); line-height: 1.4; }
+  .vc .side b { font-family: var(--mo); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; display: block; font-weight: 400; }
+
+  /* today's spectrum, reproduced */
+  .vc .oldspec { position: relative; height: 34px; margin: 6px 0 0; }
+  .vc .oldrail { position: absolute; top: 16px; left: 0; right: 0; height: 1px; background: var(--hh); }
+  .vc .olddot { position: absolute; top: 11px; width: 11px; height: 11px; border-radius: 50%; transform: translateX(-50%); }
+
+  /* axis before and after */
+  .vc .oldaxis { position: relative; height: 20px; }
+  .vc .oldaxis::before { content: ''; position: absolute; top: 9px; left: 0; right: 0; height: 1px; background: var(--hh); }
+  .vc .oldmark { position: absolute; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--is); transform: translateX(-50%); }
+  .vc .newaxis { position: relative; height: 22px; }
+  .vc .newaxis::before { content: ''; position: absolute; top: 14px; left: 0; right: 0; height: 2px; background: var(--is); }
+  .vc .notch { position: absolute; top: 8px; width: 1px; height: 6px; background: var(--mm); transform: translateX(-50%); }
+  .vc .newmark { position: absolute; top: 4px; width: 3px; height: 16px; background: var(--is); transform: translateX(-50%); }
+
+  /* the gap block */
+  .vc .gap { border-top: 1px solid var(--is); margin-top: 16px; padding-top: 12px; }
+  .vc .gaptitle { font-size: 15px; font-weight: 600; color: var(--is); margin: 0 0 4px; }
+  .vc .gapbody { font-size: 14px; color: var(--mm); margin: 0 0 10px; line-height: 1.45; }
+  .vc .gapbtn { font-family: var(--mo); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--is); border: 1px solid var(--is); display: inline-block; padding: 6px 10px; margin: 0; }
+
+  .vc .grey { filter: grayscale(1); }
+</style>
