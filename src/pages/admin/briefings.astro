@@ -1,0 +1,234 @@
+---
+export const prerender = false;
+
+// Every mini-briefing ever run, and what the gates threw away.
+//
+// Daniel, 2026-08-13: "can you save the mini breifings made to a data base on
+// the site which i can access? and then maybe can even eval to see if there is
+// trends in output to improve".
+//
+// The trend tables at the top are the point. The run list is just how you get
+// to a specific one. Three questions this page is built to answer:
+//   - Which gate is doing the work? If one never fires it is not earning its
+//     call. If one fires on nearly everything, retrieval is the problem.
+//   - Which publishers are worth fetching? A domain retrieved often and kept
+//     rarely is one the search should stop chasing.
+//   - Did a change help? Every row carries a pipeline version, so before and
+//     after is a real comparison rather than a feeling.
+//
+// Gated to the admin email, same as /admin/feedback.
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
+import { listMiniBriefings, getTrends, type MiniDb } from '../../../functions/_lib/premise/store';
+
+const ADMIN_EMAIL = 'daniel.livingstone44@gmail.com';
+
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+if (!session) return Astro.redirect('/login?returnTo=/admin/briefings');
+const user = await authDb.findUserById(session.user_id);
+if (!user || user.email !== ADMIN_EMAIL) {
+  return new Response('Not found', { status: 404 });
+}
+
+const db = env.DB as unknown as MiniDb;
+const rows = await listMiniBriefings(db, 200);
+const trends = await getTrends(db);
+
+const totalCost = rows.reduce((a, r) => a + (r.cost_usd ?? 0), 0);
+const marked = rows.filter((r) => r.verdict).length;
+
+function secs(ms: number | null): string {
+  return ms == null ? '-' : `${(ms / 1000).toFixed(1)}s`;
+}
+function when(s: string): string {
+  return s.replace('T', ' ').replace(/:\d\d$/, '');
+}
+---
+
+<Base title="Mini-briefings (admin) - The Whetstone" noAds={true}>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <div class="ad">
+    <p class="kicker">The Whetstone · admin</p>
+    <h1>Mini-briefings</h1>
+
+    {rows.length === 0 ? (
+      <p class="empty">
+        Nothing stored yet. Runs land here the moment the first full briefing completes
+        from the extension or the site. Outline-only runs are deliberately not stored:
+        they are half a record, and a table of half-records makes every trend below say
+        &ldquo;it depends&rdquo;.
+      </p>
+    ) : (
+      <>
+        <div class="facts">
+          <div><b>{rows.length}</b><span>runs stored</span></div>
+          <div><b>${totalCost.toFixed(2)}</b><span>spent in total</span></div>
+          <div><b>{marked}</b><span>you have marked</span></div>
+        </div>
+
+        <p class="sizetag">Which gate is doing the work</p>
+        <p class="note">
+          Every source the pipeline considered, and what removed it. A gate that never
+          fires is not earning its call. A gate that fires on almost everything means the
+          problem is upstream, in what is being retrieved.
+        </p>
+        <table class="t">
+          <thead><tr><th>Outcome</th><th class="n">Sources</th><th class="n">Share</th></tr></thead>
+          <tbody>
+            {trends.byDropStage.map((d) => {
+              const total = trends.byDropStage.reduce((a, x) => a + x.n, 0) || 1;
+              const label = d.drop_stage === 'kept' ? 'Kept and shown'
+                : d.drop_stage === 'quote' ? 'Dropped: quote not on the page'
+                : 'Dropped: real, but about a different quantity';
+              return (
+                <tr>
+                  <td>{label}</td>
+                  <td class="n">{d.n}</td>
+                  <td class="n">{Math.round((d.n / total) * 100)}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        <p class="sizetag">Which publishers are worth fetching</p>
+        <p class="note">
+          Retrieved at least twice. A low keep rate means the search keeps finding that
+          domain and the gates keep throwing it out, which is wasted time on every run.
+        </p>
+        <table class="t">
+          <thead><tr><th>Domain</th><th class="n">Considered</th><th class="n">Kept</th><th class="n">Keep rate</th></tr></thead>
+          <tbody>
+            {trends.byDomain.map((d) => (
+              <tr>
+                <td>{d.domain}</td>
+                <td class="n">{d.considered}</td>
+                <td class="n">{d.kept}</td>
+                <td class="n">{d.keep_rate}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <p class="sizetag">Did a change help</p>
+        <p class="note">
+          One row per pipeline version. Bump the version in store.ts whenever a prompt, a
+          gate or the model changes, and this becomes a before and after instead of a
+          guess.
+        </p>
+        <table class="t">
+          <thead><tr><th>Version</th><th class="n">Runs</th><th class="n">Premises</th><th class="n">Cost</th><th class="n">Time</th><th class="n">Marked wrong</th></tr></thead>
+          <tbody>
+            {trends.byVersion.map((v) => (
+              <tr>
+                <td>{v.pipeline_version}</td>
+                <td class="n">{v.runs}</td>
+                <td class="n">{v.avg_premises}</td>
+                <td class="n">${v.avg_cost}</td>
+                <td class="n">{secs(v.avg_ms)}</td>
+                <td class="n">{v.wrong}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <p class="sizetag">Every run</p>
+        <table class="t runs">
+          <thead>
+            <tr><th>When</th><th>Question</th><th>From</th><th class="n">Tier</th><th class="n">Claims</th><th class="n">Dropped</th><th class="n">Time</th><th class="n">Cost</th><th>Mark</th></tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr>
+                <td class="mono">{when(r.created_at)}</td>
+                <td>
+                  <span class="q">{r.question || r.title || '(no question identified)'}</span>
+                  {r.url && <a class="src" href={r.url} target="_blank" rel="noopener noreferrer">source</a>}
+                </td>
+                <td class="mono">{r.trigger}</td>
+                <td class="n mono">{r.tier}</td>
+                <td class="n">{r.premise_count}</td>
+                <td class="n">{r.dropped_unverified + r.dropped_off_claim}</td>
+                <td class="n mono">{secs(r.total_ms)}</td>
+                <td class="n mono">${(r.cost_usd ?? 0).toFixed(3)}</td>
+                <td class="mark">
+                  {r.verdict
+                    ? <span class={`v ${r.verdict}`}>{r.verdict.toUpperCase()}</span>
+                    : <span class="unmarked" data-id={r.id}>
+                        <button type="button" data-v="right">right</button>
+                        <button type="button" data-v="wrong">wrong</button>
+                      </span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="note">
+          Marking is the only accuracy data that will exist while you are the only user.
+          Every wrong answer you notice and do not record is thrown away.
+        </p>
+      </>
+    )}
+  </div>
+</Base>
+
+<script>
+  // One tap, stored against the run. Deliberately not a rating out of five:
+  // a scale invites deliberation and gets used less, and the question here is
+  // binary enough to answer without stopping to think.
+  document.querySelectorAll('.unmarked button').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const wrap = btn.closest('.unmarked') as HTMLElement | null;
+      const id = wrap?.dataset.id;
+      const verdict = (btn as HTMLElement).dataset.v;
+      if (!id || !verdict || !wrap) return;
+      wrap.textContent = 'saving...';
+      const res = await fetch('/api/admin/mini-verdict', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id, verdict }),
+      }).catch(() => null);
+      wrap.textContent = res && res.ok ? verdict.toUpperCase() : 'failed, try again';
+    });
+  });
+</script>
+
+<style is:global>
+  .ad {
+    --ii:#24272B; --is:#121417; --mm:#5C6167; --hh:#D7D9D3; --ox:#8C4A2F; --pp:#F3F4F1;
+    --sf: 'Besley Variable', Georgia, serif;
+    --mo: ui-monospace, Menlo, Consolas, monospace;
+    max-width: 74rem; margin: 0 auto; padding: 32px 20px 80px;
+    font-family: var(--sf); color: var(--ii); line-height: 1.55;
+  }
+  .ad h1 { font-size: 34px; color: var(--is); font-weight: 400; margin: 0 0 18px; }
+  .ad .kicker, .ad .sizetag { font-family: var(--mo); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); margin: 0 0 8px; }
+  .ad .sizetag { margin: 44px 0 8px; padding-top: 14px; border-top: 1px solid var(--hh); }
+  .ad .note { font-size: 14px; margin: 0 0 14px; max-width: 42rem; }
+  .ad .empty { font-size: 15px; max-width: 40rem; padding: 18px; background: var(--pp); border-left: 3px solid var(--is); }
+  .ad .facts { display: flex; gap: 30px; padding: 14px 0; border-top: 1px solid var(--hh); border-bottom: 1px solid var(--hh); }
+  .ad .facts div { display: flex; flex-direction: column; }
+  .ad .facts b { font-family: var(--mo); font-size: 20px; font-weight: 400; color: var(--is); }
+  .ad .facts span { font-family: var(--mo); font-size: 12px; color: var(--mm); }
+  .ad .t { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+  .ad .t th { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); font-weight: 400; text-align: left; padding: 0 12px 6px 0; border-bottom: 1px solid var(--hh); }
+  .ad .t td { font-size: 13px; padding: 7px 12px 7px 0; border-bottom: 1px solid var(--hh); vertical-align: top; }
+  .ad .t .n { text-align: right; }
+  .ad .t th.n { text-align: right; }
+  .ad .mono { font-family: var(--mo); font-size: 11px; color: var(--mm); white-space: nowrap; }
+  .ad .q { display: block; color: var(--is); }
+  .ad .src { font-family: var(--mo); font-size: 10px; color: var(--mm); }
+  .ad .runs td { font-size: 12px; }
+  .ad .v { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; }
+  .ad .v.wrong { color: var(--ox); font-weight: 700; }
+  .ad .mark button { font-family: var(--mo); font-size: 10px; background: none; border: 1px solid var(--hh); border-radius: 3px; padding: 3px 6px; margin-right: 4px; cursor: pointer; color: var(--ii); }
+  .ad .mark button:hover { border-color: var(--is); }
+  @media (max-width: 900px) {
+    .ad { padding: 20px 12px 60px; }
+    .ad .t { display: block; overflow-x: auto; white-space: nowrap; }
+  }
+</style>
