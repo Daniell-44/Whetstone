@@ -1,0 +1,520 @@
+---
+// The candidate surfaces for the mini-briefing, drawn to scale, 2026-08-13.
+//
+// Daniel: "visualise each of the seeminly pertinent formats."
+//
+// Every briefing shown here is the real output of a live run measured on
+// 13 August 2026: outline at 2.5s, both premises sourced by 35.3s, two
+// contesting sources on claim 1, nothing disputing claim 2, three quotes
+// dropped by the relevance gate. No invented sources and no invented quotes.
+//
+// The article underneath is drawn as grey rule rather than as prose. The
+// comparison is between the SURFACES, and real body text underneath would
+// only compete with them for attention. The one thing the article shows is
+// its width, because width is the argument.
+//
+// Nothing here is shipped. Noindex, unlinked, no ads.
+import Base from '../../layouts/Base.astro';
+
+// Straight off the run. scripts/run-mini.ts, 13 August 2026.
+const QUESTION = 'Should Australia build nuclear power?';
+const CONCLUSION =
+  'Australia should build nuclear power because a nuclear-inclusive grid is cheaper than a renewables-only grid.';
+const CLAIMS = [
+  'A nuclear-inclusive grid costs 25 per cent less than a renewables-only grid.',
+  'Nuclear reactors operate approximately 90 per cent of the time.',
+  'The build cost of nuclear reactors is spread across a fifty year operating life.',
+];
+const SOURCES_1 = [
+  { stance: 'CONTESTS', who: 'CSIRO, via Climate Council',
+    quote: 'building a grid powered by 90% wind and solar is still at least one-third cheaper than nuclear' },
+  { stance: 'CONTESTS', who: 'Henrik Lund, Aalborg University',
+    quote: 'renewable energy portfolios outperform nuclear power on total system cost' },
+];
+const SOURCES_2 = [
+  { stance: 'SUPPORTS', who: 'Duke Energy',
+    quote: 'the average nuclear plant generates electricity, more than 90 percent of the time' },
+];
+---
+
+<Base title="Mini-briefing formats (labs) - The Whetstone" noAds={true}>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <div class="fx">
+    <p class="kicker">The Whetstone · labs · 13 August 2026</p>
+    <h1>Where the mini-briefing goes</h1>
+    <p class="lede">
+      Six surfaces were assessed against one measured job: an outline on screen at 2.5 seconds,
+      then premises filling in until 35 seconds. Each is drawn here at the size it actually takes,
+      because screen cost is the thing being decided.
+    </p>
+
+    <div class="facts">
+      <div><b>2.5s</b><span>outline on screen</span></div>
+      <div><b>35.3s</b><span>everything finished</span></div>
+      <div><b>$0.081</b><span>per whole article</span></div>
+      <div><b>$0.042</b><span>per selected sentence</span></div>
+    </div>
+
+    <!-- ===================================================== displaced -->
+    <p class="sizetag">What this displaces</p>
+    <h2>0 · The side panel, today</h2>
+    <p class="note">
+      The panel is per window and stays open for the whole session. It is used for about ten
+      seconds. Everything below is an attempt to stop paying that rent.
+    </p>
+
+    <div class="win">
+      <div class="chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">news.example.com/nuclear-costings</span>
+        <span class="ico on">W</span>
+      </div>
+      <div class="viewport">
+        <div class="page narrow">
+          <p class="arttitle">Australia should build nuclear power</p>
+          <div class="rule w90"></div><div class="rule w100"></div><div class="rule w80"></div>
+          <div class="rule w95"></div><div class="rule w60"></div>
+          <div class="rule w90"></div><div class="rule w85"></div><div class="rule w70"></div>
+        </div>
+        <div class="panel">
+          <p class="phead">THE WHETSTONE</p>
+          <p class="pq">{QUESTION}</p>
+          <div class="rule w80 dark"></div><div class="rule w90 dark"></div><div class="rule w60 dark"></div>
+          <p class="pmuted">Open for the session. Follows you onto every page, whether or not you asked.</p>
+        </div>
+        <div class="measure"><span>300px, always</span></div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><b>Idle cost</b>300px of every window, all session</div>
+      <div><b>Survives</b>scroll and clicks, but follows you to the wrong page</div>
+      <div><b>Verdict</b>Demoted. Not deleted.</div>
+    </div>
+
+    <!-- ===================================================== triggers -->
+    <p class="sizetag">Triggers · they start the run and cost nothing until used</p>
+    <h2>1 · The selection pill, showing the outline in place</h2>
+    <p class="note">
+      Already built and already the most discoverable thing in the extension. It appears when you
+      select text, which means it arrives at the moment you are already interested. It also hands
+      the tool one sentence instead of a whole article, so it searches once instead of twice:
+      half the cost and well under 35 seconds.
+    </p>
+
+    <div class="win">
+      <div class="chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">news.example.com/nuclear-costings</span>
+        <span class="ico">W</span>
+      </div>
+      <div class="viewport">
+        <div class="page">
+          <p class="arttitle">Australia should build nuclear power</p>
+          <div class="rule w90"></div>
+          <p class="selected">reactors run about 90 per cent of the time, far above what wind and solar manage</p>
+          <div class="rule w85"></div><div class="rule w95"></div><div class="rule w70"></div>
+          <div class="rule w90"></div><div class="rule w60"></div>
+        </div>
+        <div class="pill">Check this claim</div>
+        <div class="pop">
+          <p class="phead">THE WHETSTONE <span class="clock">2.5s</span></p>
+          <p class="pq">Do reactors run 90 per cent of the time?</p>
+          <p class="prests">CHECKING</p>
+          <p class="pclaim">Nuclear reactors operate approximately 90 per cent of the time.</p>
+          <p class="pwait">· searching for who disputes it</p>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><b>Idle cost</b>Nothing. No pixels until you select text.</div>
+      <div><b>Breaks on</b>Clicking away destroys the selection it is anchored to</div>
+      <div><b>Verdict</b>Best trigger. Poor 35-second container.</div>
+    </div>
+
+    <h2>2 · The right-click menu</h2>
+    <p class="note">
+      Zero pixels until opened, and the only trigger with a label you read by accident while
+      right-clicking to do something else. It also grants the permission to read the page that a
+      click inside the side panel deliberately does not.
+    </p>
+
+    <div class="win">
+      <div class="chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">news.example.com/nuclear-costings</span>
+        <span class="ico">W</span>
+      </div>
+      <div class="viewport">
+        <div class="page">
+          <p class="arttitle">Australia should build nuclear power</p>
+          <div class="rule w90"></div><div class="rule w100"></div><div class="rule w80"></div>
+          <div class="rule w95"></div><div class="rule w60"></div><div class="rule w88"></div>
+        </div>
+        <div class="ctx">
+          <p class="ci dim">Back</p>
+          <p class="ci dim">Reload</p>
+          <p class="ci dim">Print…</p>
+          <p class="cisep"></p>
+          <p class="ci strong">Brief this page</p>
+          <p class="ci strong">Brief this link</p>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><b>Idle cost</b>Nothing. One row in a menu you opened yourself.</div>
+      <div><b>Unlocks</b>"Brief this link" without visiting it. Recovers what hover cards were for, without watching every link you look at.</div>
+      <div><b>Verdict</b>Ship. One line of config, plus a display to send it to.</div>
+    </div>
+
+    <!-- ===================================================== display -->
+    <p class="sizetag">Display · where the 35 seconds actually lands</p>
+    <h2>3 · The in-page card, at 2.5 seconds</h2>
+    <p class="note">
+      Bottom right, sized to its content, collapsible to nothing. Not a full-width bar: a bar that
+      is always there makes exactly the trade the side panel was rejected for, turned on its side.
+      The article keeps its full width.
+    </p>
+
+    <div class="win mid">
+      <div class="chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">news.example.com/nuclear-costings</span>
+        <span class="ico on">W</span>
+      </div>
+      <div class="viewport">
+        <div class="page">
+          <p class="arttitle">Australia should build nuclear power</p>
+          <div class="rule w90"></div><div class="rule w100"></div><div class="rule w80"></div>
+          <div class="rule w95"></div><div class="rule w60"></div><div class="rule w88"></div>
+          <div class="rule w92"></div><div class="rule w75"></div>
+          <div class="rule w90"></div><div class="rule w68"></div>
+        </div>
+        <div class="card">
+          <p class="phead">THE WHETSTONE <span class="clock">2.5s</span> <span class="x">×</span></p>
+          <p class="pq">{QUESTION}</p>
+          <p class="prests">CONCLUDES</p>
+          <p class="pconc">{CONCLUSION}</p>
+          <p class="prests">RESTS ON</p>
+          {CLAIMS.map((c, i) => (
+            <p class="pclaim"><span class="cn">{i + 1}</span>{c}</p>
+          ))}
+          <p class="pwait">· checking 1 and 2</p>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><b>Idle cost</b>Nothing. Nothing enters the page until asked.</div>
+      <div><b>In use</b>Bottom right margin. Never the column you are reading.</div>
+      <div><b>Verdict</b>Primary display, once results survive a page change.</div>
+    </div>
+
+    <h2>4 · The same card at 35 seconds</h2>
+    <p class="note">
+      Disagreement first, always. You arrived holding the article's case, so repeating it back is
+      the one thing that adds nothing. Where nothing disputes a claim, the card says so instead of
+      inventing a second side.
+    </p>
+
+    <div class="win deep">
+      <div class="chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">news.example.com/nuclear-costings</span>
+        <span class="ico on">W</span>
+      </div>
+      <div class="viewport">
+        <div class="page">
+          <p class="arttitle">Australia should build nuclear power</p>
+          <div class="rule w90"></div><div class="rule w100"></div><div class="rule w80"></div>
+          <div class="rule w95"></div><div class="rule w60"></div><div class="rule w88"></div>
+          <div class="rule w92"></div><div class="rule w75"></div>
+          <div class="rule w90"></div><div class="rule w82"></div><div class="rule w70"></div>
+        </div>
+        <div class="card tall">
+          <p class="phead">THE WHETSTONE <span class="clock">35s</span> <span class="x">×</span></p>
+          <p class="prests">1 · {CLAIMS[0]}</p>
+          {SOURCES_1.map((s) => (
+            <div class="srcrow">
+              <p class="stance contests">{s.stance}<span class="who">{s.who}</span></p>
+              <p class="quote">“{s.quote}”</p>
+            </div>
+          ))}
+          <p class="prests sep">2 · {CLAIMS[1]}</p>
+          <p class="nodispute">NOTHING FOUND DISPUTES THIS</p>
+          {SOURCES_2.map((s) => (
+            <div class="srcrow">
+              <p class="stance supports">{s.stance}<span class="who">{s.who}</span></p>
+              <p class="quote">“{s.quote}”</p>
+            </div>
+          ))}
+          <p class="pwait">3 quotes dropped: real, but about a different quantity.</p>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><b>Reads as</b>Word first, position second, colour third. Never colour alone.</div>
+      <div><b>Height</b>Two claims fill 430px. Four would not fit a laptop. This is the ceiling, and the reason the hosted page exists.</div>
+      <div><b>Needs</b>Results saved per page, so leaving and returning does not re-charge you.</div>
+    </div>
+
+    <h2>5 · The hosted page on thewhetstone.review</h2>
+    <p class="note">
+      The same run, given a permanent address. This is the one surface that works for somebody who
+      has installed nothing, and the only one that can be sent to another person. It reuses the
+      briefing components, so it looks like the publication rather than like a tool.
+    </p>
+
+    <div class="win mid">
+      <div class="chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">thewhetstone.review/m/k3f9qp2x</span>
+      </div>
+      <div class="viewport">
+        <div class="hosted">
+          <p class="hkick">THE WHETSTONE · MINI-BRIEFING · 13 AUGUST 2026</p>
+          <p class="htitle">{QUESTION}</p>
+          <p class="hconc">{CONCLUSION}</p>
+          <div class="hgrid">
+            <div>
+              <p class="prests">1 · {CLAIMS[0]}</p>
+              <p class="stance contests">CONTESTS<span class="who">CSIRO, via Climate Council</span></p>
+              <p class="quote">“{SOURCES_1[0].quote}”</p>
+              <p class="stance contests">CONTESTS<span class="who">Henrik Lund, Aalborg University</span></p>
+              <p class="quote">“{SOURCES_1[1].quote}”</p>
+            </div>
+            <div>
+              <p class="prests">2 · {CLAIMS[1]}</p>
+              <p class="nodispute">NOTHING FOUND DISPUTES THIS</p>
+              <p class="stance supports">SUPPORTS<span class="who">Duke Energy</span></p>
+              <p class="quote">“{SOURCES_2[0].quote}”</p>
+            </div>
+          </div>
+          <p class="hfoot">Every quote checked against the page it came from. Three were dropped.</p>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><b>Idle cost</b>Nothing. It is a tab you opened.</div>
+      <div><b>Survives</b>Everything, including closing the browser.</div>
+      <div><b>Unlocks</b>A link you can send. Works with no extension installed.</div>
+    </div>
+
+    <!-- ===================================================== rejected -->
+    <p class="sizetag">Drawn and rejected</p>
+    <h2>6 · The three that lose</h2>
+
+    <div class="rejrow">
+      <div class="rej">
+        <div class="minwin">
+          <div class="minchrome"></div>
+          <div class="minview">
+            <div class="minpage"><div class="rule w90"></div><div class="rule w70"></div><div class="rule w85"></div></div>
+            <div class="minbar">always here</div>
+          </div>
+        </div>
+        <p class="rejname">Full-width bottom bar</p>
+        <p class="rejwhy">Permanent cost for ten seconds of use. The side panel's mistake, rotated. It also lands
+          on the busiest strip of a news page, where the cookie banner, the newsletter pop-up and the
+          video player already are.</p>
+      </div>
+
+      <div class="rej">
+        <div class="minwin">
+          <div class="minchrome"><span class="minico">W</span></div>
+          <div class="minview">
+            <div class="minpage"><div class="rule w90"></div><div class="rule w70"></div><div class="rule w85"></div></div>
+            <div class="minpop">closes on click</div>
+          </div>
+        </div>
+        <p class="rejname">Toolbar popup</p>
+        <p class="rejwhy">Chrome destroys it the instant you click anywhere else. Looking back at the article is a
+          click. It cannot hold a 35-second reveal whose whole point is being read beside the article.</p>
+      </div>
+
+      <div class="rej">
+        <div class="minwin">
+          <div class="minchrome"><span class="minaddr">ws nuclear…</span></div>
+          <div class="minview">
+            <div class="minomni">ws · brief this</div>
+            <div class="minpage dimmed"><div class="rule w90"></div><div class="rule w70"></div></div>
+          </div>
+        </div>
+        <p class="rejname">Omnibox keyword</p>
+        <p class="rejwhy">Requires knowing a secret word and typing it in the address bar. Pressing enter then
+          navigates away from the page you wanted briefed.</p>
+      </div>
+    </div>
+
+    <!-- ===================================================== recommendation -->
+    <p class="sizetag">The combination</p>
+    <h2>7 · What to build</h2>
+    <p class="note">
+      Trigger and display are separate problems, and each surface is good at one of them. The pill
+      and the right-click menu start the run and show the outline where you already are. The card
+      holds the result while you read. The hosted page keeps it after you close the tab.
+    </p>
+
+    <table class="tbl">
+      <thead><tr><th>Moment</th><th>Surface</th><th>Costs</th></tr></thead>
+      <tbody>
+        <tr><td>You select a sentence, or right-click</td><td>Pill, or menu</td><td>Nothing until used</td></tr>
+        <tr><td>2.5s · outline</td><td>In place, where you clicked</td><td>A small card</td></tr>
+        <tr><td>2.5s to 35s · you keep reading</td><td>Card, bottom right, collapsible</td><td>Margin, not column</td></tr>
+        <tr><td>You leave and come back</td><td>Card rehydrates from what was saved</td><td>Nothing. No second charge.</td></tr>
+        <tr><td>You want to keep or send it</td><td>Hosted page, permanent address</td><td>A tab you opened</td></tr>
+        <tr><td>The side panel</td><td>Still there, no longer the front door</td><td>Only when opened</td></tr>
+      </tbody>
+    </table>
+
+    <p class="note blocker">
+      <b>One thing blocks all of it.</b> Nothing in the extension streams. Every path is one message
+      and one reply, so there is no way to send an outline now and premises later. That is the first
+      build, and until it exists, every drawing above is a picture of a thing that cannot happen yet.
+    </p>
+  </div>
+</Base>
+
+<style is:global>
+  .fx {
+    --pp:#F3F4F1; --ss:#FBFBF9; --ii:#24272B; --is:#121417; --mm:#5C6167; --hh:#D7D9D3;
+    --ox:#8C4A2F; --db:#345D7E;
+    --sf: 'Besley Variable', Georgia, serif;
+    --mo: ui-monospace, Menlo, Consolas, monospace;
+    max-width: 62rem; margin: 0 auto; padding: 32px 20px 80px;
+    font-family: var(--sf); color: var(--ii); line-height: 1.6;
+  }
+  .fx h1 { font-size: 34px; color: var(--is); font-weight: 400; margin: 0 0 10px; line-height: 1.15; }
+  .fx h2 { font-size: 20px; color: var(--is); font-weight: 400; margin: 0 0 6px; line-height: 1.25; }
+  .fx .kicker, .fx .sizetag {
+    font-family: var(--mo); font-size: 13px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--mm); margin: 0 0 8px;
+  }
+  .fx .sizetag { margin: 54px 0 10px; padding-top: 14px; border-top: 1px solid var(--hh); }
+  .fx .lede { font-size: 17px; margin: 0 0 24px; max-width: 42rem; }
+  .fx .note { font-size: 15px; color: var(--ii); margin: 0 0 18px; max-width: 42rem; }
+  .fx .blocker { margin-top: 26px; padding: 16px 18px; background: var(--pp); border-left: 3px solid var(--is); max-width: none; }
+
+  /* measured facts */
+  .fx .facts { display: flex; gap: 28px; flex-wrap: wrap; padding: 16px 0 4px; border-top: 1px solid var(--hh); border-bottom: 1px solid var(--hh); margin-bottom: 8px; }
+  .fx .facts div { display: flex; flex-direction: column; }
+  .fx .facts b { font-family: var(--mo); font-size: 20px; font-weight: 400; color: var(--is); }
+  .fx .facts span { font-family: var(--mo); font-size: 13px; color: var(--mm); }
+
+  /* browser frame */
+  .fx .win { border: 1px solid var(--hh); border-radius: 6px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .fx .chrome { background: #E8E9E5; padding: 7px 10px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid var(--hh); }
+  .fx .dot { width: 9px; height: 9px; border-radius: 50%; background: #C9CBC5; display: inline-block; }
+  .fx .addr { flex: 1; background: #fff; border: 1px solid var(--hh); border-radius: 11px; padding: 2px 10px; font-family: var(--mo); font-size: 11px; color: var(--mm); margin-left: 6px; }
+  .fx .ico { width: 18px; height: 18px; border-radius: 3px; background: #D2D4CE; color: var(--mm); font-family: var(--mo); font-size: 11px; display: grid; place-items: center; }
+  .fx .ico.on { background: var(--is); color: #fff; }
+  .fx .viewport { height: 340px; display: flex; position: relative; background: #fff; overflow: hidden; }
+  /* The finished result is genuinely taller than the outline: 432px of content
+     against 306px of card. Drawing it clipped would hide the one fact that
+     matters most about it, so this frame is drawn at the height it needs. */
+  .fx .win.deep .viewport { height: 470px; }
+  /* The outline alone still needs 345px once three claims are in it, and the
+     hosted page needs 370px. Every frame here is sized to hold its content
+     whole: a mockup that clips is a mockup that lies about what fits. */
+  .fx .win.mid .viewport { height: 400px; }
+  .fx .win.mid .card { max-height: 360px; }
+
+  /* the article underneath, drawn as rule */
+  .fx .page { flex: 1; padding: 20px 30px; }
+  .fx .page.narrow { padding-right: 24px; }
+  .fx .arttitle { font-size: 17px; color: var(--is); margin: 0 0 14px; line-height: 1.25; }
+  .fx .rule { height: 7px; background: #EDEEEA; border-radius: 2px; margin-bottom: 9px; }
+  .fx .rule.dark { background: #E2E4DE; }
+  .fx .w60 { width: 60%; } .fx .w70 { width: 70%; } .fx .w75 { width: 75%; }
+  .fx .w80 { width: 80%; } .fx .w85 { width: 85%; } .fx .w88 { width: 88%; }
+  .fx .w90 { width: 90%; } .fx .w92 { width: 92%; } .fx .w95 { width: 95%; } .fx .w100 { width: 100%; }
+  .fx .selected { font-size: 12px; line-height: 1.5; background: #E4E9EE; color: var(--is); margin: 0 0 9px; padding: 3px 4px; border-radius: 2px; }
+
+  /* the side panel being displaced */
+  .fx .panel { width: 300px; flex: none; border-left: 1px solid var(--hh); background: var(--ss); padding: 16px 16px; }
+  .fx .measure { position: absolute; right: 0; bottom: 0; width: 300px; text-align: center; }
+  .fx .measure span { display: inline-block; font-family: var(--mo); font-size: 11px; color: #fff; background: var(--is); padding: 2px 8px; }
+
+  /* shared briefing type */
+  .fx .phead { font-family: var(--mo); font-size: 11px; letter-spacing: .1em; color: var(--mm); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .fx .clock { margin-left: auto; color: var(--is); }
+  .fx .x { color: var(--mm); font-size: 14px; }
+  .fx .pq { font-size: 15px; color: var(--is); margin: 0 0 12px; line-height: 1.3; }
+  .fx .prests { font-family: var(--mo); font-size: 10px; letter-spacing: .1em; color: var(--mm); margin: 12px 0 5px; }
+  .fx .prests.sep { border-top: 1px solid var(--hh); padding-top: 12px; }
+  .fx .pconc { font-size: 13px; margin: 0 0 4px; line-height: 1.45; }
+  .fx .pclaim { font-size: 12px; margin: 0 0 6px; line-height: 1.4; display: flex; gap: 7px; }
+  .fx .cn { font-family: var(--mo); font-size: 10px; color: var(--mm); padding-top: 2px; }
+  .fx .pwait { font-family: var(--mo); font-size: 10px; color: var(--mm); margin: 12px 0 0; }
+  .fx .pmuted { font-size: 12px; color: var(--mm); margin: 14px 0 0; line-height: 1.4; }
+
+  /* stance: word first, position second, colour third */
+  .fx .srcrow { margin-bottom: 9px; }
+  .fx .stance { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; margin: 0 0 2px; display: flex; gap: 8px; align-items: baseline; }
+  .fx .stance.contests { color: var(--ox); font-weight: 700; }
+  .fx .stance.supports { color: var(--mm); }
+  .fx .who { font-family: var(--sf); font-size: 11px; letter-spacing: 0; color: var(--ii); font-weight: 400; }
+  .fx .quote { font-size: 12px; line-height: 1.45; margin: 0; color: var(--ii); border-left: 2px solid var(--hh); padding-left: 8px; }
+  .fx .nodispute { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; color: var(--is); background: var(--pp); padding: 4px 7px; margin: 0 0 8px; display: inline-block; }
+
+  /* the selection pill and its popover */
+  .fx .pill { position: absolute; left: 34px; top: 92px; background: var(--is); color: #fff; font-family: var(--mo); font-size: 11px; padding: 5px 11px; border-radius: 13px; }
+  .fx .pop { position: absolute; left: 34px; top: 126px; width: 310px; background: var(--ss); border: 1px solid var(--hh); box-shadow: 0 4px 14px rgba(0,0,0,.13); padding: 13px 15px; border-radius: 4px; }
+
+  /* the right-click menu */
+  .fx .ctx { position: absolute; left: 300px; top: 96px; width: 190px; background: #fff; border: 1px solid var(--hh); box-shadow: 0 4px 16px rgba(0,0,0,.16); border-radius: 4px; padding: 5px 0; }
+  .fx .ci { font-size: 12px; margin: 0; padding: 5px 13px; }
+  .fx .ci.dim { color: var(--mm); }
+  .fx .ci.strong { color: var(--is); background: var(--pp); }
+  .fx .cisep { height: 1px; background: var(--hh); margin: 5px 0; }
+
+  /* the in-page card */
+  .fx .card { position: absolute; right: 18px; bottom: 16px; width: 330px; max-height: 300px; overflow: hidden; background: var(--ss); border: 1px solid var(--hh); box-shadow: 0 6px 20px rgba(0,0,0,.14); border-radius: 4px; padding: 14px 16px; }
+  .fx .card.tall { top: 16px; bottom: 16px; max-height: none; }
+
+  /* the hosted page */
+  .fx .hosted { flex: 1; background: var(--pp); padding: 22px 30px; }
+  .fx .hkick { font-family: var(--mo); font-size: 10px; letter-spacing: .12em; color: var(--mm); margin: 0 0 10px; }
+  .fx .htitle { font-size: 22px; color: var(--is); margin: 0 0 8px; line-height: 1.2; }
+  .fx .hconc { font-size: 14px; margin: 0 0 16px; max-width: 40rem; }
+  .fx .hgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; border-top: 1px solid var(--hh); padding-top: 14px; }
+  .fx .hgrid .quote { margin-bottom: 10px; }
+  .fx .hfoot { font-family: var(--mo); font-size: 10px; color: var(--mm); margin: 14px 0 0; }
+
+  /* spec strip under each frame */
+  .fx .spec { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 12px 0 0; padding: 12px 0 0; border-top: 1px solid var(--hh); }
+  .fx .spec div { font-size: 13px; color: var(--ii); line-height: 1.45; }
+  .fx .spec b { display: block; font-family: var(--mo); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); font-weight: 400; margin-bottom: 3px; }
+
+  /* the rejected three */
+  .fx .rejrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .fx .minwin { border: 1px solid var(--hh); border-radius: 4px; overflow: hidden; background: #fff; }
+  .fx .minchrome { background: #E8E9E5; height: 20px; border-bottom: 1px solid var(--hh); display: flex; align-items: center; justify-content: flex-end; padding: 0 5px; }
+  .fx .minico { width: 12px; height: 12px; border-radius: 2px; background: var(--is); color: #fff; font-family: var(--mo); font-size: 8px; display: grid; place-items: center; }
+  .fx .minaddr { flex: 1; background: #fff; border: 1px solid var(--hh); border-radius: 8px; font-family: var(--mo); font-size: 8px; color: var(--mm); padding: 1px 6px; }
+  .fx .minview { height: 120px; position: relative; display: flex; flex-direction: column; }
+  .fx .minpage { padding: 12px 14px; flex: 1; }
+  .fx .minpage.dimmed { opacity: .45; }
+  .fx .minbar { background: var(--is); color: #fff; font-family: var(--mo); font-size: 10px; padding: 9px 12px; text-align: center; }
+  .fx .minpop { position: absolute; right: 6px; top: 4px; width: 110px; height: 62px; background: var(--ss); border: 1px solid var(--hh); box-shadow: 0 3px 10px rgba(0,0,0,.14); font-family: var(--mo); font-size: 9px; color: var(--mm); display: grid; place-items: center; border-radius: 3px; }
+  .fx .minomni { background: #fff; border: 1px solid var(--hh); font-family: var(--mo); font-size: 9px; color: var(--is); padding: 5px 10px; margin: 0 6px; box-shadow: 0 3px 10px rgba(0,0,0,.12); }
+  .fx .rejname { font-size: 15px; color: var(--is); margin: 12px 0 4px; }
+  .fx .rejwhy { font-size: 13px; color: var(--ii); margin: 0; line-height: 1.45; }
+
+  /* the combination */
+  .fx .tbl { width: 100%; border-collapse: collapse; margin-top: 18px; }
+  .fx .tbl th { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); font-weight: 400; text-align: left; padding: 0 14px 7px 0; border-bottom: 1px solid var(--hh); }
+  .fx .tbl td { font-size: 14px; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--hh); vertical-align: top; }
+  .fx .tbl td:first-child { color: var(--mm); }
+
+  @media (max-width: 760px) {
+    .fx .spec, .fx .rejrow { grid-template-columns: 1fr; }
+    .fx .hgrid { grid-template-columns: 1fr; }
+    /* These are drawings of a desktop browser, so they do not reflow: reflowing
+       them would destroy the one thing they measure, which is how much width
+       each surface takes. They scroll sideways inside their own frame instead,
+       and the page itself never scrolls sideways. */
+    .fx .win { overflow-x: auto; }
+    .fx .viewport { min-width: 660px; }
+    .fx .minview { min-width: 0; }
+  }
+</style>
