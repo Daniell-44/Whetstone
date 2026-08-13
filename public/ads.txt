@@ -1,0 +1,19 @@
+# ads.txt — Authorized Digital Sellers (IAB Tech Lab spec)
+#
+# Declares who is allowed to sell advertising inventory on thewhetstone.review.
+# Without this file AdSense reports the domain as having no authorised sellers,
+# which lets buyers treat the inventory as unverified and can suppress revenue
+# even after approval. It is plain text served at the domain root, and every
+# publisher on AdSense needs one.
+#
+# Fields: <exchange domain>, <publisher id>, <DIRECT|RESELLER>, <TAG-ID>
+#   DIRECT           — we contract with Google ourselves rather than through a
+#                      reseller, which is what an AdSense account is.
+#   f08c47fec0942fa0 — Google's own TAG certification authority ID. It is the
+#                      same fixed public value for every Google publisher; it is
+#                      not a secret and not specific to this account.
+#
+# The publisher ID here must stay identical to ADSENSE_CLIENT in
+# src/layouts/Base.astro. If one changes and the other does not, ads stop
+# serving and the cause is not obvious from either file.
+google.com, pub-7549919425238742, DIRECT, f08c47fec0942fa0
