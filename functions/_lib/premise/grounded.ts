@@ -69,15 +69,32 @@ export function squeeze(s: string): string {
     .toLowerCase();
 }
 
-/** Strip tags well enough to search prose. Not a parser, and does not need to be. */
+const ENTITIES: Record<string, string> = {
+  quot: '"', apos: "'", lsquo: '‘', rsquo: '’', sbquo: '‚',
+  ldquo: '“', rdquo: '”', bdquo: '„', ndash: '–', mdash: '—',
+  hellip: '…', nbsp: ' ', lt: '<', gt: '>', deg: '°', pound: '£',
+  euro: '€', middot: '·', bull: '•', prime: '′', Prime: '″',
+};
+
+/**
+ * Strip tags well enough to search prose. Not a parser, and does not need to be.
+ *
+ * Entity decoding is not cosmetic here. A quote is copied out of THIS text by
+ * the model and then shown to a reader, so an entity left undecoded appears
+ * verbatim in the publication: a live run produced `nuclear energy&rsquo;s`
+ * inside a quotation. Named entities are decoded first and `&amp;` last, so
+ * that a literal `&amp;rsquo;` on the page stays literal instead of turning
+ * into an apostrophe.
+ */
 export function pageText(html: string): string {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'");
+    .replace(/&([a-zA-Z]+);/g, (m, name: string) => ENTITIES[name] ?? m)
+    .replace(/&#(\d+);/g, (_m, code: string) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_m, code: string) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&amp;/g, '&');
 }
 
 export interface GroundedResult {
@@ -86,22 +103,54 @@ export interface GroundedResult {
   searchQueries: string[];
 }
 
+/**
+ * What the search is FOR.
+ *
+ *   'survey'   both sides, weighted honestly. The default, and what a premise
+ *              card wants: it is describing a debate.
+ *   'dispute'  the strongest published objection first. What the mini-briefing
+ *              wants, because the reader is holding the article's own case
+ *              already and a search that returns agreement has told them
+ *              nothing they did not have when they started.
+ *
+ * 'dispute' does not ask for a hostile answer. It asks the search to look
+ * where the article is not looking, and it still requires the model to say so
+ * plainly when no objection exists.
+ */
+export type RetrievalAngle = 'survey' | 'dispute';
+
 /** Stage 1. One grounded call. Returns prose plus the pages actually consulted. */
 export async function retrievePremise(
   premise: string,
   apiKey: string,
   model = 'gemini-2.5-flash',
+  angle: RetrievalAngle = 'survey',
 ): Promise<GroundedResult> {
   // Phrased as a QUESTION, deliberately. The first version of this opened with
   // "CLAIM: ..." followed by instructions, and the model read that as a request
   // to report on something it already knew and ran no searches at all: zero
   // chunks, zero queries. Asking who has publicly disputed a thing makes
   // searching the obvious move.
+  //
+  // The claim is NOT wrapped in quotation marks, and the last line says why.
+  // Quoting it produced searches like:  "A nuclear-inclusive grid costs 25 per
+  // cent less than a renewables-only grid" objections  which is an exact-phrase
+  // search for a sentence written thirty seconds earlier by another model. It
+  // matched nothing, so the call came back with zero chunks and empty text, and
+  // the premise was silently dropped. Measured, twice, on the same claim.
   const prompt = [
-    `Who has publicly argued about this claim, on either side: "${premise}"`,
+    `Who has publicly argued about this claim, on either side: ${premise}`,
+    ...(angle === 'dispute'
+      ? ['', 'Look hardest for the objections: who says this is wrong, and what do they say instead.']
+      : []),
+    '',
+    'Search in ordinary language for the subject itself. Do not search for the sentence',
+    'above as an exact phrase; it was written for this task and nobody has published it.',
     '',
     'Name the people and institutions. Never "critics" or "some experts".',
     'For each, give the exact wording they used, copied from the page, and the link.',
+    'Stay on the exact quantity in the claim. A source about a related but different',
+    'measure, a different country or a different period does not count as a response to it.',
     'If the weight of expert opinion is clearly one way, say so and name who dissents.',
     'If nobody is actually arguing about it, say that rather than inventing a disagreement.',
   ].join('\n');

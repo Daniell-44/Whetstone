@@ -4,15 +4,18 @@
  *   pnpm tsx scripts/run-mini.ts path/to/article.txt
  *   pnpm tsx scripts/run-mini.ts            # uses the built-in sample
  *
- * Prints the tier it reached, what survived verification, and the real token
- * and grounded-call counts, because the cost question is the one that decides
- * whether this can run per request.
+ * Consumes the STREAM rather than the finished object, and stamps every event
+ * with the seconds elapsed. That is the measurement that matters for the staged
+ * reveal: not how long the whole thing takes, but how long the reader waits
+ * before there is anything on screen.
+ *
+ * Also prints what was dropped and why, because the drops are the product.
  */
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { GeminiProvider } from '../functions/_lib/providers/gemini';
-import { buildMiniBriefing } from '../functions/_lib/premise/mini';
+import { streamMiniBriefing, type MiniBriefing, type MiniSource } from '../functions/_lib/premise/mini';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -42,46 +45,75 @@ renewables, and the numbers now favour the former.`;
 const file = process.argv[2];
 const text = file ? readFileSync(file, 'utf-8') : SAMPLE;
 
-const mini = await buildMiniBriefing(text, { provider: new GeminiProvider(), apiKey, maxPremises: 2 });
+const t0 = Date.now();
+const at = () => `[${((Date.now() - t0) / 1000).toFixed(1)}s]`.padStart(8);
 
-console.log('\n' + '='.repeat(78));
-console.log('QUESTION: ' + (mini.question || '(not identified)'));
-console.log('TIER:     ' + mini.tier.toUpperCase());
-console.log('='.repeat(78));
+function printSource(s: MiniSource, indent: string) {
+  const stance = (s.stance ?? 'unstated').toUpperCase();
+  console.log(`\n${indent}${stance} · ${s.who}${s.publication ? ' · ' + s.publication : ''}`);
+  console.log(`${indent}${s.position}`);
+  if (s.addresses) console.log(`${indent}on: ${s.addresses}`);
+  console.log(`${indent}"${s.quote}"`);
+  console.log(`${indent}${s.resolvedUrl ?? s.url}`);
+}
 
-for (const p of mini.premises) {
-  console.log('\n  CLAIM: ' + p.claim);
-  console.log('  LOAD:  ' + p.load);
-  for (const s of p.sources) {
-    console.log(`\n    ${s.who}${s.publication ? ' · ' + s.publication : ''}`);
-    console.log(`    ${s.position}`);
-    console.log(`    "${s.quote}"`);
-    console.log(`    ${s.resolvedUrl ?? s.url}`);
+let final: MiniBriefing | null = null;
+
+for await (const ev of streamMiniBriefing(text, { provider: new GeminiProvider(), apiKey, maxPremises: 2 })) {
+  if (ev.type === 'outline') {
+    console.log('\n' + '='.repeat(78));
+    console.log(`${at()} OUTLINE  <- the reader can start here`);
+    console.log('='.repeat(78));
+    console.log(`\n  QUESTION:   ${ev.outline.question || '(not identified)'}`);
+    console.log(`  CONCLUDES:  ${ev.outline.conclusion || '(not identified)'}`);
+    console.log('\n  RESTS ON:');
+    ev.outline.claims.forEach((c, i) => {
+      console.log(`    ${i + 1}. ${c.claim}`);
+      console.log(`       if false: ${c.load}`);
+    });
+  } else if (ev.type === 'researching') {
+    console.log(`\n${at()} searching ${ev.claims.length} claim(s) in parallel...`);
+  } else if (ev.type === 'premise') {
+    console.log(`\n${at()} PREMISE ${ev.index + 1}: ${ev.premise.claim}`);
+    if (ev.premise.undisputed) console.log('         (nothing found that disputes it)');
+    ev.premise.sources.forEach((s) => printSource(s, '         '));
+  } else if (ev.type === 'premise-empty') {
+    console.log(`\n${at()} PREMISE ${ev.index + 1}: nothing shown. ${ev.why}`);
+    console.log(`         ${ev.claim}`);
+  } else if (ev.type === 'done') {
+    final = ev.briefing;
   }
 }
-for (const s of mini.opposing) {
-  console.log(`\n  OPPOSING: ${s.who}${s.publication ? ' · ' + s.publication : ''}`);
-  console.log(`    ${s.position}`);
-  console.log(`    "${s.quote}"`);
-  console.log(`    ${s.resolvedUrl ?? s.url}`);
+
+if (!final) { console.error('no result'); process.exit(1); }
+
+console.log(`\n${at()} DONE · TIER ${final.tier.toUpperCase()}`);
+
+for (const s of final.opposing) printSource(s, '         ');
+
+if (final.limits.length) {
+  console.log('\n  LIMITS');
+  final.limits.forEach((l) => console.log('    - ' + l));
 }
 
-if (mini.limits.length) {
-  console.log('\n  LIMITS');
-  mini.limits.forEach((l) => console.log('    - ' + l));
-}
+console.log('\n  DROPPED');
+console.log(`    failed the quote check (not real):     ${final.dropped.unverified}`);
+console.log(`    failed the relevance check (not about the claim): ${final.dropped.offClaim}`);
 
 // Gemini 2.5 Flash list prices, checked 13 August 2026. Grounded search
 // requests bill separately from tokens, which is the cost most people miss.
 const IN_PER_M = 0.30, OUT_PER_M = 2.50, GROUNDING_PER_1K = 35;
-const tokenCost = (mini.cost.inputTokens / 1e6) * IN_PER_M + (mini.cost.outputTokens / 1e6) * OUT_PER_M;
-const groundCost = (mini.cost.groundedCalls / 1000) * GROUNDING_PER_1K;
+const tokenCost = (final.cost.inputTokens / 1e6) * IN_PER_M + (final.cost.outputTokens / 1e6) * OUT_PER_M;
+const groundCost = (final.cost.groundedCalls / 1000) * GROUNDING_PER_1K;
+
+console.log('\n  TIMING');
+console.log(`    outline on screen at: ${(final.timing.outlineMs / 1000).toFixed(1)}s   <- what the reader waits`);
+console.log(`    everything finished:  ${(final.timing.totalMs / 1000).toFixed(1)}s`);
 
 console.log('\n  COST');
-console.log(`    wall clock:      ${(mini.cost.ms / 1000).toFixed(1)}s`);
-console.log(`    model calls:     ${mini.cost.calls} (${mini.cost.groundedCalls} with search)`);
-console.log(`    tokens:          ${mini.cost.inputTokens} in / ${mini.cost.outputTokens} out`);
+console.log(`    model calls:     ${final.cost.calls} (${final.cost.groundedCalls} with search)`);
+console.log(`    tokens:          ${final.cost.inputTokens} in / ${final.cost.outputTokens} out`);
 console.log(`    token spend:     $${tokenCost.toFixed(5)}`);
-console.log(`    grounding spend: $${groundCost.toFixed(5)}  (${mini.cost.groundedCalls} x $${(GROUNDING_PER_1K / 1000).toFixed(3)})`);
+console.log(`    grounding spend: $${groundCost.toFixed(5)}  (${final.cost.groundedCalls} x $${(GROUNDING_PER_1K / 1000).toFixed(3)})`);
 console.log(`    TOTAL:           $${(tokenCost + groundCost).toFixed(4)} per mini-briefing`);
 console.log(`    per 1,000:       $${((tokenCost + groundCost) * 1000).toFixed(2)}\n`);
