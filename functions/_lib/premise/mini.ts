@@ -56,6 +56,17 @@ export interface MiniSource extends GroundedSource {
   addresses?: string;
   /** Why a quote was dropped for relevance, when it was. */
   relevanceNote?: string;
+  /** The claim this was retrieved for. Set when the source is recorded. */
+  claim?: string;
+  /**
+   * Which gate threw it out, when one did.
+   *
+   * Kept because the DROPS are the data. What survived says what the reader
+   * sees; what was dropped and why says where the pipeline is weak, and that
+   * is the only thing that tells you what to fix. Discarding it would leave
+   * "why is this one thin" permanently unanswerable.
+   */
+  dropStage?: 'quote' | 'relevance';
 }
 
 export interface MiniPremise {
@@ -90,6 +101,13 @@ export interface MiniBriefing {
   /** What the reader should know about how thin this is. Always populated. */
   limits: string[];
   dropped: { unverified: number; offClaim: number };
+  /**
+   * Every source considered across all claims, kept and dropped alike, with the
+   * gate that removed it. Not shown to a reader. This is what gets stored, and
+   * it is the only thing that can answer which domains are worth fetching and
+   * which gate is doing the work.
+   */
+  considered: MiniSource[];
   cost: { calls: number; groundedCalls: number; inputTokens: number; outputTokens: number; ms: number };
   timing: { outlineMs: number; totalMs: number };
 }
@@ -435,6 +453,8 @@ interface PremiseResult {
   groundedCalls: number;
   droppedUnverified: number;
   droppedOffClaim: number;
+  /** Every source this claim considered, kept and dropped alike. */
+  considered: MiniSource[];
 }
 
 /** One claim, end to end: search, fetch, quote, verify, check relevance, order. */
@@ -445,8 +465,10 @@ async function researchPremise(
 ): Promise<PremiseResult> {
   const base: PremiseResult = {
     index, premise: null, why: '', inTok: 0, outTok: 0,
-    calls: 0, groundedCalls: 0, droppedUnverified: 0, droppedOffClaim: 0,
+    calls: 0, groundedCalls: 0, droppedUnverified: 0, droppedOffClaim: 0, considered: [],
   };
+  const stamp = (s: MiniSource, dropStage?: 'quote' | 'relevance'): MiniSource =>
+    ({ ...s, claim: c.claim, ...(dropStage ? { dropStage } : {}) });
   try {
     const g = await retrievePremise(c.claim, deps.apiKey, deps.model ?? 'gemini-2.5-flash', 'dispute');
     base.calls++; base.groundedCalls++;
@@ -460,14 +482,19 @@ async function researchPremise(
 
     const checked = verifyAgainstFetched(st.sources, pages);
     const real = checked.filter((s) => s.verified);
-    base.droppedUnverified = checked.length - real.length;
+    const failedQuote = checked.filter((s) => !s.verified).map((s) => stamp(s, 'quote'));
+    base.droppedUnverified = failedQuote.length;
+    base.considered = failedQuote;
     if (real.length === 0) return { ...base, why: 'no quote survived checking against its page' };
 
     // Second gate: real is not the same as relevant.
     const rel = await judgeRelevance(c.claim, real, deps);
     base.calls++; base.inTok += rel.inTok; base.outTok += rel.outTok;
-    const kept = applyRelevance(real, rel.verdicts).filter((s) => s.verified);
-    base.droppedOffClaim = real.length - kept.length;
+    const judged = applyRelevance(real, rel.verdicts);
+    const kept = judged.filter((s) => s.verified);
+    const failedRelevance = judged.filter((s) => !s.verified).map((s) => stamp(s, 'relevance'));
+    base.droppedOffClaim = failedRelevance.length;
+    base.considered = [...kept.map((s) => stamp(s)), ...failedRelevance, ...failedQuote];
     if (kept.length === 0) return { ...base, why: 'quotes were real but about a different quantity' };
 
     const ordered = orderByDispute(kept).slice(0, deps.maxSourcesPerPremise ?? 3);
@@ -496,6 +523,7 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
   const t0 = Date.now();
   const cost = { calls: 0, groundedCalls: 0, inputTokens: 0, outputTokens: 0, ms: 0 };
   const dropped = { unverified: 0, offClaim: 0 };
+  const considered: MiniSource[] = [];
   const limits: string[] = [];
   const maxPremises = deps.maxPremises ?? PREMISES_FOR[deps.trigger ?? 'article'];
 
@@ -519,6 +547,7 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
       cost.calls += r.calls; cost.groundedCalls += r.groundedCalls;
       cost.inputTokens += r.inTok; cost.outputTokens += r.outTok;
       dropped.unverified += r.droppedUnverified; dropped.offClaim += r.droppedOffClaim;
+      considered.push(...r.considered);
       if (r.premise) {
         premises.push(r.premise);
         yield { type: 'premise', index: r.index, premise: r.premise };
@@ -555,7 +584,7 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
       type: 'done',
       briefing: {
         tier: 'premises', question: ex.outline.question, conclusion: ex.outline.conclusion,
-        premises, opposing: [], limits, dropped, cost,
+        premises, opposing: [], limits, dropped, cost, considered,
         timing: { outlineMs, totalMs: cost.ms },
       },
     };
@@ -574,11 +603,16 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
   const fbPages = await fetchPages(g.chunks, 6);
   const st = await quotesFromPages(target, fbPages, deps);
   cost.calls++; cost.inputTokens += st.inTok; cost.outputTokens += st.outTok;
-  const opposing = orderByDispute(verifyAgainstFetched(st.sources, fbPages).filter((s) => s.verified));
+  const fbChecked = verifyAgainstFetched(st.sources, fbPages);
+  const opposing = orderByDispute(fbChecked.filter((s) => s.verified));
+  considered.push(
+    ...fbChecked.map((s) => ({ ...s, claim: target, ...(s.verified ? {} : { dropStage: 'quote' as const }) })),
+  );
+  dropped.unverified += fbChecked.length - opposing.length;
 
   cost.ms = Date.now() - t0;
   const timing = { outlineMs, totalMs: cost.ms };
-  const head = { question: ex.outline.question, conclusion: ex.outline.conclusion, premises: [], dropped, cost, timing };
+  const head = { question: ex.outline.question, conclusion: ex.outline.conclusion, premises: [], dropped, cost, timing, considered };
 
   if (opposing.length >= 2) {
     yield { type: 'done', briefing: { tier: 'contrast', ...head, opposing: opposing.slice(0, 2), limits } };
