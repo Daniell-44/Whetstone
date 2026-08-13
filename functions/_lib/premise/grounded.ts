@@ -138,8 +138,47 @@ export async function retrievePremise(
   return { text, chunks, searchQueries: cand?.groundingMetadata?.webSearchQueries ?? [] };
 }
 
+export interface FetchedPage {
+  url: string;
+  resolvedUrl: string;
+  title?: string;
+  text: string;
+}
+
 /**
- * Stage 2. Fetch each source and check the quote is really on the page.
+ * Fetch the pages grounding actually found, so quotes can be taken from real
+ * text rather than from the model's account of it.
+ *
+ * This exists because of a measured failure, not a theory. Asking the grounded
+ * model to report who said what WITH exact wording produced a discursive essay
+ * rather than quotations, so the structuring pass had nothing exact to hand on
+ * and the gate correctly dropped every single source. Reproducing a quotation
+ * from memory is recall. Picking one out of text placed in front of the model
+ * is reading. Only the second is reliable, so do the second.
+ */
+export async function fetchPages(chunks: GroundingChunk[], limit = 5): Promise<FetchedPage[]> {
+  const out = await Promise.all(
+    chunks.slice(0, limit).map(async (c): Promise<FetchedPage | null> => {
+      try {
+        const r = await fetch(c.uri, {
+          redirect: 'follow',
+          headers: { 'user-agent': 'Mozilla/5.0 (compatible; TheWhetstone/1.0)' },
+          signal: AbortSignal.timeout(20_000),
+        });
+        if (!r.ok) return null;
+        const text = pageText(await r.text()).replace(/\s+/g, ' ').trim();
+        if (text.length < 400) return null;
+        return { url: c.uri, resolvedUrl: r.url, title: c.title, text };
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return out.filter((p): p is FetchedPage => p !== null);
+}
+
+/**
+ * Stage 3. Fetch each source and check the quote is really on the page.
  *
  * Drops rather than softens. A source whose page cannot be fetched is marked
  * unverified and keeps its position but loses its quote, because an unreachable
