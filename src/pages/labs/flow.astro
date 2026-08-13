@@ -1,0 +1,402 @@
+---
+// The mini-briefing flow, first iteration, 2026-08-13.
+//
+// Daniel: "pill --> card/side panel --> site flow. can the card be vatiable
+// size too? and can a user scroll and or click while is chugging in the bg."
+// Plus four decisions taken today: the in-page card is the default surface,
+// accuracy wins over speed on the first output, cost varies by what triggered
+// the run, and the card shrinks to a marker while it works.
+//
+// Every number here is measured, not estimated. The thinking-budget table is
+// scripts/bench-outline.ts run three times over three articles, nine runs per
+// setting. The timings and costs are scripts/run-mini.ts on 13 August 2026.
+//
+// This is an iteration to be refined, not a shipped design. Noindex, no ads.
+import Base from '../../layouts/Base.astro';
+
+const CLAIM = 'Nuclear reactors operate approximately 90 per cent of the time.';
+
+// scripts/bench-outline.ts, 9 runs per budget across 3 articles.
+const BENCH = [
+  { budget: '0',    secs: 2.4, claims: 2.7, check: 1.3, quality: 0.72, cost: '$0.00071', chosen: false },
+  { budget: '512',  secs: 4.7, claims: 3.0, check: 1.7, quality: 0.89, cost: '$0.00079', chosen: true  },
+  { budget: '2048', secs: 8.0, claims: 3.3, check: 1.8, quality: 0.82, cost: '$0.00088', chosen: false },
+  { budget: '8192', secs: 9.4, claims: 3.3, check: 1.7, quality: 0.75, cost: '$0.00085', chosen: false },
+];
+const MAXQ = 1.0;
+---
+
+<Base title="Mini-briefing flow (labs) - The Whetstone" noAds={true}>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <div class="fl">
+    <p class="kicker">The Whetstone · labs · 13 August 2026 · iteration 1</p>
+    <h1>Pill, card, site</h1>
+    <p class="lede">
+      One run, start to finish, at the sizes each step actually takes. Four decisions are built in:
+      the card is the default surface, the first output takes as long as it needs to be right, cost
+      follows what triggered the run, and the card gets out of the way while it works.
+    </p>
+
+    <div class="facts">
+      <div><b>4.7s</b><span>outline on screen</span></div>
+      <div><b>35s</b><span>fully sourced</span></div>
+      <div><b>$0.042</b><span>from a selection</span></div>
+      <div><b>$0.081</b><span>from a whole article</span></div>
+    </div>
+
+    <!-- ============================================================ flow -->
+    <p class="sizetag">The flow</p>
+    <h2>1 · You select a sentence</h2>
+    <p class="note">
+      The pill is the trigger because it arrives at the moment you are already interested, without
+      you having gone looking for it. Selecting also tells the tool <em>which</em> claim you care
+      about, so it searches once instead of twice.
+    </p>
+
+    <div class="win">
+      <div class="chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">news.example.com/nuclear-costings</span><span class="ico">W</span>
+      </div>
+      <div class="viewport">
+        <div class="page">
+          <p class="arttitle">Australia should build nuclear power</p>
+          <div class="rule w90"></div>
+          <p class="selected">reactors run about 90 per cent of the time, far above what wind and solar manage</p>
+          <div class="rule w85"></div><div class="rule w95"></div><div class="rule w70"></div>
+          <div class="rule w90"></div>
+        </div>
+        <div class="pill">Check this claim</div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><b>Costs</b>Nothing until pressed. No pixels before you select.</div>
+      <div><b>Scopes it</b>One claim, not four. Half the bill, half the wait.</div>
+      <div><b>Then</b>The card opens where you are. The panel does not.</div>
+    </div>
+
+    <h2>2 · The card works while you read</h2>
+    <p class="note">
+      This is the answer to whether you can scroll and click while it runs. You can. The work happens
+      in the extension's background, not in the page, so nothing you do to the page touches it. The
+      card shrinks itself to a marker so it is not sitting in your eye-line for thirty seconds.
+    </p>
+
+    <div class="states">
+      <div class="state">
+        <p class="stname">While working <span class="sh">44px</span></p>
+        <div class="cardbox h44">
+          <div class="marker">
+            <span class="mtitle">THE WHETSTONE</span>
+            <span class="mprog">checking 1 claim</span>
+            <span class="mtick">·</span>
+          </div>
+        </div>
+        <p class="stwhy">Shrinks by itself. Scroll, click, open a tab: none of it interrupts the run.</p>
+      </div>
+
+      <div class="state">
+        <p class="stname">Outline, 4.7s <span class="sh">280px</span></p>
+        <div class="cardbox h280">
+          <div class="cardin">
+            <p class="phead">THE WHETSTONE <span class="clock">4.7s</span> <span class="x">×</span></p>
+            <p class="prests">CHECKING</p>
+            <p class="pclaim">{CLAIM}</p>
+            <p class="prests">IF IT IS FALSE</p>
+            <p class="pconc">The cost advantage over renewables shrinks or disappears.</p>
+            <p class="pwait">· looking for who disputes it</p>
+          </div>
+        </div>
+        <p class="stwhy">Something to read at 4.7 seconds. Stands up alone even if the rest returns nothing.</p>
+      </div>
+
+      <div class="state">
+        <p class="stname">Sourced, 35s <span class="sh">430px</span></p>
+        <div class="cardbox h430">
+          <div class="cardin">
+            <p class="phead">THE WHETSTONE <span class="clock">35s</span> <span class="x">×</span></p>
+            <p class="prests">{CLAIM}</p>
+            <p class="stance contests">CONTESTS<span class="who">World Nuclear Association</span></p>
+            <p class="quote">“In 2023 the global average capacity factor was 81.5%, up from 80.4% in 2022”</p>
+            <p class="stance supports">SUPPORTS<span class="who">Duke Energy</span></p>
+            <p class="quote">“the average nuclear plant generates electricity, more than 90 percent of the time”</p>
+            <p class="handoff">Open in full →</p>
+          </div>
+        </div>
+        <p class="stwhy">Disagreement first. This is the ceiling: one more claim would not fit a laptop.</p>
+      </div>
+    </div>
+
+    <p class="note tight">
+      <b>Why it shrinks rather than hides.</b> Hidden means forgotten, and a run you forgot about is
+      money spent for nothing. The marker is small enough to ignore and present enough to remember.
+      Pressing it brings the card back at any point.
+    </p>
+
+    <h2>3 · The site takes over when the card runs out of room</h2>
+    <p class="note">
+      Press <em>Open in full</em> and the finished briefing goes to the site and opens in a tab. The
+      answer travels, not the question: nothing is analysed twice and you are not charged twice. The
+      card stays where it is, so closing the tab loses nothing.
+    </p>
+
+    <div class="win mid">
+      <div class="chrome">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">thewhetstone.review/m/k3f9qp2x</span>
+      </div>
+      <div class="viewport">
+        <div class="hosted">
+          <p class="hkick">THE WHETSTONE · MINI-BRIEFING · 13 AUGUST 2026</p>
+          <p class="htitle">Do reactors run 90 per cent of the time?</p>
+          <p class="hconc">
+            The figure holds for the United States fleet and does not hold as a global average. Which
+            one an argument needs depends on what it is comparing.
+          </p>
+          <div class="hgrid">
+            <div>
+              <p class="prests">CONTESTS</p>
+              <p class="stance contests">World Nuclear Association<span class="who">world-nuclear.org</span></p>
+              <p class="quote">“In 2023 the global average capacity factor was 81.5%, up from 80.4% in 2022, continuing the trend of high global capacity factors seen since 2000.”</p>
+            </div>
+            <div>
+              <p class="prests">SUPPORTS</p>
+              <p class="stance supports">Duke Energy<span class="who">duke-energy.com</span></p>
+              <p class="quote">“the average nuclear plant generates electricity, more than 90 percent of the time”</p>
+            </div>
+          </div>
+          <p class="hfoot">Every quote checked against the page it came from. Three were dropped for being about a different quantity.</p>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><b>Costs</b>Nothing extra. It sends the answer, not the question.</div>
+      <div><b>Private</b>The briefing travels. The article you were reading does not.</div>
+      <div><b>Unlocks</b>A link you can send to somebody with nothing installed.</div>
+    </div>
+
+    <!-- ==================================================== preference -->
+    <p class="sizetag">Preference</p>
+    <h2>4 · Where it appears, if you want it somewhere else</h2>
+    <p class="note">
+      The card is the default because it is the only surface that survives you reading the article.
+      The other two stay available for people who want them, and the setting is one screen, not a
+      section of settings.
+    </p>
+
+    <div class="prefwrap">
+      <div class="prefs">
+        <p class="pgroup">SHOW BRIEFINGS</p>
+        <label class="opt on"><span class="radio"></span><b>In the page</b><span>Bottom right, out of the column. Default.</span></label>
+        <label class="opt"><span class="radio"></span><b>Side panel</b><span>Roomier. Takes 300px of the window all session.</span></label>
+        <label class="opt"><span class="radio"></span><b>Toolbar popup</b><span>Closes when you click back on the article.</span></label>
+
+        <p class="pgroup">WHILE IT IS WORKING</p>
+        <label class="opt on"><span class="radio"></span><b>Shrink to a marker</b><span>Default.</span></label>
+        <label class="opt"><span class="radio"></span><b>Stay open</b><span></span></label>
+        <label class="opt"><span class="radio"></span><b>Hide, mark the toolbar icon</b><span></span></label>
+      </div>
+      <div class="prefnote">
+        <p><b>Why the popup is offered at all.</b> It cannot hold a thirty-five second reveal, because
+          clicking back on the article closes it. But some people want briefings kept out of the page
+          entirely, and telling them no would be worse than letting them find out.</p>
+        <p><b>What this displaces.</b> The side panel stops being the front door. It is still there,
+          still works, and is no longer the thing you have to open before anything happens.</p>
+      </div>
+    </div>
+
+    <!-- ========================================================== curve -->
+    <p class="sizetag">Measured</p>
+    <h2>5 · What a longer wait actually buys</h2>
+    <p class="note">
+      Stage one is the only wait anybody feels: everything after it happens while there is already
+      something on screen. So it is the one place where seconds are worth trading for accuracy. Nine
+      runs per setting, three articles. Quality is scored mechanically, by whether a claim names
+      somebody, carries a figure with a unit, and avoids leaning on “this” or “the study”.
+    </p>
+
+    <div class="chart">
+      <div class="crow head">
+        <div class="cbud"></div><div class="cbar">quality per claim</div>
+        <div class="csec">wait</div><div class="ccost">cost</div><div class="cmark"></div>
+      </div>
+      {BENCH.map((b) => (
+        <div class={b.chosen ? 'crow chosen' : 'crow'}>
+          <div class="cbud">{b.budget}<span>thinking</span></div>
+          <div class="cbar">
+            <div class="cfill" style={`width:${(b.quality / MAXQ) * 100}%`}></div>
+            <span class="cval">{b.quality.toFixed(2)}</span>
+          </div>
+          <div class="csec">{b.secs.toFixed(1)}s</div>
+          <div class="ccost">{b.cost}</div>
+          <div class="cmark">{b.chosen ? 'CHOSEN' : ''}</div>
+        </div>
+      ))}
+    </div>
+
+    <p class="note tight">
+      <b>The finding.</b> Yes, a longer wait buys accuracy, and the useful range is narrow. Going from
+      no thinking to 512 tokens costs 2.3 seconds and is the single biggest jump. Past that, the model
+      writes <em>more</em> claims and the extra ones are vaguer, so quality per claim falls while the
+      wait keeps rising. Since each claim researched is a real search downstream, padding the list
+      costs money later.
+    </p>
+    <p class="note tight">
+      <b>Cost never decides here.</b> The whole range is $0.0007 to $0.0009, about one per cent of a
+      run. Search is 91 per cent of the bill, and search happens after the reader is already reading.
+      The only currency at stage one is seconds.
+    </p>
+
+    <table class="tbl">
+      <thead><tr><th>Triggered by</th><th>Claims researched</th><th>Cost</th><th>Fully sourced</th></tr></thead>
+      <tbody>
+        <tr><td>A sentence you selected</td><td>1, the one you pointed at</td><td>$0.042</td><td>about 20s</td></tr>
+        <tr><td>A whole article</td><td>2, so it can show more than one weak point</td><td>$0.081</td><td>about 35s</td></tr>
+      </tbody>
+    </table>
+
+    <p class="note blocker">
+      <b>Still blocking.</b> Nothing in the extension streams: every path is one message and one
+      reply, so there is no way to send an outline now and premises later. Until that exists, every
+      state above is a picture of a thing that cannot happen yet. It is the first build, and it is
+      small: a long-lived connection, or a job written to storage that the card reads as it updates.
+    </p>
+  </div>
+</Base>
+
+<style is:global>
+  .fl {
+    --pp:#F3F4F1; --ss:#FBFBF9; --ii:#24272B; --is:#121417; --mm:#5C6167; --hh:#D7D9D3;
+    --ox:#8C4A2F; --db:#345D7E;
+    --sf: 'Besley Variable', Georgia, serif;
+    --mo: ui-monospace, Menlo, Consolas, monospace;
+    max-width: 62rem; margin: 0 auto; padding: 32px 20px 80px;
+    font-family: var(--sf); color: var(--ii); line-height: 1.6;
+  }
+  .fl h1 { font-size: 34px; color: var(--is); font-weight: 400; margin: 0 0 10px; line-height: 1.15; }
+  .fl h2 { font-size: 20px; color: var(--is); font-weight: 400; margin: 0 0 6px; line-height: 1.25; }
+  .fl .kicker, .fl .sizetag { font-family: var(--mo); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); margin: 0 0 8px; }
+  .fl .sizetag { margin: 54px 0 10px; padding-top: 14px; border-top: 1px solid var(--hh); }
+  .fl .lede { font-size: 17px; margin: 0 0 24px; max-width: 42rem; }
+  .fl .note { font-size: 15px; margin: 0 0 18px; max-width: 42rem; }
+  .fl .note.tight { margin-top: 18px; }
+  .fl .blocker { margin-top: 30px; padding: 16px 18px; background: var(--pp); border-left: 3px solid var(--is); max-width: none; }
+  .fl em { font-style: italic; }
+
+  .fl .facts { display: flex; gap: 28px; flex-wrap: wrap; padding: 16px 0 4px; border-top: 1px solid var(--hh); border-bottom: 1px solid var(--hh); margin-bottom: 8px; }
+  .fl .facts div { display: flex; flex-direction: column; }
+  .fl .facts b { font-family: var(--mo); font-size: 20px; font-weight: 400; color: var(--is); }
+  .fl .facts span { font-family: var(--mo); font-size: 13px; color: var(--mm); }
+
+  /* browser frame, same drawing language as the formats page */
+  .fl .win { border: 1px solid var(--hh); border-radius: 6px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .fl .chrome { background: #E8E9E5; padding: 7px 10px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid var(--hh); }
+  .fl .dot { width: 9px; height: 9px; border-radius: 50%; background: #C9CBC5; display: inline-block; }
+  .fl .addr { flex: 1; background: #fff; border: 1px solid var(--hh); border-radius: 11px; padding: 2px 10px; font-family: var(--mo); font-size: 11px; color: var(--mm); margin-left: 6px; }
+  .fl .ico { width: 18px; height: 18px; border-radius: 3px; background: #D2D4CE; color: var(--mm); font-family: var(--mo); font-size: 11px; display: grid; place-items: center; }
+  .fl .viewport { height: 260px; display: flex; position: relative; background: #fff; overflow: hidden; }
+  .fl .win.mid .viewport { height: 400px; }
+  .fl .page { flex: 1; padding: 20px 30px; }
+  .fl .arttitle { font-size: 17px; color: var(--is); margin: 0 0 14px; line-height: 1.25; }
+  .fl .rule { height: 7px; background: #EDEEEA; border-radius: 2px; margin-bottom: 9px; }
+  .fl .w70 { width: 70%; } .fl .w85 { width: 85%; } .fl .w90 { width: 90%; } .fl .w95 { width: 95%; }
+  .fl .selected { font-size: 12px; line-height: 1.5; background: #E4E9EE; color: var(--is); margin: 0 0 9px; padding: 3px 4px; border-radius: 2px; }
+  .fl .pill { position: absolute; left: 34px; top: 92px; background: var(--is); color: #fff; font-family: var(--mo); font-size: 11px; padding: 5px 11px; border-radius: 13px; }
+
+  /* the card, at its three real heights */
+  .fl .states { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: start; }
+  .fl .stname { font-family: var(--mo); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--is); margin: 0 0 7px; display: flex; justify-content: space-between; }
+  .fl .sh { color: var(--mm); }
+  .fl .cardbox { background: var(--ss); border: 1px solid var(--hh); border-radius: 4px; box-shadow: 0 4px 14px rgba(0,0,0,.10); overflow: hidden; }
+  .fl .h44 { height: 44px; } .fl .h280 { height: 280px; } .fl .h430 { height: 430px; }
+  .fl .cardin { padding: 13px 15px; }
+  .fl .stwhy { font-size: 13px; color: var(--ii); margin: 9px 0 0; line-height: 1.45; }
+
+  .fl .marker { height: 100%; display: flex; align-items: center; gap: 9px; padding: 0 14px; }
+  .fl .mtitle { font-family: var(--mo); font-size: 10px; letter-spacing: .1em; color: var(--mm); }
+  .fl .mprog { font-size: 12px; color: var(--is); }
+  .fl .mtick { margin-left: auto; font-family: var(--mo); color: var(--mm); }
+
+  .fl .phead { font-family: var(--mo); font-size: 11px; letter-spacing: .1em; color: var(--mm); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .fl .clock { margin-left: auto; color: var(--is); }
+  .fl .x { color: var(--mm); font-size: 14px; }
+  .fl .prests { font-family: var(--mo); font-size: 10px; letter-spacing: .1em; color: var(--mm); margin: 12px 0 5px; }
+  .fl .prests:first-child { margin-top: 0; }
+  .fl .pclaim { font-size: 13px; margin: 0; line-height: 1.4; color: var(--is); }
+  .fl .pconc { font-size: 13px; margin: 0; line-height: 1.45; }
+  .fl .pwait { font-family: var(--mo); font-size: 10px; color: var(--mm); margin: 14px 0 0; }
+  .fl .handoff { font-family: var(--mo); font-size: 11px; color: var(--is); margin: 14px 0 0; padding-top: 10px; border-top: 1px solid var(--hh); }
+
+  .fl .stance { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; margin: 10px 0 3px; display: flex; gap: 8px; align-items: baseline; }
+  .fl .stance.contests { color: var(--ox); font-weight: 700; }
+  .fl .stance.supports { color: var(--mm); }
+  .fl .who { font-family: var(--sf); font-size: 11px; letter-spacing: 0; color: var(--ii); font-weight: 400; }
+  .fl .quote { font-size: 12px; line-height: 1.45; margin: 0; border-left: 2px solid var(--hh); padding-left: 8px; }
+
+  /* hosted page */
+  .fl .hosted { flex: 1; background: var(--pp); padding: 22px 30px; }
+  .fl .hkick { font-family: var(--mo); font-size: 10px; letter-spacing: .12em; color: var(--mm); margin: 0 0 10px; }
+  .fl .htitle { font-size: 22px; color: var(--is); margin: 0 0 8px; line-height: 1.2; }
+  .fl .hconc { font-size: 14px; margin: 0 0 16px; max-width: 40rem; }
+  .fl .hgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; border-top: 1px solid var(--hh); padding-top: 14px; }
+  .fl .hfoot { font-family: var(--mo); font-size: 10px; color: var(--mm); margin: 14px 0 0; }
+
+  .fl .spec { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 12px 0 0; padding: 12px 0 0; border-top: 1px solid var(--hh); }
+  .fl .spec div { font-size: 13px; line-height: 1.45; }
+  .fl .spec b { display: block; font-family: var(--mo); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); font-weight: 400; margin-bottom: 3px; }
+
+  /* preference */
+  .fl .prefwrap { display: grid; grid-template-columns: 320px 1fr; gap: 30px; align-items: start; }
+  .fl .prefs { background: var(--ss); border: 1px solid var(--hh); border-radius: 4px; padding: 16px 18px; }
+  .fl .pgroup { font-family: var(--mo); font-size: 10px; letter-spacing: .1em; color: var(--mm); margin: 0 0 9px; }
+  .fl .pgroup + .opt { margin-top: 0; }
+  .fl .prefs .pgroup:not(:first-child) { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--hh); }
+  .fl .opt { display: grid; grid-template-columns: 16px 1fr; gap: 4px 9px; margin-bottom: 11px; align-items: start; }
+  .fl .radio { width: 11px; height: 11px; border: 1px solid var(--mm); border-radius: 50%; margin-top: 4px; }
+  .fl .opt.on .radio { border-color: var(--is); border-width: 4px; }
+  .fl .opt b { font-size: 13px; font-weight: 400; color: var(--is); }
+  .fl .opt.on b { font-weight: 700; }
+  .fl .opt span:last-child { grid-column: 2; font-size: 12px; color: var(--mm); line-height: 1.35; }
+  .fl .prefnote p { font-size: 14px; margin: 0 0 14px; line-height: 1.5; }
+
+  /* measured curve */
+  /* Budget ascends downward, so the reader travels the same direction the
+     spending does and the fall-off after 512 is a shape rather than a number. */
+  .fl .chart { display: flex; flex-direction: column; border-top: 1px solid var(--hh); padding-top: 4px; }
+  .fl .crow { display: grid; grid-template-columns: 76px 1fr 58px 78px 68px; gap: 12px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--hh); }
+  .fl .crow.head { padding: 0 0 8px; }
+  .fl .crow.head div { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); }
+  .fl .cbud { font-family: var(--mo); font-size: 14px; color: var(--is); }
+  .fl .cbud span { display: block; font-size: 9px; color: var(--mm); letter-spacing: .06em; }
+  .fl .cbar { position: relative; height: 20px; background: #EDEEEA; }
+  .fl .cfill { height: 100%; background: #C6CBC4; }
+  .fl .crow.chosen .cfill { background: var(--ox); }
+  .fl .cval { position: absolute; left: 8px; top: 1px; font-family: var(--mo); font-size: 12px; color: var(--is); }
+  .fl .crow.chosen .cval { color: #fff; }
+  .fl .csec, .fl .ccost { font-family: var(--mo); font-size: 12px; color: var(--ii); }
+  .fl .cmark { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; color: var(--ox); font-weight: 700; }
+
+  .fl .tbl { width: 100%; border-collapse: collapse; margin-top: 22px; }
+  .fl .tbl th { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); font-weight: 400; text-align: left; padding: 0 14px 7px 0; border-bottom: 1px solid var(--hh); }
+  .fl .tbl td { font-size: 14px; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--hh); vertical-align: top; }
+  .fl .tbl td:first-child { color: var(--mm); }
+
+  @media (max-width: 820px) {
+    .fl .states, .fl .spec, .fl .hgrid { grid-template-columns: 1fr; }
+    .fl .prefwrap { grid-template-columns: 1fr; }
+    /* The card heights stay real. They stack rather than sit side by side, but
+       shrinking them to fit would delete the one thing they are here to show. */
+    .fl .win { overflow-x: auto; }
+    .fl .viewport { min-width: 620px; }
+    /* The chart wraps rather than dropping a column. CHOSEN is a word, and
+       dropping it would leave the bar's colour as the only thing saying which
+       setting won. */
+    .fl .crow { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+    .fl .cbar { flex: 1 1 100%; order: 3; }
+    .fl .cbud { flex: 0 0 auto; }
+    .fl .cmark { order: 2; margin-left: auto; }
+    .fl .csec, .fl .ccost { order: 4; }
+    .fl .crow.head .cbar { display: none; }
+  }
+</style>

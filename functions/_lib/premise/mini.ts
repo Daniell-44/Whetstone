@@ -102,14 +102,54 @@ export type MiniEvent =
   | { type: 'premise-empty'; index: number; claim: string; why: string }
   | { type: 'done'; briefing: MiniBriefing };
 
+/**
+ * What started this run, which decides how much gets researched.
+ *
+ * A selection has already been pointed at: the reader picked one sentence, so
+ * researching four claims spends money answering questions they did not ask.
+ * A whole article has not been pointed at, and one claim there cannot show the
+ * thing that matters most, which is that an argument leans on more than one
+ * weak point.
+ */
+export type MiniTrigger = 'selection' | 'article';
+
+/** Claims researched per trigger. Each one is a search, and search is 91% of the bill. */
+const PREMISES_FOR: Record<MiniTrigger, number> = { selection: 1, article: 2 };
+
+/**
+ * The outline's thinking budget, measured rather than guessed.
+ *
+ * scripts/bench-outline.ts, nine runs per setting across three articles:
+ *
+ *   budget    secs   claims  checkable   quality per claim      cost
+ *        0     2.4      2.7        1.3                0.72   $0.00071
+ *      512     4.7      3.0        1.7                0.89   $0.00079   <-
+ *     2048     8.0      3.3        1.8                0.82   $0.00088
+ *     8192     9.4      3.3        1.7                0.75   $0.00085
+ *
+ * Quality peaks at 512 and falls after it: past that the model writes MORE
+ * claims, and the extra ones are vaguer, which costs a real search each
+ * downstream. Cost never chooses here, since the whole range is about one per
+ * cent of a run. The only currency at this stage is the reader's seconds, and
+ * 512 buys the entire available gain for the smallest number of them.
+ */
+const OUTLINE_THINKING = 512;
+
 export interface MiniDeps {
   provider: LlmProvider;
   apiKey: string;
   model?: string;
+  /** What started the run. Sets the premise count unless maxPremises overrides it. */
+  trigger?: MiniTrigger;
   /** How many premises to research. Each one costs a grounded call. */
   maxPremises?: number;
   /** Sources shown per premise, after ordering puts dispute first. */
   maxSourcesPerPremise?: number;
+  /**
+   * Thinking budget for the outline call. Defaults to the measured optimum
+   * above. Present so the benchmark can sweep it, not so callers can tune it.
+   */
+  outlineThinking?: number;
 }
 
 const EXTRACT_SYSTEM = `You read one article and name what its argument rests on.
@@ -134,8 +174,14 @@ Return ONLY:
 
 Two to four claims. Fewer is better than padded.`;
 
-/** Stage 1. Read the article. No searching, no recall: the text is right there. */
-async function extractOutline(
+/**
+ * Stage 1. Read the article. No searching, no recall: the text is right there.
+ *
+ * Exported so the thinking budget can be benchmarked against outline quality.
+ * This is the one call the reader waits on, so what it costs in seconds is the
+ * only latency that is actually felt.
+ */
+export async function extractOutline(
   text: string,
   deps: MiniDeps,
 ): Promise<{ outline: MiniOutline; inTok: number; outTok: number }> {
@@ -147,8 +193,14 @@ async function extractOutline(
       messages: [{ role: 'user', content: text.slice(0, 20_000) }],
       responseFormat: 'json',
       temperature: 0,
-      thinkingBudget: 0,
-      maxTokens: 1536,
+      thinkingBudget: deps.outlineThinking ?? OUTLINE_THINKING,
+      // Thinking draws from THIS budget, not a separate one. Leaving it at a
+      // flat 1536 meant that asking for 2048 tokens of thinking spent the whole
+      // allowance before a single character of JSON was written, and the answer
+      // came back truncated with no conclusion and one claim. That looked
+      // exactly like "more thinking makes it worse" in a benchmark, which is
+      // the wrong lesson drawn from a real bug. The answer needs its own room.
+      maxTokens: 1536 + (deps.outlineThinking ?? 0),
     },
     deps.apiKey,
   );
@@ -445,7 +497,7 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
   const cost = { calls: 0, groundedCalls: 0, inputTokens: 0, outputTokens: 0, ms: 0 };
   const dropped = { unverified: 0, offClaim: 0 };
   const limits: string[] = [];
-  const maxPremises = deps.maxPremises ?? 2;
+  const maxPremises = deps.maxPremises ?? PREMISES_FOR[deps.trigger ?? 'article'];
 
   // ---- stage 1: what does this conclude, and what does it rest on
   const ex = await extractOutline(articleText, deps);
