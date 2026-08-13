@@ -174,6 +174,29 @@ describe('streamMiniBriefing staging', () => {
   }
   afterEach(() => vi.unstubAllGlobals());
 
+  it('researches one claim from a selection and two from an article', async () => {
+    // Cost follows what was actually asked for. A selection has already been
+    // pointed at, so spending a second search on a claim the reader did not
+    // pick is spending their money answering a question they did not ask.
+    noSearchResults();
+    const seen: number[] = [];
+    const provider: LlmProvider = {
+      name: 'counting',
+      async complete(req: ProxyRequest): Promise<ProxyResponse> {
+        const payload = req.operation === 'analyze'
+          ? { question: 'q', conclusion: 'c', claims: [{ claim: 'one', load: 'x' }, { claim: 'two', load: 'y' }, { claim: 'three', load: 'z' }] }
+          : {};
+        return { content: JSON.stringify(payload), inputTokens: 1, outputTokens: 1 };
+      },
+    };
+    for (const trigger of ['selection', 'article'] as const) {
+      for await (const ev of streamMiniBriefing('text', { provider, apiKey: 'x', trigger })) {
+        if (ev.type === 'researching') seen.push(ev.claims.length);
+      }
+    }
+    expect(seen).toEqual([1, 2]);
+  });
+
   it('yields the outline first, before anything is searched', async () => {
     noSearchResults();
     const provider = scripted({
