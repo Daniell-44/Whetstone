@@ -21,7 +21,7 @@ import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
-import { listMiniBriefings, getTrends, type MiniDb } from '../../../functions/_lib/premise/store';
+import { listMiniBriefings, getTrends, listDroppedQuotes, type MiniDb } from '../../../functions/_lib/premise/store';
 
 const ADMIN_EMAIL = 'daniel.livingstone44@gmail.com';
 
@@ -36,6 +36,8 @@ if (!user || user.email !== ADMIN_EMAIL) {
 const db = env.DB as unknown as MiniDb;
 const rows = await listMiniBriefings(db, 200);
 const trends = await getTrends(db);
+const dropped = await listDroppedQuotes(db, 60);
+const rate = trends.sourcedRate;
 
 const totalCost = rows.reduce((a, r) => a + (r.cost_usd ?? 0), 0);
 const marked = rows.filter((r) => r.verdict).length;
@@ -92,6 +94,78 @@ function when(s: string): string {
                 </tr>
               );
             })}
+          </tbody>
+        </table>
+
+        <p class="sizetag">Near miss, or fabrication</p>
+        <p class="note">
+          Every quote that failed a gate, with what the model claimed it said. This is the
+          question that decides the next several days of work. If these strings are
+          <em>almost</em> right, the matcher is too strict and briefings are needlessly thin.
+          If nothing like them appears on the linked page, retrieval is finding the wrong
+          pages. Those have opposite fixes, and loosening the matcher when the truth is
+          fabrication would publish invented quotes. Read about thirty against their sources
+          before deciding.
+        </p>
+        {dropped.length === 0 ? (
+          <p class="note">No dropped quotes recorded yet.</p>
+        ) : (
+          <table class="t">
+            <thead><tr><th>Stage</th><th>Claimed wording</th><th>Why it was dropped</th><th>Page</th></tr></thead>
+            <tbody>
+              {dropped.map((d) => (
+                <tr>
+                  <td class="mono">{d.drop_stage}</td>
+                  <td class="attempt">&ldquo;{d.attempted_quote}&rdquo;</td>
+                  <td class="mono">{d.drop_reason}</td>
+                  <td>{d.url && <a class="src" href={d.url} target="_blank" rel="noopener noreferrer">{d.domain}</a>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        <p class="sizetag">Claims: the rate, with a denominator</p>
+        <p class="note">
+          &ldquo;Two premises sourced&rdquo; means one thing out of two claims and something
+          very different out of five. This counts every claim the outline produced, whether
+          it was researched or not.
+        </p>
+        <div class="facts">
+          <div><b>{rate.attempted}</b><span>claims found</span></div>
+          <div><b>{rate.researched}</b><span>researched</span></div>
+          <div><b>{rate.sourced}</b><span>sourced</span></div>
+          <div><b>{rate.researched ? Math.round((rate.sourced / rate.researched) * 100) : 0}%</b><span>of researched, sourced</span></div>
+        </div>
+        <table class="t">
+          <thead><tr><th>What happened to a claim</th><th class="n">Claims</th></tr></thead>
+          <tbody>
+            {trends.claimOutcomes.map((c) => (
+              <tr><td>{c.outcome}</td><td class="n">{c.n}</td></tr>
+            ))}
+          </tbody>
+        </table>
+
+        <p class="sizetag">Search, fetching, or reading</p>
+        <p class="note">
+          A thin briefing has three possible causes and they look identical from outside:
+          the search found nothing, the pages would not load, or the pages loaded and said
+          nothing useful. This separates them.
+        </p>
+        <table class="t">
+          <thead><tr><th>Fetch outcome</th><th class="n">Pages</th><th class="n">Average time</th></tr></thead>
+          <tbody>
+            {trends.fetchOutcomes.map((f) => (
+              <tr><td>{f.outcome}</td><td class="n">{f.n}</td><td class="n">{f.avg_ms}ms</td></tr>
+            ))}
+          </tbody>
+        </table>
+        <table class="t">
+          <thead><tr><th>Domain</th><th class="n">Tried</th><th class="n">Loaded</th><th class="n">Load rate</th></tr></thead>
+          <tbody>
+            {trends.fetchByDomain.map((f) => (
+              <tr><td>{f.domain}</td><td class="n">{f.tries}</td><td class="n">{f.ok}</td><td class="n">{f.ok_rate}</td></tr>
+            ))}
           </tbody>
         </table>
 
@@ -223,6 +297,7 @@ function when(s: string): string {
   .ad .q { display: block; color: var(--is); }
   .ad .src { font-family: var(--mo); font-size: 10px; color: var(--mm); }
   .ad .runs td { font-size: 12px; }
+  .ad .attempt { font-size: 12px; max-width: 34rem; }
   .ad .v { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; }
   .ad .v.wrong { color: var(--ox); font-weight: 700; }
   .ad .mark button { font-family: var(--mo); font-size: 10px; background: none; border: 1px solid var(--hh); border-radius: 3px; padding: 3px 6px; margin-right: 4px; cursor: pointer; color: var(--ii); }

@@ -54,8 +54,21 @@ function announce(what: string): void {
   console.log(`\n\x1b[1m[${step}] ${what}\x1b[0m`);
 }
 
+/**
+ * `shell` is needed for pnpm on Windows, because pnpm is a .cmd wrapper and
+ * cannot be executed directly. It must NOT be used for git.
+ *
+ * Under a shell, an argument array is re-joined into a command line, so any
+ * argument containing a space is split back apart by the shell. That is
+ * harmless for "run", "typecheck" and "deploy", and fatal for a commit
+ * message: `git commit -m Ship: site update` parses as four arguments and
+ * fails. The first run of this script deployed correctly and then died at the
+ * commit with everything left staged. git is a real executable, so it needs no
+ * shell and keeps its arguments intact.
+ */
 function run(cmd: string, args: string[]): void {
-  execFileSync(cmd, args, { cwd: ROOT, stdio: 'inherit', shell: process.platform === 'win32' });
+  const needsShell = process.platform === 'win32' && cmd !== 'git';
+  execFileSync(cmd, args, { cwd: ROOT, stdio: 'inherit', shell: needsShell });
 }
 
 function capture(cmd: string): string {
@@ -183,9 +196,18 @@ try { dirty = capture('git status --porcelain'); } catch { dirty = ''; }
 
 if (dirty) {
   const message = MESSAGE ?? `Ship: ${slugs.length ? slugs.join(', ') : 'site update'}`;
-  run('git', ['add', '-A']);
-  run('git', ['commit', '-m', message]);
-  console.log(`  committed on ${branch}`);
+  try {
+    run('git', ['add', '-A']);
+    run('git', ['commit', '-m', message]);
+    console.log(`  committed on ${branch}`);
+  } catch {
+    // The site is already live at this point, so this cannot abort. But it must
+    // be loud: a silent failure here leaves the deployed code uncommitted, and
+    // the next person to look at the tree has no idea what is running.
+    console.error('\n\x1b[33mDeployed, but the commit failed.\x1b[0m');
+    console.error('The site is live and your changes are staged. Commit and push by hand.\n');
+    process.exit(1);
+  }
 } else {
   console.log('  working tree clean, nothing to commit');
 }

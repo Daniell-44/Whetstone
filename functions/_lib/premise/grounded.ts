@@ -205,25 +205,67 @@ export interface FetchedPage {
  * from memory is recall. Picking one out of text placed in front of the model
  * is reading. Only the second is reliable, so do the second.
  */
-export async function fetchPages(chunks: GroundingChunk[], limit = 5): Promise<FetchedPage[]> {
-  const out = await Promise.all(
-    chunks.slice(0, limit).map(async (c): Promise<FetchedPage | null> => {
+export interface FetchAttempt {
+  url: string;
+  resolvedUrl?: string;
+  domain?: string;
+  ms: number;
+  status?: number;
+  outcome: 'ok' | 'http_error' | 'too_short' | 'unreachable';
+  chars?: number;
+}
+
+export interface FetchResult {
+  pages: FetchedPage[];
+  /**
+   * Every attempt, including the failures.
+   *
+   * The failures were previously swallowed into `null` and discarded, which
+   * made an important question unanswerable: when a briefing comes back thin,
+   * is that because the search found nothing, because the pages would not
+   * load, or because the model found nothing in pages that loaded fine? Those
+   * are three different problems with three different fixes, and without this
+   * they look identical from the outside.
+   */
+  ledger: FetchAttempt[];
+}
+
+function hostOf(u: string): string | undefined {
+  try { return new URL(u).hostname.replace(/^www\./, '').toLowerCase(); } catch { return undefined; }
+}
+
+export async function fetchPages(chunks: GroundingChunk[], limit = 5): Promise<FetchResult> {
+  const attempts = await Promise.all(
+    chunks.slice(0, limit).map(async (c): Promise<{ page: FetchedPage | null; attempt: FetchAttempt }> => {
+      const t0 = Date.now();
       try {
         const r = await fetch(c.uri, {
           redirect: 'follow',
           headers: { 'user-agent': 'Mozilla/5.0 (compatible; TheWhetstone/1.0)' },
           signal: AbortSignal.timeout(20_000),
         });
-        if (!r.ok) return null;
+        const ms = Date.now() - t0;
+        const domain = hostOf(r.url || c.uri);
+        if (!r.ok) {
+          return { page: null, attempt: { url: c.uri, resolvedUrl: r.url, domain, ms, status: r.status, outcome: 'http_error' } };
+        }
         const text = pageText(await r.text()).replace(/\s+/g, ' ').trim();
-        if (text.length < 400) return null;
-        return { url: c.uri, resolvedUrl: r.url, title: c.title, text };
+        if (text.length < 400) {
+          return { page: null, attempt: { url: c.uri, resolvedUrl: r.url, domain, ms, status: r.status, outcome: 'too_short', chars: text.length } };
+        }
+        return {
+          page: { url: c.uri, resolvedUrl: r.url, title: c.title, text },
+          attempt: { url: c.uri, resolvedUrl: r.url, domain, ms, status: r.status, outcome: 'ok', chars: text.length },
+        };
       } catch {
-        return null;
+        return { page: null, attempt: { url: c.uri, domain: hostOf(c.uri), ms: Date.now() - t0, outcome: 'unreachable' } };
       }
     }),
   );
-  return out.filter((p): p is FetchedPage => p !== null);
+  return {
+    pages: attempts.map((a) => a.page).filter((p): p is FetchedPage => p !== null),
+    ledger: attempts.map((a) => a.attempt),
+  };
 }
 
 /**

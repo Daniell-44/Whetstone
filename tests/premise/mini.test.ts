@@ -123,6 +123,44 @@ describe('verifyAgainstFetched', () => {
   });
 });
 
+/**
+ * The rule the whole log rests on: a dropped quote leaves the reader but not
+ * the record. If these two ever diverge, either an unverified quote reaches a
+ * page or the evidence needed to improve the pipeline is silently discarded.
+ */
+describe('dropped quotes keep their evidence', () => {
+  const page: FetchedPage = {
+    url: 'https://example.com/a', resolvedUrl: 'https://example.com/a',
+    text: 'The report found that reactors of this class run about 60 per cent of the time in practice.',
+  };
+
+  it('nulls the quote for display but keeps what was claimed', () => {
+    const claimed = 'run about 90 per cent of the time in practice';
+    const out = verifyAgainstFetched([src({ quote: claimed })], [page]);
+    expect(out[0].verified).toBe(false);
+    expect(out[0].quote).toBeUndefined();      // never reaches a reader
+    expect(out[0].attemptedQuote).toBe(claimed); // but the record has it
+  });
+
+  it('keeps the evidence through the relevance gate too', () => {
+    // A quote dropped here already PASSED the exact-match check, so it is real
+    // text from a real page. Those are the most informative drops of all.
+    const claimed = 'run about 60 per cent of the time in practice';
+    const real = verifyAgainstFetched([src({ quote: claimed })], [page]);
+    expect(real[0].verified).toBe(true);
+    const judged = applyRelevance(real, [verdict({ index: 0, sameSubject: false, quoteSubject: 'megawatts' })]);
+    expect(judged[0].verified).toBe(false);
+    expect(judged[0].quote).toBeUndefined();
+    expect(judged[0].attemptedQuote).toBe(claimed);
+  });
+
+  it('does not attach an attempted quote to a source that survived', () => {
+    const out = verifyAgainstFetched([src({ quote: 'run about 60 per cent of the time in practice' })], [page]);
+    expect(out[0].verified).toBe(true);
+    expect(out[0].attemptedQuote).toBeUndefined();
+  });
+});
+
 describe('pageText entity decoding', () => {
   it('decodes the entity that leaked into a live quotation', () => {
     // A run published `nuclear energy&rsquo;s` inside quotation marks, because
