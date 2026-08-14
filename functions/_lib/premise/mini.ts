@@ -42,7 +42,7 @@
  *    compares subjects, and the drop rule lives in code rather than in the
  *    model's discretion.
  */
-import { retrievePremise, fetchPages, squeeze, type GroundedSource, type FetchedPage } from './grounded';
+import { retrievePremise, fetchPages, squeeze, type GroundedSource, type FetchedPage, type FetchAttempt } from './grounded';
 import type { LlmProvider } from '../providers/types';
 
 export type MiniTier = 'premises' | 'contrast' | 'single' | 'none';
@@ -67,6 +67,42 @@ export interface MiniSource extends GroundedSource {
    * "why is this one thin" permanently unanswerable.
    */
   dropStage?: 'quote' | 'relevance';
+  /**
+   * What the model actually claimed the quote said, kept even when the quote
+   * itself is nulled for display.
+   *
+   * This is the single most valuable thing in the log, and it was being thrown
+   * away. When a quote fails the exact-match check there are two possibilities
+   * with OPPOSITE fixes. A near miss, where the model tidied a comma or joined
+   * a hyphen, means the matcher is too strict and briefings are needlessly
+   * thin. A fabrication, where nothing like it appears on the page, means
+   * retrieval is finding the wrong pages. Without the attempted text those are
+   * indistinguishable.
+   *
+   * It is deliberately a SEPARATE field from `quote`. `quote` is still nulled
+   * on failure so an unverified string can never reach a reader by accident.
+   * Display safety is unchanged; only the record is richer.
+   */
+  attemptedQuote?: string;
+}
+
+/**
+ * One claim the outline produced, and what became of it.
+ *
+ * `outcome` is the plain-language reason a claim produced nothing, which is
+ * the highest-signal field in the whole log: "search returned nothing" and
+ * "quotes were real but about a different quantity" are different failures
+ * needing different work. `queries` records what was actually typed into the
+ * search, which was being discarded and is the first thing worth reading when
+ * a claim finds nothing.
+ */
+export interface ClaimAttempt {
+  claim: string;
+  load: string;
+  researched: boolean;
+  sourced: boolean;
+  outcome: string;
+  queries: string[];
 }
 
 export interface MiniPremise {
@@ -108,6 +144,27 @@ export interface MiniBriefing {
    * which gate is doing the work.
    */
   considered: MiniSource[];
+  /**
+   * Every claim the outline produced, including the ones never researched.
+   *
+   * Without this there is no denominator. "Two premises sourced" means one
+   * thing when the outline found two claims and something very different when
+   * it found four, and the stored row could not tell the difference. A rate
+   * needs both numbers.
+   */
+  attempts: ClaimAttempt[];
+  /** Every page fetch, including the ones that failed. */
+  fetchLedger: FetchAttempt[];
+  /**
+   * The inputs, kept so a stored run can be replayed offline.
+   *
+   * This is what turns the log from a record into a test set. The provider is
+   * already injectable, so a stored run can be pushed back through the real
+   * pipeline with no network and no cost, which is the only honest way to ask
+   * whether a change improved anything. Roughly 70KB a run, so a thousand runs
+   * is 70MB. Comfortable.
+   */
+  replay?: { articleText: string; pages: Array<{ url: string; title?: string; text: string }> };
   cost: { calls: number; groundedCalls: number; inputTokens: number; outputTokens: number; ms: number };
   timing: { outlineMs: number; totalMs: number };
 }
@@ -311,11 +368,15 @@ export function verifyAgainstFetched(sources: MiniSource[], pages: FetchedPage[]
   const byUrl = new Map(pages.map((p) => [p.resolvedUrl, squeeze(p.text)]));
   return sources.map((s) => {
     if (!s.quote || !s.url) return { ...s, verified: false, verifyNote: 'no quote or url' };
+    // Held before the quote is nulled, so the record keeps what was claimed
+    // even though the reader never sees it. Near miss and fabrication are
+    // indistinguishable without this, and they have opposite fixes.
+    const attemptedQuote = s.quote;
     const hay = byUrl.get(s.url) ?? [...byUrl.values()].find((t) => t.includes(squeeze(s.quote!)));
     const needle = squeeze(s.quote).replace(/^["']|["']$/g, '');
-    if (needle.length < 24) return { ...s, quote: undefined, verified: false, verifyNote: 'quote too short to be evidence' };
+    if (needle.length < 24) return { ...s, attemptedQuote, quote: undefined, verified: false, verifyNote: 'quote too short to be evidence' };
     if (hay && hay.includes(needle)) return { ...s, resolvedUrl: s.url, verified: true };
-    return { ...s, quote: undefined, verified: false, verifyNote: 'wording not found in the fetched page' };
+    return { ...s, attemptedQuote, quote: undefined, verified: false, verifyNote: 'wording not found in the fetched page' };
   });
 }
 
@@ -411,10 +472,16 @@ export function applyRelevance(sources: MiniSource[], verdicts: RelevanceVerdict
   const byIndex = new Map(verdicts.map((v) => [v.index, v]));
   return sources.map((s, i) => {
     const v = byIndex.get(i);
-    if (!v) return { ...s, quote: undefined, verified: false, relevanceNote: 'no relevance verdict returned' };
+    // Same rule as the quote gate: the reader loses the quote, the record
+    // keeps it. A quote dropped here PASSED the exact-match check, so it is
+    // real text from a real page, and reading a few of these is the fastest
+    // way to see whether the relevance judge is too strict or too loose.
+    const attemptedQuote = s.quote ?? s.attemptedQuote;
+    if (!v) return { ...s, attemptedQuote, quote: undefined, verified: false, relevanceNote: 'no relevance verdict returned' };
     if (v.sameSubject) return s;
     return {
       ...s,
+      attemptedQuote,
       quote: undefined,
       verified: false,
       relevanceNote: `about ${v.quoteSubject || 'something else'}, not ${v.claimSubject || 'this claim'}`,
@@ -455,6 +522,12 @@ interface PremiseResult {
   droppedOffClaim: number;
   /** Every source this claim considered, kept and dropped alike. */
   considered: MiniSource[];
+  /** What was actually searched for. Discarded until now. */
+  queries: string[];
+  /** Every page fetch made for this claim, successes and failures. */
+  ledger: FetchAttempt[];
+  /** The page text, held so the run can be replayed without the network. */
+  pages: FetchedPage[];
 }
 
 /** One claim, end to end: search, fetch, quote, verify, check relevance, order. */
@@ -465,16 +538,21 @@ async function researchPremise(
 ): Promise<PremiseResult> {
   const base: PremiseResult = {
     index, premise: null, why: '', inTok: 0, outTok: 0,
-    calls: 0, groundedCalls: 0, droppedUnverified: 0, droppedOffClaim: 0, considered: [],
+    calls: 0, groundedCalls: 0, droppedUnverified: 0, droppedOffClaim: 0,
+    considered: [], queries: [], ledger: [], pages: [],
   };
   const stamp = (s: MiniSource, dropStage?: 'quote' | 'relevance'): MiniSource =>
     ({ ...s, claim: c.claim, ...(dropStage ? { dropStage } : {}) });
   try {
     const g = await retrievePremise(c.claim, deps.apiKey, deps.model ?? 'gemini-2.5-flash', 'dispute');
     base.calls++; base.groundedCalls++;
+    base.queries = g.searchQueries;
     if (!g.text) return { ...base, why: 'search returned nothing' };
 
-    const pages = await fetchPages(g.chunks, 5);
+    const fetched = await fetchPages(g.chunks, 5);
+    const pages = fetched.pages;
+    base.ledger = fetched.ledger;
+    base.pages = pages;
     if (pages.length === 0) return { ...base, why: 'no source page could be fetched' };
 
     const st = await quotesFromPages(c.claim, pages, deps);
@@ -524,6 +602,9 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
   const cost = { calls: 0, groundedCalls: 0, inputTokens: 0, outputTokens: 0, ms: 0 };
   const dropped = { unverified: 0, offClaim: 0 };
   const considered: MiniSource[] = [];
+  const attempts: ClaimAttempt[] = [];
+  const fetchLedger: FetchAttempt[] = [];
+  const replayPages: Array<{ url: string; title?: string; text: string }> = [];
   const limits: string[] = [];
   const maxPremises = deps.maxPremises ?? PREMISES_FOR[deps.trigger ?? 'article'];
 
@@ -548,6 +629,13 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
       cost.inputTokens += r.inTok; cost.outputTokens += r.outTok;
       dropped.unverified += r.droppedUnverified; dropped.offClaim += r.droppedOffClaim;
       considered.push(...r.considered);
+      fetchLedger.push(...r.ledger);
+      replayPages.push(...r.pages.map((p) => ({ url: p.resolvedUrl, title: p.title, text: p.text })));
+      const t = targets[r.index];
+      attempts.push({
+        claim: t.claim, load: t.load, researched: true, sourced: r.premise !== null,
+        outcome: r.premise ? 'sourced' : r.why, queries: r.queries,
+      });
       if (r.premise) {
         premises.push(r.premise);
         yield { type: 'premise', index: r.index, premise: r.premise };
@@ -557,6 +645,15 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
     }
     // Restore the article's own order: they finish out of order, they read in order.
     premises.sort((a, b) => targets.findIndex((t) => t.claim === a.claim) - targets.findIndex((t) => t.claim === b.claim));
+    attempts.sort((a, b) => targets.findIndex((t) => t.claim === a.claim) - targets.findIndex((t) => t.claim === b.claim));
+  }
+
+  // The claims the outline found but the budget never reached. Recorded so the
+  // log has a denominator: "two premises sourced" means one thing out of two
+  // claims and something very different out of five, and until now the stored
+  // row could not tell them apart.
+  for (const c of ex.outline.claims.slice(maxPremises)) {
+    attempts.push({ claim: c.claim, load: c.load, researched: false, sourced: false, outcome: 'not researched, past the claim budget', queries: [] });
   }
 
   if (premises.length > 0) {
@@ -585,6 +682,8 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
       briefing: {
         tier: 'premises', question: ex.outline.question, conclusion: ex.outline.conclusion,
         premises, opposing: [], limits, dropped, cost, considered,
+        attempts, fetchLedger,
+        replay: { articleText, pages: replayPages },
         timing: { outlineMs, totalMs: cost.ms },
       },
     };
@@ -600,7 +699,14 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
     deps.model ?? 'gemini-2.5-flash',
   );
   cost.calls++; cost.groundedCalls++;
-  const fbPages = await fetchPages(g.chunks, 6);
+  const fbFetched = await fetchPages(g.chunks, 6);
+  const fbPages = fbFetched.pages;
+  fetchLedger.push(...fbFetched.ledger);
+  replayPages.push(...fbPages.map((p) => ({ url: p.resolvedUrl, title: p.title, text: p.text })));
+  attempts.push({
+    claim: target, load: 'fallback: opposing articles', researched: true, sourced: false,
+    outcome: 'fallback tier', queries: g.searchQueries,
+  });
   const st = await quotesFromPages(target, fbPages, deps);
   cost.calls++; cost.inputTokens += st.inTok; cost.outputTokens += st.outTok;
   const fbChecked = verifyAgainstFetched(st.sources, fbPages);
@@ -612,7 +718,11 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
 
   cost.ms = Date.now() - t0;
   const timing = { outlineMs, totalMs: cost.ms };
-  const head = { question: ex.outline.question, conclusion: ex.outline.conclusion, premises: [], dropped, cost, timing, considered };
+  const head = {
+    question: ex.outline.question, conclusion: ex.outline.conclusion, premises: [],
+    dropped, cost, timing, considered, attempts, fetchLedger,
+    replay: { articleText, pages: replayPages },
+  };
 
   if (opposing.length >= 2) {
     yield { type: 'done', briefing: { tier: 'contrast', ...head, opposing: opposing.slice(0, 2), limits } };

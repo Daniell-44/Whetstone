@@ -122,7 +122,11 @@ export async function saveMiniBriefing(db: MiniDb, input: SaveInput): Promise<st
       id, input.userId ?? null, input.trigger, input.depth, PIPELINE_VERSION, input.model,
       storedUrl, urlHash, input.title ?? null, input.inputChars,
       b.tier, b.question || null, b.conclusion || null, claimCount, b.premises.length,
-      JSON.stringify({ ...b, considered: undefined }),
+      // The payload is what a reader would see, and nothing else. Everything
+      // stripped here has its own table. Leaving `replay` in would duplicate
+      // about 70KB of article and page text into a column that every trend
+      // query has to read past.
+      JSON.stringify({ ...b, considered: undefined, replay: undefined, fetchLedger: undefined, attempts: undefined }),
       b.timing.outlineMs, b.timing.totalMs, b.cost.calls, b.cost.groundedCalls,
       b.cost.inputTokens, b.cost.outputTokens, costOf(b.cost),
       b.dropped.unverified, b.dropped.offClaim,
@@ -133,17 +137,62 @@ export async function saveMiniBriefing(db: MiniDb, input: SaveInput): Promise<st
       try {
         await db.prepare(
           `INSERT INTO mini_sources (
-             briefing_id, claim, who, publication, domain, stance, kept, drop_stage, drop_reason, quote_chars, url
-           ) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+             briefing_id, claim, who, publication, domain, stance, kept, drop_stage, drop_reason,
+             quote_chars, url, attempted_quote
+           ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
         ).bind(
           id, s.claim ?? '', s.who ?? null, s.publication ?? null,
           domainOf(s.resolvedUrl ?? s.url), s.stance ?? null,
           s.dropStage ? 0 : 1, s.dropStage ?? null,
           s.relevanceNote ?? s.verifyNote ?? null,
-          s.quote ? s.quote.length : null, s.resolvedUrl ?? s.url ?? null,
+          (s.quote ?? s.attemptedQuote)?.length ?? null, s.resolvedUrl ?? s.url ?? null,
+          // Only on the dropped rows. A kept quote is already in the payload,
+          // and storing it twice would just be two places to keep in step.
+          s.dropStage ? (s.attemptedQuote ?? null) : null,
         ).run();
       } catch (e) {
         console.error('mini store: source row failed', e);
+      }
+    }
+
+    for (const [i, a] of (b.attempts ?? []).entries()) {
+      try {
+        await db.prepare(
+          `INSERT INTO mini_claims (briefing_id, position, claim, load, researched, sourced, outcome, queries)
+           VALUES (?,?,?,?,?,?,?,?)`,
+        ).bind(
+          id, i, a.claim, a.load ?? null, a.researched ? 1 : 0, a.sourced ? 1 : 0,
+          a.outcome, JSON.stringify(a.queries ?? []),
+        ).run();
+      } catch (e) {
+        console.error('mini store: claim row failed', e);
+      }
+    }
+
+    for (const f of b.fetchLedger ?? []) {
+      try {
+        await db.prepare(
+          `INSERT INTO mini_fetches (briefing_id, url, resolved_url, domain, ms, status, outcome, chars)
+           VALUES (?,?,?,?,?,?,?,?)`,
+        ).bind(
+          id, f.url, f.resolvedUrl ?? null, f.domain ?? null,
+          f.ms ?? null, f.status ?? null, f.outcome, f.chars ?? null,
+        ).run();
+      } catch (e) {
+        console.error('mini store: fetch row failed', e);
+      }
+    }
+
+    if (b.replay) {
+      try {
+        await db.prepare(
+          `INSERT INTO mini_replay (briefing_id, article_text, pages) VALUES (?,?,?)`,
+        ).bind(id, b.replay.articleText, JSON.stringify(b.replay.pages)).run();
+      } catch (e) {
+        // Replay is the largest write and the least urgent. Losing it costs a
+        // future test case, not this run's record, so it must not take the
+        // rest of the row down with it.
+        console.error('mini store: replay row failed', e);
       }
     }
     return id;
@@ -188,13 +237,28 @@ export async function getMiniBriefing(db: MiniDb, id: string): Promise<{ row: Mi
   return { row, payload, sources: src.results ?? [] };
 }
 
-export async function setVerdict(db: MiniDb, id: string, verdict: string, note: string | null): Promise<boolean> {
+/**
+ * Which stage was wrong, when one was.
+ *
+ * "Wrong" on its own does not say whether the outline picked bad claims,
+ * retrieval found nothing, the quote gate let a paraphrase through, or the
+ * relevance gate passed a mismatch. Those are four different pieces of work,
+ * and in three months nobody will remember which one a given run was.
+ */
+export const VERDICT_STAGES = ['outline', 'retrieval', 'quote', 'relevance', 'other'] as const;
+
+export async function setVerdict(
+  db: MiniDb, id: string, verdict: string, note: string | null, stage?: string | null,
+): Promise<boolean> {
   if (!/^[a-z0-9]{1,20}$/.test(id)) return false;
   if (!['right', 'wrong', 'mixed'].includes(verdict)) return false;
+  const cleanStage = stage && (VERDICT_STAGES as readonly string[]).includes(stage) ? stage : null;
   try {
     await db.prepare(
-      `UPDATE mini_briefings SET verdict = ?, verdict_note = ?, verdict_at = datetime('now') WHERE id = ?`,
-    ).bind(verdict, note, id).run();
+      `UPDATE mini_briefings
+          SET verdict = ?, verdict_note = ?, verdict_stage = ?, verdict_at = datetime('now')
+        WHERE id = ?`,
+    ).bind(verdict, note, cleanStage, id).run();
     return true;
   } catch (e) {
     console.error('mini store: verdict failed', e);
@@ -211,6 +275,14 @@ export interface Trends {
   byDomain: Array<{ domain: string; considered: number; kept: number; keep_rate: number }>;
   byDropStage: Array<{ drop_stage: string; n: number }>;
   byTier: Array<{ tier: string; n: number }>;
+  /** The rate with a denominator. Impossible before mini_claims existed. */
+  claimOutcomes: Array<{ outcome: string; n: number }>;
+  sourcedRate: { attempted: number; researched: number; sourced: number };
+  /** Where fetching actually fails, per domain. */
+  fetchOutcomes: Array<{ outcome: string; n: number; avg_ms: number }>;
+  fetchByDomain: Array<{ domain: string; tries: number; ok: number; ok_rate: number }>;
+  /** Which stage the owner blamed, when a run was marked wrong. */
+  byVerdictStage: Array<{ verdict_stage: string; n: number }>;
 }
 
 export async function getTrends(db: MiniDb): Promise<Trends> {
@@ -246,10 +318,79 @@ export async function getTrends(db: MiniDb): Promise<Trends> {
     `SELECT tier, COUNT(*) AS n FROM mini_briefings GROUP BY tier ORDER BY n DESC`,
   ).bind().all<Trends['byTier'][number]>();
 
+  // The rate with a denominator. "Two premises sourced" means one thing out of
+  // two claims and something very different out of five, and until mini_claims
+  // existed the stored row could not tell them apart.
+  const claimOutcomes = await db.prepare(
+    `SELECT outcome, COUNT(*) AS n FROM mini_claims GROUP BY outcome ORDER BY n DESC`,
+  ).bind().all<Trends['claimOutcomes'][number]>();
+
+  const rate = await db.prepare(
+    `SELECT COUNT(*) AS attempted,
+            SUM(researched) AS researched,
+            SUM(sourced) AS sourced
+       FROM mini_claims`,
+  ).bind().first<{ attempted: number; researched: number; sourced: number }>();
+
+  // Whether the bottleneck is search, fetching, or reading. Three different
+  // problems that all look like "the briefing is thin" from the outside.
+  const fetchOutcomes = await db.prepare(
+    `SELECT outcome, COUNT(*) AS n, CAST(AVG(ms) AS INTEGER) AS avg_ms
+       FROM mini_fetches GROUP BY outcome ORDER BY n DESC`,
+  ).bind().all<Trends['fetchOutcomes'][number]>();
+
+  // Unlike byDomain, this counts every page the pipeline TRIED to read, not
+  // just the ones a model proposed a quote from. A publisher that is fetched
+  // every run and never yields anything is invisible to the other query.
+  const fetchByDomain = await db.prepare(
+    `SELECT domain,
+            COUNT(*) AS tries,
+            SUM(CASE WHEN outcome = 'ok' THEN 1 ELSE 0 END) AS ok,
+            ROUND(CAST(SUM(CASE WHEN outcome = 'ok' THEN 1 ELSE 0 END) AS REAL) / COUNT(*), 2) AS ok_rate
+       FROM mini_fetches WHERE domain IS NOT NULL
+       GROUP BY domain HAVING COUNT(*) >= 2 ORDER BY tries DESC LIMIT 40`,
+  ).bind().all<Trends['fetchByDomain'][number]>();
+
+  const byVerdictStage = await db.prepare(
+    `SELECT verdict_stage, COUNT(*) AS n FROM mini_briefings
+      WHERE verdict_stage IS NOT NULL GROUP BY verdict_stage ORDER BY n DESC`,
+  ).bind().all<Trends['byVerdictStage'][number]>();
+
   return {
     byVersion: byVersion.results ?? [],
     byDomain: byDomain.results ?? [],
     byDropStage: byDropStage.results ?? [],
     byTier: byTier.results ?? [],
+    claimOutcomes: claimOutcomes.results ?? [],
+    sourcedRate: rate ?? { attempted: 0, researched: 0, sourced: 0 },
+    fetchOutcomes: fetchOutcomes.results ?? [],
+    fetchByDomain: fetchByDomain.results ?? [],
+    byVerdictStage: byVerdictStage.results ?? [],
   };
+}
+
+/**
+ * The near-miss question, as a query.
+ *
+ * Every quote that failed the exact-match check, with what the model claimed it
+ * said. Read thirty of these against their pages and the answer falls out: if
+ * the strings are almost right, the matcher is too strict and briefings are
+ * needlessly thin. If nothing like them is on the page, retrieval is broken.
+ * Opposite fixes, and this is the only way to tell which one you have.
+ */
+export async function listDroppedQuotes(db: MiniDb, limit = 60): Promise<Array<{
+  claim: string; who: string | null; domain: string | null; url: string | null;
+  drop_stage: string; drop_reason: string | null; attempted_quote: string | null; created_at: string;
+}>> {
+  const r = await db.prepare(
+    `SELECT s.claim, s.who, s.domain, s.url, s.drop_stage, s.drop_reason,
+            s.attempted_quote, b.created_at
+       FROM mini_sources s JOIN mini_briefings b ON b.id = s.briefing_id
+      WHERE s.attempted_quote IS NOT NULL
+      ORDER BY b.created_at DESC LIMIT ?`,
+  ).bind(limit).all<{
+    claim: string; who: string | null; domain: string | null; url: string | null;
+    drop_stage: string; drop_reason: string | null; attempted_quote: string | null; created_at: string;
+  }>();
+  return r.results ?? [];
 }
