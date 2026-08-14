@@ -7,9 +7,6 @@ import StudioEditor from '../../components/studio/StudioEditor';
 import StudioNav from '../../components/studio/StudioNav.astro';
 import OnboardingTour from '../../components/onboarding/OnboardingTour';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
-import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
-import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeFindingActionDb } from '../../../functions/_lib/documents/finding-actions';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
@@ -26,20 +23,22 @@ function safeJsonParse<T>(s: string | null | undefined): T | null {
   try { return JSON.parse(s) as T; } catch { return null; }
 }
 
-const authDb      = makeAuthDb(env.DB);
-const billingDb   = makeBillingDb(env.DB);
-const workspaceDb = makeWorkspaceDb(env.DB);
-const session     = await getSessionFromRequest(Astro.request, authDb);
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
 
-if (!session) {
-  // Signed-out visitors get the Studio sell page (what Studio is + sign-in /
-  // pricing / the free Reader), NOT a bare /login dead-end. /creator is
-  // session-aware and routes them on from there.
-  return Astro.redirect('/creator');
-}
+// Signed-out visitors get the Studio itself now, not a redirect: Daniel,
+// 2026-08-14: "all features should be in free tier, no sign in needed for now
+// but force sign in if one session has >3 uses." The >3-uses rule is enforced
+// server-side by the anonymous session gate on the analysis endpoints.
+// Subscription checks are moot under the same decision, so the flag is forced
+// on rather than computed from billing.
+const hasActiveSubscription = true;
 
-const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, session.user_id);
-const terminology           = await authDb.getTerminologyPreference(session.user_id);
+// A signed-out visitor has no stored preference, so they get the default
+// terminology ('plain', matching what a fresh account starts with).
+const terminology = session
+  ? await authDb.getTerminologyPreference(session.user_id)
+  : 'plain';
 
 // Load document from ?doc= query param if provided.
 const docIdParam = Astro.url.searchParams.get('doc');
@@ -55,7 +54,10 @@ let initialCitationResult:    CitationAuditResult | null = null;
 let initialAnalyzedAt:        number | null = null;
 let initialActions:          Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }> = {};
 
-if (docIdParam) {
+// Loading a saved document only makes sense for its signed-in owner; a
+// signed-out visitor lands on an empty untitled draft even if a ?doc= link
+// was shared with them.
+if (docIdParam && session) {
   const docDb      = makeDocumentDb(env.DB);
   const actionDb   = makeFindingActionDb(env.DB);
   const doc        = await docDb.getDocumentById(docIdParam);
@@ -89,7 +91,7 @@ if (docIdParam) {
   title="Studio - The Whetstone"
   description="Paste your draft. Run the structural audit and surface the strongest opposing positions you haven't engaged with."
   canonicalPath="/creator/studio"
-  isLoggedIn={true}
+  isLoggedIn={Boolean(session)}
 >
   <main class="max-w-[1600px] mx-auto px-4 sm:px-6 pt-4 pb-8">
 

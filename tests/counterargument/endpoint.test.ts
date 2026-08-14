@@ -17,6 +17,11 @@ class FakeKV {
   async put(key: string, value: string): Promise<void> {
     this.store.set(key, value);
   }
+
+  /** Test-only visibility into which quota keys the handler wrote. */
+  keys(): string[] {
+    return [...this.store.keys()];
+  }
 }
 
 const MINIMAL_RESULT_JSON = JSON.stringify({
@@ -69,51 +74,48 @@ function makeRequest(body: unknown, method = 'POST'): Request {
 }
 
 // ---------------------------------------------------------------------------
-// Auth gate
+// Free-tier access (decision of 2026-08-14: everything runs anonymously; the
+// endpoint's anonymous session gate, not this handler, enforces sign-in)
 // ---------------------------------------------------------------------------
 
-describe('POST /api/counterargument — auth gate', () => {
-  it('returns 401 UNAUTHORIZED when no session is present', async () => {
+describe('POST /api/counterargument — free-tier access', () => {
+  it('runs the engine for an anonymous caller with no session', async () => {
     const deps = makeDeps({ getSession: async () => null });
     const req  = makeRequest({ text: 'a'.repeat(50) });
     const res  = await handleCounterargRequest(req, deps);
     const data = await rj(res);
 
-    expect(res.status).toBe(401);
-    expect(data.ok).toBe(false);
-    expect(data.error.code).toBe('UNAUTHORIZED');
-    expect(data.error.message).toMatch(/sign in/i);
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
   });
 
-  it('allows an authenticated subscribed user through', async () => {
+  it('keys the anonymous quota by IP the same way the Reader audit does', async () => {
+    const kv   = new FakeKV();
+    const deps = makeDeps({ getSession: async () => null, rateLimitKv: kv });
+    const req  = new Request('https://test.example/api/counterargument', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': '203.0.113.9' },
+      body:    JSON.stringify({ text: 'a'.repeat(50) }),
+    });
+    const res = await handleCounterargRequest(req, deps);
+
+    expect(res.status).toBe(200);
+    expect(kv.keys()).toContain('counterarg:ip:203.0.113.9');
+  });
+
+  it('allows an authenticated user through on their per-user quota', async () => {
+    const kv   = new FakeKV();
     const req  = makeRequest({ text: 'a'.repeat(50) });
-    const res  = await handleCounterargRequest(req, makeDeps());
+    const res  = await handleCounterargRequest(req, makeDeps({ rateLimitKv: kv }));
     const data = await rj(res);
 
     expect(res.status).toBe(200);
     expect(data.ok).toBe(true);
+    expect(kv.keys()).toContain('counterarg:user:user-test-123');
   });
-});
 
-// ---------------------------------------------------------------------------
-// Subscription gate
-// ---------------------------------------------------------------------------
-
-describe('POST /api/counterargument — subscription gate', () => {
-  it('returns 402 SUBSCRIPTION_REQUIRED when session exists but no active subscription', async () => {
+  it('runs for a signed-in user with no subscription', async () => {
     const deps = makeDeps({ checkSubscription: async () => false });
-    const req  = makeRequest({ text: 'a'.repeat(50) });
-    const res  = await handleCounterargRequest(req, deps);
-    const data = await rj(res);
-
-    expect(res.status).toBe(402);
-    expect(data.ok).toBe(false);
-    expect(data.error.code).toBe('SUBSCRIPTION_REQUIRED');
-    expect(data.error.message).toMatch(/studio pro feature/i);
-  });
-
-  it('passes subscription check when checkSubscription returns true', async () => {
-    const deps = makeDeps({ checkSubscription: async () => true });
     const req  = makeRequest({ text: 'a'.repeat(50) });
     const res  = await handleCounterargRequest(req, deps);
 
@@ -121,16 +123,15 @@ describe('POST /api/counterargument — subscription gate', () => {
     expect((await rj(res)).ok).toBe(true);
   });
 
-  it('checks subscription after auth (no subscription check if no session)', async () => {
+  it('never calls checkSubscription now every feature is in the free tier', async () => {
     let subscriptionChecked = false;
     const deps = makeDeps({
-      getSession:        async () => null,
       checkSubscription: async () => { subscriptionChecked = true; return false; },
     });
     const req = makeRequest({ text: 'a'.repeat(50) });
     const res = await handleCounterargRequest(req, deps);
 
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
     expect(subscriptionChecked).toBe(false);
   });
 });

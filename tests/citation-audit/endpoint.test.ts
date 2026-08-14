@@ -37,6 +37,8 @@ class FakeKV implements RateLimitKV {
   private store = new Map<string, string>();
   async get(key: string) { return this.store.get(key) ?? null; }
   async put(key: string, value: string) { this.store.set(key, value); }
+  /** Test-only visibility into which quota keys the handler wrote. */
+  keys(): string[] { return [...this.store.keys()]; }
 }
 
 function fakeLlmProvider(): LlmProvider {
@@ -95,24 +97,31 @@ describe('handleCitationAuditRequest', () => {
     };
   }
 
-  it('returns 401 when no session', async () => {
-    const res = await handleCitationAuditRequest(
-      postReq({ text: DUMMY_TEXT }),
-      deps({ getSession: async () => null }),
-    );
-    expect(res.status).toBe(401);
-    const body = await res.json() as { ok: boolean; error: { code: string } };
-    expect(body.error.code).toBe('UNAUTHORIZED');
+  // Free-tier decision (2026-08-14): the handler no longer turns anyone away
+  // for lacking a session or a subscription; the endpoint's anonymous session
+  // gate is what enforces sign-in after three runs.
+
+  it('runs for an anonymous caller and keys the quota by IP', async () => {
+    const req = new Request('https://test.example.com/api/citation-audit', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': '203.0.113.9' },
+      body:    JSON.stringify({ text: DUMMY_TEXT }),
+    });
+    const res = await handleCitationAuditRequest(req, deps({ getSession: async () => null }));
+    expect(res.status).toBe(200);
+    const body = await res.json() as { ok: boolean };
+    expect(body.ok).toBe(true);
+    expect(kv.keys()).toContain('citation:ip:203.0.113.9');
   });
 
-  it('returns 402 when no active subscription', async () => {
+  it('runs for a signed-in user with no active subscription', async () => {
     const res = await handleCitationAuditRequest(
       postReq({ text: DUMMY_TEXT }),
       deps({ checkSubscription: async () => false }),
     );
-    expect(res.status).toBe(402);
-    const body = await res.json() as { ok: boolean; error: { code: string } };
-    expect(body.error.code).toBe('SUBSCRIPTION_REQUIRED');
+    expect(res.status).toBe(200);
+    const body = await res.json() as { ok: boolean };
+    expect(body.ok).toBe(true);
   });
 
   it('returns 429 when rate limit exceeded', async () => {
@@ -209,6 +218,16 @@ describe('handleCitationAuditRequest', () => {
     const res = await handleCitationAuditRequest(
       postReq({ text: DUMMY_TEXT }),
       deps({ persistResult }),
+    );
+    expect(res.status).toBe(200);
+    expect(persistResult).not.toHaveBeenCalled();
+  });
+
+  it('does not attempt persistence for an anonymous caller even with a version target', async () => {
+    const persistResult = vi.fn().mockResolvedValue(true);
+    const res = await handleCitationAuditRequest(
+      postReq({ text: DUMMY_TEXT, documentId: 'doc-1', versionId: 'ver-1' }),
+      deps({ persistResult, getSession: async () => null }),
     );
     expect(res.status).toBe(200);
     expect(persistResult).not.toHaveBeenCalled();

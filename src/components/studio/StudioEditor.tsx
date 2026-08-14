@@ -1016,12 +1016,16 @@ export default function StudioEditor({
     </div>
   );
 
-  // Deeper lenses - on-demand, free tier, identical to the Reader's. Demoted
-  // to a compact strip at the foot of the LEFT column: the Pro-differentiated
-  // engines above are what a subscription buys, so they carry the visual
-  // weight. All five lenses and their result displays are unchanged in
-  // function, only smaller.
-  const deeperLensesPanel = auditState.status === 'done' ? (
+  // SHELVED, Daniel 2026-08-14: "insofar as the studio -- the deeper sections
+  // should be shelved." The strip of five on-demand lenses (presuppositions,
+  // rhetorical mode, epistemic humility, engagement quality, structural
+  // incentives) no longer renders in Studio. The engines, their endpoints and
+  // the Reader's own panel are untouched; only this surface stops showing
+  // them. Convention 13 note: nothing displaces them here — the Studio's job
+  // narrows to the core write-audit-revise loop, and five extra buttons under
+  // it were competing for attention with the work itself.
+  const SHOW_DEEPER_LENSES = false;
+  const deeperLensesPanel = SHOW_DEEPER_LENSES && auditState.status === 'done' ? (
     <div data-tour-anchor="studio-deeper-lenses" class="rounded-lg border border-hairline bg-surface p-3 space-y-3">
       <div class="flex items-center justify-between gap-2">
         <h3 class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">Also on the free tier</h3>
