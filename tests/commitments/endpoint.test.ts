@@ -50,20 +50,36 @@ function makeRequest(body: unknown): Request {
 // ---------------------------------------------------------------------------
 
 describe('handleCommitmentsRequest', () => {
-  it('returns 401 when not authenticated', async () => {
-    const text = 'a'.repeat(60);
-    const res  = await handleCommitmentsRequest(makeRequest({ text }), makeDeps({ getSession: async () => null }));
-    const data = await res.json() as { ok: boolean; error: { code: string } };
-    expect(res.status).toBe(401);
-    expect(data.error.code).toBe('UNAUTHORIZED');
+  // Free-tier decision (2026-08-14): the handler no longer turns anyone away
+  // for lacking a session or a subscription; the endpoint's anonymous session
+  // gate is what enforces sign-in after three runs.
+
+  it('runs for an anonymous caller and keys the quota by IP', async () => {
+    const written: string[] = [];
+    const req = new Request('https://test.example/api/philosophical-commitments', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': '203.0.113.9' },
+      body:    JSON.stringify({ text: 'a'.repeat(60) }),
+    });
+    const res = await handleCommitmentsRequest(req, makeDeps({
+      getSession:  async () => null,
+      rateLimitKv: {
+        get: async () => null,
+        put: async (key: string) => { written.push(key); },
+      } as unknown as CommitmentsHandlerDeps['rateLimitKv'],
+    }));
+    const data = await res.json() as { ok: boolean };
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
+    expect(written).toContain('commitments:ip:203.0.113.9');
   });
 
-  it('returns 402 when subscription is not active', async () => {
+  it('runs for a signed-in user with no active subscription', async () => {
     const text = 'a'.repeat(60);
     const res  = await handleCommitmentsRequest(makeRequest({ text }), makeDeps({ checkSubscription: async () => false }));
-    const data = await res.json() as { ok: boolean; error: { code: string } };
-    expect(res.status).toBe(402);
-    expect(data.error.code).toBe('SUBSCRIPTION_REQUIRED');
+    const data = await res.json() as { ok: boolean };
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
   });
 
   it('returns 400 on invalid JSON body', async () => {

@@ -38,6 +38,8 @@ export interface EvidenceHandlerDeps {
   evidenceDailyCap:   number;
   provider:           LlmProvider;
   getSession:         (request: Request) => Promise<{ userId: string } | null>;
+  /** No longer called: the free-tier decision (2026-08-14) made the
+      subscription gate moot. Kept so endpoint wiring keeps compiling. */
   checkSubscription:  (userId: string) => Promise<boolean>;
 }
 
@@ -57,20 +59,22 @@ export async function handleEvidenceRequest(
   deps:    EvidenceHandlerDeps,
 ): Promise<Response> {
 
+  // Session is optional since the free-tier decision (2026-08-14): every
+  // feature runs for anonymous callers, and the endpoint wraps this handler
+  // in the anonymous session gate (three runs per browser session, then
+  // sign-in), so the handler itself no longer turns anyone away.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-  }
 
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active Studio subscription required.' } }, 402);
-  }
-
+  // Rate limit: keyed per user for signed-in callers, per IP for anonymous
+  // ones (the same key shape the Reader's audit handler uses). Both share the
+  // same daily cap.
   if (deps.rateLimitKv) {
+    const key = session
+      ? `evidence:user:${session.userId}`
+      : `evidence:ip:${request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? 'unknown'}`;
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `evidence:user:${session.userId}`,
+      key,
       deps.evidenceDailyCap,
     );
     if (!quota.allowed) {

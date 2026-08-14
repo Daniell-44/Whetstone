@@ -13,6 +13,8 @@ import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { persistEngineRun } from '../../../functions/_lib/documents/persist-run';
 import type { CrossDocumentResult } from '../../../functions/_lib/cross-document/types';
+import { anonSessionGate } from '../../../functions/_lib/rate-limit';
+import type { AnonGate } from '../../../functions/_lib/rate-limit';
 
 const provider = new GeminiProvider();
 
@@ -22,6 +24,16 @@ export const POST: APIRoute = async ({ request }) => {
   const workspaceDb = makeWorkspaceDb(env.DB);
 
   const session = await getSessionFromRequest(request, authDb);
+
+  // Anonymous callers get three runs per browser session before sign-in is
+  // required (free-tier decision, 2026-08-14). The gate lives here, not in the
+  // handler, so the Set-Cookie for a newly minted anonymous id can ride
+  // whichever response the handler returns.
+  let gate: AnonGate | undefined;
+  if (!session) {
+    gate = await anonSessionGate(request, env.RATE_LIMIT);
+    if (gate.block) return gate.block;
+  }
 
   const res = await handleCrossDocumentRequest(request, {
     rateLimitKv:       env.RATE_LIMIT,
@@ -65,5 +77,10 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
+  // The persist path above only runs for signed-in users, and the gate only
+  // exists for anonymous ones, so this is the single place the cookie applies.
+  // A use is a run, not an attempt: count only when the handler really ran.
+  if (gate && res.status < 400) await gate.commit();
+  if (gate?.setCookie) res.headers.append('Set-Cookie', gate.setCookie);
   return res;
 };

@@ -6,62 +6,123 @@ import Base from '../../../layouts/Base.astro';
 import CrossDocumentForm from '../../../components/cross-document/CrossDocumentForm';
 import StudioNav from '../../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
-import { makeBillingDb } from '../../../../functions/_lib/billing/subscription';
-import { makeWorkspaceDb } from '../../../../functions/_lib/workspaces/db';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../../functions/_lib/workspaces/permissions';
 import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
 
-const authDb      = makeAuthDb(env.DB);
-const billingDb   = makeBillingDb(env.DB);
-const workspaceDb = makeWorkspaceDb(env.DB);
-const session     = await getSessionFromRequest(Astro.request, authDb);
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
 
-if (!session) {
-  return Astro.redirect('/login?returnTo=/creator/studio/cross-document');
-}
-
-const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, session.user_id);
+// Free tier, Daniel 2026-08-14: "all features should be in free tier, no sign
+// in needed for now but force sign in if one session has >3 uses." The
+// per-session cap is enforced at the API, not here: a page you can read costs
+// nothing, and the door should not be locked when the tool inside meters
+// itself. The old Pro upsell and its billing lookups are gone with the tier.
 ---
 <Base
   title="Cross-Document Audit - Studio"
-  description="Audit 2-5 documents together. Find self-contradictions, repeated unstated warrants, and position shifts across an author's work."
+  description="Audit 2-5 documents together and get a briefing: where each lands, and the premises they actually contest."
   canonicalPath="/creator/studio/cross-document"
-  isLoggedIn={true}
+  isLoggedIn={Boolean(session)}
 >
   <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
 
-    <StudioNav current="cross-document" hasActiveSubscription={hasActiveSubscription} />
+    <StudioNav current="cross-document" hasActiveSubscription={true} />
 
     <header class="mb-8">
       <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">
         Cross-document audit
       </h1>
       <p class="text-base sm:text-lg text-muted leading-relaxed max-w-3xl">
-        Paste or link 2-5 documents - typically by the same author, or on the same topic.
-        The engine audits each one, then compares across them: claims that get contradicted,
-        warrants repeated without defence, positions that shift without acknowledgement, and
-        certainty that escalates without new evidence.
+        Paste or link 2-5 documents on the same question. Each is audited on its own, then
+        compared: where each lands, which premises they actually contest, and the exact
+        wording each side uses. What comes out is a briefing, the same form this
+        publication writes by hand.
       </p>
       <p class="text-xs text-muted mt-3">
-        Studio-tier feature. Each document is fully audited before the cross-document pass -
-        analysis takes 60-120 seconds.
+        Free to use. Each document is fully audited before the comparison, so a run takes
+        60-120 seconds.
       </p>
     </header>
 
-    {!hasActiveSubscription ? (
-      <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
-        <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
-        <p class="text-sm text-ink max-w-sm mx-auto leading-relaxed">
-          Cross-document audit runs the full audit suite on each document plus a cross-document
-          synthesis pass. Subscribe to unlock it.
+    {/* THE WORKED EXAMPLE. Prepared, not live, and labelled as such. Every
+        quote below comes from the nuclear costings briefing, where it has
+        already been through the verbatim quote gate against its source page.
+        A sample invented for prettiness would be the exact sin this
+        publication exists to catch. */}
+    <section class="mb-10 rounded-lg border border-hairline bg-surface overflow-hidden">
+      <div class="flex items-baseline justify-between gap-3 px-4 py-2.5 border-b border-hairline">
+        <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted m-0">
+          Worked example · three documents on nuclear costings
         </p>
-        <a href="/pricing" class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors">
-          See plans →
-        </a>
+        <p class="font-mono text-[11px] text-muted m-0">prepared, not live</p>
       </div>
-    ) : (
-      <CrossDocumentForm client:load />
-    )}
+      <div class="p-4 space-y-4">
+
+        <p class="font-serif text-lg text-ink-strong leading-snug m-0">
+          Is a nuclear-inclusive grid cheaper for Australia than renewables-only?
+        </p>
+
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">Where each document lands</p>
+          <div class="space-y-1.5">
+            <div class="rounded border border-hairline bg-paper px-3 py-2">
+              <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Doc A · Frontier Economics</p>
+              <p class="text-sm text-ink m-0 leading-snug">A nuclear-inclusive grid is 25 per cent cheaper than the renewables-only pathway.</p>
+            </div>
+            <div class="rounded border border-hairline bg-paper px-3 py-2">
+              <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Doc B · CSIRO GenCost</p>
+              <p class="text-sm text-ink m-0 leading-snug">Prices each technology on its own, and says itself that it cannot compare whole pathways.</p>
+            </div>
+            <div class="rounded border border-hairline bg-paper px-3 py-2">
+              <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Doc C · Grattan Institute</p>
+              <p class="text-sm text-ink m-0 leading-snug">The case to switch from renewables to nuclear has not been made.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">The premises they actually contest</p>
+
+          <div class="rounded border border-hairline bg-paper px-3 py-2.5 mb-1.5">
+            <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Premise 1</p>
+            <p class="text-sm text-ink m-0 leading-snug">Reactors would run about 90 per cent of the time.</p>
+            <p class="text-xs text-muted mt-1 mb-2 leading-snug">Doc A's cost advantage needs it. Doc B prices a range far below it.</p>
+            <div class="border-t border-dashed border-hairline pt-2 space-y-2">
+              <div>
+                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-spec-right m-0">Contests · Doc B</p>
+                {/* No quotation marks here on purpose: GenCost's range is
+                    reported in the briefing's own words, not as a verbatim
+                    passage, and quotation marks are a promise this page
+                    must never make lightly. */}
+                <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">GenCost's printed capacity-factor range is 53 to 89 per cent, taken from coal's own operating record.</p>
+              </div>
+              <div>
+                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-spec-right m-0">Contests · Doc C</p>
+                <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">&ldquo;But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic.&rdquo;</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded border border-hairline bg-paper px-3 py-2.5">
+            <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Premise 2</p>
+            <p class="text-sm text-ink m-0 leading-snug">Nuclear arrives in time to matter for the coal exit.</p>
+            <p class="text-xs text-muted mt-1 mb-2 leading-snug">If it cannot, the cost contest between the two grids never starts.</p>
+            <div class="border-t border-dashed border-hairline pt-2">
+              <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-spec-right m-0">Contests · Doc C</p>
+              <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">&ldquo;Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations.&rdquo; <span class="text-muted">- citing AEMO on timing</span></p>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-xs text-muted m-0 leading-relaxed">
+          Everything in quotation marks above was checked word-for-word against its source
+          page before publication; the rest is reported in our words. Your run gets the
+          same treatment: quotes that cannot be verified in your documents are dropped,
+          not softened.
+        </p>
+      </div>
+    </section>
+
+    <CrossDocumentForm client:load />
 
   </main>
 </Base>

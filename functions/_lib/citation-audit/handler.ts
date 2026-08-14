@@ -34,6 +34,8 @@ export interface CitationHandlerDeps {
   provider:          LlmProvider;
   extractor:         (url: string) => Promise<ExtractResult>;
   getSession:        (request: Request) => Promise<{ userId: string } | null>;
+  /** No longer called: the free-tier decision (2026-08-14) made the
+      subscription gate moot. Kept so endpoint wiring keeps compiling. */
   checkSubscription: (userId: string) => Promise<boolean>;
   /** Persist the result onto a document version, verifying the document
      belongs to userId. Must swallow nothing: throw or return false on any
@@ -64,26 +66,22 @@ export async function handleCitationAuditRequest(
     return json({ ok: false, error: { code: 'METHOD_NOT_ALLOWED', message: 'POST only' } }, 405);
   }
 
-  // Auth gate.
+  // Session is optional since the free-tier decision (2026-08-14): every
+  // feature runs for anonymous callers, and the endpoint wraps this handler
+  // in the anonymous session gate (three runs per browser session, then
+  // sign-in), so the handler itself no longer turns anyone away.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in to use Studio' } }, 401);
-  }
 
-  // Subscription gate.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({
-      ok:    false,
-      error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active Studio subscription required.' },
-    }, 402);
-  }
-
-  // Per-user rate limit.
+  // Rate limit: keyed per user for signed-in callers, per IP for anonymous
+  // ones (the same key shape the Reader's audit handler uses). Both share the
+  // same daily cap.
   if (deps.rateLimitKv) {
+    const key = session
+      ? `citation:user:${session.userId}`
+      : `citation:ip:${request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? 'unknown'}`;
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `citation:user:${session.userId}`,
+      key,
       deps.citationDailyCap,
     );
     if (!quota.allowed) {
@@ -129,7 +127,9 @@ export async function handleCitationAuditRequest(
           extractor: deps.extractor,
         },
       );
-      if (documentId && versionId && deps.persistResult) {
+      // Persistence targets a user-owned document, so it only applies to
+      // signed-in callers; anonymous runs just return the result.
+      if (session && documentId && versionId && deps.persistResult) {
         try {
           await deps.persistResult(session.userId, documentId, versionId, JSON.stringify(out.result));
         } catch {

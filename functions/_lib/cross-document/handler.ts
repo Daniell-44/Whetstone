@@ -27,6 +27,8 @@ export interface CrossDocumentHandlerDeps {
   provider:            LlmProvider;
   extractor:           (url: string) => Promise<ExtractResult>;
   getSession:          (request: Request) => Promise<{ userId: string } | null>;
+  /** No longer called: the free-tier decision (2026-08-14) made the
+      subscription gate moot. Kept so endpoint wiring keeps compiling. */
   checkSubscription:   (userId: string) => Promise<boolean>;
 }
 
@@ -38,18 +40,20 @@ export async function handleCrossDocumentRequest(
   request: Request,
   deps:    CrossDocumentHandlerDeps,
 ): Promise<Response> {
+  // Session is optional since the free-tier decision (2026-08-14): every
+  // feature runs for anonymous callers, and the endpoint wraps this handler
+  // in the anonymous session gate (three runs per browser session, then
+  // sign-in), so the handler itself no longer turns anyone away.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-  }
 
-  const hasSub = await deps.checkSubscription(session.userId);
-  if (!hasSub) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Studio subscription required for cross-document analysis.' } }, 402);
-  }
-
+  // Rate limit: keyed per user for signed-in callers, per IP for anonymous
+  // ones (the same key shape the Reader's audit handler uses). Both share the
+  // same daily cap.
   if (deps.rateLimitKv) {
-    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `crossdoc:user:${session.userId}`, deps.crossDocDailyCap);
+    const key = session
+      ? `crossdoc:user:${session.userId}`
+      : `crossdoc:ip:${request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? 'unknown'}`;
+    const quota = await checkAndIncrementQuota(deps.rateLimitKv, key, deps.crossDocDailyCap);
     if (!quota.allowed) {
       return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily cross-document limit reached — try again tomorrow.' } });
     }

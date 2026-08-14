@@ -25,6 +25,8 @@ export interface CounterargHandlerDeps {
   counterargDailyCap:  number;
   provider:            LlmProvider;
   getSession:          (request: Request) => Promise<{ userId: string } | null>;
+  /** No longer called: the free-tier decision (2026-08-14) made the
+      subscription gate moot. Kept so endpoint wiring keeps compiling. */
   checkSubscription:   (userId: string) => Promise<boolean>;
 }
 
@@ -44,30 +46,22 @@ export async function handleCounterargRequest(
   deps:    CounterargHandlerDeps,
 ): Promise<Response> {
 
-  // Auth gate — session required.
+  // Session is optional since the free-tier decision (2026-08-14): every
+  // feature runs for anonymous callers, and the endpoint wraps this handler
+  // in the anonymous session gate (three runs per browser session, then
+  // sign-in), so the handler itself no longer turns anyone away.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({
-      ok:    false,
-      error: { code: 'UNAUTHORIZED', message: 'Sign in to use Studio' },
-    }, 401);
-  }
 
-  // Counterargument is a Pro feature (Pro-model cost). Gate on subscription
-  // to match the version-endpoint behaviour and prevent uncapped free use.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({
-      ok:    false,
-      error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Counterargument is a Studio Pro feature.' },
-    }, 402);
-  }
-
-  // Per-user rate limit keyed by user ID.
+  // Rate limit: keyed per user for signed-in callers, per IP for anonymous
+  // ones (the same key shape the Reader's audit handler uses). Both share the
+  // same daily cap.
   if (deps.rateLimitKv) {
+    const key = session
+      ? `counterarg:user:${session.userId}`
+      : `counterarg:ip:${request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? 'unknown'}`;
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `counterarg:user:${session.userId}`,
+      key,
       deps.counterargDailyCap,
     );
     if (!quota.allowed) {
