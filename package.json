@@ -28,7 +28,8 @@
     "eval:grounded": "tsx evals/grounded/runner.ts",
     "eval:detection": "tsx evals/detection/runner.ts",
     "eval:a4": "tsx evals/a4-rebanding.ts",
-    "eval:score": "tsx scripts/score-engine.ts"
+    "eval:score": "tsx scripts/score-engine.ts",
+    "ship": "tsx scripts/ship.ts"
   },
   "dependencies": {
     "@astrojs/preact": "^5.1.3",

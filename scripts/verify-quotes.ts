@@ -102,13 +102,25 @@ async function fetchSocialText(pageUrl: string): Promise<string | null | undefin
 }
 
 async function main(): Promise<void> {
-  const arg = process.argv[2];
-  const files = fs
-    .readdirSync(DIR)
-    .filter((f) => f.endsWith('.md') && (!arg || f === `${arg}.md`));
+  // Several slugs, not one. `pnpm ship` checks exactly the briefings that
+  // changed, and a publish often touches more than one. Sweeping all eleven
+  // takes about thirty-four seconds and hits every cited source's server again
+  // for files nobody edited, which is both slow and impolite.
+  const args = process.argv.slice(2).filter((a) => !a.startsWith('-'));
+  const wanted = new Set(args.map((a) => a.replace(/\.md$/, '')));
+  const all = fs.readdirSync(DIR).filter((f) => f.endsWith('.md'));
+  const files = wanted.size === 0 ? all : all.filter((f) => wanted.has(f.replace(/\.md$/, '')));
+
+  // A slug that does not exist is a typo, and a typo that quietly checks
+  // nothing is worse than no check at all, because it reports success.
+  const missing = [...wanted].filter((s) => !all.includes(`${s}.md`));
+  if (missing.length > 0) {
+    console.error(`No such briefing: ${missing.join(', ')}`);
+    process.exit(1);
+  }
 
   if (files.length === 0) {
-    console.error(`No briefing .md found${arg ? ` for "${arg}"` : ''} in ${DIR}`);
+    console.error(`No briefing .md found in ${DIR}`);
     process.exit(1);
   }
 
