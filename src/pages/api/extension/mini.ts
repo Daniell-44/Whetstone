@@ -24,7 +24,30 @@ export const POST: APIRoute = async ({ request, locals }) => {
     dailyCap: parseInt(env.AUDIT_DAILY_CAP ?? '10', 10),
     userDailyCap: parseInt(env.AUDIT_USER_DAILY_CAP ?? '50', 10),
     getSession: (req) => getSessionFromRequest(req, db).then((s) => (s ? { userId: s.user_id } : null)),
-    waitUntil: (p) => (locals as { runtime?: { ctx?: { waitUntil?: (p: Promise<unknown>) => void } } })
-      .runtime?.ctx?.waitUntil?.(p),
+    waitUntil: deferrer(locals),
   });
 };
+
+/**
+ * Finish the database write after the response has gone out, if the platform
+ * offers a way to. Returns undefined when it does not, and the handler then
+ * simply waits for the write instead.
+ *
+ * WHY THIS IS WRAPPED. The first version read `locals.runtime.ctx`, which
+ * Astro 6 removed. It does not merely return undefined: the getter THROWS,
+ * so optional chaining did not save it, and the exception escaped into the
+ * handler's catch and turned every full briefing into a 502. Nineteen seconds
+ * of real work and two paid searches, thrown away because of the bookkeeping.
+ *
+ * A convenience that can take down the product is not a convenience. Anything
+ * that goes wrong in here now costs the deferral and nothing else.
+ */
+function deferrer(locals: unknown): ((p: Promise<unknown>) => void) | undefined {
+  try {
+    const ctx = (locals as { cfContext?: { waitUntil?: (p: Promise<unknown>) => void } }).cfContext;
+    if (typeof ctx?.waitUntil === 'function') return (p) => ctx.waitUntil!(p);
+  } catch {
+    // Adapter changed shape again. Fall through and wait for the write.
+  }
+  return undefined;
+}
