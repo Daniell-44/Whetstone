@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 // Legacy curator topic form decommissioned 2026-07-03 (Fork A).
-// 301 to the Studio home (the current authoring surface).
-return Astro.redirect('/creator/studio', 301);
+// 301 straight to the merged editor (2026-08-16 merge) rather than chaining
+// through the old /creator/studio redirect.
+return Astro.redirect('/audit?mode=create', 301);
 ---

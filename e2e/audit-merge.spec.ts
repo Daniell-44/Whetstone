@@ -21,18 +21,21 @@ test('read mode: segmented control renders with Read active + audit textarea', a
   await expect(page.locator('textarea').first()).toBeVisible();
 });
 
-test('create mode signed-out: gate renders, no editor', async ({ page }) => {
+test('create mode signed-out: editor renders with a keep-your-work sign-in line', async ({ page }) => {
   await page.goto('/audit?mode=create');
 
   const modeNav = page.locator('nav[aria-label="Audit mode"]');
   await expect(modeNav.getByRole('link', { name: /create/i })).toHaveAttribute('aria-current', 'page');
 
-  // The sign-in gate, not an unsaved-analysis half-state (owner decision).
-  await expect(page.getByText('Create works on your own draft.')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Sign in free' })).toBeVisible();
+  // The editor itself, not a gate (owner decision 2026-08-14: analysis is
+  // free without an account; saving is the only thing that asks to sign in).
+  await expect(page.locator('textarea').first()).toBeVisible();
+  await expect(page.getByRole('link', { name: /sign in free to keep this draft/i })).toBeVisible();
+});
 
-  // No studio editor textarea for anonymous visitors.
-  await expect(page.locator('textarea')).toHaveCount(0);
+test('/creator/studio redirects into the merged surface, preserving ?doc=', async ({ page }) => {
+  await page.goto('/creator/studio?doc=abc123');
+  await expect(page).toHaveURL(/\/audit\?mode=create&doc=abc123$/);
 });
 
 test('tool strip shows Audit / Transcript / Cross-document / Documents', async ({ page }) => {

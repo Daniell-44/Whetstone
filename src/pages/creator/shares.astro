@@ -11,8 +11,9 @@ const authDb  = makeAuthDb(env.DB);
 const session = await getSessionFromRequest(Astro.request, authDb);
 
 if (!session) {
-  // Same posture as the Studio: signed-out visitors go to the session-aware
-  // /creator overview rather than a bare login dead-end.
+  // Signed-out visitors go to the /creator landing rather than a bare login
+  // dead-end: share links belong to an account, and the landing explains what
+  // signing in is for.
   return Astro.redirect('/creator');
 }
 

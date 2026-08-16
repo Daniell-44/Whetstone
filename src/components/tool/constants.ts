@@ -1,7 +1,7 @@
-// Shared tool primitives — the audit input contract, identical for the Reader
-// (/audit, AuditForm) and Studio (/creator/studio, StudioEditor). Stage 2 of
-// the audit/Studio merge: one source of truth so the two surfaces can't drift
-// on the basics (a bounds change or a URL-detection tweak lands in both).
+// Shared tool primitives — the audit input contract, identical for Read mode
+// (AuditForm) and Create mode (StudioEditor), both at /audit since the merge.
+// One source of truth so the two modes can't drift on the basics (a bounds
+// change or a URL-detection tweak lands in both).
 
 /** Minimum characters an audit will accept (URLs are exempt — they always pass). */
 export const MIN_CHARS = 50;

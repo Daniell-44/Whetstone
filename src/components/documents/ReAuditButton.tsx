@@ -52,7 +52,7 @@ export default function ReAuditButton({ docId, quotaPeriod }: { docId: string; q
           </>
         )}
         {' · '}
-        <a href={`/creator/studio?doc=${docId}`} class="text-accent-support hover:underline">open</a>
+        <a href={`/audit?mode=create&doc=${docId}`} class="text-accent-support hover:underline">open</a>
       </p>
     );
   }

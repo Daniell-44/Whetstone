@@ -19,6 +19,8 @@ export interface TranscriptHandlerDeps {
   transcriptDailyCap: number;
   provider:           LlmProvider;
   getSession:         (request: Request) => Promise<{ userId: string } | null>;
+  /** Everything is free-tier (owner decision 2026-08-14), which makes the
+      subscription gate moot. Kept so endpoint wiring keeps compiling. */
   checkSubscription:  (userId: string) => Promise<boolean>;
 }
 
@@ -33,14 +35,13 @@ export async function handleTranscriptRequest(
   request: Request,
   deps:    TranscriptHandlerDeps,
 ): Promise<Response> {
+  // Sign-in stays required because transcript runs persist as documents in the
+  // caller's library; the subscription gate that used to follow it was removed
+  // with the free-tier decision (2026-08-14). The daily cap below is the
+  // remaining cost ceiling.
   const session = await deps.getSession(request);
   if (!session) {
     return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-  }
-
-  const hasSub = await deps.checkSubscription(session.userId);
-  if (!hasSub) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Studio subscription required for transcript audits.' } }, 402);
   }
 
   if (deps.rateLimitKv) {

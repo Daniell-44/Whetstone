@@ -3,6 +3,11 @@ export const prerender = false;
 // The Audit — the free engine's own page (D1 Option B, 2026-07-07). Previously
 // this route 301'd to / (when the tool WAS the homepage); the homepage is now
 // the publication and the tool lives here. Shareable audits stay at /audit/[id].
+//
+// As of 2026-08-16 this is the ONE door to the whole tool (owner decision:
+// "go on the studio and reader combination"). Read mode audits someone else's
+// writing; Create mode is the editor that used to live at /creator/studio,
+// which now redirects here. Saving is the only thing that asks for sign-in.
 
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
@@ -10,33 +15,42 @@ import AuditForm from '../../components/audit/AuditForm';
 import ToolNav from '../../components/tool/ToolNav.astro';
 import StudioEditor from '../../components/studio/StudioEditor';
 import OnboardingTour from '../../components/onboarding/OnboardingTour';
-import CreateGate from '../../components/tool/CreateGate.astro';
 import { getAllBriefings } from '../../lib/briefings';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
+import { makeDocumentDb } from '../../../functions/_lib/documents/db';
+import { makeFindingActionDb } from '../../../functions/_lib/documents/finding-actions';
 import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
 import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
+import type { AuditResult } from '../../lib/audit';
+import type { CounterargumentResult } from '../../lib/counterargument';
+import type { ArgumentExtractionResult } from '../../lib/extraction';
+import type { PhilosophicalCommitmentsResult } from '../../../functions/_lib/philosophical-commitments/types';
+import type { CitationAuditResult } from '../../../functions/_lib/citation-audit/types';
+import type { DocumentVersion } from '../../../functions/_lib/documents/types';
 
 // The reserved URL contract (merge adjudication 2026-07-13). These params are
-// honoured at the tool's canonical address from now on, so the eventual
-// Workbench consolidation is a redirect flip, not a link-breaking migration.
-// Today each forwards to the room that owns the capability. Deliberately 302
-// (temporary): the destinations change at cutover and must not be cached.
+// honoured at the tool's canonical address, so the remaining satellite rooms
+// can cut over later with a redirect flip, not a link-breaking migration.
+// Deliberately 302 (temporary): the destinations change at cutover and must
+// not be cached.
 const typeParam = Astro.url.searchParams.get('type');
 if (typeParam === 'transcript') return Astro.redirect('/creator/studio/transcript', 302);
 if (Astro.url.searchParams.get('compare') === '1') return Astro.redirect('/creator/studio/cross-document', 302);
-const docParam = Astro.url.searchParams.get('doc');
-// This runs before any mode logic, so /audit?mode=create&doc=x also lands in
-// the studio room: saved docs still open in the studio room until the full cutover.
-if (docParam) return Astro.redirect(`/creator/studio?doc=${encodeURIComponent(docParam)}`, 302);
 
 // Server-side mode switch ("Workbench + satellites" adjudication, 2026-07-13):
 // ?mode=create renders the Create island (StudioEditor) in place of the Reader.
 // No client toggle, no double hydration; the segmented control is plain links.
-const mode: 'read' | 'create' = Astro.url.searchParams.get('mode') === 'create' ? 'create' : 'read';
+// A ?doc= param implies Create mode: saved documents only open in the editor.
+// (Until the 2026-08-16 cutover ?doc= bounced to /creator/studio; that page now
+// redirects HERE, so the document loads on this page and a redirect loop is
+// impossible.)
+const docParam = Astro.url.searchParams.get('doc');
+const mode: 'read' | 'create' =
+  Astro.url.searchParams.get('mode') === 'create' || docParam ? 'create' : 'read';
 
 // "Audit the full article" deep-link: /audit?audit=<slug> pre-loads the field
 // with the briefing's argumentative prose. (Moved from index.astro; / shims
@@ -81,18 +95,76 @@ const sharedText     = !auditUrl && auditTextParam.length >= 50 ? auditTextParam
 // pre-cached sample so the reader sees a worked result instantly, no API call.
 const auditSampleId = Astro.url.searchParams.get('sample') ?? '';
 
-// Deeper lenses are Pro-gated; detect subscription for the teaser. The same
-// flag doubles as Create mode's hasActiveSubscription (identical computation
-// to /creator/studio).
+// Deeper lenses show a subscription-aware teaser in the Reader, so detect it.
 const authDb  = makeAuthDb(env.DB);
 const session = await getSessionFromRequest(Astro.request, authDb);
 const isPro = session
   ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
   : false;
 // Create mode labels findings to the signed-in user's terminology preference.
-const terminology = mode === 'create' && session
-  ? await authDb.getTerminologyPreference(session.user_id)
+// A signed-out visitor has no stored preference and gets the default ('plain',
+// matching what a fresh account starts with).
+const terminology = mode === 'create'
+  ? (session ? await authDb.getTerminologyPreference(session.user_id) : 'plain')
   : undefined;
+
+// Every engine is on the free tier (owner decision 2026-08-14: "all features
+// should be in free tier, no sign in needed for now but force sign in if one
+// session has >3 uses"). The >3-uses rule is enforced server-side by the
+// anonymous session gate on the analysis endpoints, so the subscription flag
+// is forced on rather than computed from billing.
+const hasActiveSubscription = true;
+
+// Defensive: a corrupt stored JSON column shouldn't 500 the whole page.
+function safeJsonParse<T>(s: string | null | undefined): T | null {
+  if (!s) return null;
+  try { return JSON.parse(s) as T; } catch { return null; }
+}
+
+// Load a saved document from ?doc= (moved here from /creator/studio at the
+// 2026-08-16 cutover). Loading only makes sense for the signed-in owner; a
+// signed-out visitor with a shared ?doc= link lands on an empty untitled draft.
+let initialDocId:            string | null = null;
+let initialTitle:            string        = 'Untitled draft';
+let initialContent:          string        = '';
+let initialVersionId:        string | null = null;
+let initialAuditResult:      AuditResult | null = null;
+let initialCounterargResult: CounterargumentResult | null = null;
+let initialExtractionResult:  ArgumentExtractionResult | null = null;
+let initialCommitmentsResult: PhilosophicalCommitmentsResult | null = null;
+let initialCitationResult:    CitationAuditResult | null = null;
+let initialAnalyzedAt:        number | null = null;
+let initialActions:          Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }> = {};
+
+if (docParam && session) {
+  const docDb    = makeDocumentDb(env.DB);
+  const actionDb = makeFindingActionDb(env.DB);
+  const doc      = await docDb.getDocumentById(docParam);
+  if (doc && doc.user_id === session.user_id && doc.status === 'active') {
+    const latest: DocumentVersion | null = await docDb.getLatestVersion(docParam);
+    initialDocId    = doc.id;
+    initialTitle    = doc.title;
+    initialContent  = latest?.content ?? '';
+    initialVersionId = latest?.id ?? null;
+    initialAuditResult      = safeJsonParse<AuditResult>(latest?.audit_result);
+    initialCounterargResult = safeJsonParse<CounterargumentResult>(latest?.counterarg_result);
+    initialExtractionResult  = safeJsonParse<ArgumentExtractionResult>(latest?.extraction_json);
+    initialCommitmentsResult = safeJsonParse<PhilosophicalCommitmentsResult>(latest?.commitments_json);
+    initialCitationResult    = safeJsonParse<CitationAuditResult>(latest?.citation_audit_json);
+    // Only stamp "last analysed" when the loaded version actually has an audit.
+    initialAnalyzedAt        = initialAuditResult ? (latest?.created_at ?? null) : null;
+
+    const rows = await actionDb.listActionsForDocument(doc.id, session.user_id);
+    for (const r of rows) {
+      initialActions[`${r.lens}:${r.match_key}`] = {
+        id:        r.id,
+        action:    r.action,
+        reason:    r.reason,
+        updatedAt: r.updated_at,
+      };
+    }
+  }
+}
 ---
 <Base
   title="The Audit - The Whetstone"
@@ -105,7 +177,7 @@ const terminology = mode === 'create' && session
      strip + toggle sideways (the one-surface reading is the point of the merge).
      Inner sections apply their own narrower constraints. */}
   <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
-    <ToolNav current="audit" isPro={isPro} />
+    <ToolNav current="audit" />
 
     {/* Read / Create mode control: a segmented PILL, deliberately a different
        shape from the ToolNav underline-tabs above it — two stacked rows of the
@@ -154,7 +226,7 @@ const terminology = mode === 'create' && session
           <AuditForm isPro={isPro} initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
         </section>
       </>
-    ) : session ? (
+    ) : (
       <>
         <header class="mb-6 max-w-3xl">
           <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit · Create</p>
@@ -164,28 +236,31 @@ const terminology = mode === 'create' && session
           </p>
         </header>
 
+        {/* The editor renders signed-out too (owner decision 2026-08-14): the
+           analysis is free, and only saving asks for an account. The island
+           handles the split — anonymous runs go to the text endpoints and
+           nothing persists; signed-in runs keep the document/version flow. */}
         <StudioEditor
           client:load
-          hasActiveSubscription={isPro}
-          initialDocId={null}
-          initialTitle="Untitled draft"
-          initialContent=""
-          initialVersionId={null}
-          initialAuditResult={null}
-          initialCounterargResult={null}
-          initialExtractionResult={null}
-          initialCommitmentsResult={null}
-          initialCitationAuditResult={null}
-          initialAnalyzedAt={null}
-          initialActions={{}}
+          hasActiveSubscription={hasActiveSubscription}
+          isSignedIn={!!session}
+          initialDocId={initialDocId}
+          initialTitle={initialTitle}
+          initialContent={initialContent}
+          initialVersionId={initialVersionId}
+          initialAuditResult={initialAuditResult}
+          initialCounterargResult={initialCounterargResult}
+          initialExtractionResult={initialExtractionResult}
+          initialCommitmentsResult={initialCommitmentsResult}
+          initialCitationAuditResult={initialCitationResult}
+          initialAnalyzedAt={initialAnalyzedAt}
+          initialActions={initialActions}
           terminologyPreference={terminology}
           consumeHandoff={true}
         />
 
         <OnboardingTour client:load />
       </>
-    ) : (
-      <CreateGate />
     )}
   </main>
 </Base>

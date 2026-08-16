@@ -37,7 +37,6 @@ import type { TerminologyPreference } from '../../lib/labels';
 import SummaryToolbar from '../audit/SummaryToolbar';
 import { MIN_CHARS, MAX_CHARS } from '../tool/constants';
 import { runEngine, runLens as runLensShared, type SectionState, type LensName } from '../tool/engine';
-import { soloPrice } from '../../lib/pricing';
 import { STUDIO_ANALYSIS_DONE_EVENT } from './analysis-events';
 
 // ---------------------------------------------------------------------------
@@ -50,16 +49,23 @@ import { STUDIO_ANALYSIS_DONE_EVENT } from './analysis-events';
 const SAMPLE_DIRTY_CHAR_THRESHOLD = 50;
 
 const AUDIT_ERROR_MESSAGES: Record<string, string> = {
-  // Studio audits are capped monthly (PAID_MONTHLY_AUDIT_BLOCK), not daily —
-  // "come back tomorrow" would show the same wrong message for weeks. (The Pro
-  // sub-engines below ARE daily-capped, so their copy stays.)
-  RATE_LIMITED:  "You've reached your monthly Studio audit limit. See usage in Account.",
+  // Signed-in audits are capped monthly (PAID_MONTHLY_AUDIT_BLOCK), not daily —
+  // "come back tomorrow" would show the same wrong message for weeks. (The
+  // deeper engines below ARE daily-capped, so their copy stays.)
+  RATE_LIMITED:  "You've reached your monthly audit limit. See usage in Account.",
   INVALID_INPUT: 'Please check your input and try again.',
   // AUDIT_FAILED intentionally omitted - fall through to show the server's actual error message
 };
 
+// Anonymous runs deliberately DON'T override RATE_LIMITED or SIGNIN_REQUIRED:
+// the server's own messages for those already explain the three-runs-per-session
+// ceiling and pitch sign-in, and paraphrasing them here would drift.
+const ANON_ERROR_MESSAGES: Record<string, string> = {
+  INVALID_INPUT: 'Please check your input and try again.',
+};
+
 const COUNTERARG_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:  "You've reached the daily Studio limit. Come back tomorrow.",
+  RATE_LIMITED:  "You've reached the daily limit for this engine. Come back tomorrow.",
   AUDIT_FAILED:  'The counterargument engine failed. Please try again in a moment.',
   INVALID_INPUT: 'Please check your input and try again.',
 };
@@ -86,37 +92,26 @@ const CITATION_ERROR_MESSAGES: Record<string, string> = {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function CitationUpsell() {
-  return (
-    <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
-      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
-      <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
-        Source Match fetches every cited URL in your draft and checks whether the source
-        actually supports the claim. Subscribe to unlock it.
-      </p>
-      <a
-        href="/pricing"
-        class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
-      >
-        See plans →
-      </a>
-    </div>
-  );
-}
+// Sign-in destination for every affordance in this island. Encoded because the
+// returnTo value itself carries a query string.
+const SIGN_IN_URL = '/login?returnTo=%2Faudit%3Fmode%3Dcreate';
 
-function CounterargUpsell() {
+// Signed-out placeholder for the deeper engines (counterargument, citation
+// audit). These are free after sign-in, not paid - the honest reason they don't
+// auto-run anonymously is that each engine call is a separately counted
+// anonymous run, so firing the full suite would burn the whole
+// three-runs-per-session budget on a single click, and the results would have
+// no saved version to live on anyway.
+function SignInToRunPanel({ engineLine }: { engineLine: string }) {
   return (
     <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
-      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
-      <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
-        The opposing-cases engine surfaces the strongest objections your draft fails
-        to engage with. Part of Studio, {soloPrice}.
-      </p>
+      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Free with sign-in</p>
+      <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">{engineLine}</p>
       <a
-        href="/pricing"
+        href={SIGN_IN_URL}
         class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
       >
-        See plans →
+        Sign in free →
       </a>
     </div>
   );
@@ -127,7 +122,7 @@ function SectionError({ code, message }: { code: string; message: string }) {
     return (
       <div class="rounded-xl bg-accent/5 border-l-2 border-accent p-4 text-sm text-accent">
         Your session has expired.{' '}
-        <a href="/login?returnTo=/creator/studio" class="underline font-medium">
+        <a href={SIGN_IN_URL} class="underline font-medium">
           Sign in again →
         </a>
       </div>
@@ -201,24 +196,16 @@ function LensButton({
 }
 
 // ---------------------------------------------------------------------------
-// ProTag - small tier marker on the Pro-differentiated engine panels. Uses
-// the drafting blue (accent-support): interaction/Pro colour, never redline.
-// ---------------------------------------------------------------------------
-
-function ProTag() {
-  return (
-    <span class="shrink-0 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-accent-support border border-accent-support/40 rounded-[2px] px-1 py-px">
-      Pro
-    </span>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Main editor component
 // ---------------------------------------------------------------------------
 
 interface Props {
   hasActiveSubscription:        boolean;
+  /** Whether a signed-in session exists. Anonymous visitors still get the
+     editor and the core analysis (free-tier decision 2026-08-14); what they
+     lose is persistence and the deeper engines, both of which need an account
+     to hang results on. Defaults to true so older mounts keep their behaviour. */
+  isSignedIn?:                  boolean;
   initialDocId?:                string | null;
   initialTitle?:                string;
   initialContent?:              string;
@@ -232,12 +219,14 @@ interface Props {
   initialActions?:              Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }>;
   terminologyPreference?:       TerminologyPreference;
   // Read → Create bridge (/audit merge): consume a sessionStorage handoff into
-  // a fresh editor on mount. Off by default so /creator/studio is unaffected.
+  // a fresh editor on mount. Off by default as a safety for any mount that
+  // doesn't opt in; the /audit page (the editor's one remaining home) passes true.
   consumeHandoff?:              boolean;
 }
 
 export default function StudioEditor({
   hasActiveSubscription,
+  isSignedIn                  = true,
   initialDocId                = null,
   initialTitle                = 'Untitled draft',
   initialContent              = '',
@@ -315,7 +304,10 @@ export default function StudioEditor({
 
   const charCount   = draft.length;
   const canSubmit   = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
-  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (hasActiveSubscription && (counterargState.status !== 'idle' || commitmentsState.status !== 'idle' || citationState.status !== 'idle'));
+  // The deeper engines (counterargument, commitments, citation, evidence) run
+  // against a saved version, so they need a session even though they are free.
+  const engineSuiteLive = hasActiveSubscription && isSignedIn;
+  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (engineSuiteLive && (counterargState.status !== 'idle' || commitmentsState.status !== 'idle' || citationState.status !== 'idle'));
 
   // Update tab title with finding count
   const findingCount = auditState.status === 'done'
@@ -328,10 +320,11 @@ export default function StudioEditor({
       + auditState.data.toulmin.unstatedWarrants.length
     : 0;
 
+  // Matches the page <title> at /audit, the editor's only remaining home.
   useEffect(() => {
     document.title = findingCount > 0
-      ? `(${findingCount}) Studio - The Whetstone`
-      : 'Studio - The Whetstone';
+      ? `(${findingCount}) The Audit - The Whetstone`
+      : 'The Audit - The Whetstone';
   }, [findingCount]);
 
   // Read → Create handoff (/audit merge): the Reader's "Work on this text in
@@ -440,7 +433,7 @@ export default function StudioEditor({
     // Reset any prior results
     setAuditState({ status: 'loading' });
     setExtractionState({ status: 'loading' });
-    if (hasActiveSubscription) {
+    if (engineSuiteLive) {
       setCounterargState({ status: 'idle' });
       setCommitmentsState({ status: 'idle' });
       setCitationState({ status: 'idle' });
@@ -453,7 +446,7 @@ export default function StudioEditor({
     setExtractionState({ status: 'done', data: sample.cached.extraction });
     setSamplePending(false);
     setIsEditing(false); // switch to highlighted-draft review mode
-  }, [hasActiveSubscription]);
+  }, [engineSuiteLive]);
 
   // Has the user meaningfully edited the loaded sample?
   const isSampleDirty = (() => {
@@ -476,6 +469,49 @@ export default function StudioEditor({
 
     setIsRunning(true);
 
+    // --- anonymous run: analyse in place, persist nothing ---
+    // Analysis is free without an account (owner decision 2026-08-14); the
+    // documents API is sign-in-only because it writes to an account, so an
+    // anonymous run skips it entirely and posts the text straight to the
+    // public endpoints. The server's anonymous session gate enforces the
+    // three-runs-per-session ceiling and answers with its own sign-in pitch.
+    // Before this branch existed, the editor tried to create a document first,
+    // the API answered 401, and Analyse silently did nothing.
+    if (!isSignedIn) {
+      setExtractionState({ status: 'loading' });
+      setAuditState({ status: 'loading' });
+      setLastRunGoals({ audience, intent });
+      setAnalyzedAt(Date.now());
+
+      let anonExtractionDone = false;
+      let anonAuditDone      = false;
+      const checkAnonDone = () => {
+        if (anonExtractionDone && anonAuditDone) {
+          setIsRunning(false);
+          setIsEditing(false); // Switch to highlighted view
+        }
+      };
+
+      void runEngine<ArgumentExtractionResult>({
+        url:           '/api/extract-argument',
+        body:          { text },
+        setter:        setExtractionState,
+        pick:          d => d.extraction,
+        errorMessages: ANON_ERROR_MESSAGES,
+        onSettled:     () => { anonExtractionDone = true; checkAnonDone(); },
+      });
+
+      void runEngine<AuditResult>({
+        url:           '/api/audit',
+        body:          { text },
+        setter:        setAuditState,
+        pick:          d => d.audit,
+        errorMessages: ANON_ERROR_MESSAGES,
+        onSettled:     () => { anonAuditDone = true; checkAnonDone(); },
+      });
+      return;
+    }
+
     // --- ensure document + version exist ---
     let currentDocId     = docId;
     let currentVersionId = versionId;
@@ -487,8 +523,19 @@ export default function StudioEditor({
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ title, content: text }),
         });
-        const data = await res.json() as { ok: boolean; docId?: string; versionId?: string };
-        if (!data.ok || !data.docId) { setIsRunning(false); return; }
+        const data = await res.json() as { ok: boolean; docId?: string; versionId?: string; error?: { code: string; message: string } };
+        if (!data.ok || !data.docId) {
+          // Surface the failure where eyes go after pressing Analyse instead
+          // of stopping silently. The common real case is an expired session
+          // (401 UNAUTHORIZED), which SectionError turns into a sign-in link.
+          setAuditState({
+            status:  'error',
+            code:    data.error?.code ?? 'SAVE_FAILED',
+            message: data.error?.message ?? 'Could not save the draft before analysing. Please try again.',
+          });
+          setIsRunning(false);
+          return;
+        }
         currentDocId     = data.docId;
         currentVersionId = data.versionId ?? null;
         setDocId(currentDocId);
@@ -504,13 +551,27 @@ export default function StudioEditor({
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ content: text }),
         });
-        const data = await res.json() as { ok: boolean; versionId?: string };
-        if (!data.ok || !data.versionId) { setIsRunning(false); return; }
+        const data = await res.json() as { ok: boolean; versionId?: string; error?: { code: string; message: string } };
+        if (!data.ok || !data.versionId) {
+          // Same silent-failure fix as above: the save must never fail mute.
+          setAuditState({
+            status:  'error',
+            code:    data.error?.code ?? 'SAVE_FAILED',
+            message: data.error?.message ?? 'Could not save this revision before analysing. Please try again.',
+          });
+          setIsRunning(false);
+          return;
+        }
         currentVersionId = data.versionId;
         setVersionId(currentVersionId);
         setLastSavedContent(text);
       }
     } catch {
+      setAuditState({
+        status:  'error',
+        code:    'NETWORK',
+        message: 'Network error while saving the draft - check your connection and try again.',
+      });
       setIsRunning(false);
       return;
     }
@@ -518,15 +579,14 @@ export default function StudioEditor({
     if (!currentDocId || !currentVersionId) { setIsRunning(false); return; }
 
     // --- run analysis ---
-    // Free tier: audit + extraction + the click-to-run deeper lenses.
-    // Pro tier auto-runs the expensive Pro-model engines (counterargument,
-    // commitments, citation). This keeps free-tier cost bounded - the Pro
-    // models only fire for paying users.
+    // Signed-in runs auto-fire the full engine suite (all free-tier since
+    // 2026-08-14); the deeper engines persist onto the saved version, which is
+    // why they only run here and not on the anonymous path above.
     setExtractionState({ status: 'loading' });
     setAuditState({ status: 'loading' });
     setLastRunGoals({ audience, intent });  // record goals this run used
     setAnalyzedAt(Date.now());
-    if (hasActiveSubscription) {
+    if (engineSuiteLive) {
       setCounterargState({ status: 'loading' });
       setCommitmentsState({ status: 'loading' });
       setCitationState({ status: 'loading' });
@@ -534,9 +594,9 @@ export default function StudioEditor({
 
     let extractionDone  = false;
     let auditDone       = false;
-    let counterargDone  = !hasActiveSubscription;
-    let commitmentsDone = !hasActiveSubscription;
-    let citationDone    = !hasActiveSubscription;
+    let counterargDone  = !engineSuiteLive;
+    let commitmentsDone = !engineSuiteLive;
+    let citationDone    = !engineSuiteLive;
 
     function checkDone() {
       if (extractionDone && auditDone && counterargDone && commitmentsDone && citationDone) {
@@ -553,8 +613,8 @@ export default function StudioEditor({
       pick:          d => d.extraction,
       errorMessages: EXTRACTION_ERROR_MESSAGES,
       onOk: (data) => {
-        // Fire evidence-weighted assessment for empirical claims (subscription only)
-        if (hasActiveSubscription) {
+        // Fire evidence-weighted assessment for empirical claims (signed-in only)
+        if (engineSuiteLive) {
           const empiricalClaims = (data.extraction as ArgumentExtractionResult).statements
             .filter(s => s.claimType === 'empirical_contested' || s.claimType === 'empirical_uncontested')
             .map(s => ({ id: s.id, text: s.text, claimType: s.claimType }));
@@ -581,10 +641,10 @@ export default function StudioEditor({
       onSettled:     () => { auditDone = true; checkDone(); },
     });
 
-    // Counterargument, commitments + citation are Pro-tier (Pro-model / external
-    // fetch cost). They auto-fire only for subscribers; free users see the
-    // upsell panel pointing to Studio Pro.
-    if (hasActiveSubscription) {
+    // Counterargument, commitments + citation write their results onto the
+    // saved version, so they auto-fire only for signed-in users; anonymous
+    // visitors see the sign-in panel instead.
+    if (engineSuiteLive) {
       void runEngine<CounterargumentResult>({
         url:           `${versionPath}/counterargument`,
         setter:        setCounterargState,
@@ -620,9 +680,9 @@ export default function StudioEditor({
     }
     // audience + intent MUST be in deps: without them the memoised callback
     // closed over the goals from a previous render, so "Re-analyse with these
-    // settings" ran a full Pro suite against the OLD audience/intent and the
-    // stale banner never cleared.
-  }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription, audience, intent]);
+    // settings" ran the full engine suite against the OLD audience/intent and
+    // the stale banner never cleared.
+  }, [draft, docId, versionId, lastSavedContent, title, canSubmit, isSignedIn, engineSuiteLive, audience, intent]);
 
   // Keep the Cmd/Enter listener pointed at the latest handleAnalyse.
   handleAnalyseRef.current = handleAnalyse;
@@ -732,6 +792,19 @@ export default function StudioEditor({
         )}
       </div>
 
+      {/* Saving writes to an account, so anonymous work is not kept. Say so
+         up front, at the point where a saved draft would appear, instead of
+         letting the absence of saving fail silently. */}
+      {!isSignedIn && (
+        <p class="text-xs text-muted leading-relaxed">
+          Analyses here run without an account, but nothing is kept.{' '}
+          <a href={SIGN_IN_URL} class="underline font-medium text-accent-support hover:text-accent">
+            Sign in free to keep this draft
+          </a>{' '}
+          with its version history.
+        </p>
+      )}
+
       {/* Cached sample banner */}
       {loadedSample && !isSampleDirty && (
         <div class="rounded-lg border border-hairline bg-paper px-4 py-3 flex items-start gap-3">
@@ -761,14 +834,19 @@ export default function StudioEditor({
         </div>
       )}
 
-      {/* Goal selector */}
-      <GoalSelector
-        audience={audience}
-        intent={intent}
-        onAudienceChange={setAudience}
-        onIntentChange={setIntent}
-        disabled={isRunning}
-      />
+      {/* Goal selector. Hidden for anonymous runs because the public audit
+         endpoint does not read goals, and showing dials that do nothing would
+         be dishonest; the version-scoped endpoint the signed-in flow uses
+         honours them. */}
+      {isSignedIn && (
+        <GoalSelector
+          audience={audience}
+          intent={intent}
+          onAudienceChange={setAudience}
+          onIntentChange={setIntent}
+          disabled={isRunning}
+        />
+      )}
 
       {/* Audience/intent changed since the last run - offer a re-analyse
          (we deliberately don't auto-rerun; these change the model's judgement). */}
@@ -912,7 +990,7 @@ export default function StudioEditor({
           {canSubmit && !isRunning && (
             <p class="text-xs text-muted text-center">⌘/Ctrl + Enter</p>
           )}
-          {isRunning && hasActiveSubscription && (
+          {isRunning && engineSuiteLive && (
             <p class="text-xs text-center text-muted">
               ~60-90s - fetching cited sources and finding opposing cases takes longer than a simple audit.
               The analysis continues on our side, so you can leave and come back to this draft.
@@ -927,9 +1005,9 @@ export default function StudioEditor({
 
   // ---------------------------------------------------------------------------
   // Result panels. The split: the LEFT column leads with the summary and the
-  // Pro-differentiated engines (counterargument, commitments, citation audit,
-  // evidence check), then the skeleton, with the free deeper lenses demoted to
-  // a compact strip at the bottom. Span-anchored specifics (findings that map
+  // deeper engines (counterargument, commitments, citation audit, evidence
+  // check), then the skeleton, with the on-demand lenses demoted to a compact
+  // strip at the bottom. Span-anchored specifics (findings that map
   // to a quote in the draft) live on the RIGHT. Each panel is defined once
   // here, then composed into the desktop columns and the mobile bottom-sheet
   // tabs below.
@@ -969,12 +1047,11 @@ export default function StudioEditor({
     </div>
   ) : null;
 
-  // Framework check - Pro engine (auto-runs for subscribers only).
+  // Framework check - auto-runs on signed-in analyses.
   const frameworkPanel = commitmentsState.status !== 'idle' ? (
     <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="commitments" preference={terminologyPreference} />
-        <ProTag />
       </h3>
       {commitmentsState.status === 'loading' && <SectionLoading label="Detecting frameworks…" />}
       {commitmentsState.status === 'error' && <SectionError code={commitmentsState.code} message={commitmentsState.message} />}
@@ -984,16 +1061,17 @@ export default function StudioEditor({
     </div>
   ) : null;
 
-  // Counterarguments - Pro engine.
+  // Counterarguments.
   const counterargPanel = (
     <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
-        <ProTag />
       </h3>
-      {/* Pro-gated (Pro-model cost). Free users see the upsell instead of an
-         empty box; subscribers get the live result. */}
-      {!hasActiveSubscription ? <CounterargUpsell /> : (
+      {/* Anonymous visitors see the sign-in panel instead of an empty box;
+         signed-in users get the live result. */}
+      {!engineSuiteLive ? (
+        <SignInToRunPanel engineLine="The opposing-cases engine surfaces the strongest objections your draft fails to engage with. Sign in to run it on this draft." />
+      ) : (
         <>
           {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
           {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
@@ -1141,14 +1219,15 @@ export default function StudioEditor({
     </div>
   );
 
-  // Citation audit - Pro engine (LEFT, grouped with the other Pro engines).
+  // Citation audit (LEFT, grouped with the other deeper engines).
   const citationPanel = (
     <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
-        <ProTag />
       </h3>
-      {!hasActiveSubscription ? <CitationUpsell /> : (
+      {!engineSuiteLive ? (
+        <SignInToRunPanel engineLine="Source Match fetches every cited URL in your draft and checks whether the source actually supports the claim. Sign in to run it on this draft." />
+      ) : (
         <>
           {citationState.status === 'idle' && (
             <p class="text-xs text-muted italic leading-relaxed">
@@ -1171,12 +1250,11 @@ export default function StudioEditor({
     </div>
   );
 
-  // Evidence check - Pro engine (LEFT, grouped with the other Pro engines).
-  const evidencePanel = hasActiveSubscription && evidenceState.status !== 'idle' ? (
+  // Evidence check (LEFT, grouped with the other deeper engines).
+  const evidencePanel = engineSuiteLive && evidenceState.status !== 'idle' ? (
     <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         Evidence Check
-        <ProTag />
       </h3>
       {evidenceState.status === 'loading' && <SectionLoading label="Searching academic literature…" />}
       {evidenceState.status === 'error' && <SectionError code={evidenceState.code} message={evidenceState.message} />}
@@ -1186,8 +1264,8 @@ export default function StudioEditor({
     </div>
   ) : null;
 
-  // LEFT column: score first, then the Pro engines lead, then the skeleton,
-  // then the compact free-tier lens strip.
+  // LEFT column: score first, then the deeper engines lead, then the skeleton,
+  // then the compact lens strip (currently shelved).
   const leftSidebar = showResults ? (
     <div class="space-y-4">
       {summaryPanel}
@@ -1212,24 +1290,20 @@ export default function StudioEditor({
   // ---------------------------------------------------------------------------
 
   if (!showResults) {
-    // Centered single-column - before first audit
+    // Centered single-column - before first audit. The old two-panel engine
+    // upsell that sat here sold a paid tier that no longer exists; anonymous
+    // visitors instead get one plain statement of what sign-in adds.
     return (
       <div class="max-w-3xl mx-auto space-y-6">
         {inputSection}
-        {!hasActiveSubscription && (
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div class="rounded-lg border border-hairline bg-surface p-4">
-              <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
-                <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
-              </h3>
-              <CounterargUpsell />
-            </div>
-            <div class="rounded-lg border border-hairline bg-surface p-4">
-              <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
-                <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
-              </h3>
-              <CitationUpsell />
-            </div>
+        {!isSignedIn && (
+          <div class="rounded-lg border border-hairline bg-surface p-4">
+            <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-2">After sign-in (free)</h3>
+            <p class="text-sm text-ink leading-relaxed">
+              Signing in keeps your drafts with version history, calibrates the analysis to your
+              audience and intent, and auto-runs the deeper engines on every pass: opposing cases,
+              framework check, source checking on cited URLs, and the evidence check.
+            </p>
           </div>
         )}
       </div>
@@ -1241,7 +1315,7 @@ export default function StudioEditor({
   const score = auditState.status === 'done' ? argumentScore(auditState.data) : null;
 
   // Mobile bottom-sheet tabs: Specific (span findings) / Overarching
-  // (document-level + engines, Pro engines leading as on desktop) /
+  // (document-level + engines, deeper engines leading as on desktop) /
   // Structure (the argument skeleton).
   const mobileTabs = showResults ? [
     { id: 'specific',    label: 'Specific',    count: findingsCount, body: (
