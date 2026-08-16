@@ -47,7 +47,7 @@ const versions: VersionRow[] = rawVersions.map(v => ({
     <nav class="mb-10 flex items-center gap-4">
       <a href="/creator/documents" class="text-xs text-muted hover:text-ink transition-colors">← My Documents</a>
       <span class="text-xs text-muted">/</span>
-      <a href={`/creator/studio?doc=${docId}`} class="text-xs text-muted hover:text-ink transition-colors truncate max-w-xs">
+      <a href={`/audit?mode=create&doc=${docId}`} class="text-xs text-muted hover:text-ink transition-colors truncate max-w-xs">
         {doc.title}
       </a>
     </nav>

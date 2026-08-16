@@ -3,35 +3,35 @@
 // satellites"): the Audit at /audit plus the three rooms that keep their
 // own doors - Transcript and Cross-document take different input objects
 // (the Ahrefs different-input test), Documents is the library. Modeled on
-// StudioNav, which keeps serving the existing /creator pages. The first tab
+// StudioNav, which serves the satellite rooms themselves. The first tab
 // cut over from /labs/workbench to /audit on 2026-07-19; the satellite
 // links still point at their studio rooms until the full cutover flips
 // them to the reserved URL contract (/audit?type=transcript,
 // /audit?compare=1 - already honoured by /audit as redirects).
 //
-// Gating grammar: Pro rooms carry the ONE mono StudioTag for non-
-// subscribers - visible-but-locked, never hidden, never redline.
-import StudioTag from './StudioTag';
-
+// The StudioTag lock markers and the Subscribe pill are gone (2026-08-16):
+// every engine is on the free tier (owner decision 2026-08-14), so a lock
+// grammar and a pricing link inside the tool would advertise a split that
+// no longer exists.
 interface Props {
   /** Omit on pages that aren't one of the tabs (e.g. the frozen workbench
      artifact) — no tab renders active, so aria-current can't point at a
      page the user isn't on. */
   current?: 'audit' | 'transcript' | 'cross-document' | 'documents';
+  /** Ignored. Retained so existing call sites keep compiling until they drop it. */
   isPro?: boolean;
 }
-const { current, isPro = false } = Astro.props;
+const { current } = Astro.props;
 
-const tabs: { key: NonNullable<Props['current']>; label: string; href: string; pro: boolean }[] = [
-  { key: 'audit',          label: 'Audit',          href: '/audit',                         pro: false },
-  { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript',     pro: true  },
-  { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document', pro: true  },
-  { key: 'documents',      label: 'Documents',      href: '/creator/documents',             pro: false },
+const tabs: { key: NonNullable<Props['current']>; label: string; href: string }[] = [
+  { key: 'audit',          label: 'Audit',          href: '/audit' },
+  { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript' },
+  { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document' },
+  { key: 'documents',      label: 'Documents',      href: '/creator/documents' },
 ];
 ---
 {/* Same mobile pattern as StudioNav: single-row horizontal scroll with ~44px
-   targets; sm+ wraps. Anonymous/free users see the locked rooms at reduced
-   weight (muted text + tag) so the strip stays quiet beside the paste box. */}
+   targets; sm+ wraps. */}
 <nav class="mb-4 flex items-center justify-between gap-3 flex-nowrap sm:flex-wrap border-b border-hairline pb-0 sm:pb-2" aria-label="Audit tools">
   <div class="flex items-center gap-1 sm:gap-4 flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-visible min-w-0">
     {tabs.map((t) => (
@@ -45,17 +45,7 @@ const tabs: { key: NonNullable<Props['current']>; label: string; href: string; p
         }`}
       >
         {t.label}
-        {t.pro && !isPro && <StudioTag />}
       </a>
     ))}
   </div>
-  {!isPro && (
-    <a
-      href="/pricing"
-      class="inline-flex items-center gap-1.5 rounded-lg border border-accent-support/30 bg-accent-support/5 px-2.5 py-1.5 text-xs font-medium text-accent-support hover:bg-accent-support/10 transition-colors shrink-0"
-    >
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-      Subscribe
-    </a>
-  )}
 </nav>

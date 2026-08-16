@@ -1,6 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-import { soloPrice } from '../lib/pricing';
 
 // About — the publication-first story (rewritten 2026-07-07, D1 Option B).
 // The engine methodology moved to /method; this page says what The Whetstone
@@ -29,8 +28,9 @@ import { soloPrice } from '../lib/pricing';
             unstated assumptions, terms doing hidden work.
           </p>
           <p class="text-lg sm:text-xl text-muted leading-relaxed max-w-2xl mb-8">
-            The same engine is free to run on anything at <a href="/audit" class="text-accent-support hover:text-accent">the Audit</a>,
-            and <a href="/creator" class="text-accent-support hover:text-accent">Studio</a> points it at your own writing before your readers do.
+            The same engine is free to run on anything at <a href="/audit" class="text-accent-support hover:text-accent">the Audit</a>:
+            Read mode audits what someone else wrote, <a href="/creator" class="text-accent-support hover:text-accent">Create mode</a> points
+            it at your own writing before your readers do.
           </p>
           <!-- The three-way contrast, moved here from the homepage launcher
                (L2 decision, 2026-08-05): positioning copy lives on the about
@@ -113,16 +113,16 @@ import { soloPrice } from '../lib/pricing';
         <h2 class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-8">The same engine, three ways</h2>
         <div class="grid md:grid-cols-3 gap-6">
           <a href="/audit" class="group block rounded-xl border border-hairline p-6 hover:border-accent-support hover:shadow-sm transition-all">
-            <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit · free</p>
+            <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit · Read</p>
             <h3 class="font-serif text-xl text-ink-strong group-hover:text-accent-support transition-colors mb-2">Audit any argument</h3>
-            <p class="text-sm text-muted leading-relaxed mb-3">Paste text or a URL. The full lens suite minus the Studio-tier engines. No account required.</p>
+            <p class="text-sm text-muted leading-relaxed mb-3">Paste text or a URL and read the structure behind it. Free, no account required.</p>
             <p class="text-sm font-semibold text-accent-support group-hover:text-accent">Open the Audit →</p>
           </a>
           <a href="/creator" class="group block rounded-xl border border-hairline p-6 hover:border-accent-support hover:shadow-sm transition-all">
-            <p class="text-xs font-semibold uppercase tracking-widest font-mono text-accent-support mb-2">Studio · from {soloPrice}</p>
+            <p class="text-xs font-semibold uppercase tracking-widest font-mono text-accent-support mb-2">The Audit · Create</p>
             <h3 class="font-serif text-xl text-ink-strong group-hover:text-accent-support transition-colors mb-2">Stress-test your writing</h3>
-            <p class="text-sm text-muted leading-relaxed mb-3">Full suite, counterarguments, citation audit, evidence-weighted likelihood, revision tracking, inline highlights.</p>
-            <p class="text-sm font-semibold text-accent-support group-hover:text-accent">Open Studio →</p>
+            <p class="text-sm text-muted leading-relaxed mb-3">The same engine on your own draft: counterarguments, citation audit, evidence check, revision tracking, inline highlights. Sign in only to keep your work.</p>
+            <p class="text-sm font-semibold text-accent-support group-hover:text-accent">Work on a draft →</p>
           </a>
           <div class="rounded-xl border border-hairline p-6">
             <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">Chrome extension</p>

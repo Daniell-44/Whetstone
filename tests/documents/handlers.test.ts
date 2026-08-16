@@ -349,23 +349,17 @@ describe('handleVersionCounterarg', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 402 when subscription is not active', async () => {
-    const db   = makeFakeDb();
+  it('runs for signed-in users without a subscription (free-tier decision 2026-08-14)', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'Draft');
+    await db.createVersion('v1', 'doc-1', 'x'.repeat(50), 1);
     const deps = makeDeps(db, { checkSubscription: async () => false });
     const res  = await handleVersionCounterarg(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
-    expect(res.status).toBe(402);
-    expect((await rj(res)).error.code).toBe('SUBSCRIPTION_REQUIRED');
-  });
+    const data = await rj(res);
 
-  it('checks subscription before ownership (subscription check before doc lookup)', async () => {
-    let ownershipChecked = false;
-    const db = makeFakeDb();
-    // Wrap getDocumentById to track calls
-    const origGet = db.getDocumentById.bind(db);
-    db.getDocumentById = async (id) => { ownershipChecked = true; return origGet(id); };
-    const deps = makeDeps(db, { checkSubscription: async () => false });
-    await handleVersionCounterarg(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
-    expect(ownershipChecked).toBe(false);
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
+    expect(data.result).toBeDefined();
   });
 });
 
@@ -406,12 +400,17 @@ describe('handleVersionCommitments', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 402 when subscription is not active', async () => {
-    const db   = makeFakeDb();
+  it('runs for signed-in users without a subscription (free-tier decision 2026-08-14)', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'Draft');
+    await db.createVersion('v1', 'doc-1', 'x'.repeat(50), 1);
     const deps = makeDeps(db, { checkSubscription: async () => false });
     const res  = await handleVersionCommitments(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
-    expect(res.status).toBe(402);
-    expect((await rj(res)).error.code).toBe('SUBSCRIPTION_REQUIRED');
+    const data = await rj(res);
+
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
+    expect(data.result).toBeDefined();
   });
 
   it('returns 503 when geminiApiKey is not configured', async () => {

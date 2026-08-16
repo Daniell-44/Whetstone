@@ -1,6 +1,8 @@
 ---
 export const prerender = false;
 // Legacy curator (topic/scorecard authoring) decommissioned 2026-07-03 (Fork A).
-// Authoring now lives in markdown briefings + Studio; 301 to the Studio home.
-return Astro.redirect('/creator/studio', 301);
+// Authoring now lives in markdown briefings + the merged editor; 301 straight
+// to the one door (2026-08-16 merge) rather than chaining through the old
+// /creator/studio redirect.
+return Astro.redirect('/audit?mode=create', 301);
 ---

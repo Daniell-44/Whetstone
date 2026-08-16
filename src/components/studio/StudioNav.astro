@@ -1,17 +1,19 @@
 ---
-// Shared Studio toolbar nav (Option 1 — unified tab strip). Replaces the bespoke
-// per-page nav that was copy-pasted across studio / transcript / cross-document /
-// documents. The "Studio" home (amber identity) links to the /creator overview;
-// the four modes are peer tabs with an active underline; Subscribe stays a
-// distinct action on the right for non-subscribers.
+// Shared toolbar nav for the tool's satellite rooms (transcript, cross-document,
+// documents). Since the 2026-08-16 merge the editor lives at /audit?mode=create,
+// so the Editor tab and the back-link both point at the one door. The Subscribe
+// pill that used to sit on the right is gone: every engine is on the free tier
+// (owner decision 2026-08-14) and this nav must not imply a paywall.
 interface Props {
   current: 'editor' | 'transcript' | 'cross-document' | 'documents';
+  /** Ignored. Retained so existing call sites (including ones owned by other
+     workstreams) keep compiling until they drop it. */
   hasActiveSubscription?: boolean;
 }
-const { current, hasActiveSubscription = false } = Astro.props;
+const { current } = Astro.props;
 
 const tabs: { key: Props['current']; label: string; href: string }[] = [
-  { key: 'editor',         label: 'Editor',         href: '/creator/studio' },
+  { key: 'editor',         label: 'Editor',         href: '/audit?mode=create' },
   { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript' },
   { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document' },
   { key: 'documents',      label: 'Documents',      href: '/creator/documents' },
@@ -19,17 +21,17 @@ const tabs: { key: Props['current']; label: string; href: string }[] = [
 ---
 {/* Mobile: a single-row horizontal scroll strip with ~44px targets (the
    wrap layout produced 2-3 rows of chrome with ~20px links above the
-   editor); the Studio back-link is desktop-only since the bottom tab bar
+   editor); the back-link is desktop-only since the bottom tab bar
    owns that destination on phones. sm+ keeps the wrap layout. */}
 <nav class="mb-4 flex items-center justify-between gap-3 flex-nowrap sm:flex-wrap border-b border-hairline pb-0 sm:pb-2">
   <div class="flex items-center gap-x-5 gap-y-1.5 flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-visible min-w-0">
     <a
-      href="/creator"
+      href="/audit"
       class="hidden sm:inline-flex items-center gap-1 text-xs font-mono font-semibold uppercase tracking-widest text-accent-support hover:text-accent transition-colors shrink-0"
-      title="Studio overview"
+      title="The Audit"
     >
       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-      Studio
+      The Audit
     </a>
     <div class="flex items-center gap-1 sm:gap-4 flex-nowrap sm:flex-wrap">
       {tabs.map((t) => (
@@ -47,13 +49,4 @@ const tabs: { key: Props['current']; label: string; href: string }[] = [
       ))}
     </div>
   </div>
-  {!hasActiveSubscription && (
-    <a
-      href="/pricing"
-      class="inline-flex items-center gap-1.5 rounded-lg border border-accent-support/30 bg-accent-support/5 px-2.5 py-1.5 text-xs font-medium text-accent-support hover:bg-accent-support/10 transition-colors shrink-0"
-    >
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-      Subscribe
-    </a>
-  )}
 </nav>

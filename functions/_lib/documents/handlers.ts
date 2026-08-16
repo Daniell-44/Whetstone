@@ -179,6 +179,8 @@ export interface VersionCounterargDeps {
   provider:          LlmProvider;
   geminiApiKey:      string | undefined;
   getSession:        (req: Request) => Promise<{ userId: string } | null>;
+  /** Everything is free-tier (owner decision 2026-08-14), which makes the
+      subscription gate moot. Kept so endpoint wiring keeps compiling. */
   checkSubscription: (userId: string) => Promise<boolean>;
 }
 
@@ -191,11 +193,10 @@ export async function handleVersionCounterarg(
   const session = await deps.getSession(req);
   if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
 
-  // Counterargument (steelman) is a Pro feature — Pro-model cost.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Counterargument is a Studio Pro feature.' } }, 402);
-  }
+  // The 402 subscription gate that sat here was removed with the free-tier
+  // decision (2026-08-14): a signed-in free user's editor auto-fires this
+  // engine, and answering "Studio Pro feature" advertised a split that no
+  // longer exists.
 
   const doc = await deps.db.getDocumentById(docId);
   if (!doc || doc.user_id !== session.userId) {
@@ -286,6 +287,8 @@ export interface VersionCommitmentsDeps {
   provider:          LlmProvider;
   geminiApiKey:      string | undefined;
   getSession:        (req: Request) => Promise<{ userId: string } | null>;
+  /** Everything is free-tier (owner decision 2026-08-14), which makes the
+      subscription gate moot. Kept so endpoint wiring keeps compiling. */
   checkSubscription: (userId: string) => Promise<boolean>;
 }
 
@@ -298,11 +301,9 @@ export async function handleVersionCommitments(
   const session = await deps.getSession(req);
   if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
 
-  // Philosophical commitments is a Pro feature — Pro-model cost.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Framework analysis is a Studio Pro feature.' } }, 402);
-  }
+  // The 402 subscription gate that sat here was removed with the free-tier
+  // decision (2026-08-14), for the same reason as the counterargument route
+  // above: the editor auto-fires this engine for every signed-in user.
 
   const doc = await deps.db.getDocumentById(docId);
   if (!doc || doc.user_id !== session.userId) {

@@ -6,31 +6,28 @@ import Base from '../../../layouts/Base.astro';
 import TranscriptStudio from '../../../components/transcript/TranscriptStudio';
 import StudioNav from '../../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
-import { makeBillingDb } from '../../../../functions/_lib/billing/subscription';
-import { makeWorkspaceDb } from '../../../../functions/_lib/workspaces/db';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../../functions/_lib/workspaces/permissions';
 import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
 
-const authDb      = makeAuthDb(env.DB);
-const billingDb   = makeBillingDb(env.DB);
-const workspaceDb = makeWorkspaceDb(env.DB);
-const session     = await getSessionFromRequest(Astro.request, authDb);
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
 
+// Transcript runs persist as documents in the caller's library, so this room
+// still requires sign-in: there is no account-less place to put the result.
+// The subscription gate that used to sit behind that is gone - every engine is
+// on the free tier (owner decision 2026-08-14).
 if (!session) {
   return Astro.redirect('/login?returnTo=/creator/studio/transcript');
 }
-
-const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, session.user_id);
 ---
 <Base
-  title="Transcript Audit - Studio"
+  title="Transcript Audit - The Whetstone"
   description="Audit a YouTube video, podcast, or speech transcript. Per-segment audits plus cross-segment synthesis."
   canonicalPath="/creator/studio/transcript"
   isLoggedIn={true}
 >
   <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
 
-    <StudioNav current="transcript" hasActiveSubscription={hasActiveSubscription} />
+    <StudioNav current="transcript" />
 
     <header class="mb-8">
       <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">
@@ -42,24 +39,11 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
         warrants repeated without defence, objections raised but never engaged.
       </p>
       <p class="text-xs text-muted mt-3">
-        Studio-tier feature. 60-minute podcasts typically yield 4-8 audited segments.
+        60-minute podcasts typically yield 4-8 audited segments.
       </p>
     </header>
 
-    {!hasActiveSubscription ? (
-      <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
-        <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
-        <p class="text-sm text-ink max-w-sm mx-auto leading-relaxed">
-          Transcript audits run the full audit suite on each segment plus a cross-segment synthesis pass.
-          Subscribe to unlock it.
-        </p>
-        <a href="/pricing" class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors">
-          See plans →
-        </a>
-      </div>
-    ) : (
-      <TranscriptStudio client:load />
-    )}
+    <TranscriptStudio client:load />
 
   </main>
 </Base>

@@ -6,17 +6,20 @@ import { makeAuthDb } from '../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
 import { CONTACT_EMAIL } from '../lib/contact';
 
-// Session-aware so the CTA offers the right next step: a signed-in user opens
-// Studio; a signed-out user is invited to sign in (returning to Studio after) or
-// try the free Reader — instead of the old bare-/login dead-end.
+// This page survives the 2026-08-16 merge as the landing pitch for the tool's
+// Create mode. It used to route people between a "free Reader" and a paid
+// "Studio"; that split is gone. Everyone gets the same door
+// (/audit?mode=create) and sign-in is pitched only as keeping your work.
+// The session is looked up solely so the site header shows the right auth link.
 const session  = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
 const signedIn = !!session;
 ---
 <Base
-  title="Studio - The Whetstone"
-  description="Structural audit, counterargument generation, citation checking, and revision tracking for writers."
+  title="Create - The Whetstone"
+  description="Turn the audit engine on your own writing: structural audit, counterarguments, citation checking, and revision tracking. Free, no account needed."
   canonicalPath="/creator"
   ogImage="/og/page-creator.png"
+  isLoggedIn={signedIn}
 >
   <main class="max-w-4xl mx-auto px-6 pt-20 pb-16">
 
@@ -26,41 +29,38 @@ const signedIn = !!session;
 
     <!-- Hero -->
     <header class="mb-12">
-      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-3">Studio</p>
+      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-muted mb-3">The Audit · Create</p>
       <h1 class="font-serif text-4xl sm:text-5xl text-ink-strong leading-tight mb-4">
         Stress-test your arguments<br class="hidden sm:block" /> before your readers do.
       </h1>
       <p class="text-xl text-muted leading-relaxed max-w-2xl">
-        Structural audit, counterargument generation, citation checking, evidence verification,
-        and the philosophical commitments your draft operates within - all before you publish.
+        The same engine that audits what you read, turned on what you write: structural audit,
+        counterargument generation, citation checking, evidence verification, and the philosophical
+        commitments your draft operates within - all before you publish.
       </p>
     </header>
 
-    <!-- CTA -->
+    <!-- CTA: one door, no sign-in toll. -->
     <section class="mb-14 flex flex-wrap items-center gap-4">
       <a
-        href={signedIn ? '/creator/studio' : '/login?returnTo=/creator/studio'}
+        href="/audit?mode=create"
         class="inline-flex items-center gap-2 px-6 py-3 bg-accent-support text-white text-sm font-semibold rounded-lg hover:bg-accent transition-colors"
       >
-        {signedIn ? 'Open the Studio' : 'Sign in to Studio'}
+        Paste a draft
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </a>
-      <a
-        href="/pricing"
-        class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-ink border border-hairline rounded-lg hover:bg-paper transition-colors"
-      >
-        View pricing →
+      <a href="/audit" class="text-sm text-muted hover:text-ink transition-colors">
+        Auditing something you read instead? →
       </a>
-      {!signedIn && (
-        <a href="/audit" class="text-sm text-muted hover:text-ink transition-colors">
-          Or try the free Reader →
-        </a>
-      )}
+      <p class="w-full text-xs text-muted">
+        No account needed. Signing in is only for keeping your work - saved drafts, version history,
+        and the engines that write their results onto them.
+      </p>
     </section>
 
-    <!-- What the studio returns - editorial layout -->
+    <!-- What the engine returns - editorial layout -->
     <section class="mb-16">
       <h2 class="text-xs font-semibold uppercase tracking-widest text-muted mb-8">What the engine analyses</h2>
 
@@ -157,16 +157,15 @@ const signedIn = !!session;
       <div class="rounded-xl border border-hairline p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p class="text-sm font-semibold text-ink-strong mb-1">Ready to stress-test a draft?</p>
-          <p class="text-sm text-muted leading-relaxed">Sign in free; the paid engines unlock when you need them.</p>
+          <p class="text-sm text-muted leading-relaxed">Paste it in and read the findings. Sign in only when you want to keep the work.</p>
         </div>
-        <div class="shrink-0 flex items-center gap-3">
+        <div class="shrink-0">
           <a
-            href={signedIn ? '/creator/studio' : '/login?returnTo=/creator/studio'}
+            href="/audit?mode=create"
             class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-accent-support text-white text-sm font-semibold hover:bg-accent-support/90 transition-colors"
           >
-            {signedIn ? 'Open the Studio' : 'Sign in to Studio'}
+            Paste a draft
           </a>
-          <a href="/pricing" class="text-sm font-medium text-ink hover:text-accent transition-colors">Pricing →</a>
         </div>
       </div>
     </section>

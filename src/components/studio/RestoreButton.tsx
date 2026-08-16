@@ -14,7 +14,7 @@ export default function RestoreButton({ docId, versionId }: Props) {
       const res  = await fetch(`/api/documents/${docId}/versions/${versionId}/restore`, { method: 'POST' });
       const data = await res.json() as { ok: boolean };
       if (data.ok) {
-        window.location.href = `/creator/studio?doc=${docId}`;
+        window.location.href = `/audit?mode=create&doc=${docId}`;
       } else {
         setState('error');
       }

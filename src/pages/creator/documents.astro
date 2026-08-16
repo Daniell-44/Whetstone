@@ -8,8 +8,6 @@ import StudioNav from '../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
-import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 import ReAuditButton from '../../components/documents/ReAuditButton';
 import type { Document, DocumentKind } from '../../../functions/_lib/documents/types';
@@ -24,7 +22,9 @@ if (!session) {
 const workspaceDb       = makeWorkspaceDb(env.DB);
 const docDb             = makeDocumentDb(env.DB);
 const workspaceIdParam  = Astro.url.searchParams.get('workspace');
-const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), workspaceDb, session.user_id);
+// The subscription lookup that used to run here only fed StudioNav's Subscribe
+// pill, which is gone (free-tier decision 2026-08-14), so the billing query
+// went with it.
 
 let documents: Document[];
 let workspaceName: string | null = null;
@@ -63,11 +63,12 @@ function filterHref(value: string): string {
   return `/creator/documents${qs ? `?${qs}` : ''}`;
 }
 
-// Persisted engine runs reopen on their own surface, read-only; drafts open in the Studio.
+// Persisted engine runs reopen on their own surface, read-only; drafts open in
+// the merged editor at /audit (the one door since the 2026-08-16 merge).
 function openHref(doc: Document): string {
   if (doc.kind === 'transcript') return `/creator/studio/transcript?doc=${doc.id}`;
   if (doc.kind === 'cross-doc')  return `/creator/studio/cross-document?doc=${doc.id}`;
-  return `/creator/studio?doc=${doc.id}`;
+  return `/audit?mode=create&doc=${doc.id}`;
 }
 
 const KIND_BADGES: Record<string, string> = {
@@ -85,13 +86,13 @@ function formatDate(epochMs: number): string {
 ---
 <Base
   title="My Documents - The Whetstone"
-  description="Your saved Studio drafts."
+  description="Your saved drafts and analysis runs."
   canonicalPath="/creator/documents"
   isLoggedIn={true}
 >
   <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
 
-    <StudioNav current="documents" hasActiveSubscription={hasActiveSubscription} />
+    <StudioNav current="documents" />
 
     <header class="mb-10 flex items-start justify-between">
       <div>
@@ -108,7 +109,7 @@ function formatDate(epochMs: number): string {
       <div class="mt-4 flex items-center gap-3">
         <WorkspaceSwitcher currentWorkspaceId={workspaceIdParam} client:load />
         <a
-          href="/creator/studio"
+          href="/audit?mode=create"
           class="shrink-0 rounded-xl bg-accent-support px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
         >
           New draft
@@ -140,7 +141,7 @@ function formatDate(epochMs: number): string {
         {activeKind === 'all' || activeKind === 'draft' ? (
           <>
             <p class="text-muted mb-4">No saved {activeKind === 'draft' ? 'drafts' : 'documents'} yet.</p>
-            <a href="/creator/studio" class="text-sm text-accent-support hover:text-accent underline">
+            <a href="/audit?mode=create" class="text-sm text-accent-support hover:text-accent underline">
               Start your first draft →
             </a>
           </>

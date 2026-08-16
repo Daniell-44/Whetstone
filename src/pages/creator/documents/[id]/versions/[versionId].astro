@@ -110,10 +110,10 @@ function formatDate(epochMs: number): string {
       <div class="rounded-xl border border-hairline bg-paper p-6 text-center">
         <p class="text-sm text-muted">No analysis has been run on this version.</p>
         <a
-          href={`/creator/studio?doc=${docId}`}
+          href={`/audit?mode=create&doc=${docId}`}
           class="inline-block mt-3 text-sm text-accent-support hover:text-accent underline"
         >
-          Open in Studio to run analysis →
+          Open in the editor to run analysis →
         </a>
       </div>
     )}

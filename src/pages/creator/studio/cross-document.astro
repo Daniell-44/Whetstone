@@ -4,6 +4,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../../layouts/Base.astro';
 import CrossDocumentForm from '../../../components/cross-document/CrossDocumentForm';
+import WorkedExampleTour, { BODY_ID, COLLAPSED_KEY } from '../../../components/cross-document/WorkedExampleTour';
 import StudioNav from '../../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
@@ -47,21 +48,30 @@ const session = await getSessionFromRequest(Astro.request, authDb);
         quote below comes from the nuclear costings briefing, where it has
         already been through the verbatim quote gate against its source page.
         A sample invented for prettiness would be the exact sin this
-        publication exists to catch. */}
+        publication exists to catch.
+
+        The WorkedExampleTour island in the header walks a first-time visitor
+        through the four sections below (the data-tour-anchor attributes),
+        then collapses the example to this header row, with the chevron to
+        reopen. With JavaScript disabled the island renders nothing and the
+        full example simply stays visible. */}
     <section class="mb-10 rounded-lg border border-hairline bg-surface overflow-hidden">
-      <div class="flex items-baseline justify-between gap-3 px-4 py-2.5 border-b border-hairline">
+      <div class="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-hairline" data-xdoc-example-header>
         <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted m-0">
           Worked example · three documents on nuclear costings
         </p>
-        <p class="font-mono text-[11px] text-muted m-0">prepared, not live</p>
+        <div class="flex items-center gap-3">
+          <p class="font-mono text-[11px] text-muted m-0">prepared, not live</p>
+          <WorkedExampleTour client:load />
+        </div>
       </div>
-      <div class="p-4 space-y-4">
+      <div class="p-4 space-y-4" id={BODY_ID}>
 
-        <p class="font-serif text-lg text-ink-strong leading-snug m-0">
+        <p class="font-serif text-lg text-ink-strong leading-snug m-0" data-tour-anchor="xdoc-question">
           Is a nuclear-inclusive grid cheaper for Australia than renewables-only?
         </p>
 
-        <div>
+        <div data-tour-anchor="xdoc-positions">
           <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">Where each document lands</p>
           <div class="space-y-1.5">
             <div class="rounded border border-hairline bg-paper px-3 py-2">
@@ -82,7 +92,7 @@ const session = await getSessionFromRequest(Astro.request, authDb);
         <div>
           <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">The premises they actually contest</p>
 
-          <div class="rounded border border-hairline bg-paper px-3 py-2.5 mb-1.5">
+          <div class="rounded border border-hairline bg-paper px-3 py-2.5 mb-1.5" data-tour-anchor="xdoc-premise-1">
             <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Premise 1</p>
             <p class="text-sm text-ink m-0 leading-snug">Reactors would run about 90 per cent of the time.</p>
             <p class="text-xs text-muted mt-1 mb-2 leading-snug">Doc A's cost advantage needs it. Doc B prices a range far below it.</p>
@@ -102,25 +112,48 @@ const session = await getSessionFromRequest(Astro.request, authDb);
             </div>
           </div>
 
-          <div class="rounded border border-hairline bg-paper px-3 py-2.5">
-            <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Premise 2</p>
-            <p class="text-sm text-ink m-0 leading-snug">Nuclear arrives in time to matter for the coal exit.</p>
-            <p class="text-xs text-muted mt-1 mb-2 leading-snug">If it cannot, the cost contest between the two grids never starts.</p>
-            <div class="border-t border-dashed border-hairline pt-2">
-              <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-spec-right m-0">Contests · Doc C</p>
-              <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">&ldquo;Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations.&rdquo; <span class="text-muted">- citing AEMO on timing</span></p>
+          {/* The verification footer sits inside this wrapper so the tour's
+              last step can highlight premise 2 and the quote-gate promise as
+              one block. The wrapper's space-y-4 reproduces the gap the
+              footer used to get from the outer space-y-4; nothing moves
+              visually and no wording changes. */}
+          <div data-tour-anchor="xdoc-premise-2" class="space-y-4">
+            <div class="rounded border border-hairline bg-paper px-3 py-2.5">
+              <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Premise 2</p>
+              <p class="text-sm text-ink m-0 leading-snug">Nuclear arrives in time to matter for the coal exit.</p>
+              <p class="text-xs text-muted mt-1 mb-2 leading-snug">If it cannot, the cost contest between the two grids never starts.</p>
+              <div class="border-t border-dashed border-hairline pt-2">
+                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-spec-right m-0">Contests · Doc C</p>
+                <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">&ldquo;Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations.&rdquo; <span class="text-muted">- citing AEMO on timing</span></p>
+              </div>
             </div>
+
+            <p class="text-xs text-muted m-0 leading-relaxed">
+              Everything in quotation marks above was checked word-for-word against its source
+              page before publication; the rest is reported in our words. Your run gets the
+              same treatment: quotes that cannot be verified in your documents are dropped,
+              not softened.
+            </p>
           </div>
         </div>
-
-        <p class="text-xs text-muted m-0 leading-relaxed">
-          Everything in quotation marks above was checked word-for-word against its source
-          page before publication; the rest is reported in our words. Your run gets the
-          same treatment: quotes that cannot be verified in your documents are dropped,
-          not softened.
-        </p>
       </div>
     </section>
+
+    {/* Pre-paint collapse for returning visitors. The island hydrates too
+        late to stop the full example flashing open before it snaps shut, so
+        this blocking script applies the stored collapsed state during parse.
+        The island then takes over and keeps everything consistent. With
+        JavaScript disabled this never runs and the example stays open. */}
+    <script is:inline define:vars={{ collapsedKey: COLLAPSED_KEY, bodyId: BODY_ID }}>
+      try {
+        if (localStorage.getItem(collapsedKey) === '1') {
+          var xdocBody = document.getElementById(bodyId);
+          if (xdocBody) xdocBody.hidden = true;
+          var xdocHeader = document.querySelector('[data-xdoc-example-header]');
+          if (xdocHeader) xdocHeader.classList.remove('border-b');
+        }
+      } catch (e) { /* Storage unavailable: leave the example expanded. */ }
+    </script>
 
     <CrossDocumentForm client:load />
 
