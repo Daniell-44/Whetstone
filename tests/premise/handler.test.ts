@@ -4,7 +4,7 @@
  * anything. Every rule below is a rule about telling the truth to the caller.
  */
 import { describe, it, expect } from 'vitest';
-import { handleMiniRequest, MIN_INPUT_CHARS } from '../../functions/_lib/premise/handler';
+import { handleMiniRequest, MIN_INPUT_CHARS, MAX_QUESTION_CHARS } from '../../functions/_lib/premise/handler';
 import type { LlmProvider, ProxyResponse } from '../../functions/_lib/providers/types';
 import type { MiniBriefing, MiniOutline } from '../../functions/_lib/premise/mini';
 
@@ -106,5 +106,52 @@ describe('mini endpoint', () => {
   it('refuses to pretend when the key is missing', async () => {
     const res = await handleMiniRequest(post({ text: LONG, trigger: 'article' }), deps({ geminiApiKey: undefined }));
     expect(res.status).toBe(503);
+  });
+});
+
+/**
+ * Question mode. A question is not an article: it is far shorter than the
+ * article floor, and anything past a few hundred characters is a pasted
+ * passage that the article path already handles better.
+ */
+describe('question mode', () => {
+  const QUESTION = 'Is nuclear cheaper than renewables for Australia?';
+
+  it('accepts a real question far below the article floor', async () => {
+    expect(QUESTION.length).toBeLessThan(MIN_INPUT_CHARS);
+    const res = await handleMiniRequest(post({ text: QUESTION, trigger: 'question' }), deps());
+    expect(res.status).toBe(200);
+    const body = await res.json() as { ok: boolean; depth: string };
+    expect(body.ok).toBe(true);
+    expect(body.depth).toBe('outline');
+  });
+
+  it('still asks for a whole question, not a fragment', async () => {
+    const res = await handleMiniRequest(post({ text: 'nuclear?', trigger: 'question' }), deps());
+    expect(res.status).toBe(400);
+    const body = await res.json() as { error: { code: string } };
+    expect(body.error.code).toBe('TOO_SHORT');
+  });
+
+  it('refuses a pasted passage wearing a question mark', async () => {
+    const res = await handleMiniRequest(
+      post({ text: 'w'.repeat(MAX_QUESTION_CHARS + 1), trigger: 'question' }),
+      deps(),
+    );
+    expect(res.status).toBe(400);
+    const body = await res.json() as { error: { code: string } };
+    expect(body.error.code).toBe('TOO_LONG');
+  });
+
+  it('hands the question trigger to the outline run, which reframes the prompt', async () => {
+    let seenTrigger: string | undefined;
+    const res = await handleMiniRequest(post({ text: QUESTION, trigger: 'question' }), deps({
+      runOutline: async (_text, d) => {
+        seenTrigger = d.trigger;
+        return { outline: OUTLINE, inTok: 1, outTok: 1 };
+      },
+    }));
+    expect(res.status).toBe(200);
+    expect(seenTrigger).toBe('question');
   });
 });

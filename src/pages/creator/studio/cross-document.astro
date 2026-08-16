@@ -4,6 +4,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../../layouts/Base.astro';
 import CrossDocumentForm from '../../../components/cross-document/CrossDocumentForm';
+import QuestionBriefing from '../../../components/premise/QuestionBriefing';
 import WorkedExampleTour, { BODY_ID, COLLAPSED_KEY } from '../../../components/cross-document/WorkedExampleTour';
 import StudioNav from '../../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
@@ -155,6 +156,19 @@ const session = await getSessionFromRequest(Astro.request, authDb);
       } catch (e) { /* Storage unavailable: leave the example expanded. */ }
     </script>
 
+    {/* THE QUESTION BOX. The same mini-briefing engine the extension calls,
+        pointed at a typed question instead of an article: it names the claims
+        the answer rests on, then researches who contests each one, with every
+        quote checked word-for-word before display. It sits here, after the
+        worked example and before the document form, as a first proposal only:
+        Daniel picks its final home before this ships to the live page. */}
+    <div class="mb-10">
+      <QuestionBriefing client:load />
+    </div>
+
+    <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">
+      Or audit your own documents
+    </p>
     <CrossDocumentForm client:load />
 
   </main>

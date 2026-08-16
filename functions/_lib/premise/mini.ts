@@ -178,18 +178,25 @@ export type MiniEvent =
   | { type: 'done'; briefing: MiniBriefing };
 
 /**
- * What started this run, which decides how much gets researched.
+ * What started this run, which decides how much gets researched AND how the
+ * outline is framed.
  *
  * A selection has already been pointed at: the reader picked one sentence, so
  * researching four claims spends money answering questions they did not ask.
  * A whole article has not been pointed at, and one claim there cannot show the
  * thing that matters most, which is that an argument leans on more than one
  * weak point.
+ *
+ * A question is neither. There is no author and no conclusion to extract, so
+ * the outline call gets a different framing: name the claims the ANSWER rests
+ * on, and say what the disagreement turns on without settling it. Everything
+ * downstream of the outline is unchanged, because a claim is a claim wherever
+ * it came from.
  */
-export type MiniTrigger = 'selection' | 'article';
+export type MiniTrigger = 'selection' | 'article' | 'question';
 
 /** Claims researched per trigger. Each one is a search, and search is 91% of the bill. */
-const PREMISES_FOR: Record<MiniTrigger, number> = { selection: 1, article: 2 };
+const PREMISES_FOR: Record<MiniTrigger, number> = { selection: 1, article: 2, question: 2 };
 
 /**
  * The outline's thinking budget, measured rather than guessed.
@@ -250,7 +257,43 @@ Return ONLY:
 Two to four claims. Fewer is better than padded.`;
 
 /**
+ * The question-mode variant. A question is not an article: there is no author,
+ * no conclusion, and nothing to read the claims out of, so the model is asked
+ * what the ANSWER rests on rather than what the argument rests on.
+ *
+ * The conclusion field deliberately does NOT answer the question. Answering it
+ * cold would be exactly the recall-without-grounding this pipeline exists to
+ * avoid; naming what the disagreement turns on is a reading of the debate's
+ * shape, not a verdict on it. The site-wide no-verdict rule holds here too.
+ */
+const QUESTION_SYSTEM = `You are given one contested question. Name the claims the answer actually rests on.
+
+A load-bearing claim is one where, if it were settled, the answer to the
+question would move. Each side's case leans on such claims; name the ones the
+real public disagreement runs through.
+
+Prefer claims that are CONTESTABLE IN PUBLIC: a number, a causal claim, a
+comparison, a prediction. Skip claims that are true by definition, and skip
+pure value judgements, because no amount of research moves those.
+
+Write each claim so it stands alone, with its subject and its units named. Not
+"the cost is lower" but "a nuclear-inclusive grid costs 25 per cent less than a
+renewables-only grid". Someone who has never seen the question must be able to
+go and check it.
+
+Do NOT answer the question. Do not say or imply which side is right.
+
+Return ONLY:
+{"question":"the question, tidied into one clear sentence ending with a question mark",
+ "conclusion":"one sentence naming what the disagreement turns on, without taking a side",
+ "claims":[{"claim":"the claim in one plain sentence","load":"which answer needs it, and what happens to that answer if it is false"}]}
+
+Two to four claims. Fewer is better than padded.`;
+
+/**
  * Stage 1. Read the article. No searching, no recall: the text is right there.
+ * In question mode there is no article, so the framing swaps to what the
+ * answer rests on; see QUESTION_SYSTEM.
  *
  * Exported so the thinking budget can be benchmarked against outline quality.
  * This is the one call the reader waits on, so what it costs in seconds is the
@@ -264,7 +307,7 @@ export async function extractOutline(
     {
       operation: 'analyze',
       model: deps.model ?? 'gemini-2.5-flash',
-      systemInstruction: EXTRACT_SYSTEM,
+      systemInstruction: deps.trigger === 'question' ? QUESTION_SYSTEM : EXTRACT_SYSTEM,
       messages: [{ role: 'user', content: text.slice(0, 20_000) }],
       responseFormat: 'json',
       temperature: 0,
@@ -693,8 +736,12 @@ export async function* streamMiniBriefing(articleText: string, deps: MiniDeps): 
   // ---- fall back: articles that disagree, ideally in different ways
   limits.push('No claim could be paired with a quote that both checks out and is about that claim, so this falls back to opposing pieces rather than premise by premise.');
   const target = ex.outline.question || articleText.slice(0, 300);
+  // A question has no side to disagree with, so the fallback asks for
+  // conflicting answers instead of opposing pieces.
   const g = await retrievePremise(
-    `Which published articles disagree with this, and on what different grounds: ${target}`,
+    deps.trigger === 'question'
+      ? `Which published articles answer this question in conflicting ways, and on what different grounds: ${target}`
+      : `Which published articles disagree with this, and on what different grounds: ${target}`,
     deps.apiKey,
     deps.model ?? 'gemini-2.5-flash',
   );

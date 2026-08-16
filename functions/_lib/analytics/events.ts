@@ -65,6 +65,11 @@ export const ANALYTICS_EVENT_NAMES = [
   // Cross-document
   'cross_document_started',
   'cross_document_completed',
+
+  // Question-to-briefing prompt box (mini-briefing engine in question mode)
+  'question_briefing_started',
+  'question_briefing_completed',
+  'question_briefing_copied',
 ] as const;
 
 export type AnalyticsEventName = (typeof ANALYTICS_EVENT_NAMES)[number];
@@ -101,6 +106,9 @@ export const EVENT_DESCRIPTIONS: Record<AnalyticsEventName, string> = {
   onboarding_step:                  'Onboarding tour step shown / skipped / completed',
   cross_document_started:           'User started a cross-document audit',
   cross_document_completed:         'Cross-document audit returned successfully',
+  question_briefing_started:        'User ran the ask-a-question mini-briefing',
+  question_briefing_completed:      'Question mini-briefing returned successfully',
+  question_briefing_copied:         'User copied a question mini-briefing as markdown',
 };
 
 // ---------------------------------------------------------------------------
@@ -140,4 +148,7 @@ export const EVENT_METADATA_ALLOWLIST: Record<AnalyticsEventName, readonly strin
   onboarding_step:                  ['event', 'step'] as const,
   cross_document_started:           ['doc_count'] as const,
   cross_document_completed:         ['latency_ms', 'finding_count'] as const,
+  question_briefing_started:        ['question_chars'] as const,   // a length, never the question itself
+  question_briefing_completed:      ['latency_ms', 'tier', 'premise_count'] as const,
+  question_briefing_copied:         [],
 };

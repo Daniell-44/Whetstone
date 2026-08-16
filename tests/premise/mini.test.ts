@@ -11,6 +11,7 @@ import {
   orderByDispute,
   verifyAgainstFetched,
   streamMiniBriefing,
+  extractOutline,
   type MiniSource,
   type RelevanceVerdict,
   type MiniEvent,
@@ -227,12 +228,14 @@ describe('streamMiniBriefing staging', () => {
         return { content: JSON.stringify(payload), inputTokens: 1, outputTokens: 1 };
       },
     };
-    for (const trigger of ['selection', 'article'] as const) {
+    for (const trigger of ['selection', 'article', 'question'] as const) {
       for await (const ev of streamMiniBriefing('text', { provider, apiKey: 'x', trigger })) {
         if (ev.type === 'researching') seen.push(ev.claims.length);
       }
     }
-    expect(seen).toEqual([1, 2]);
+    // A question, like an article, has not been pointed at one claim, so it
+    // gets the two-claim budget rather than the selection's one.
+    expect(seen).toEqual([1, 2, 2]);
   });
 
   it('yields the outline first, before anything is searched', async () => {
@@ -255,6 +258,27 @@ describe('streamMiniBriefing staging', () => {
     expect(first.outline.claims).toHaveLength(1);
     // With no premises researched it still finishes rather than hanging.
     expect(events.at(-1)?.type).toBe('done');
+  });
+
+  it('frames a question run around the answer, and never asks it to answer', async () => {
+    // A question has no author and no conclusion to extract. The outline call
+    // must swap framing, and the question framing must forbid a verdict: an
+    // answer produced cold would be recall without grounding, the exact
+    // failure the rest of this pipeline exists to prevent.
+    const seen: string[] = [];
+    const capturing: LlmProvider = {
+      name: 'capturing',
+      async complete(req: ProxyRequest): Promise<ProxyResponse> {
+        seen.push(req.systemInstruction ?? '');
+        return { content: '{"question":"q","conclusion":"c","claims":[]}', inputTokens: 1, outputTokens: 1 };
+      },
+    };
+    await extractOutline('Is nuclear cheaper than renewables for Australia?', { provider: capturing, apiKey: 'x', trigger: 'question' });
+    await extractOutline('a long article about grids', { provider: capturing, apiKey: 'x', trigger: 'article' });
+    expect(seen[0]).toContain('contested question');
+    expect(seen[0]).toContain('Do NOT answer the question');
+    expect(seen[1]).toContain('one article');
+    expect(seen[1]).not.toContain('Do NOT answer the question');
   });
 
   it('still yields an outline when the model returns unparseable text', async () => {

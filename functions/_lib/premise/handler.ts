@@ -23,6 +23,13 @@ import type { LlmProvider } from '../providers/types';
 export const MIN_INPUT_CHARS = 180;
 export const MAX_INPUT_CHARS = 40_000;
 
+// Question mode has its own bounds, because a question is not an article: the
+// article floor of 180 characters would reject nearly every real question, and
+// anything past a few hundred characters is a pasted passage wearing a
+// question mark, which the article path already handles better.
+export const MIN_QUESTION_CHARS = 15;
+export const MAX_QUESTION_CHARS = 300;
+
 export interface MiniHandlerDeps {
   provider: LlmProvider;
   geminiApiKey: string | undefined;
@@ -68,14 +75,30 @@ export async function handleMiniRequest(request: Request, deps: MiniHandlerDeps)
   }
 
   const text = typeof body.text === 'string' ? body.text.trim() : '';
-  if (text.length < MIN_INPUT_CHARS) {
+  const trigger: MiniTrigger =
+    body.trigger === 'selection' ? 'selection'
+    : body.trigger === 'question' ? 'question'
+    : 'article';
+
+  if (trigger === 'question') {
+    if (text.length < MIN_QUESTION_CHARS) {
+      return json({
+        ok: false,
+        error: { code: 'TOO_SHORT', message: 'Type the whole question, including what is being compared and where.' },
+      }, 400);
+    }
+    if (text.length > MAX_QUESTION_CHARS) {
+      return json({
+        ok: false,
+        error: { code: 'TOO_LONG', message: `That reads like a passage, not a question. Keep it under ${MAX_QUESTION_CHARS} characters, or paste the full text into the reader instead.` },
+      }, 400);
+    }
+  } else if (text.length < MIN_INPUT_CHARS) {
     return json({
       ok: false,
       error: { code: 'TOO_SHORT', message: `Select at least ${MIN_INPUT_CHARS} characters, or run this on the whole article.` },
     }, 400);
   }
-
-  const trigger: MiniTrigger = body.trigger === 'selection' ? 'selection' : 'article';
   const depth: 'outline' | 'full' = body.depth === 'full' ? 'full' : 'outline';
   const url = typeof body.url === 'string' ? body.url : undefined;
   const title = typeof body.title === 'string' ? body.title : undefined;
@@ -105,7 +128,12 @@ export async function handleMiniRequest(request: Request, deps: MiniHandlerDeps)
       if (r.outline.claims.length === 0) {
         return json({
           ok: false,
-          error: { code: 'NO_CLAIMS', message: 'Nothing here rests on a claim that can be checked against a source.' },
+          error: {
+            code: 'NO_CLAIMS',
+            message: trigger === 'question'
+              ? 'That question could not be broken into claims that can be checked against a source. Naming the place, the period, or the comparison usually fixes this.'
+              : 'Nothing here rests on a claim that can be checked against a source.',
+          },
         }, 422);
       }
       // The outline alone is not stored: it is cheap, it is half a record, and

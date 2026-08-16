@@ -7,6 +7,7 @@ import { makeAuthDb } from '../../../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
 import { handleMiniRequest } from '../../../../functions/_lib/premise/handler';
 import type { MiniDb } from '../../../../functions/_lib/premise/store';
+import { anonSessionGate, type AnonGate } from '../../../../functions/_lib/rate-limit';
 
 // The mini-briefing on command. Two depths, deliberately: 'outline' is the
 // ~5 second answer the reader starts on, 'full' is the ~35 second sourced one.
@@ -16,7 +17,29 @@ const provider = new GeminiProvider();
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const db = makeAuthDb(env.DB);
-  return handleMiniRequest(request, {
+
+  // The three-runs-per-session gate (free-tier decision, 2026-08-14) applies
+  // to QUESTION runs only, which come from the site's own pages. The extension
+  // paths keep their existing daily IP metering: putting them behind the
+  // session gate would change shipped extension behaviour as a rider on a site
+  // page, and that belongs to a deliberate extension release.
+  //
+  // The body is peeked from a clone because the handler reads the request
+  // stream itself. A use is committed only on a successful FULL run: the
+  // outline is a tenth of a cent, and one question costs one run, not two.
+  let peek: { trigger?: unknown; depth?: unknown } = {};
+  try { peek = await request.clone().json() as typeof peek; } catch { /* handler returns the 400 */ }
+
+  let gate: AnonGate | undefined;
+  if (peek.trigger === 'question') {
+    const session = await getSessionFromRequest(request, db);
+    if (!session) {
+      gate = await anonSessionGate(request, env.RATE_LIMIT);
+      if (gate.block) return gate.block;
+    }
+  }
+
+  const res = await handleMiniRequest(request, {
     provider,
     geminiApiKey: env.GEMINI_API_KEY,
     rateLimitKv: env.RATE_LIMIT,
@@ -26,6 +49,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     getSession: (req) => getSessionFromRequest(req, db).then((s) => (s ? { userId: s.user_id } : null)),
     waitUntil: deferrer(locals),
   });
+
+  // A use is a run, not an attempt, and for questions only the full run
+  // counts. The Set-Cookie for a newly minted anonymous id rides whichever
+  // response goes out, including the errors, so the session is stable from the
+  // visitor's first click.
+  if (gate && peek.depth === 'full' && res.status < 400) await gate.commit();
+  if (gate?.setCookie) res.headers.append('Set-Cookie', gate.setCookie);
+  return res;
 };
 
 /**
