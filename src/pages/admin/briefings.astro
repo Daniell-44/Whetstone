@@ -213,7 +213,7 @@ function when(s: string): string {
         <p class="sizetag">Every run</p>
         <table class="t runs">
           <thead>
-            <tr><th>When</th><th>Question</th><th>From</th><th class="n">Tier</th><th class="n">Claims</th><th class="n">Dropped</th><th class="n">Time</th><th class="n">Cost</th><th>Mark</th></tr>
+            <tr><th>When</th><th>Question</th><th>From</th><th class="n">Tier</th><th class="n">Claims</th><th class="n">Dropped</th><th class="n">Time</th><th class="n">Cost</th><th>Mark</th><th>Publish</th></tr>
           </thead>
           <tbody>
             {rows.map((r) => (
@@ -237,6 +237,17 @@ function when(s: string): string {
                         <button type="button" data-v="wrong">wrong</button>
                       </span>}
                 </td>
+                {/* Publishing puts a machine-made page on the public site
+                    under your masthead, so it is one deliberate press per
+                    run, never a batch action and never automatic. Runs with
+                    no surviving quote cannot be published at all. */}
+                <td class="pub" data-id={r.id}>
+                  {r.published
+                    ? <span class="pubbed"><a href={`/questions/${r.slug}`} target="_blank" rel="noopener noreferrer">live</a> <button type="button" data-act="unpublish">take down</button></span>
+                    : (r.kept_sources ?? 0) > 0
+                      ? <button type="button" data-act="publish">publish</button>
+                      : <span class="cant">no verified quote</span>}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -244,6 +255,12 @@ function when(s: string): string {
         <p class="note">
           Marking is the only accuracy data that will exist while you are the only user.
           Every wrong answer you notice and do not record is thrown away.
+        </p>
+        <p class="note">
+          Publishing sends a run to <a href="/questions">/questions</a> and the reader-question
+          shelf on the home page, tagged as machine-made and carrying no editor's view. Nothing
+          publishes itself: read the run first, because your masthead is on the page. Runs where
+          no quote survived both gates cannot be published at all.
         </p>
       </>
     )}
@@ -267,6 +284,37 @@ function when(s: string): string {
         body: JSON.stringify({ id, verdict }),
       }).catch(() => null);
       wrap.textContent = res && res.ok ? verdict.toUpperCase() : 'failed, try again';
+    });
+  });
+
+  // Publish / take down. The refusal reason is shown verbatim rather than a
+  // generic failure: "no quote survived both gates" and "the database refused
+  // the change" need completely different responses from you.
+  document.querySelectorAll('.pub button').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const cell = btn.closest('.pub') as HTMLElement | null;
+      const id = cell?.dataset.id;
+      const action = (btn as HTMLElement).dataset.act;
+      if (!id || !action || !cell) return;
+      const previous = cell.innerHTML;
+      cell.textContent = 'saving...';
+      const res = await fetch('/api/admin/mini-publish', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id, action }),
+      }).catch(() => null);
+      const data = res ? await res.json().catch(() => null) as { ok?: boolean; slug?: string; error?: string } | null : null;
+      if (data && data.ok) {
+        cell.innerHTML = action === 'publish' && data.slug
+          ? `<span class="pubbed"><a href="/questions/${data.slug}" target="_blank" rel="noopener noreferrer">live</a></span>`
+          : '<span class="cant">taken down</span>';
+        return;
+      }
+      cell.innerHTML = previous;
+      const why = document.createElement('span');
+      why.className = 'cant';
+      why.textContent = ` ${data?.error ?? 'failed'}`;
+      cell.appendChild(why);
     });
   });
 </script>
@@ -302,6 +350,10 @@ function when(s: string): string {
   .ad .v.wrong { color: var(--ox); font-weight: 700; }
   .ad .mark button { font-family: var(--mo); font-size: 10px; background: none; border: 1px solid var(--hh); border-radius: 3px; padding: 3px 6px; margin-right: 4px; cursor: pointer; color: var(--ii); }
   .ad .mark button:hover { border-color: var(--is); }
+  .ad .pub button { font-family: var(--mo); font-size: 10px; background: none; border: 1px solid var(--hh); border-radius: 3px; padding: 3px 6px; cursor: pointer; color: var(--ii); }
+  .ad .pub button:hover { border-color: var(--is); }
+  .ad .pub .pubbed a { font-family: var(--mo); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--is); font-weight: 700; margin-right: 6px; }
+  .ad .pub .cant { font-family: var(--mo); font-size: 10px; color: var(--mm); }
   @media (max-width: 900px) {
     .ad { padding: 20px 12px 60px; }
     .ad .t { display: block; overflow-x: auto; white-space: nowrap; }

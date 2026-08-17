@@ -86,10 +86,12 @@ describe('mini endpoint', () => {
     await handleMiniRequest(post({ text: LONG, trigger: 'article', depth: 'outline' }), deps({ rateLimitKv: kv }));
     expect(seen).toHaveLength(0);
 
-    const briefing = { tier: 'none', question: '', conclusion: '', premises: [], opposing: [], limits: [],
-      dropped: { unverified: 0, offClaim: 0 }, considered: [],
+    const briefing: MiniBriefing = {
+      tier: 'none', question: '', conclusion: '', premises: [], opposing: [], limits: [],
+      dropped: { unverified: 0, offClaim: 0 }, considered: [], attempts: [], fetchLedger: [],
       cost: { calls: 1, groundedCalls: 0, inputTokens: 0, outputTokens: 0, ms: 1 },
-      timing: { outlineMs: 1, totalMs: 1 } } as MiniBriefing;
+      timing: { outlineMs: 1, totalMs: 1 },
+    };
     await handleMiniRequest(post({ text: LONG, trigger: 'article', depth: 'full' }), deps({
       rateLimitKv: kv, runFull: async () => briefing,
     }));

@@ -1,0 +1,109 @@
+---
+export const prerender = false;
+
+/**
+ * One published reader question.
+ *
+ * Daniel, 2026-08-17: reader questions become "user generated briefings which
+ * can sit in the home page with a tag saying so", and "these wont have opinion
+ * pieces attatched to the end of them".
+ *
+ * THREE THINGS THIS PAGE IS BUILT TO KEEP STRAIGHT.
+ *
+ * It is not a briefing, and it never borrows the word. A briefing is
+ * hand-authored, carries an editor's view, and has been read by a person. This
+ * was produced by an engine in about a minute and nobody edited it. The tag
+ * says that at the top, in words, before the reader has invested anything.
+ *
+ * The missing editor's view is STATED. A reader who knows the hand-authored
+ * pages will reach the end and find a section absent; silence reads as an
+ * oversight, so the page says the absence is the rule.
+ *
+ * It renders the stored payload through MiniBriefingBody, the same component
+ * the live prompt box uses, with nothing re-run and nothing tidied. If this
+ * page could differ from the run it claims to be, the archive would be
+ * worthless as a record.
+ *
+ * NOINDEX, deliberately, pending Daniel's call. These are machine-made pages
+ * published at whatever rate readers ask questions, which is the exact shape
+ * search engines treat as scaled content abuse, and the site has an AdSense
+ * application riding on not looking like that. One line to reverse if he wants
+ * them indexed.
+ */
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import MiniBriefingBody from '../../components/premise/MiniBriefingBody';
+import { getPublishedQuestion } from '../../../functions/_lib/premise/publish';
+import type { MiniDb } from '../../../functions/_lib/premise/store';
+
+const { slug } = Astro.params;
+const item = slug ? await getPublishedQuestion(env.DB as unknown as MiniDb, slug) : null;
+if (!item || !item.briefing) {
+  return new Response('Not found', { status: 404 });
+}
+
+const asked = new Date(item.createdAt.replace(' ', 'T') + 'Z');
+const askedLabel = isNaN(asked.getTime())
+  ? ''
+  : asked.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<Base
+  title={`${item.question} - reader question - The Whetstone`}
+  description={item.conclusion ?? 'A reader question, answered by naming the claims the answer rests on and checking them against sources.'}
+  canonicalPath={`/questions/${item.slug}`}
+>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
+
+    {/* The tag, first, in words. A reader must know what this is before they
+        have read a sentence of it. */}
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4 font-mono text-[11px] uppercase tracking-[0.08em]">
+      <span class="text-ink-strong font-semibold border border-hairline px-1.5 py-0.5">Reader question</span>
+      <span class="text-muted">Machine-made · not edited by a person</span>
+      {askedLabel && <span class="text-muted">· asked {askedLabel}</span>}
+    </div>
+
+    <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-4">
+      {item.question}
+    </h1>
+
+    <p class="text-sm text-muted leading-relaxed mb-8 max-w-2xl">
+      A reader typed this question and our engine answered it the way it answers everything:
+      by naming the claims the answer rests on, then going and finding published sources that
+      contest them. Every quote below was checked word-for-word against the page it came from.
+      Nothing here was written or reviewed by an editor.
+    </p>
+
+    <div class="rounded-lg border border-hairline bg-surface p-4 sm:p-5 mb-8">
+      {/* The question is the H1 above; the body must not print it again. */}
+      <MiniBriefingBody briefing={item.briefing} showQuestion={false} />
+    </div>
+
+    {/* Daniel's rule, said out loud. The hand-authored briefings end with an
+        editor's view and a "why this might be wrong"; this page ends here, and
+        the reader is told that is deliberate rather than missing. */}
+    <div class="border-t border-hairline pt-5 mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">Where the editor's view would be</p>
+      <p class="text-sm text-ink leading-relaxed m-0">
+        There isn't one, and there will not be. Our hand-authored briefings end with an editor's
+        view and a note on why it might be wrong, because a person has read the argument and is
+        willing to be held to a position on it. Nobody has done that here, so putting an opinion
+        at the bottom would be claiming a judgement that was never made.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-4">
+      <a href="/creator/studio/cross-document" class="text-sm text-accent-support hover:underline">
+        Ask your own question
+      </a>
+      <a href="/questions" class="text-sm text-accent-support hover:underline">
+        All reader questions
+      </a>
+      <a href="/" class="text-sm text-accent-support hover:underline">
+        Our hand-authored briefings
+      </a>
+    </div>
+
+  </main>
+</Base>

@@ -281,6 +281,58 @@ describe('streamMiniBriefing staging', () => {
     expect(seen[1]).not.toContain('Do NOT answer the question');
   });
 
+  it('tells the reader about the claims it never researched', async () => {
+    // The reader is shown every claim the outline found. Researching two of
+    // four and saying nothing about the other two leaves them to guess whether
+    // the claims were checked and cleared or never looked at.
+    noSearchResults();
+    const provider = scripted({
+      analyze: {
+        question: 'q', conclusion: 'c',
+        claims: [
+          { claim: 'one', load: 'x' }, { claim: 'two', load: 'y' },
+          { claim: 'three', load: 'z' }, { claim: 'four', load: 'w' },
+        ],
+      },
+    });
+    let done: MiniEvent | undefined;
+    for await (const ev of streamMiniBriefing('text', { provider, apiKey: 'x', trigger: 'question' })) {
+      if (ev.type === 'done') done = ev;
+    }
+    if (done?.type !== 'done') throw new Error('expected a done event');
+    expect(done.briefing.limits.join(' ')).toContain('2 further claims were named but not researched');
+  });
+
+  it('says nothing about unresearched claims when there were none', async () => {
+    noSearchResults();
+    const provider = scripted({
+      analyze: { question: 'q', conclusion: 'c', claims: [{ claim: 'one', load: 'x' }] },
+    });
+    let done: MiniEvent | undefined;
+    for await (const ev of streamMiniBriefing('text', { provider, apiKey: 'x', trigger: 'question' })) {
+      if (ev.type === 'done') done = ev;
+    }
+    if (done?.type !== 'done') throw new Error('expected a done event');
+    expect(done.briefing.limits.join(' ')).not.toContain('not researched in this run');
+  });
+
+  it('describes the fallback as conflicting answers for a question, not opposing pieces', async () => {
+    // There is no piece to oppose when the input was a question. The sentence
+    // the reader sees has to match what was actually searched for.
+    noSearchResults();
+    const provider = scripted({ analyze: { question: 'q', conclusion: 'c', claims: [] } });
+    const limitsFor = async (trigger: 'article' | 'question') => {
+      let done: MiniEvent | undefined;
+      for await (const ev of streamMiniBriefing('text', { provider, apiKey: 'x', trigger })) {
+        if (ev.type === 'done') done = ev;
+      }
+      if (done?.type !== 'done') throw new Error('expected a done event');
+      return done.briefing.limits.join(' ');
+    };
+    expect(await limitsFor('question')).toContain('conflicting published answers');
+    expect(await limitsFor('article')).toContain('opposing pieces');
+  });
+
   it('still yields an outline when the model returns unparseable text', async () => {
     noSearchResults();
     const provider: LlmProvider = {

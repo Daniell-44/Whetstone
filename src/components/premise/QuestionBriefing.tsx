@@ -14,50 +14,30 @@
  * enforced at the API; this component's job is only to show the sign-in
  * message honestly when the cap answers 401.
  *
- * The rendering deliberately reuses the row grammar of the worked example on
- * the cross-document page: mono uppercase kickers, bg-paper rows, stance named
- * in words before any colour, quotes behind a left rule. Meaning never rides
- * on colour alone.
+ * The finished result renders through MiniBriefingBody, the same component the
+ * published reader-question page uses, so what a visitor watched appear live
+ * and what anyone later reads at a URL cannot drift apart.
  */
 import { useState } from 'preact/hooks';
-import type { MiniBriefing, MiniOutline, MiniSource, Stance } from '../../../functions/_lib/premise/mini';
+import type { ClientMiniBriefing, MiniOutline } from '../../../functions/_lib/premise/mini';
+import MiniBriefingBody from './MiniBriefingBody';
+import { briefingToMarkdown } from './markdown';
 import { track } from '../../lib/analytics/track';
 
 type Phase =
   | { status: 'idle' }
   | { status: 'outline' }
-  | { status: 'sourcing'; outline: MiniOutline }
-  | { status: 'done'; briefing: MiniBriefing }
-  | { status: 'signin'; message: string }
+  | { status: 'sourcing'; outline: MiniOutline; willResearch: number }
+  | { status: 'done'; briefing: ClientMiniBriefing }
+  | { status: 'held'; message: string }
   | { status: 'error'; message: string };
 
 const MIN_CHARS = 15;
 const MAX_CHARS = 300;
 
-/** The stance in words, always. The colour is a second channel, never the only one. */
-const STANCE_LABEL: Record<Stance, string> = {
-  contests: 'Contests',
-  complicates: 'Complicates',
-  supports: 'Supports',
-};
-const STANCE_CLASS: Record<Stance, string> = {
-  contests: 'text-spec-right',
-  complicates: 'text-muted',
-  supports: 'text-spec-left',
-};
-
-function hostOf(url: string | undefined): string {
-  if (!url) return '';
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return '';
-  }
-}
-
 type MiniApiResponse =
-  | { ok: true; depth: 'outline'; outline: MiniOutline }
-  | { ok: true; depth: 'full'; briefing: MiniBriefing }
+  | { ok: true; depth: 'outline'; outline: MiniOutline; willResearch: number }
+  | { ok: true; depth: 'full'; briefing: ClientMiniBriefing }
   | { ok: false; error: { code: string; message: string } };
 
 async function callMini(question: string, depth: 'outline' | 'full'): Promise<MiniApiResponse> {
@@ -70,93 +50,26 @@ async function callMini(question: string, depth: 'outline' | 'full'): Promise<Mi
 }
 
 /**
- * The briefing as markdown, for pasting anywhere.
+ * The waiting stage: what the engine thinks the question rests on, before any
+ * of it has been checked.
  *
- * House copy rules hold in the export too: no em dashes, stances written as
- * words, and the verification promise stated plainly at the end. The quotes
- * are reproduced exactly as verified; everything else is labelled as ours.
+ * DELIBERATELY NOT THE PREMISE GRAMMAR. The finished briefing renders premises
+ * in bordered bg-paper rows, and that treatment is the page's promise that
+ * something survived a source check. Nothing here has. Reading an article and
+ * naming its claims is reading; naming the claims under a bare question is
+ * recall, which is exactly what the research half exists to test. So this
+ * stage gets a plainer treatment and says outright that it is unchecked.
  */
-export function briefingToMarkdown(b: MiniBriefing): string {
-  const lines: string[] = [];
-  lines.push(`# ${b.question || 'Mini-briefing'}`);
-  lines.push('');
-  if (b.conclusion) {
-    lines.push(`What the answer turns on: ${b.conclusion}`);
-    lines.push('');
-  }
-
-  b.premises.forEach((p, i) => {
-    lines.push(`## Premise ${i + 1}: ${p.claim}`);
-    lines.push('');
-    if (p.load) {
-      lines.push(`Why it carries weight: ${p.load}`);
-      lines.push('');
-    }
-    for (const s of p.sources) {
-      lines.push(sourceLine(s));
-      lines.push('');
-    }
-    if (p.undisputed) {
-      lines.push('No published objection was found for this claim. That is not agreement; it may only mean nobody has written the objection down where this run could reach.');
-      lines.push('');
-    }
-  });
-
-  if (b.opposing.length > 0) {
-    lines.push('## Published disagreement');
-    lines.push('');
-    for (const s of b.opposing) {
-      lines.push(sourceLine(s));
-      lines.push('');
-    }
-  }
-
-  if (b.limits.length > 0) {
-    lines.push('## What this cannot promise');
-    lines.push('');
-    for (const l of b.limits) lines.push(`- ${l}`);
-    lines.push('');
-  }
-
-  lines.push('---');
-  lines.push('');
-  lines.push('Built with The Whetstone (https://thewhetstone.review/creator/studio/cross-document). Every quote above was checked word-for-word against its source page before it was shown; quotes that failed the check were dropped, not softened.');
-  return lines.join('\n');
-}
-
-function sourceLine(s: MiniSource): string {
-  const stance = STANCE_LABEL[s.stance ?? 'supports'];
-  const who = [s.who, s.publication].filter(Boolean).join(', ');
-  const url = s.resolvedUrl ?? s.url;
-  const quote = s.quote ? `"${s.quote}"` : s.position;
-  return `- ${stance}. ${who}: ${quote}${url ? ` (${url})` : ''}`;
-}
-
-/** One verified source, in the worked example's row grammar. */
-function SourceRow({ s }: { s: MiniSource }) {
-  const stance = s.stance ?? 'supports';
-  const url = s.resolvedUrl ?? s.url;
-  const host = hostOf(url);
-  return (
-    <div>
-      <p class={`font-mono text-[10px] font-bold uppercase tracking-[0.08em] ${STANCE_CLASS[stance]} m-0`}>
-        {STANCE_LABEL[stance]} · {s.who}{s.publication && s.publication !== s.who ? ` · ${s.publication}` : ''}
-      </p>
-      <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">
-        {s.quote ? <>&ldquo;{s.quote}&rdquo;</> : s.position}
-        {url && host && (
-          <>
-            {' '}
-            <a href={url} target="_blank" rel="noopener noreferrer" class="text-accent-support hover:underline">({host})</a>
-          </>
-        )}
-      </p>
-    </div>
-  );
-}
-
-/** The outline rows: shown alone while sourcing runs, then inside the result. */
-function OutlineRows({ outline, researching }: { outline: MiniOutline; researching: boolean }) {
+function OutlineRows({ outline, researched }: { outline: MiniOutline; researched: number }) {
+  const unresearched = Math.max(0, outline.claims.length - researched);
+  // Built as a string rather than inline JSX: interpolating conditional
+  // fragments between text nodes lets JSX insert its own whitespace, which put
+  // a space in front of a comma the first time this was written.
+  const progress =
+    `Now researching who contests ${researched === 1 ? 'the first claim' : `the first ${researched} claims`}` +
+    (unresearched > 0 ? ', and only those: each claim costs a live search' : '') +
+    '. Every quote is checked word-for-word against its source page before it is shown, ' +
+    'so this half takes about 40 seconds more.';
   return (
     <div class="space-y-4">
       <p class="font-serif text-lg text-ink-strong leading-snug m-0">{outline.question}</p>
@@ -167,96 +80,43 @@ function OutlineRows({ outline, researching }: { outline: MiniOutline; researchi
         </div>
       )}
       <div>
-        <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">The claims the answer rests on</p>
+        <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">
+          Unchecked so far · the claims the answer rests on
+        </p>
+        <p class="text-xs text-muted mb-2 m-0 leading-relaxed">
+          Nothing below has been checked against a source yet. This is the engine reading the
+          question, and it is the part most likely to be wrong.
+        </p>
         <div class="space-y-1.5">
           {outline.claims.map((c, i) => (
-            <div key={i} class="rounded border border-hairline bg-paper px-3 py-2">
-              <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Claim {i + 1}</p>
+            <div key={i} class="border-l-2 border-dashed border-hairline pl-3 py-0.5">
               <p class="text-sm text-ink m-0 leading-snug">{c.claim}</p>
-              {c.load && <p class="text-xs text-muted mt-1 m-0 leading-snug">{c.load}</p>}
+              {c.load && <p class="text-xs text-muted mt-0.5 m-0 leading-snug">{c.load}</p>}
             </div>
           ))}
         </div>
       </div>
-      {researching && (
-        <p class="text-xs text-muted m-0 leading-relaxed" role="status">
-          Now researching who contests each claim. Every quote is checked word-for-word against
-          its source page before it is shown, so this half takes about 30 seconds more.
-        </p>
-      )}
+      <p class="text-xs text-muted m-0 leading-relaxed" role="status">{progress}</p>
     </div>
   );
 }
 
-function BriefingResult({ briefing }: { briefing: MiniBriefing }) {
-  return (
-    <div class="space-y-4">
-      <p class="font-serif text-lg text-ink-strong leading-snug m-0">{briefing.question}</p>
-      {briefing.conclusion && (
-        <div>
-          <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">What the answer turns on</p>
-          <p class="text-sm text-ink m-0 leading-snug">{briefing.conclusion}</p>
-        </div>
-      )}
-
-      {briefing.premises.length > 0 && (
-        <div>
-          <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">The premises the answer rests on</p>
-          <div class="space-y-1.5">
-            {briefing.premises.map((p, i) => (
-              <div key={i} class="rounded border border-hairline bg-paper px-3 py-2.5">
-                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-muted m-0">Premise {i + 1}</p>
-                <p class="text-sm text-ink m-0 leading-snug">{p.claim}</p>
-                {p.load && <p class="text-xs text-muted mt-1 mb-2 leading-snug">{p.load}</p>}
-                {p.sources.length > 0 && (
-                  <div class="border-t border-dashed border-hairline pt-2 space-y-2">
-                    {p.sources.map((s, j) => <SourceRow key={j} s={s} />)}
-                  </div>
-                )}
-                {p.undisputed && (
-                  <p class="text-xs text-muted mt-2 m-0 leading-snug">
-                    No published objection was found for this claim. That is not agreement with it.
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {briefing.opposing.length > 0 && (
-        <div>
-          <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">Published disagreement</p>
-          <div class="rounded border border-hairline bg-paper px-3 py-2.5 space-y-2">
-            {briefing.opposing.map((s, j) => <SourceRow key={j} s={s} />)}
-          </div>
-        </div>
-      )}
-
-      {briefing.limits.length > 0 && (
-        <div>
-          <p class="font-mono text-[10px] uppercase tracking-[0.1em] text-muted mb-1.5">What this cannot promise</p>
-          <ul class="list-none p-0 m-0 space-y-1">
-            {briefing.limits.map((l, i) => (
-              <li key={i} class="text-xs text-muted leading-relaxed">{l}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <p class="text-xs text-muted m-0 leading-relaxed">
-        Everything in quotation marks above was checked word-for-word against its source page
-        during this run; the rest is reported in our words. Quotes that could not be verified
-        were dropped, not softened.
-      </p>
-    </div>
-  );
+/**
+ * A quota is not a fault. Hitting the session cap or the daily cap means the
+ * tool worked and there is a limit, so it gets the calm box; only something
+ * that actually went wrong gets the red one.
+ */
+function phaseForError(error: { code: string; message: string }): Phase {
+  return error.code === 'SIGNIN_REQUIRED' || error.code === 'RATE_LIMITED'
+    ? { status: 'held', message: error.message }
+    : { status: 'error', message: error.message };
 }
 
 export default function QuestionBriefing() {
   const [question, setQuestion] = useState('');
   const [phase, setPhase] = useState<Phase>({ status: 'idle' });
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   const trimmed = question.trim();
   const running = phase.status === 'outline' || phase.status === 'sourcing';
@@ -272,22 +132,18 @@ export default function QuestionBriefing() {
     try {
       const first = await callMini(trimmed, 'outline');
       if (!first.ok) {
-        setPhase(first.error.code === 'SIGNIN_REQUIRED'
-          ? { status: 'signin', message: first.error.message }
-          : { status: 'error', message: first.error.message });
+        setPhase(phaseForError(first.error));
         return;
       }
       if (first.depth !== 'outline') {
         setPhase({ status: 'error', message: 'The run came back in the wrong shape. Try again.' });
         return;
       }
-      setPhase({ status: 'sourcing', outline: first.outline });
+      setPhase({ status: 'sourcing', outline: first.outline, willResearch: first.willResearch });
 
       const second = await callMini(trimmed, 'full');
       if (!second.ok) {
-        setPhase(second.error.code === 'SIGNIN_REQUIRED'
-          ? { status: 'signin', message: second.error.message }
-          : { status: 'error', message: second.error.message });
+        setPhase(phaseForError(second.error));
         return;
       }
       if (second.depth !== 'full') {
@@ -308,11 +164,15 @@ export default function QuestionBriefing() {
   async function copyMarkdown() {
     if (phase.status !== 'done') return;
     const md = briefingToMarkdown(phase.briefing);
+    let ok = true;
     try {
       await navigator.clipboard.writeText(md);
     } catch {
       // Clipboard API refused (permissions, older browser): fall back to a
-      // transient textarea and the legacy copy command.
+      // transient textarea and the legacy copy command. Its return value is
+      // the only signal that the fallback worked, so claiming "Copied"
+      // without reading it would be the button lying about the one thing it
+      // does.
       const ta = document.createElement('textarea');
       ta.value = md;
       ta.setAttribute('readonly', '');
@@ -320,8 +180,13 @@ export default function QuestionBriefing() {
       ta.style.left = '-9999px';
       document.body.appendChild(ta);
       ta.select();
-      document.execCommand('copy');
+      try { ok = document.execCommand('copy'); } catch { ok = false; }
       document.body.removeChild(ta);
+    }
+    if (!ok) {
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 6000);
+      return;
     }
     setCopied(true);
     track('question_briefing_copied', {});
@@ -334,14 +199,27 @@ export default function QuestionBriefing() {
         <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted m-0">
           Ask your own question
         </p>
-        <p class="font-mono text-[11px] text-muted m-0">live, about 40 seconds</p>
+        {/* About a minute, not the 40 seconds the research itself takes: the
+            second request re-reads the question server-side rather than
+            trusting a client-supplied outline, so the reader waits for both
+            halves. Better to name the wait they actually get. */}
+        <p class="font-mono text-[11px] text-muted m-0">live, about a minute</p>
       </div>
 
       <div class="p-4 space-y-4">
         <p class="text-sm text-muted m-0 leading-relaxed">
-          Type a contested question. The engine names the claims the answer rests on, then
-          researches who contests each one, quoting only what it can verify word-for-word at
-          the source.
+          Type a contested question. The engine names the claims the answer rests on, researches
+          the first two, and quotes only what it can verify word-for-word at the source.
+        </p>
+
+        {/* Said BEFORE they type, not after they have a result. Every run is
+            stored, and a good one may be published at /questions with the
+            question in it, so a visitor has to know that while they still get
+            to choose what they ask. */}
+        <p class="text-xs text-muted m-0 leading-relaxed">
+          Every run is kept so we can see where the engine goes wrong, and we may publish a good
+          one, question included, on our <a href="/questions" class="text-accent-support hover:underline">reader questions</a> page.
+          Nothing publishes automatically. Do not type anything you would not want read.
         </p>
 
         <form
@@ -359,8 +237,11 @@ export default function QuestionBriefing() {
             class="w-full rounded-md border border-hairline px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
           />
           <div class="flex flex-wrap items-center gap-3">
+            {/* Why the button is dead, said before they have to wonder. */}
             <p class="text-xs text-muted m-0">
-              Free. Three runs per browser session, then sign-in (also free).
+              {trimmed.length > 0 && trimmed.length < MIN_CHARS
+                ? 'Type the whole question, including what is being compared and where.'
+                : 'Free. Three runs per browser session, then sign-in (also free).'}
             </p>
             <button
               type="submit"
@@ -382,9 +263,11 @@ export default function QuestionBriefing() {
           </p>
         )}
 
-        {phase.status === 'sourcing' && <OutlineRows outline={phase.outline} researching={true} />}
+        {phase.status === 'sourcing' && (
+          <OutlineRows outline={phase.outline} researched={phase.willResearch} />
+        )}
 
-        {phase.status === 'signin' && (
+        {phase.status === 'held' && (
           <div class="rounded border border-hairline bg-paper px-3 py-2.5">
             <p class="text-sm text-ink m-0 leading-snug">{phase.message}</p>
             <p class="text-xs text-muted mt-1 m-0">
@@ -401,10 +284,12 @@ export default function QuestionBriefing() {
 
         {phase.status === 'done' && (
           <div class="border-t border-hairline pt-4 space-y-4">
-            <BriefingResult briefing={phase.briefing} />
+            <MiniBriefingBody briefing={phase.briefing} />
             <div class="flex flex-wrap items-center gap-3">
               <p class="text-xs text-muted m-0">
-                This result is not saved to an account. Copy it before you leave.
+                {copyFailed
+                  ? 'This browser blocked the copy. Select the briefing above and copy it by hand.'
+                  : 'This result is not saved to an account. Copy it before you leave.'}
               </p>
               <button
                 type="button"

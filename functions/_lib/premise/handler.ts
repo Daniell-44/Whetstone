@@ -15,7 +15,7 @@
  *
  * Every run is stored. See store.ts for why the DROPS are stored too.
  */
-import { extractOutline, buildMiniBriefing, type MiniOutline, type MiniBriefing, type MiniTrigger } from './mini';
+import { extractOutline, buildMiniBriefing, forClient, researchBudget, type MiniOutline, type ClientMiniBriefing, type MiniTrigger } from './mini';
 import { saveMiniBriefing, newMiniId, type MiniDb } from './store';
 import { checkAndIncrementQuota, type RateLimitKV } from '../rate-limit';
 import type { LlmProvider } from '../providers/types';
@@ -47,8 +47,13 @@ export interface MiniHandlerDeps {
 }
 
 export type MiniResponse =
-  | { ok: true; depth: 'outline'; id: string | null; outline: MiniOutline; ms: number }
-  | { ok: true; depth: 'full'; id: string | null; briefing: MiniBriefing }
+  // `willResearch` is how many of these claims the full run will actually
+  // reach. Sent because the reader is shown every claim here and would
+  // otherwise be left to work out on their own where the rest went.
+  | { ok: true; depth: 'outline'; id: string | null; outline: MiniOutline; willResearch: number; ms: number }
+  // Projected, never the raw briefing: see forClient() for the three fields
+  // that must not reach a browser.
+  | { ok: true; depth: 'full'; id: string | null; briefing: ClientMiniBriefing }
   | { ok: false; error: { code: string; message: string } };
 
 function json(body: MiniResponse, status = 200): Response {
@@ -139,7 +144,11 @@ export async function handleMiniRequest(request: Request, deps: MiniHandlerDeps)
       // The outline alone is not stored: it is cheap, it is half a record, and
       // a table full of half-records makes every trend query say "it depends".
       // The full run stores the outline inside its payload.
-      return json({ ok: true, depth: 'outline', id: null, outline: r.outline, ms });
+      return json({
+        ok: true, depth: 'outline', id: null, outline: r.outline,
+        willResearch: researchBudget(trigger, r.outline.claims.length),
+        ms,
+      });
     }
 
     const briefing = await (deps.runFull ?? buildMiniBriefing)(text.slice(0, MAX_INPUT_CHARS), miniDeps);
@@ -161,7 +170,8 @@ export async function handleMiniRequest(request: Request, deps: MiniHandlerDeps)
       if (deps.waitUntil) deps.waitUntil(save);
       else await save;
     }
-    return json({ ok: true, depth: 'full', id, briefing });
+    // The store gets everything; the browser gets the projection.
+    return json({ ok: true, depth: 'full', id, briefing: forClient(briefing) });
   } catch (e) {
     console.error('mini: run failed', e);
     return json({ ok: false, error: { code: 'RUN_FAILED', message: 'The briefing could not be built. Try again.' } }, 502);

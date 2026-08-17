@@ -5,15 +5,27 @@ import { env } from 'cloudflare:workers';
 import { GeminiProvider } from '../../../../functions/_lib/providers/gemini';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
-import { handleMiniRequest } from '../../../../functions/_lib/premise/handler';
+import { handleMiniRequest, MAX_QUESTION_CHARS } from '../../../../functions/_lib/premise/handler';
 import type { MiniDb } from '../../../../functions/_lib/premise/store';
-import { anonSessionGate, type AnonGate } from '../../../../functions/_lib/rate-limit';
+import { anonSessionGate, shouldCommitAnonUse, type AnonGate } from '../../../../functions/_lib/rate-limit';
 
 // The mini-briefing on command. Two depths, deliberately: 'outline' is the
 // ~5 second answer the reader starts on, 'full' is the ~35 second sourced one.
 // See functions/_lib/premise/handler.ts for why this is two requests and not
 // a stream.
 const provider = new GeminiProvider();
+
+/**
+ * Bodies larger than this cannot be a question, so they never need peeking.
+ *
+ * The peek exists only to spot the question trigger, and a question is capped
+ * at MAX_QUESTION_CHARS. Anything bigger is an extension article body (up to
+ * 40KB), and buffering plus parsing one of those on every call to read two
+ * fields is work done for an answer already known. Generous headroom over the
+ * question cap so JSON overhead and a long URL or title can never push a real
+ * question past it.
+ */
+const QUESTION_BODY_CEILING = MAX_QUESTION_CHARS * 4;
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const db = makeAuthDb(env.DB);
@@ -25,18 +37,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // page, and that belongs to a deliberate extension release.
   //
   // The body is peeked from a clone because the handler reads the request
-  // stream itself. A use is committed only on a successful FULL run: the
-  // outline is a tenth of a cent, and one question costs one run, not two.
+  // stream itself. Keyed off the body rather than a header: a header saying
+  // "this is a question" could simply be left off to skip the gate.
+  const declaredLength = Number(request.headers.get('content-length') ?? '0');
   let peek: { trigger?: unknown; depth?: unknown } = {};
-  try { peek = await request.clone().json() as typeof peek; } catch { /* handler returns the 400 */ }
+  if (!declaredLength || declaredLength <= QUESTION_BODY_CEILING) {
+    try { peek = await request.clone().json() as typeof peek; } catch { /* handler returns the 400 */ }
+  }
+
+  // Resolved once and handed to the handler, rather than letting the handler
+  // re-query D1 for the session it was just asked about.
+  const session = peek.trigger === 'question' ? await getSessionFromRequest(request, db) : undefined;
 
   let gate: AnonGate | undefined;
-  if (peek.trigger === 'question') {
-    const session = await getSessionFromRequest(request, db);
-    if (!session) {
-      gate = await anonSessionGate(request, env.RATE_LIMIT);
-      if (gate.block) return gate.block;
-    }
+  if (peek.trigger === 'question' && !session) {
+    gate = await anonSessionGate(request, env.RATE_LIMIT);
+    if (gate.block) return gate.block;
   }
 
   const res = await handleMiniRequest(request, {
@@ -46,7 +62,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     db: env.DB as unknown as MiniDb,
     dailyCap: parseInt(env.AUDIT_DAILY_CAP ?? '10', 10),
     userDailyCap: parseInt(env.AUDIT_USER_DAILY_CAP ?? '50', 10),
-    getSession: (req) => getSessionFromRequest(req, db).then((s) => (s ? { userId: s.user_id } : null)),
+    getSession: session !== undefined
+      ? async () => (session ? { userId: session.user_id } : null)
+      : (req) => getSessionFromRequest(req, db).then((s) => (s ? { userId: s.user_id } : null)),
     waitUntil: deferrer(locals),
   });
 
@@ -54,7 +72,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // counts. The Set-Cookie for a newly minted anonymous id rides whichever
   // response goes out, including the errors, so the session is stable from the
   // visitor's first click.
-  if (gate && peek.depth === 'full' && res.status < 400) await gate.commit();
+  if (gate && shouldCommitAnonUse(peek.depth, res.status)) await gate.commit();
   if (gate?.setCookie) res.headers.append('Set-Cookie', gate.setCookie);
   return res;
 };

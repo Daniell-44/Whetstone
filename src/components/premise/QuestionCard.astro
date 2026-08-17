@@ -1,0 +1,52 @@
+---
+/**
+ * A published reader question, at feed size.
+ *
+ * DELIBERATELY NOT BriefingCard. That component renders a hand-authored
+ * briefing: category kicker, position spectrum, audit signature, source count.
+ * A reader question has none of those things, and dressing it in that card
+ * would make the two indistinguishable at a glance on the very surface where
+ * the difference matters most. This card is plainer than a briefing card on
+ * purpose, and it leads with what it is rather than with its headline.
+ *
+ * Rule 13: this displaces nothing. It is the only rendering of a reader
+ * question at feed size, used by both the home-page shelf and /questions.
+ */
+import type { PublishedQuestion } from '../../../functions/_lib/premise/publish';
+
+interface Props {
+  item: PublishedQuestion;
+}
+const { item } = Astro.props;
+
+// The count the reader actually cares about: how much of this was checked. A
+// verified quote matched its source page character for character AND was
+// judged to be about the claim. It arrives already counted, because the feed
+// query does not fetch payloads: an earlier version recomputed it from
+// `item.briefing`, which is null on that path, so every card in the feed
+// claimed zero verified quotes while the page behind it showed one.
+const verified = item.verifiedQuotes;
+---
+<a
+  href={`/questions/${item.slug}`}
+  class="group block bg-surface border border-hairline hover:border-ink-strong/30 hover:shadow-sm transition-all p-4 sm:p-5"
+>
+  <div class="flex items-center gap-2 mb-2 flex-wrap font-mono text-[11px] uppercase tracking-[0.08em]">
+    <span class="text-ink-strong font-semibold">Reader question</span>
+    <span class="text-muted">· machine-made, not edited</span>
+  </div>
+
+  <h3 class="font-serif text-base sm:text-lg text-ink-strong group-hover:text-accent-support transition-colors leading-snug mb-2">
+    {item.question}
+  </h3>
+
+  {item.conclusion && (
+    <p class="text-sm text-ink leading-relaxed line-clamp-2 mb-2">
+      <span class="font-semibold text-muted">What it turns on</span>: {item.conclusion}
+    </p>
+  )}
+
+  <p class="font-mono text-[10px] uppercase tracking-[0.08em] text-muted m-0">
+    {item.premiseCount} claim{item.premiseCount === 1 ? '' : 's'} checked · {verified} verified quote{verified === 1 ? '' : 's'}
+  </p>
+</a>

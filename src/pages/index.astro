@@ -1,8 +1,12 @@
 ---
 export const prerender = false;
 
+import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
 import BriefingCard from '../components/briefing/BriefingCard.astro';
+import QuestionCard from '../components/premise/QuestionCard.astro';
+import { listPublishedQuestions } from '../../functions/_lib/premise/publish';
+import type { MiniDb } from '../../functions/_lib/premise/store';
 import { getLiveBriefings, getAllBriefings } from '../lib/briefings';
 import EmailCapture from '../components/capture/EmailCapture';
 import { featured } from '../data/featured';
@@ -77,6 +81,12 @@ const feedGroups = qualifyingFeedGroups(briefings.map((b) => b.category));
 // A filter with fewer than 2 qualifying groups can't split the feed, so the
 // whole filter UI (rail nav + mobile chip strip) is hidden.
 const showFeedFilter = feedGroups.length >= 2;
+
+// Published reader questions for the shelf near the foot of the page. The
+// helper already swallows its own database errors and returns an empty list,
+// which is the behaviour that matters here: the home page must render even if
+// the mini-briefing tables are unreachable.
+const readerQuestions = await listPublishedQuestions(env.DB as unknown as MiniDb, 3);
 ---
 <Base
   title="The Whetstone: arguments, examined"
@@ -323,6 +333,32 @@ const showFeedFilter = feedGroups.length >= 2;
         </div>
       )}
     </section>
+
+    {/* Reader questions (Daniel, 2026-08-17): questions readers typed into the
+        prompt box, answered by the same engine and published by hand. They sit
+        BELOW the essays and in their own shelf rather than in the briefings
+        mosaic above, because the difference between "an editor wrote and
+        stands behind this" and "a machine assembled this in a minute" is the
+        one distinction this publication cannot afford to blur. The shelf only
+        renders when something is published; nothing publishes itself, so an
+        empty placeholder here would be advertising a room with no door. */}
+    {readerQuestions.length > 0 && (
+      <section id="reader-questions" class="scroll-mt-20 mt-16">
+        <div class="flex items-center gap-4 mb-3 sm:mb-4">
+          <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Reader questions</h2>
+          <div class="h-px flex-1 bg-hairline" />
+          <a href="/questions" class="font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support hover:underline shrink-0">All</a>
+        </div>
+        <p class="text-sm text-muted leading-relaxed max-w-3xl mb-6">
+          Readers ask, the engine answers: it names the claims the answer rests on, then finds
+          published sources that contest them, quoting only what it can check word-for-word.
+          These are machine-made and no editor has read them, so they carry no opinion at the end.
+        </p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {readerQuestions.map((q) => <QuestionCard item={q} />)}
+        </div>
+      </section>
+    )}
 
     <style>
       /* Category-filter controls (rail + mobile strip). Active state is driven by
