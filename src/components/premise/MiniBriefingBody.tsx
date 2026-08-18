@@ -1,38 +1,46 @@
 /**
  * How a mini-briefing reads, in one place.
  *
- * Two surfaces render this: the live prompt box on the cross-document page
+ * Two surfaces render this: the live question box at /audit?mode=question
  * (hydrated, mid-run) and the published reader-question page (server-rendered,
  * no JavaScript). They must not drift, because the whole claim being made is
  * that the thing you were shown live is the thing that got published.
  *
- * The row grammar is the worked example's: mono uppercase kickers, bg-paper
- * rows, quotes behind a left rule. Stance is named in words first and coloured
- * second, so nothing here depends on telling two hues apart.
+ * The row grammar is the cross-document worked example's: mono uppercase
+ * kickers, bg-paper rows, quotes behind a left rule. Stance is named in words
+ * first, so nothing here depends on telling two hues apart.
  */
 import type { ClientMiniBriefing, MiniSource, Stance } from '../../../functions/_lib/premise/mini';
 
-/** The stance in words, always. The colour is a second channel, never the only one. */
+/** The stance in words, always. Since the de-hue below, the word IS the channel. */
 export const STANCE_LABEL: Record<Stance, string> = {
   contests: 'Contests',
   complicates: 'Complicates',
   supports: 'Supports',
 };
 
-// Matches the worked example directly above the prompt box, which is what
-// makes the two read as one grammar.
+// Matches the cross-document worked example, which is what makes a briefing
+// read the same whether the engine was handed documents or a bare question.
 //
-// DEBT, recorded rather than fixed here: `spec-left`/`spec-right` mean the
-// SOURCE SPECTRUM everywhere else on the site (left to right politically), and
-// a source that contests a claim is not thereby right-of-centre. The worked
-// example set this and these components now follow it. The fix is one
-// stance-specific token pair applied everywhere at once; diverging here alone
-// would leave two grammars on one page, which is worse for the reader than the
-// collision. Rule 11 holds regardless: the word leads, the colour only follows.
+// STANCE TAKES NO HUE, and this is deliberate rather than a shortage of ideas.
+//
+// It used to borrow `spec-left`/`spec-right`, which mean the SOURCE SPECTRUM
+// everywhere else on the site: left to right, politically. A source that
+// contests a claim is not thereby right-of-centre, so on any page carrying both
+// a spectrum and a stance chip the same hue said two different things. For a
+// colourblind reader that is worse than no colour at all, because the redundant
+// channel becomes a false signal: the whole point of the redundancy is that it
+// agrees with the word, and here it disagreed.
+//
+// Every hue in this palette is already spoken for. Redline is reserved for
+// engine detections, drafting blue is the left pole and interaction, oxide is
+// the right pole. So stance is marked by WEIGHT and TONE instead, and keeps
+// three honest channels: the word first, position second (dispute always
+// leads), weight third. Daniel, 2026-08-17: weight and tone, no hue.
 const STANCE_CLASS: Record<Stance, string> = {
-  contests: 'text-spec-right',
-  complicates: 'text-muted',
-  supports: 'text-spec-left',
+  contests: 'text-ink-strong font-bold',
+  complicates: 'text-ink',
+  supports: 'text-muted',
 };
 
 export function hostOf(url: string | undefined): string {

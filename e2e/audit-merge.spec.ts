@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-// The merged Read/Create surface at /audit ("Workbench + satellites",
-// adjudicated 2026-07-13, shipped 2026-07-19). The mode switch is SERVER-side
-// (?mode=create renders a different island), so all three checks assert
-// server-rendered structure - zero LLM cost, no route mocks needed.
+// The merged Read/Create/Ask surface at /audit ("Workbench + satellites",
+// adjudicated 2026-07-13, shipped 2026-07-19; Ask joined 2026-08-17). The mode
+// switch is SERVER-side (?mode= renders a different island), so every check
+// asserts server-rendered structure - zero LLM cost, no route mocks needed.
 
 test('read mode: segmented control renders with Read active + audit textarea', async ({ page }) => {
   await page.goto('/audit');
@@ -31,6 +31,34 @@ test('create mode signed-out: editor renders with a keep-your-work sign-in line'
   // free without an account; saving is the only thing that asks to sign in).
   await expect(page.locator('textarea').first()).toBeVisible();
   await expect(page.getByRole('link', { name: /sign in free to keep this draft/i })).toBeVisible();
+});
+
+test('question mode: the Ask tab is reachable from the default view and renders the box', async ({ page }) => {
+  // The third way in has to be findable from where visitors actually land, so
+  // the check starts on the default view and clicks rather than deep-linking.
+  await page.goto('/audit');
+
+  const modeNav = page.locator('nav[aria-label="Audit mode"]');
+  const askTab = modeNav.getByRole('link', { name: /ask/i });
+  await expect(askTab).toBeVisible();
+  await askTab.click();
+
+  await expect(page).toHaveURL(/\/audit\?mode=question$/);
+  await expect(modeNav.getByRole('link', { name: /ask/i })).toHaveAttribute('aria-current', 'page');
+
+  // The question field, and the run control that only an explicit click fires.
+  const field = page.getByLabel('Your contested question');
+  await expect(field).toBeVisible();
+  const run = page.getByRole('button', { name: /build the briefing for this question/i });
+  await expect(run).toBeDisabled();
+
+  // 15 characters is the floor; below it the button stays dead and says why.
+  await field.fill('too short');
+  await expect(run).toBeDisabled();
+  await expect(page.getByText(/type the whole question/i)).toBeVisible();
+
+  await field.fill('Is nuclear cheaper than renewables for Australia?');
+  await expect(run).toBeEnabled();
 });
 
 test('/creator/studio redirects into the merged surface, preserving ?doc=', async ({ page }) => {

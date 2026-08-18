@@ -8,6 +8,14 @@
  * checked word-for-word against their pages. The staging exists so the reader
  * has something to read while the expensive half runs.
  *
+ * WHERE THIS LIVES. /audit?mode=question, alongside Read and Create, since
+ * 2026-08-17. It was first proposed on the cross-document page, but /audit is
+ * the single door to the tool, and a question is simply a third way in beside
+ * pasting a draft and pasting a URL. The page owns the heading and the
+ * explanation of what a run returns, the same way it does for the other two
+ * modes; this component owns the field, the disclosure a visitor needs before
+ * typing, and the result.
+ *
  * The run starts only on an explicit click: a full run does live research and
  * costs real money, so nothing fires on typing or paste. Anonymous visitors
  * get three full runs per browser session (the 2026-08-14 free-tier decision),
@@ -194,38 +202,24 @@ export default function QuestionBriefing() {
   }
 
   return (
-    <section class="rounded-lg border border-hairline bg-surface overflow-hidden">
-      <div class="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-hairline">
-        <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted m-0">
-          Ask your own question
-        </p>
-        {/* About a minute, not the 40 seconds the research itself takes: the
-            second request re-reads the question server-side rather than
-            trusting a client-supplied outline, so the reader waits for both
-            halves. Better to name the wait they actually get. */}
-        <p class="font-mono text-[11px] text-muted m-0">live, about a minute</p>
-      </div>
+    <div class="space-y-4">
 
-      <div class="p-4 space-y-4">
-        <p class="text-sm text-muted m-0 leading-relaxed">
-          Type a contested question. The engine names the claims the answer rests on, researches
-          the first two, and quotes only what it can verify word-for-word at the source.
-        </p>
+      {/* Said BEFORE they type, not after they have a result. Every run is
+          stored, and a good one may be published at /questions with the
+          question in it, so a visitor has to know that while they still get
+          to choose what they ask. */}
+      <p class="text-xs text-muted m-0 leading-relaxed">
+        Every run is kept so we can see where the engine goes wrong, and we may publish a good
+        one, question included, on our <a href="/questions" class="text-accent-support hover:underline">reader questions</a> page.
+        Nothing publishes automatically. Do not type anything you would not want read.
+      </p>
 
-        {/* Said BEFORE they type, not after they have a result. Every run is
-            stored, and a good one may be published at /questions with the
-            question in it, so a visitor has to know that while they still get
-            to choose what they ask. */}
-        <p class="text-xs text-muted m-0 leading-relaxed">
-          Every run is kept so we can see where the engine goes wrong, and we may publish a good
-          one, question included, on our <a href="/questions" class="text-accent-support hover:underline">reader questions</a> page.
-          Nothing publishes automatically. Do not type anything you would not want read.
-        </p>
-
-        <form
-          class="space-y-2"
-          onSubmit={(e) => { e.preventDefault(); run(); }}
-        >
+      <form class="space-y-3" onSubmit={(e) => { e.preventDefault(); run(); }}>
+        {/* The Reader's field, deliberately: this mode is a third way through
+            the same door, so it must not look like a separate tool bolted to
+            the side of the page. Same rounded field on bg-surface, same inline
+            run control in the corner rather than a CTA of its own. */}
+        <div class="relative">
           <input
             type="text"
             value={question}
@@ -234,74 +228,99 @@ export default function QuestionBriefing() {
             maxLength={MAX_CHARS}
             disabled={running}
             aria-label="Your contested question"
-            class="w-full rounded-md border border-hairline px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none focus:ring-1 focus:ring-accent"
+            class="w-full min-h-[56px] rounded-xl border border-hairline bg-surface pl-4 pr-28 py-3 text-base sm:text-sm text-ink placeholder-muted leading-relaxed focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
           />
-          <div class="flex flex-wrap items-center gap-3">
-            {/* Why the button is dead, said before they have to wonder. */}
+          {/* The label stays short because it sits inside the field. What the
+              click actually starts is spelled out in the accessible name and
+              in the status line below, which is also where the two stages get
+              named once the run is going. */}
+          <button
+            type="submit"
+            disabled={!canRun}
+            aria-label="Build the briefing for this question"
+            title="Build the briefing for this question"
+            class={`absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 min-h-11 px-4 rounded-lg text-sm font-semibold transition-colors ${
+              canRun ? 'bg-accent-support text-paper hover:bg-accent-support/90' : 'bg-hairline/50 text-muted cursor-not-allowed'
+            }`}
+          >
+            {running ? (
+              <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <>
+                Ask
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* The Reader's hint row: why the button is dead on the left, the
+            character budget on the right. Both are words and numbers, so a
+            reader who cannot separate two hues loses nothing. */}
+        <div class="flex justify-between gap-3 text-xs">
+          <span class="text-muted">
+            {trimmed.length > 0 && trimmed.length < MIN_CHARS
+              ? 'Type the whole question, including what is being compared and where.'
+              : 'Free. Three runs per browser session, then sign-in (also free).'}
+          </span>
+          <span class="text-muted shrink-0">{question.length} / {MAX_CHARS}</span>
+        </div>
+      </form>
+
+      {phase.status === 'outline' && (
+        <p class="text-xs text-muted m-0 leading-relaxed" role="status">
+          Reading the question and naming the claims the answer rests on. About five seconds.
+        </p>
+      )}
+
+      {/* Mid-run and finished results sit on the same raised panel the Reader
+          gives its own results, so the page reads as one instrument whichever
+          way in was used. */}
+      {phase.status === 'sourcing' && (
+        <div class="rounded-lg border border-hairline bg-surface p-4">
+          <OutlineRows outline={phase.outline} researched={phase.willResearch} />
+        </div>
+      )}
+
+      {phase.status === 'held' && (
+        <div class="rounded-lg border border-hairline bg-paper px-4 py-3">
+          <p class="text-sm text-ink m-0 leading-snug">{phase.message}</p>
+          <p class="text-xs text-muted mt-1 m-0">
+            <a href="/login" class="text-accent-support hover:underline">Sign in</a> takes a minute and stays free.
+          </p>
+        </div>
+      )}
+
+      {phase.status === 'error' && (
+        <div class="rounded-xl bg-accent/5 border border-accent/30 p-4">
+          <p class="text-sm text-accent m-0">{phase.message}</p>
+        </div>
+      )}
+
+      {phase.status === 'done' && (
+        <div class="rounded-lg border border-hairline bg-surface p-4 space-y-4">
+          <MiniBriefingBody briefing={phase.briefing} />
+          <div class="flex flex-wrap items-center gap-3 border-t border-hairline pt-4">
             <p class="text-xs text-muted m-0">
-              {trimmed.length > 0 && trimmed.length < MIN_CHARS
-                ? 'Type the whole question, including what is being compared and where.'
-                : 'Free. Three runs per browser session, then sign-in (also free).'}
+              {copyFailed
+                ? 'This browser blocked the copy. Select the briefing above and copy it by hand.'
+                : 'This result is not saved to an account. Copy it before you leave.'}
             </p>
             <button
-              type="submit"
-              disabled={!canRun}
-              class={`ml-auto py-2 px-5 rounded-xl text-sm font-semibold transition-colors ${
-                canRun ? 'bg-accent-support text-white hover:bg-accent-support/90' : 'bg-hairline/40 text-muted cursor-not-allowed'
-              }`}
+              type="button"
+              onClick={copyMarkdown}
+              class="ml-auto py-2 px-5 rounded-lg text-sm font-semibold border border-hairline text-ink hover:bg-paper transition-colors"
             >
-              {phase.status === 'outline' ? 'Reading the question…'
-                : phase.status === 'sourcing' ? 'Sourcing quotes…'
-                : 'Build the briefing'}
+              {copied ? 'Copied' : 'Copy as markdown'}
             </button>
           </div>
-        </form>
-
-        {phase.status === 'outline' && (
-          <p class="text-xs text-muted m-0 leading-relaxed" role="status">
-            Naming the claims the answer rests on. About five seconds.
-          </p>
-        )}
-
-        {phase.status === 'sourcing' && (
-          <OutlineRows outline={phase.outline} researched={phase.willResearch} />
-        )}
-
-        {phase.status === 'held' && (
-          <div class="rounded border border-hairline bg-paper px-3 py-2.5">
-            <p class="text-sm text-ink m-0 leading-snug">{phase.message}</p>
-            <p class="text-xs text-muted mt-1 m-0">
-              <a href="/login" class="text-accent-support hover:underline">Sign in</a> takes a minute and stays free.
-            </p>
-          </div>
-        )}
-
-        {phase.status === 'error' && (
-          <div class="rounded-xl bg-red-50 border border-red-200 p-4">
-            <p class="text-sm text-red-700 m-0">{phase.message}</p>
-          </div>
-        )}
-
-        {phase.status === 'done' && (
-          <div class="border-t border-hairline pt-4 space-y-4">
-            <MiniBriefingBody briefing={phase.briefing} />
-            <div class="flex flex-wrap items-center gap-3">
-              <p class="text-xs text-muted m-0">
-                {copyFailed
-                  ? 'This browser blocked the copy. Select the briefing above and copy it by hand.'
-                  : 'This result is not saved to an account. Copy it before you leave.'}
-              </p>
-              <button
-                type="button"
-                onClick={copyMarkdown}
-                class="ml-auto py-2 px-5 rounded-xl text-sm font-semibold border border-hairline text-ink hover:bg-paper transition-colors"
-              >
-                {copied ? 'Copied' : 'Copy as markdown'}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </section>
+        </div>
+      )}
+    </div>
   );
 }

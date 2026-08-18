@@ -4,7 +4,6 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../../layouts/Base.astro';
 import CrossDocumentForm from '../../../components/cross-document/CrossDocumentForm';
-import QuestionBriefing from '../../../components/premise/QuestionBriefing';
 import WorkedExampleTour, { BODY_ID, COLLAPSED_KEY } from '../../../components/cross-document/WorkedExampleTour';
 import StudioNav from '../../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
@@ -37,12 +36,13 @@ const session = await getSessionFromRequest(Astro.request, authDb);
         Paste or link 2-5 documents on the same question. Each is audited on its own, then
         compared: where each lands, which premises they actually contest, and the exact
         wording each side uses. What comes out is a briefing, the same form this
-        publication writes by hand. If you have a question rather than documents, ask it
-        below and the engine goes and finds the sources itself.
+        publication writes by hand. If you have a question rather than documents,
+        <a href="/audit?mode=question" class="text-accent-support hover:underline">ask it on the Audit page</a>
+        and the engine goes and finds the sources itself.
       </p>
       <p class="text-xs text-muted mt-3">
-        Free to use. A question takes about a minute. Documents take 60-120 seconds, because
-        each one is fully audited before the comparison.
+        Free to use. Documents take 60-120 seconds, because each one is fully audited before
+        the comparison.
       </p>
     </header>
 
@@ -100,7 +100,7 @@ const session = await getSessionFromRequest(Astro.request, authDb);
             <p class="text-xs text-muted mt-1 mb-2 leading-snug">Doc A's cost advantage needs it. Doc B prices a range far below it.</p>
             <div class="border-t border-dashed border-hairline pt-2 space-y-2">
               <div>
-                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-spec-right m-0">Contests · Doc B</p>
+                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-ink-strong m-0">Contests · Doc B</p>
                 {/* No quotation marks here on purpose: GenCost's range is
                     reported in the briefing's own words, not as a verbatim
                     passage, and quotation marks are a promise this page
@@ -108,7 +108,7 @@ const session = await getSessionFromRequest(Astro.request, authDb);
                 <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">GenCost's printed capacity-factor range is 53 to 89 per cent, taken from coal's own operating record.</p>
               </div>
               <div>
-                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-spec-right m-0">Contests · Doc C</p>
+                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-ink-strong m-0">Contests · Doc C</p>
                 <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">&ldquo;But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic.&rdquo;</p>
               </div>
             </div>
@@ -125,7 +125,7 @@ const session = await getSessionFromRequest(Astro.request, authDb);
               <p class="text-sm text-ink m-0 leading-snug">Nuclear arrives in time to matter for the coal exit.</p>
               <p class="text-xs text-muted mt-1 mb-2 leading-snug">If it cannot, the cost contest between the two grids never starts.</p>
               <div class="border-t border-dashed border-hairline pt-2">
-                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-spec-right m-0">Contests · Doc C</p>
+                <p class="font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-ink-strong m-0">Contests · Doc C</p>
                 <p class="text-xs text-ink border-l-2 border-hairline pl-2 m-0 leading-snug">&ldquo;Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations.&rdquo; <span class="text-muted">- citing AEMO on timing</span></p>
               </div>
             </div>
@@ -157,18 +157,17 @@ const session = await getSessionFromRequest(Astro.request, authDb);
       } catch (e) { /* Storage unavailable: leave the example expanded. */ }
     </script>
 
-    {/* THE QUESTION BOX. The same mini-briefing engine the extension calls,
-        pointed at a typed question instead of an article: it names the claims
-        the answer rests on, then researches who contests each one, with every
-        quote checked word-for-word before display. It sits here, after the
-        worked example and before the document form, as a first proposal only:
-        Daniel picks its final home before this ships to the live page. */}
-    <div class="mb-10">
-      <QuestionBriefing client:load />
-    </div>
+    {/* THE QUESTION BOX WAS HERE, and moved to /audit?mode=question on
+        2026-08-17. It was only ever parked on this page as a first proposal.
+        /audit is now the single door to the tool, so a question belongs there
+        beside paste-a-draft and paste-a-URL as a third way in, where visitors
+        already arrive; a second live entrance on a satellite room would split
+        that door in two again. The worked example above stays, because its job
+        is teaching the output shape, not taking input, and the header links a
+        visitor who has a question rather than documents to the new home. */}
 
     <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">
-      Or audit your own documents
+      Audit your own documents
     </p>
     <CrossDocumentForm client:load />
 

@@ -67,7 +67,10 @@ export function briefingToMarkdown(b: ClientMiniBriefing, sourceUrl?: string): s
   lines.push('---');
   lines.push('');
   lines.push(
-    `Built with The Whetstone (${sourceUrl ?? 'https://thewhetstone.review/creator/studio/cross-document'}). ` +
+    // The default is the question box's own address, so a briefing pasted into
+    // someone else's document sends a reader back to the thing that made it.
+    // It moved with the box on 2026-08-17.
+    `Built with The Whetstone (${sourceUrl ?? 'https://thewhetstone.review/audit?mode=question'}). ` +
     'Every quote above was checked word-for-word against its source page before it was shown; ' +
     'quotes that failed the check were dropped, not softened. This is machine-made and has not been edited by a person.',
   );

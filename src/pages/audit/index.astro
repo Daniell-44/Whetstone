@@ -8,12 +8,19 @@ export const prerender = false;
 // "go on the studio and reader combination"). Read mode audits someone else's
 // writing; Create mode is the editor that used to live at /creator/studio,
 // which now redirects here. Saving is the only thing that asks for sign-in.
+//
+// Ask mode joined them on 2026-08-17 (owner decision: "a question box belongs
+// where people already arrive, alongside paste-a-draft and paste-a-URL, as a
+// third way in"). It was prototyped on the cross-document page, which keeps
+// its worked example but no longer carries a live box, because two live
+// entrances would split the single door again.
 
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import AuditForm from '../../components/audit/AuditForm';
 import ToolNav from '../../components/tool/ToolNav.astro';
 import StudioEditor from '../../components/studio/StudioEditor';
+import QuestionBriefing from '../../components/premise/QuestionBriefing';
 import OnboardingTour from '../../components/onboarding/OnboardingTour';
 import { getAllBriefings } from '../../lib/briefings';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
@@ -42,15 +49,20 @@ if (typeParam === 'transcript') return Astro.redirect('/creator/studio/transcrip
 if (Astro.url.searchParams.get('compare') === '1') return Astro.redirect('/creator/studio/cross-document', 302);
 
 // Server-side mode switch ("Workbench + satellites" adjudication, 2026-07-13):
-// ?mode=create renders the Create island (StudioEditor) in place of the Reader.
-// No client toggle, no double hydration; the segmented control is plain links.
+// ?mode=create renders the Create island (StudioEditor) in place of the Reader,
+// and ?mode=question renders the question box. No client toggle, no double
+// hydration; the segmented control is plain links, so only the island for the
+// mode being viewed is ever shipped to the browser.
 // A ?doc= param implies Create mode: saved documents only open in the editor.
 // (Until the 2026-08-16 cutover ?doc= bounced to /creator/studio; that page now
 // redirects HERE, so the document loads on this page and a redirect loop is
 // impossible.)
 const docParam = Astro.url.searchParams.get('doc');
-const mode: 'read' | 'create' =
-  Astro.url.searchParams.get('mode') === 'create' || docParam ? 'create' : 'read';
+const modeParam = Astro.url.searchParams.get('mode');
+const mode: 'read' | 'create' | 'question' =
+  modeParam === 'create' || docParam ? 'create'
+  : modeParam === 'question' ? 'question'
+  : 'read';
 
 // "Audit the full article" deep-link: /audit?audit=<slug> pre-loads the field
 // with the briefing's argumentative prose. (Moved from index.astro; / shims
@@ -168,7 +180,7 @@ if (docParam && session) {
 ---
 <Base
   title="The Audit - The Whetstone"
-  description="Paste any text or drop a URL. See the structure behind the argument: claims, evidence, where the logic breaks down, and the strongest opposing case. Free to try."
+  description="Paste any text, drop a URL, or ask a contested question. See the structure behind the argument: claims, evidence, where the logic breaks down, and the strongest opposing case. Free to try."
   canonicalPath="/audit"
   ogImage="/og/page-audit.png"
   isLoggedIn={!!session}
@@ -179,11 +191,16 @@ if (docParam && session) {
   <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
     <ToolNav current="audit" />
 
-    {/* Read / Create mode control: a segmented PILL, deliberately a different
-       shape from the ToolNav underline-tabs above it — two stacked rows of the
-       same tab grammar read as two competing navigation systems. Plain anchors,
-       server-rendered active state. */}
-    <nav class="mb-8" aria-label="Audit mode">
+    {/* Read / Create / Ask mode control: a segmented PILL, deliberately a
+       different shape from the ToolNav underline-tabs above it, because two
+       stacked rows of the same tab grammar read as two competing navigation
+       systems. Plain anchors, server-rendered active state.
+       Each tab names its INPUT in plain words underneath, which is how a
+       visitor who arrived with a question rather than a document finds the
+       third way in without the first screen having to explain itself twice.
+       Horizontal scroll below sm so a third tab cannot push the pill off a
+       narrow phone. */}
+    <nav class="mb-8 overflow-x-auto" aria-label="Audit mode">
       <div class="inline-flex items-stretch rounded-lg border border-hairline bg-paper p-1 gap-1">
         <a
           href="/audit"
@@ -207,10 +224,24 @@ if (docParam && session) {
           <span class="sm:hidden font-mono text-[11px] uppercase tracking-[0.04em] text-muted leading-tight">your writing</span>
           <span class="hidden sm:block font-mono text-[11px] uppercase tracking-[0.04em] text-muted leading-tight">your own writing</span>
         </a>
+        <a
+          href="/audit?mode=question"
+          aria-current={mode === 'question' ? 'page' : undefined}
+          class={`flex flex-col justify-center min-h-[44px] rounded-md px-3 sm:px-4 py-1.5 transition-colors ${
+            mode === 'question' ? 'bg-surface text-ink-strong shadow-sm' : 'text-muted hover:text-ink'
+          }`}
+        >
+          <span class="text-sm font-semibold leading-tight">Ask</span>
+          <span class="sm:hidden font-mono text-[11px] uppercase tracking-[0.04em] text-muted leading-tight">a question</span>
+          <span class="hidden sm:block font-mono text-[11px] uppercase tracking-[0.04em] text-muted leading-tight">a contested question</span>
+        </a>
       </div>
     </nav>
 
-    {mode === 'read' ? (
+    {/* Three exclusive branches rather than nested ternaries: with a third mode
+       a ternary chain stops being readable, and each mode's header belongs
+       beside the island it introduces. */}
+    {mode === 'read' && (
       <>
         <header class="mb-8 max-w-3xl">
           <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit</p>
@@ -226,7 +257,34 @@ if (docParam && session) {
           <AuditForm isPro={isPro} initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
         </section>
       </>
-    ) : (
+    )}
+
+    {mode === 'question' && (
+      <>
+        <header class="mb-8 max-w-3xl">
+          <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit · Ask</p>
+          <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">Start from a question, not a document.</h1>
+          {/* About a minute, not the 40 seconds the research itself takes: the
+             second request re-reads the question server-side rather than
+             trusting a client-supplied outline, so the reader waits for both
+             halves. Name the wait they actually get. */}
+          <p class="mt-2 text-sm text-muted leading-relaxed">
+            Type a contested question and the engine names the claims an answer would rest on,
+            researches the first two, and quotes only what it can check word-for-word at the
+            source. It runs live and takes about a minute.
+          </p>
+        </header>
+
+        {/* Narrower than the Reader's 1200px: this mode has no specimen rail
+           beside the field, and the result is continuous prose, which wants a
+           readable measure rather than the full width. */}
+        <section class="max-w-3xl">
+          <QuestionBriefing client:load />
+        </section>
+      </>
+    )}
+
+    {mode === 'create' && (
       <>
         <header class="mb-6 max-w-3xl">
           <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit · Create</p>

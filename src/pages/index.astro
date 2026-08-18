@@ -1,12 +1,8 @@
 ---
 export const prerender = false;
 
-import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
 import BriefingCard from '../components/briefing/BriefingCard.astro';
-import QuestionCard from '../components/premise/QuestionCard.astro';
-import { listPublishedQuestions } from '../../functions/_lib/premise/publish';
-import type { MiniDb } from '../../functions/_lib/premise/store';
 import { getLiveBriefings, getAllBriefings } from '../lib/briefings';
 import EmailCapture from '../components/capture/EmailCapture';
 import { featured } from '../data/featured';
@@ -82,11 +78,11 @@ const feedGroups = qualifyingFeedGroups(briefings.map((b) => b.category));
 // whole filter UI (rail nav + mobile chip strip) is hidden.
 const showFeedFilter = feedGroups.length >= 2;
 
-// Published reader questions for the shelf near the foot of the page. The
-// helper already swallows its own database errors and returns an empty list,
-// which is the behaviour that matters here: the home page must render even if
-// the mini-briefing tables are unreachable.
-const readerQuestions = await listPublishedQuestions(env.DB as unknown as MiniDb, 3);
+// The reader-questions query that used to live here (listPublishedQuestions,
+// plus the `env` and QuestionCard imports it needed) came out with the shelf
+// below. See the note under the Essays section for why. Nothing else on this
+// page ever touched the database, so the page is back to reading only the
+// markdown corpus.
 ---
 <Base
   title="The Whetstone: arguments, examined"
@@ -334,31 +330,29 @@ const readerQuestions = await listPublishedQuestions(env.DB as unknown as MiniDb
       )}
     </section>
 
-    {/* Reader questions (Daniel, 2026-08-17): questions readers typed into the
-        prompt box, answered by the same engine and published by hand. They sit
-        BELOW the essays and in their own shelf rather than in the briefings
-        mosaic above, because the difference between "an editor wrote and
-        stands behind this" and "a machine assembled this in a minute" is the
-        one distinction this publication cannot afford to blur. The shelf only
-        renders when something is published; nothing publishes itself, so an
-        empty placeholder here would be advertising a room with no door. */}
-    {readerQuestions.length > 0 && (
-      <section id="reader-questions" class="scroll-mt-20 mt-16">
-        <div class="flex items-center gap-4 mb-3 sm:mb-4">
-          <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Reader questions</h2>
-          <div class="h-px flex-1 bg-hairline" />
-          <a href="/questions" class="font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support hover:underline shrink-0">All</a>
-        </div>
-        <p class="text-sm text-muted leading-relaxed max-w-3xl mb-6">
-          Readers ask, the engine answers: it names the claims the answer rests on, then finds
-          published sources that contest them, quoting only what it can check word-for-word.
-          These are machine-made and no editor has read them, so they carry no opinion at the end.
-        </p>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {readerQuestions.map((q) => <QuestionCard item={q} />)}
-        </div>
-      </section>
-    )}
+    {/* REMOVED, AWAITING A PLACEMENT DECISION (2026-08-18). A "Reader
+        questions" shelf sat here from 2026-08-17: a section heading, a
+        standfirst, and three published machine-made question pages from
+        /questions, rendered as QuestionCards below the essays.
+
+        It is off the page because where this module sits is an editorial
+        claim, not a layout preference, and the claim was never chosen. A shelf
+        here says machine-made pages are a third section of the publication,
+        standing at the same weight as briefings an editor wrote and essays an
+        editor signed. That may turn out to be the right thing to say. It
+        should be decided rather than inherited from whichever section the
+        module happened to be appended after.
+
+        Three placements are drawn at size, each with what it claims and what
+        it costs, at /labs/question-shelf. Nothing else changed: /questions and
+        the individual question pages are still live, still reachable, and
+        still linked from the result of a question run, so the only thing a
+        reader loses meanwhile is finding them from here. Restore the chosen
+        placement from the labs page rather than from this comment.
+
+        A JSX comment rather than an HTML one on purpose: HTML comments in this
+        file are served to every visitor, and a note about an undecided design
+        question is for whoever opens this file, not for readers. */}
 
     <style>
       /* Category-filter controls (rail + mobile strip). Active state is driven by
