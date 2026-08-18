@@ -1,0 +1,494 @@
+---
+// Where the reader-question module goes on the home page. 2026-08-18.
+//
+// A "Reader questions" shelf shipped straight to the home page on 2026-08-17
+// without the rendered alternates the house rule asks for on anything a reader
+// sees. It has been taken back off (see the comment in src/pages/index.astro
+// where it used to sit) and the three candidate placements are drawn here.
+//
+// The three are genuinely different arguments, not three paddings:
+//   A · a third shelf below Essays, which is what shipped
+//   B · a strip bolted to the audit box, above the feed, framed as tool output
+//   C · one line, on the argument that a machine-made page should not sit at
+//       the same visual weight as an essay an editor signed
+//
+// The sample questions are invented, because nothing is published yet on this
+// machine. They are invented CAREFULLY: plausible questions a reader might
+// type, and nothing else. No source is named and no quote appears anywhere on
+// this page, because a fabricated quote in a mockup is the one thing this
+// publication cannot have lying around. Where the real card shows how much was
+// checked, it shows a count, which is exactly what the shipped card shows.
+//
+// The essays beside them are the REAL essays from the corpus, pulled through
+// the same call the home page makes, because the whole question here is how
+// heavy the machine-made module looks next to the edited one. Comparing it
+// against invented essays would be comparing it against nothing.
+//
+// Nothing here is shipped. Noindex, unlinked, no ads.
+import Base from '../../layouts/Base.astro';
+import QuestionCard from '../../components/premise/QuestionCard.astro';
+import { getAllBriefings } from '../../lib/briefings';
+import type { PublishedQuestion } from '../../../functions/_lib/premise/publish';
+
+// The same expression the home page uses for its Essays shelf, so the drawings
+// below stay right when the corpus changes rather than drifting from it.
+const essays = getAllBriefings().filter((b) => b.kind === 'opinion' && !b.archived);
+
+// Three invented reader questions, shaped exactly like the real record: a
+// question, the thing the answer turns on, a count of claims, and a count of
+// quotes that survived the source check. `briefing` is null on purpose, which
+// is what the live feed query returns too.
+const SAMPLES: PublishedQuestion[] = [
+  {
+    id: 'sample1', slug: 'sample-minimum-wage',
+    question: 'Does raising the minimum wage cost jobs?',
+    conclusion: 'Whether employers meeting a higher floor cut hours rather than headcount, which is the thing the two sides count differently.',
+    publishedAt: '2026-08-16', createdAt: '2026-08-16',
+    premiseCount: 3, verifiedQuotes: 2, briefing: null,
+  },
+  {
+    id: 'sample2', slug: 'sample-phone-bans',
+    question: 'Do phone bans in schools improve results?',
+    conclusion: 'Whether the schools that banned phones were already the schools with the tightest discipline, which would explain the gain without the ban.',
+    publishedAt: '2026-08-15', createdAt: '2026-08-15',
+    premiseCount: 4, verifiedQuotes: 1, briefing: null,
+  },
+  {
+    id: 'sample3', slug: 'sample-buying-vs-renting',
+    question: 'Is buying a house still the best way for a household to build wealth?',
+    conclusion: 'Whether the comparison is against renting and investing the difference, or against renting and spending it.',
+    publishedAt: '2026-08-14', createdAt: '2026-08-14',
+    premiseCount: 2, verifiedQuotes: 3, briefing: null,
+  },
+];
+
+// The count a one-line placement would carry. Invented like the rest, and named
+// as a variable so the line and the prose about the line cannot disagree.
+const PUBLISHED_COUNT = 14;
+---
+
+<Base title="Where the reader questions go (labs) - The Whetstone" noAds={true}>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <div class="qs">
+    <p class="kicker">The Whetstone · labs · 18 August 2026 · iteration 1</p>
+    <h1>Where the reader questions go</h1>
+    <p class="lede">
+      Three placements for the same module, drawn at the size it actually takes, on the page it
+      actually lands on. The decision is not where a block looks best. It is what the publication
+      is willing to say about the difference between a page a person wrote and a page a machine
+      assembled in a minute.
+    </p>
+
+    <div class="facts">
+      <div><b>Machine</b><span>wrote every word</span></div>
+      <div><b>Nobody</b><span>has edited one</span></div>
+      <div><b>noindex</b><span>on every question page</span></div>
+      <div><b>By hand</b><span>each one published one at a time</span></div>
+    </div>
+
+    <p class="note warn">
+      <b>What these pages are.</b> A reader types a question into the box, and the engine answers it
+      the way it answers everything: it names the claims the answer rests on, then looks for
+      published sources that contest them, keeping only quotes it can match word for word against
+      the page they came from. No editor reads the result. None of them carries an opinion at the
+      end. Every one of them, and the <a href="/questions">/questions</a> index that lists them,
+      carries <code>noindex</code>, so Google is not being asked to treat machine output as this
+      publication's work. That last fact matters to the decision below: a shelf on the home page
+      buys no search traffic, because there is none to buy. Its only job is to be seen by somebody
+      already here.
+    </p>
+
+    <!-- ================================================== the three at a glance -->
+    <p class="sizetag">The three at a glance</p>
+    <h2>Same content, three heights</h2>
+    <p class="note">
+      The home page drawn as a column of bands, top to bottom, each band as tall as it really is
+      relative to the others. The machine-made band is marked three ways over and above its colour:
+      the word MACHINE, a dashed rule instead of a solid one, and a hatched fill. Print this page in
+      greyscale and nothing is lost.
+    </p>
+
+    <div class="cols">
+      <div class="col">
+        <p class="colname">A · Below Essays</p>
+        <div class="pagecol">
+          <div class="band h16"><span class="btag">Masthead</span></div>
+          <div class="band h10"><span class="btag">Standfirst</span></div>
+          <div class="band h40 tool"><span class="btag">The audit box</span><span class="bkind">TOOL</span></div>
+          <div class="band h130 edited"><span class="btag">Briefings</span><span class="bkind">EDITED</span></div>
+          <div class="band h60 edited"><span class="btag">Essays</span><span class="bkind">EDITED</span></div>
+          <div class="band h58 machine"><span class="btag">Reader questions</span><span class="bkind">MACHINE</span></div>
+          <div class="band h30"><span class="btag">Footer strip</span></div>
+        </div>
+        <p class="colwhy">Adds a whole section. Third of three shelves, and the only one nobody wrote.</p>
+      </div>
+
+      <div class="col">
+        <p class="colname">B · Under the tool</p>
+        <div class="pagecol">
+          <div class="band h16"><span class="btag">Masthead</span></div>
+          <div class="band h10"><span class="btag">Standfirst</span></div>
+          <div class="band h40 tool"><span class="btag">The audit box</span><span class="bkind">TOOL</span></div>
+          <div class="band h34 machine"><span class="btag">What people are asking</span><span class="bkind">MACHINE</span></div>
+          <div class="band h130 edited"><span class="btag">Briefings</span><span class="bkind">EDITED</span></div>
+          <div class="band h60 edited"><span class="btag">Essays</span><span class="bkind">EDITED</span></div>
+          <div class="band h30"><span class="btag">Footer strip</span></div>
+        </div>
+        <p class="colwhy">Adds a strip, and spends the best position on the page to do it. Everything edited moves down.</p>
+      </div>
+
+      <div class="col">
+        <p class="colname">C · One line</p>
+        <div class="pagecol">
+          <div class="band h16"><span class="btag">Masthead</span></div>
+          <div class="band h10"><span class="btag">Standfirst</span></div>
+          <div class="band h40 tool"><span class="btag">The audit box</span><span class="bkind">TOOL</span></div>
+          <div class="band h130 edited"><span class="btag">Briefings</span><span class="bkind">EDITED</span></div>
+          <div class="band h60 edited"><span class="btag">Essays</span><span class="bkind">EDITED</span></div>
+          <div class="band h12 machine"><span class="btag">One line</span><span class="bkind">MACHINE</span></div>
+          <div class="band h30"><span class="btag">Footer strip</span></div>
+        </div>
+        <p class="colwhy">Adds a line. Nothing moves, nothing is displaced, and almost nobody sees it.</p>
+      </div>
+    </div>
+
+    <!-- ============================================================== placement A -->
+    <p class="sizetag">Placement A · what shipped on 17 August</p>
+    <h2>A third shelf, below Essays</h2>
+    <p class="note">
+      The module as built: a serif heading, a hairline rule, an “All” link, a standfirst explaining
+      what these are, and three cards across. Structurally it is the Essays shelf again. The cards
+      themselves are deliberately plainer than a briefing card and lead with the words “Reader
+      question · machine-made, not edited”, which is the one thing holding the distinction up.
+    </p>
+
+    <div class="spec">
+      <div><b>Claims</b>That machine-made pages are a third section of this publication. Ranked after the essays, built out of the same parts, and given the same furniture.</div>
+      <div><b>Costs</b>The furniture is the argument, and here the furniture says “section”. Ordering says later; on a page where everything is a shelf, later reads as newer rather than lesser. It also grows fastest: a question run takes a minute and an essay takes a week.</div>
+      <div><b>Displaces</b>Nothing. It is pure addition, which is the warning sign. The home page now shows three shelves of one publication.</div>
+    </div>
+
+    <p class="stagenote">Drawn below at 1100px, the width where the three-across grid engages. The stage scrolls sideways inside its own frame on a narrow screen; the page never does. Links in the stages go nowhere: the sample questions are not real records.</p>
+    <div class="stage"><div class="stageinner">
+      <!-- Essays exactly as src/pages/index.astro renders it, on the real corpus,
+           so the weight comparison underneath it is a true one. -->
+      <section class="mb-16">
+        <div class="flex items-center gap-4 mb-6 sm:mb-8">
+          <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Essays</h2>
+          <div class="h-px flex-1 bg-hairline"></div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {essays.map((e) => (
+            <a href={`/briefing/${e.slug}`} class="group block border border-hairline bg-surface">
+              {e.image && (
+                <div class="border-b border-hairline bg-paper">
+                  <img src={e.image} alt="" width="640" height="360" class="w-full h-auto block" loading="lazy" />
+                </div>
+              )}
+              <div class="px-4 py-3">
+                <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F]">Essay{e.category ? ` · ${e.category}` : ''}{e.draft ? ' · draft' : ''}</span>
+                <p class="font-serif text-[20px] font-semibold text-ink-strong leading-snug mt-1">{e.question}</p>
+                {e.hook && <p class="font-serif text-[15px] italic text-muted leading-snug mt-1">{e.hook}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center gap-4 mb-3 sm:mb-4">
+          <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Reader questions</h2>
+          <div class="h-px flex-1 bg-hairline"></div>
+          <a href="/questions" class="font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support shrink-0">All</a>
+        </div>
+        <p class="text-sm text-muted leading-relaxed max-w-3xl mb-6">
+          Readers ask, the engine answers: it names the claims the answer rests on, then finds
+          published sources that contest them, quoting only what it can check word-for-word.
+          These are machine-made and no editor has read them, so they carry no opinion at the end.
+        </p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SAMPLES.map((q) => <QuestionCard item={q} />)}
+        </div>
+      </section>
+    </div></div>
+
+    <!-- ============================================================== placement B -->
+    <p class="sizetag">Placement B · near the door</p>
+    <h2>Bolted to the audit box, framed as what people are asking</h2>
+    <p class="note">
+      The same three cards, moved up under the tool and stripped of everything that made them look
+      like a section: no serif heading, no rule across the page, no standfirst. What is left is a
+      mono label and a hairline joining them to the box above, so they read as things that came out
+      of that box rather than as things this publication published. The audit box is drawn without
+      its “What comes back?” panel, which is closed by default and would only add height here.
+    </p>
+
+    <div class="spec">
+      <div><b>Claims</b>That these are outputs of the tool, not publications. It is the true claim, and position makes it without a word of copy: they are inside the tool's band, before anything an editor wrote.</div>
+      <div><b>Costs</b>The most valuable strip on the page, handed to unedited text. A first-time reader meets machine output before they meet a single briefing. The label is also slightly false: this is not what people are asking, it is the handful somebody chose to publish.</div>
+      <div><b>Displaces</b>Nothing yet, but it pushes Briefings and Essays down a band each, which is a real cost paid by the work the publication stands behind.</div>
+    </div>
+
+    <div class="stage"><div class="stageinner">
+      <!-- The launcher band, copied from index.astro minus the collapsed
+           explainer, so the module below it attaches to the real thing. -->
+      <div class="bg-surface border border-hairline rounded-md p-4 sm:p-5">
+        <div class="flex items-baseline gap-2 mb-2 flex-wrap">
+          <span class="text-xs font-semibold uppercase tracking-widest font-mono text-muted">Audit your own text</span>
+          <span class="text-xs text-muted">Paste an argument, get its structure.</span>
+          <span class="text-[10px] font-mono uppercase tracking-wider text-muted/80 ml-auto shrink-0">Free · no sign-in</span>
+        </div>
+        <div class="relative">
+          <div class="w-full bg-paper border border-hairline rounded-lg pl-3.5 pr-16 py-3 text-sm text-muted/70">Paste an argument, or drop a link…</div>
+          <div class="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-accent-support text-paper flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-3 flex-wrap">
+          <span class="text-[11px] font-mono uppercase tracking-wider text-muted/80 shrink-0">Try</span>
+          <span class="text-xs border border-hairline rounded px-2.5 py-1 text-accent-support">Nuclear costings</span>
+          <span class="text-xs border border-hairline rounded px-2.5 py-1 text-accent-support">Phone bans</span>
+          <span class="text-xs text-muted ml-auto shrink-0">Full tool →</span>
+        </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-hairline">
+        <div class="flex items-baseline gap-2 mb-3 flex-wrap">
+          <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-strong font-semibold">What people are asking</span>
+          <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted">· machine-made, not edited</span>
+          <a href="/questions" class="font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support ml-auto shrink-0">All {PUBLISHED_COUNT}</a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SAMPLES.map((q) => <QuestionCard item={q} />)}
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 mt-10">
+        <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Briefings</h2>
+        <div class="h-px flex-1 bg-hairline"></div>
+      </div>
+      <p class="pushed">the feed continues here, one band further down than it does today</p>
+    </div></div>
+
+    <!-- ============================================================== placement C -->
+    <p class="sizetag">Placement C · not a shelf</p>
+    <h2>One line, under the essays</h2>
+    <p class="note">
+      No heading, no cards, no grid. One sentence carrying three things a reader needs before
+      clicking: that these exist, how many there are, and that a machine made them. The count is
+      doing the work a shelf would otherwise do, because a number is the only part of a shelf that
+      cannot be guessed from the link text.
+    </p>
+
+    <div class="spec">
+      <div><b>Claims</b>That the difference between a page a person wrote and a page a machine assembled is a difference in kind, and the front page ranks the first kind only. The second kind is reachable, not ranked.</div>
+      <div><b>Costs</b>Discovery, nearly all of it. A line under a shelf is close to the least-read position on the page, and these pages are noindex, so search cannot make the difference up. Whatever they are worth as proof the tool works is mostly left uncollected.</div>
+      <div><b>Displaces</b>Nothing, and it never will: one line cannot grow into a section without somebody deciding it should.</div>
+    </div>
+
+    <div class="stage"><div class="stageinner">
+      <section>
+        <div class="flex items-center gap-4 mb-6 sm:mb-8">
+          <h2 class="font-serif text-xl sm:text-2xl text-ink-strong shrink-0">Essays</h2>
+          <div class="h-px flex-1 bg-hairline"></div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {essays.map((e) => (
+            <a href={`/briefing/${e.slug}`} class="group block border border-hairline bg-surface">
+              {e.image && (
+                <div class="border-b border-hairline bg-paper">
+                  <img src={e.image} alt="" width="640" height="360" class="w-full h-auto block" loading="lazy" />
+                </div>
+              )}
+              <div class="px-4 py-3">
+                <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-[#8C4A2F]">Essay{e.category ? ` · ${e.category}` : ''}{e.draft ? ' · draft' : ''}</span>
+                <p class="font-serif text-[20px] font-semibold text-ink-strong leading-snug mt-1">{e.question}</p>
+                {e.hook && <p class="font-serif text-[15px] italic text-muted leading-snug mt-1">{e.hook}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <p class="mt-6 pt-4 border-t border-hairline text-sm text-muted leading-relaxed">
+        <span class="font-mono text-[11px] uppercase tracking-[0.08em] text-ink-strong">Machine-made</span>
+        Readers put questions to the engine directly. {PUBLISHED_COUNT} of those runs have been
+        published unedited, with their sources and their limits shown, at
+        <a href="/questions" class="text-accent-support">reader questions</a>.
+      </p>
+    </div></div>
+
+    <p class="note tight">
+      <b>The other slot for C.</b> The same line would sit just as well as a fourth cell in the
+      footer strip, beside Chrome Extension, Create mode and Strongest Opposing Case. It is not
+      drawn separately because it is the same claim at the same weight, and because the footer
+      strip is where the tools live: putting reader questions there says they are one of the tools,
+      which is nearly the same sentence as B without spending the top of the page on it.
+    </p>
+
+    <!-- ========================================================== recommendation -->
+    <p class="sizetag">The pick</p>
+    <h2>What I would pick and why</h2>
+    <p class="note">
+      <b>C now, B later, A never.</b> Not a survey: C is the placement I would ship this week, and
+      the trigger for moving to B is a number rather than a feeling.
+    </p>
+    <p class="note">
+      <b>Why C now.</b> Look at the drawing of A again with today's corpus in it, which is what the
+      stage above is actually showing: two essays, both marked draft, next to three machine-made
+      cards. A shelf makes the unedited row the widest editorial-looking block on the page, and it
+      will keep winning, because a question run takes a minute and an essay takes a week. The cost
+      of C is discovery, and discovery is the cheapest thing here to buy back later. Promoting a
+      line to a shelf is fifteen minutes of work. Demoting a shelf after readers have learned the
+      shape of the page is a retraction. When the two costs are that far apart, take the reversible
+      one first.
+    </p>
+    <p class="note">
+      <b>Why B is where this ends up.</b> B's claim is the true one. These pages are what the box
+      produces, and a reader who has just watched the box produce one is exactly the reader who
+      benefits from seeing that the output lasts and has an address. A also has a true claim to
+      make one day, but only once an editor is actually reading these before they go up, and
+      nobody is. The condition for moving C to B is not taste, it is stock: enough published
+      questions that the module is showing a sample rather than the whole shelf, which in practice
+      means somewhere around a dozen, and a spread of subjects wide enough that three cards do not
+      all read as the same argument. Below that the strip is advertising an empty room in the best
+      seat in the house.
+    </p>
+    <p class="note">
+      <b>Why not A at all.</b> A is the only one of the three whose claim gets harder to defend the
+      better the module does. If reader questions work, A ends up with more cards than either shelf
+      above it, and the page has quietly become a machine-output publication with two hand-written
+      sections attached. The furniture makes that argument whether or not anybody intends it, and
+      the “machine-made, not edited” line on each card is a small piece of type carrying a load that
+      an entire section heading is pulling the other way.
+    </p>
+
+    <table class="tbl">
+      <thead><tr><th>Placement</th><th>Says</th><th>Ship it when</th></tr></thead>
+      <tbody>
+        <tr><td>C · one line</td><td>Reachable, not ranked</td><td>Now. Nothing has to be true for it to be honest.</td></tr>
+        <tr><td>B · under the tool</td><td>This is what the box makes</td><td>Around a dozen published, across more than one subject.</td></tr>
+        <tr><td>A · third shelf</td><td>A third section of the publication</td><td>Only if an editor starts reading them before they go up.</td></tr>
+      </tbody>
+    </table>
+
+    <p class="note blocker">
+      <b>One thing to fix whichever is chosen.</b> The line, label or standfirst has to carry
+      “machine-made, not edited” in the words a reader sees before clicking, not behind the link.
+      All three drawings above do that. It is the only part of this decision that is not a
+      preference.
+    </p>
+  </div>
+</Base>
+
+<style is:global>
+  /* The instrument palette, same variables as the other labs pages, and the
+     same six type sizes: 34 for the title, 20 for a section, 17 for the lede,
+     15 for prose, 13 for apparatus labels, 11 for micro type inside drawings.
+     Nothing on this page uses a seventh.
+
+     Wider than the 62rem the other labs pages use, because the thing being
+     judged is a full-width page module rather than a card. Prose keeps the
+     42rem measure so the reading width is unchanged. */
+  .qs {
+    --pp:#F3F4F1; --ss:#FBFBF9; --ii:#24272B; --is:#121417; --mm:#5C6167; --hh:#D7D9D3;
+    --ox:#8C4A2F; --db:#345D7E;
+    --sf: 'Besley Variable', Georgia, serif;
+    --mo: ui-monospace, Menlo, Consolas, monospace;
+    max-width: 72rem; margin: 0 auto; padding: 32px 20px 80px;
+    font-family: var(--sf); color: var(--ii); line-height: 1.6;
+  }
+  .qs h1 { font-size: 34px; color: var(--is); font-weight: 400; margin: 0 0 10px; line-height: 1.15; }
+  .qs h2 { font-size: 20px; color: var(--is); font-weight: 400; margin: 0 0 6px; line-height: 1.25; }
+  .qs .kicker, .qs .sizetag {
+    font-family: var(--mo); font-size: 13px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--mm); margin: 0 0 8px;
+  }
+  .qs .sizetag { margin: 54px 0 10px; padding-top: 14px; border-top: 1px solid var(--hh); }
+  .qs .lede { font-size: 17px; margin: 0 0 24px; max-width: 42rem; }
+  .qs .note { font-size: 15px; color: var(--ii); margin: 0 0 18px; max-width: 42rem; }
+  .qs .note.tight { margin-top: 22px; }
+  .qs .note a { color: var(--db); }
+  .qs code { font-family: var(--mo); font-size: 13px; }
+  /* The two flagged paragraphs. Both are set off by a left rule and a fill,
+     never by colour on its own: the bold opening clause names what they are. */
+  .qs .warn { max-width: none; padding: 14px 18px; background: var(--pp); border-left: 3px solid var(--ox); }
+  .qs .blocker { margin-top: 26px; padding: 16px 18px; background: var(--pp); border-left: 3px solid var(--is); max-width: none; }
+
+  /* the four standing facts about what these pages are */
+  .qs .facts { display: flex; gap: 28px; flex-wrap: wrap; padding: 16px 0 4px; border-top: 1px solid var(--hh); border-bottom: 1px solid var(--hh); margin-bottom: 20px; }
+  .qs .facts div { display: flex; flex-direction: column; }
+  .qs .facts b { font-family: var(--mo); font-size: 20px; font-weight: 400; color: var(--is); }
+  .qs .facts span { font-family: var(--mo); font-size: 13px; color: var(--mm); }
+
+  /* ---- the page drawn as a column of bands ---- */
+  .qs .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; align-items: start; }
+  .qs .colname { font-family: var(--mo); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--is); margin: 0 0 8px; }
+  .qs .pagecol { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--hh); background: #fff; padding: 6px; }
+  /* Vertical padding is zero and the label is centred, because two of these
+     bands are only ten and twelve pixels tall and their real height is the
+     whole point. The label spills half a pixel out of the shortest ones rather
+     than being clipped, which is the right way round: an unreadable label
+     would cost more than a hairline of overlap into a four-pixel gap. */
+  .qs .band { background: #EDEEEA; border-left: 3px solid #C9CBC5; padding: 0 8px; display: flex; align-items: center; gap: 8px; box-sizing: border-box; }
+  .qs .btag { font-family: var(--mo); font-size: 11px; color: var(--mm); line-height: 1.1; }
+  .qs .bkind { font-family: var(--mo); font-size: 11px; letter-spacing: .06em; color: var(--mm); margin-left: auto; flex: none; line-height: 1.1; }
+  /* Edited work: solid rule, darker fill, the word EDITED. */
+  .qs .band.edited { background: #E4E6E0; border-left-color: var(--is); }
+  .qs .band.edited .btag, .qs .band.edited .bkind { color: var(--is); }
+  /* The tool: a fill of its own so it is not mistaken for either kind. */
+  .qs .band.tool { background: #E4E9EE; border-left-color: var(--db); }
+  .qs .band.tool .btag, .qs .band.tool .bkind { color: var(--db); }
+  /* Machine-made: four channels saying so, of which colour is one. The word
+     MACHINE, a dashed rule instead of a solid one, a hatched fill instead of a
+     flat one, and the rust. Any three of the four survive greyscale. */
+  .qs .band.machine {
+    border-left: 3px dashed var(--ox);
+    background: repeating-linear-gradient(45deg, #F0EAE6 0 5px, #E4D8D1 5px 10px);
+  }
+  .qs .band.machine .btag, .qs .band.machine .bkind { color: var(--ox); font-weight: 700; }
+  .qs .h10 { height: 10px; } .qs .h12 { height: 12px; } .qs .h16 { height: 16px; }
+  .qs .h30 { height: 30px; } .qs .h34 { height: 34px; } .qs .h40 { height: 40px; }
+  .qs .h58 { height: 58px; } .qs .h60 { height: 60px; } .qs .h130 { height: 130px; }
+  .qs .colwhy { font-size: 13px; color: var(--ii); margin: 9px 0 0; line-height: 1.45; }
+
+  /* ---- claim / cost / displaces, under each placement ---- */
+  .qs .spec { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 4px 0 20px; padding: 12px 0 0; border-top: 1px solid var(--hh); }
+  .qs .spec div { font-size: 13px; color: var(--ii); line-height: 1.45; }
+  .qs .spec b { display: block; font-family: var(--mo); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); font-weight: 400; margin-bottom: 3px; }
+
+  /* ---- the stages: real site markup, on the site's own canvas ----
+     Each stage is a scroll container of its own. Its contents are pinned at
+     1100px because that is where the three-across grid engages, and a module
+     drawn at two across would be a drawing of a different module. The page
+     itself never scrolls sideways: the overflow lives here. */
+  .qs .stagenote { font-family: var(--mo); font-size: 11px; color: var(--mm); margin: 0 0 8px; }
+  .qs .stage { border: 1px solid var(--hh); overflow-x: auto; background: var(--color-paper, #F3F4F1); }
+  .qs .stageinner {
+    min-width: 1100px; padding: 26px 30px;
+    /* Back to the site's own typography, so the real components inside render
+       the way they render on the home page instead of inheriting the labs
+       serif. Without this the cards would be a drawing of themselves. */
+    font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+    color: var(--color-ink, #24272B);
+    line-height: 1.5;
+  }
+  .qs .pushed { font-family: var(--mo); font-size: 11px; color: var(--mm); margin: 10px 0 0; }
+
+  /* ---- the recommendation table ---- */
+  .qs .tbl { width: 100%; border-collapse: collapse; margin-top: 18px; }
+  .qs .tbl th { font-family: var(--mo); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mm); font-weight: 400; text-align: left; padding: 0 14px 7px 0; border-bottom: 1px solid var(--hh); }
+  .qs .tbl td { font-size: 15px; padding: 9px 14px 9px 0; border-bottom: 1px solid var(--hh); vertical-align: top; }
+  .qs .tbl td:first-child { font-family: var(--mo); font-size: 13px; color: var(--mm); white-space: nowrap; }
+
+  @media (max-width: 900px) {
+    /* The three columns stack rather than shrink. Shrinking them would put the
+       band labels on two lines each and destroy the height comparison, which is
+       the only thing the drawing is for. The stages keep their real width and
+       scroll inside their own frame. */
+    .qs .cols, .qs .spec { grid-template-columns: 1fr; }
+    .qs .pagecol { max-width: 26rem; }
+    .qs .tbl td:first-child { white-space: normal; }
+  }
+</style>

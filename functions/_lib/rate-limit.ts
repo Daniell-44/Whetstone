@@ -112,6 +112,23 @@ export interface AnonGate {
   commit: () => Promise<void>;
 }
 
+/**
+ * Whether a finished request should spend one of the session's runs.
+ *
+ * In code, and here rather than in a route, because the route it came from is
+ * the one place with no test coverage. Two rules, both learned the hard way:
+ *
+ *   A use is a RUN, not an attempt. A 4xx spends nothing, or three typos would
+ *   cost a visitor their whole session.
+ *
+ *   For staged work only the EXPENSIVE stage counts. A question is answered by
+ *   an outline call and then a full call; charging both would silently halve
+ *   the three runs the visitor was promised.
+ */
+export function shouldCommitAnonUse(depth: unknown, status: number): boolean {
+  return depth === 'full' && status < 400;
+}
+
 function readCookie(request: Request, name: string): string | null {
   const raw = request.headers.get('cookie') ?? '';
   for (const part of raw.split(';')) {

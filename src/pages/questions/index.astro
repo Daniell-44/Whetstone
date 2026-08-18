@@ -1,0 +1,60 @@
+---
+export const prerender = false;
+
+/**
+ * Every published reader question, in one place.
+ *
+ * The home page carries a short shelf of the newest few; this is where the
+ * rest live, so the shelf never has to grow to hold them. Same tag, same
+ * warning, same rule about the missing editor's view.
+ *
+ * Noindexed for the same reason as the individual pages: see the note in
+ * [slug].astro.
+ */
+import { env } from 'cloudflare:workers';
+import Base from '../../layouts/Base.astro';
+import QuestionCard from '../../components/premise/QuestionCard.astro';
+import { listPublishedQuestions } from '../../../functions/_lib/premise/publish';
+import type { MiniDb } from '../../../functions/_lib/premise/store';
+
+const items = await listPublishedQuestions(env.DB as unknown as MiniDb, 60);
+---
+<Base
+  title="Reader questions - The Whetstone"
+  description="Questions readers asked, answered by naming the claims the answer rests on and checking them against published sources."
+  canonicalPath="/questions"
+>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
+
+    <header class="mb-8">
+      <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-2">Machine-made · not edited by a person</p>
+      <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">
+        Reader questions
+      </h1>
+      <p class="text-base text-muted leading-relaxed max-w-3xl">
+        Readers type a contested question and our engine answers it the way it answers
+        everything: it names the claims the answer rests on, then finds published sources that
+        contest them, quoting only what it can check word-for-word. These are not our
+        briefings. No editor has read them, and none of them carries an opinion at the end.
+      </p>
+    </header>
+
+    {items.length === 0 ? (
+      <p class="text-sm text-muted leading-relaxed">
+        None published yet. Questions run on the site are kept privately until they are
+        published here, and only runs where a quote survived the source check can be.
+      </p>
+    ) : (
+      <div class="space-y-3">
+        {items.map((q) => <QuestionCard item={q} />)}
+      </div>
+    )}
+
+    <p class="mt-8 text-sm">
+      <a href="/audit?mode=question" class="text-accent-support hover:underline">Ask your own question</a>
+    </p>
+
+  </main>
+</Base>

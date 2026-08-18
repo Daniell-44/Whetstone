@@ -77,6 +77,12 @@ const feedGroups = qualifyingFeedGroups(briefings.map((b) => b.category));
 // A filter with fewer than 2 qualifying groups can't split the feed, so the
 // whole filter UI (rail nav + mobile chip strip) is hidden.
 const showFeedFilter = feedGroups.length >= 2;
+
+// The reader-questions query that used to live here (listPublishedQuestions,
+// plus the `env` and QuestionCard imports it needed) came out with the shelf
+// below. See the note under the Essays section for why. Nothing else on this
+// page ever touched the database, so the page is back to reading only the
+// markdown corpus.
 ---
 <Base
   title="The Whetstone: arguments, examined"
@@ -323,6 +329,30 @@ const showFeedFilter = feedGroups.length >= 2;
         </div>
       )}
     </section>
+
+    {/* REMOVED, AWAITING A PLACEMENT DECISION (2026-08-18). A "Reader
+        questions" shelf sat here from 2026-08-17: a section heading, a
+        standfirst, and three published machine-made question pages from
+        /questions, rendered as QuestionCards below the essays.
+
+        It is off the page because where this module sits is an editorial
+        claim, not a layout preference, and the claim was never chosen. A shelf
+        here says machine-made pages are a third section of the publication,
+        standing at the same weight as briefings an editor wrote and essays an
+        editor signed. That may turn out to be the right thing to say. It
+        should be decided rather than inherited from whichever section the
+        module happened to be appended after.
+
+        Three placements are drawn at size, each with what it claims and what
+        it costs, at /labs/question-shelf. Nothing else changed: /questions and
+        the individual question pages are still live, still reachable, and
+        still linked from the result of a question run, so the only thing a
+        reader loses meanwhile is finding them from here. Restore the chosen
+        placement from the labs page rather than from this comment.
+
+        A JSX comment rather than an HTML one on purpose: HTML comments in this
+        file are served to every visitor, and a note about an undecided design
+        question is for whoever opens this file, not for readers. */}
 
     <style>
       /* Category-filter controls (rail + mobile strip). Active state is driven by

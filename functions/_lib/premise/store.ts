@@ -210,14 +210,26 @@ export interface MiniRow {
   total_ms: number | null; outline_ms: number | null; cost_usd: number;
   dropped_unverified: number; dropped_off_claim: number;
   verdict: string | null; verdict_note: string | null;
+  // Publication (migration 0026). Optional on the type because the older
+  // queries that predate the columns still map onto this row.
+  published?: number;
+  slug?: string | null;
+  published_at?: string | null;
+  /** Sources that survived both gates. Only the list query computes it. */
+  kept_sources?: number;
 }
 
 export async function listMiniBriefings(db: MiniDb, limit = 100): Promise<MiniRow[]> {
   const r = await db.prepare(
-    `SELECT id, created_at, trigger, depth, pipeline_version, url, title, tier,
-            question, conclusion, claim_count, premise_count, total_ms, outline_ms,
-            cost_usd, dropped_unverified, dropped_off_claim, verdict, verdict_note
-       FROM mini_briefings ORDER BY created_at DESC LIMIT ?`,
+    // kept_sources is joined in so the admin list can show at a glance which
+    // runs could be published. The real floor is re-checked against the stored
+    // payload at publish time; this is only for the eye.
+    `SELECT b.id, b.created_at, b.trigger, b.depth, b.pipeline_version, b.url, b.title, b.tier,
+            b.question, b.conclusion, b.claim_count, b.premise_count, b.total_ms, b.outline_ms,
+            b.cost_usd, b.dropped_unverified, b.dropped_off_claim, b.verdict, b.verdict_note,
+            b.published, b.slug, b.published_at,
+            (SELECT COUNT(*) FROM mini_sources s WHERE s.briefing_id = b.id AND s.kept = 1) AS kept_sources
+       FROM mini_briefings b ORDER BY b.created_at DESC LIMIT ?`,
   ).bind(limit).all<MiniRow>();
   return r.results ?? [];
 }
