@@ -26,7 +26,7 @@
  * published reader-question page uses, so what a visitor watched appear live
  * and what anyone later reads at a URL cannot drift apart.
  */
-import { useState } from 'preact/hooks';
+import { useState, useRef, useEffect } from 'preact/hooks';
 import type { ClientMiniBriefing, MiniOutline } from '../../../functions/_lib/premise/mini';
 import MiniBriefingBody from './MiniBriefingBody';
 import { briefingToMarkdown } from './markdown';
@@ -126,6 +126,26 @@ export default function QuestionBriefing() {
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
 
+  /**
+   * Adopt whatever is already in the field when this island hydrates.
+   *
+   * The input below is controlled, and this state starts empty, so without
+   * this a visitor who starts typing before the JavaScript arrives has their
+   * question WIPED the moment it does. The server-rendered field accepts
+   * keystrokes immediately; Preact then reconciles it back to the empty
+   * string it believes in. On a fast connection the window is a few hundred
+   * milliseconds and nobody notices. On a slow one it eats a whole sentence,
+   * and the reader has no idea why.
+   *
+   * Found by an end-to-end test that filled the field faster than any person
+   * could, which is exactly what that class of test is for.
+   */
+  const fieldRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    const typedBeforeHydration = fieldRef.current?.value ?? '';
+    if (typedBeforeHydration) setQuestion(typedBeforeHydration);
+  }, []);
+
   const trimmed = question.trim();
   const running = phase.status === 'outline' || phase.status === 'sourcing';
   const canRun = !running && trimmed.length >= MIN_CHARS && trimmed.length <= MAX_CHARS;
@@ -221,6 +241,7 @@ export default function QuestionBriefing() {
             run control in the corner rather than a CTA of its own. */}
         <div class="relative">
           <input
+            ref={fieldRef}
             type="text"
             value={question}
             onInput={(e) => setQuestion((e.target as HTMLInputElement).value)}
