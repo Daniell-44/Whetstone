@@ -1,0 +1,74 @@
+---
+// Rendered iterations of THE READER'S RESULT COLUMNS (2026-08-25).
+// House rule 10: two or three rendered iterations before anything
+// reader-facing ships. Real helmets sample, not placeholder text, so the
+// column heights are the real ones. Noindex, unlinked, no ads.
+import Base from '../../layouts/Base.astro';
+import ReaderColumns from '../../components/labs/ReaderColumns';
+---
+<Base title="Reader columns (labs) - The Whetstone" noAds={true}>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24">
+    <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">The Whetstone · labs</p>
+    <h1 class="font-serif text-[34px] text-ink-strong leading-tight mb-3">Reader columns</h1>
+
+    <div class="max-w-3xl space-y-4 mb-10">
+      <p class="text-[17px] text-ink leading-relaxed">
+        Three geometries for the same result. Switch between them and scroll each one: the thing to
+        judge is what happens when you are 1,500 pixels down the findings, not what the top of the
+        page looks like.
+      </p>
+      <p class="text-[15px] text-muted leading-relaxed">
+        The problem, measured on the live page at 1440 pixels wide: the text column stops at 632
+        pixels and the findings column runs to 2,763. About 2,100 pixels of blank page runs down the
+        left while you read findings. The text panel does have its own inner scroll, but it does not
+        stick, so once you scroll past it the text is gone entirely. That is what makes clicking a
+        finding to see its quote feel broken.
+      </p>
+      <p class="text-[15px] text-muted leading-relaxed">
+        All three keep the two-way link, so click a highlight in the text or a card in the findings
+        and the other side responds. Below 1280 pixels every variant collapses to the same stack,
+        which is unchanged and not the thing being decided here.
+      </p>
+    </div>
+
+    <ReaderColumns client:load />
+
+    <div class="max-w-3xl mt-14 space-y-6 border-t border-hairline pt-8">
+      <div>
+        <h2 class="font-serif text-[26px] text-ink-strong leading-snug mb-2">A · Text pinned</h2>
+        <p class="text-[15px] text-ink leading-relaxed">
+          The text holds still with its own scrollbar; findings scroll the page past it. This is the
+          smallest change from what is live, and it is the pattern Create already uses for its two
+          rails. What you are checking: whether a text panel that scrolls independently of the page
+          feels like control or like a trap, especially when you scroll the page and the text does
+          not move.
+        </p>
+      </div>
+      <div>
+        <h2 class="font-serif text-[26px] text-ink-strong leading-snug mb-2">B · Findings pinned</h2>
+        <p class="text-[15px] text-ink leading-relaxed">
+          The inverse. The article is the page and scrolls normally, the way a document should, and
+          the findings ride alongside in their own scroller. Argument structure moves under the text,
+          which is also where it belongs if the text is the spine. What you are checking: whether
+          reading the piece straight through, with findings available rather than facing you, is the
+          better default for someone auditing writing that is not theirs.
+        </p>
+      </div>
+      <div>
+        <h2 class="font-serif text-[26px] text-ink-strong leading-snug mb-2">C · Three columns</h2>
+        <p class="text-[15px] text-ink leading-relaxed">
+          Exactly what Create runs: 28 / 44 / 28, structure left, text centre, findings right, both
+          rails pinned. The strongest argument for it is that Read and Create would stop being two
+          different shapes. The argument against is that 28 per cent of 1600 pixels is a narrow
+          column for the argument skeleton, and the reading measure in the centre drops to about 44
+          per cent. Worth checking on a 1280-wide laptop, not just here.
+        </p>
+      </div>
+      <p class="text-[15px] text-muted leading-relaxed">
+        Nothing on this page is live. Pick one and it gets built into the Reader.
+      </p>
+    </div>
+  </main>
+</Base>
