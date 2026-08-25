@@ -3,7 +3,7 @@
  *
  * This is the mini-briefing engine (functions/_lib/premise/) pointed at a
  * typed question instead of an article. Two staged requests against
- * /api/extension/mini: 'outline' returns in about five seconds with the claims
+ * /api/mini: 'outline' returns in about five seconds with the claims
  * the answer rests on, 'full' follows with sourced quotes that have been
  * checked word-for-word against their pages. The staging exists so the reader
  * has something to read while the expensive half runs.
@@ -49,7 +49,7 @@ type MiniApiResponse =
   | { ok: false; error: { code: string; message: string } };
 
 async function callMini(question: string, depth: 'outline' | 'full'): Promise<MiniApiResponse> {
-  const res = await fetch('/api/extension/mini', {
+  const res = await fetch('/api/mini', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: question, trigger: 'question', depth }),

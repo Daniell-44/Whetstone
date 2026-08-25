@@ -7,7 +7,6 @@ import ArgumentExtraction from '../extraction/ArgumentExtraction';
 import ToulminCallouts from './ToulminCallouts';
 import HighlightedDraft from '../studio/HighlightedDraft';
 import MobileFindingsSheet from '../studio/MobileFindingsSheet';
-import DeeperLensPanel from '../lens-panel/DeeperLensPanel';
 import ReaderOpposingCase from '../counterargument/ReaderOpposingCase';
 import { applyContextualSeverity } from '../../../functions/_lib/audit/contextual-severity';
 import { track } from '../../lib/analytics/track';
@@ -688,29 +687,14 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         <ReaderOpposingCase text={sourceText} />
       )}
 
-      {/* Deeper lenses (free, on-demand) - works for both text and URL audits
-         (URL audits use server-returned extracted text). */}
-      {result && !loading && sourceText && (
-        <DeeperLensPanel text={sourceText} surface="reader" isPro={isPro} />
-      )}
-
-      {/* Two next steps, both shown: the FREE extension is the higher-probability
-         activation for a low-intent visitor who liked the tool (no signup, keeps
-         the engine in front of them daily); Create mode is the drafting path —
-         the bridge hands the audited text across via the same sessionStorage
-         key the homepage launcher uses. Redline is reserved for findings —
-         these use drafting-blue (accent-support). */}
+      {/* One next step. This was two: the second pitched the Chrome extension,
+         which was never submitted to the Web Store and whose build is now
+         frozen, so the card sold a download nobody could install. Create mode
+         is the drafting path - the bridge hands the audited text across via the
+         same sessionStorage key the homepage launcher uses. Redline is reserved
+         for findings, so this uses drafting-blue (accent-support). */}
       {result && !loading && (
-        <div class="grid sm:grid-cols-2 gap-4">
-          <div class="rounded-xl border border-hairline bg-paper p-5 flex flex-col">
-            <p class="text-xs font-semibold uppercase tracking-widest text-accent-support mb-2">Audit as you read</p>
-            <p class="text-sm text-ink leading-relaxed mb-4 flex-1">
-              The free Chrome extension audits any article, on any site, from a side panel, no copy-paste.
-            </p>
-            <a href="/extension" class="inline-block self-start rounded-lg border border-accent-support/40 px-4 py-2 text-sm font-semibold text-accent-support hover:bg-accent-support/5 transition-colors">
-              Get the free extension →
-            </a>
-          </div>
+        <div>
           <div class="rounded-xl border border-hairline bg-paper p-5 flex flex-col">
             <p class="text-xs font-semibold uppercase tracking-widest text-accent-support mb-2">Work on your own drafts</p>
             {/* Pitch what CLICKING actually gives this user: the free Create
