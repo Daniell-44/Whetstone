@@ -8,6 +8,9 @@ import StudioNav from '../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
+import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
+import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
+import { resolveAuditQuota } from '../../../functions/_lib/billing/limits';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 import ReAuditButton from '../../components/documents/ReAuditButton';
 import type { Document, DocumentKind } from '../../../functions/_lib/documents/types';
@@ -22,9 +25,16 @@ if (!session) {
 const workspaceDb       = makeWorkspaceDb(env.DB);
 const docDb             = makeDocumentDb(env.DB);
 const workspaceIdParam  = Astro.url.searchParams.get('workspace');
-// The subscription lookup that used to run here only fed StudioNav's Subscribe
-// pill, which is gone (free-tier decision 2026-08-14), so the billing query
-// went with it.
+// StudioNav's Subscribe pill is gone (free-tier decision 2026-08-14), but the
+// billing lookup still has one live consumer: the quota line under each draft
+// ('Uses 1 audit from your daily/monthly quota'). POST /api/documents/[id]/re-audit
+// resolves that bucket from a live subscription check, so the label has to be
+// resolved the same way and through the same helper. Guessing would tell a free
+// user their 5-a-day cap resets monthly, or tell a subscriber the reverse.
+const quotaPeriod = resolveAuditQuota(
+  true,
+  await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), workspaceDb, session.user_id),
+).period;
 
 let documents: Document[];
 let workspaceName: string | null = null;
@@ -192,7 +202,7 @@ function formatDate(epochMs: number): string {
               </div>
               {doc.kind === 'draft' && (
                 <div class="mt-2">
-                  <ReAuditButton docId={doc.id} quotaPeriod={hasActiveSubscription ? 'month' : 'day'} client:load />
+                  <ReAuditButton docId={doc.id} quotaPeriod={quotaPeriod} client:load />
                 </div>
               )}
             </div>
