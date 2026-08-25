@@ -66,12 +66,40 @@ test('/creator/studio redirects into the merged surface, preserving ?doc=', asyn
   await expect(page).toHaveURL(/\/audit\?mode=create&doc=abc123$/);
 });
 
-test('tool strip shows Audit / Transcript / Cross-document / Documents', async ({ page }) => {
+test('the suite strip is gone: one navigation row, not two', async ({ page }) => {
+  // Until 2026-08-25 a four-tab strip (Audit / Transcript / Cross-document /
+  // Documents) sat above the Read/Create/Ask pill, so the page carried two
+  // stacked navigation systems. Both rooms folded into modes and the strip
+  // went with them.
   await page.goto('/audit');
 
-  const toolNav = page.locator('nav[aria-label="Audit tools"]');
-  await expect(toolNav.getByRole('link', { name: 'Audit', exact: true })).toBeVisible();
-  await expect(toolNav.getByRole('link', { name: /Transcript/ })).toBeVisible();
-  await expect(toolNav.getByRole('link', { name: /Cross-document/ })).toBeVisible();
-  await expect(toolNav.getByRole('link', { name: /^Documents$/ })).toBeVisible();
+  await expect(page.locator('nav[aria-label="Audit tools"]')).toHaveCount(0);
+  await expect(page.locator('nav[aria-label="Audit mode"]')).toBeVisible();
+});
+
+test('Ask holds both entrances, and the retired rooms redirect into them', async ({ page }) => {
+  await page.goto('/audit?mode=question');
+  const askNav = page.locator('nav[aria-label="Ask input"]');
+  await expect(askNav.getByRole('link', { name: 'I have a question' })).toBeVisible();
+  await expect(askNav.getByRole('link', { name: 'I have the documents' })).toBeVisible();
+
+  // The cross-document room is now the second entrance, and its worked example
+  // came with it rather than being dropped.
+  await page.goto('/creator/studio/cross-document');
+  await expect(page).toHaveURL(/\/audit\?mode=question&ask=documents$/);
+  await expect(page.getByText('Worked example', { exact: false })).toBeVisible();
+
+  // The transcript room is replaced by segment-then-audit inside Read.
+  await page.goto('/creator/studio/transcript');
+  await expect(page).toHaveURL(/\/audit$/);
+});
+
+test('a YouTube link is offered to segmentation, not to the article extractor', async ({ page }) => {
+  await page.goto('/audit');
+  const field = page.getByLabel('Argument text or URL to audit');
+  await field.fill('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+
+  // The paywall caveat belongs to page fetching and would be a lie here.
+  await expect(page.getByText(/captions are read and mapped/)).toBeVisible();
+  await expect(page.getByText(/Paywalled articles/)).toHaveCount(0);
 });

@@ -12,11 +12,13 @@ import { applyContextualSeverity } from '../../../functions/_lib/audit/contextua
 import { track } from '../../lib/analytics/track';
 import { SAMPLES, type Sample } from '../../data/samples';
 import SpecimenRail from './SpecimenRail';
-import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES as ERROR_MESSAGES } from '../tool/constants';
+import { MIN_CHARS, MAX_CHARS, READER_AUDIT_ERROR_MESSAGES as ERROR_MESSAGES } from '../tool/constants';
 import AuditLoading from '../tool/AuditLoading';
 import SampleLoading from '../tool/SampleLoading';
 import ShareAuditButton from './ShareAuditButton';
 import GroundednessDefs from './GroundednessDefs';
+import TranscriptSegments from '../transcript/TranscriptSegments';
+import type { PickableSegment } from '../../../functions/_lib/transcript/segment-handler';
 import { hasSeenGroundednessDefs, markGroundednessDefsSeen, findingsSheetButtonLabel } from './reader-helpers';
 
 // ---------------------------------------------------------------------------
@@ -27,6 +29,10 @@ type AuditApiResponse =
   | { ok: true;  audit: AuditResult; sourceText?: string; usage: { inputTokens: number; outputTokens: number } }
   | { ok: false; error: { code: string; message: string } };
 
+type SegmentApiResponse =
+  | { ok: true;  title: string | null; sourceUrl: string | null; segments: PickableSegment[]; excluded: { count: number; total: number } }
+  | { ok: false; error: { code: string; message: string } };
+
 type ExtractionApiResponse =
   | { ok: true;  extraction: ArgumentExtractionResult; usage: { inputTokens: number; outputTokens: number } }
   | { ok: false; error: { code: string; message: string } };
@@ -35,12 +41,22 @@ type ExtractionApiResponse =
 // Constants
 // ---------------------------------------------------------------------------
 
-// MIN_CHARS / MAX_CHARS / URL_RE now come from ../tool/constants (shared with
+// MIN_CHARS / MAX_CHARS now come from ../tool/constants (shared with
 // Studio). First-time-visitor examples come from the shared Studio sample set
 // (src/data/samples) — pre-cached audits, loaded instantly with no API call.
 
 // ERROR_MESSAGES comes from ../tool/constants (READER_AUDIT_ERROR_MESSAGES),
 // shared with the workbench.
+
+// A YouTube link is not an article, so sending it to the article extractor
+// produces a failure the reader cannot act on. It goes to segmentation instead
+// (owner call 2026-08-25, replacing the Transcript room). Matches watch pages,
+// youtu.be short links, embeds and shorts.
+const YOUTUBE_RE = /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?|embed\/|shorts\/|live\/)|youtu\.be\/)/i;
+
+export function isYouTubeUrl(url: string): boolean {
+  return YOUTUBE_RE.test(url.trim());
+}
 
 // Count span-level findings for the results verdict bar. The Reader has no
 // dismissed state (no document), so the raw arrays are the active set.
@@ -62,7 +78,7 @@ function countFindings(r: AuditResult) {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function AuditForm({ isPro = false, initialText = '', initialUrl = '', initialSampleId = '' }: { isPro?: boolean; initialText?: string; initialUrl?: string; initialSampleId?: string }) {
+export default function AuditForm({ initialText = '', initialUrl = '', initialSampleId = '' }: { initialText?: string; initialUrl?: string; initialSampleId?: string }) {
   const [input, setInput]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
@@ -98,6 +114,11 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   // result until dismissed once (localStorage), reopenable from the (?)
   // affordance on the verdict bar.
   const [defsOpen, setDefsOpen] = useState(false);
+  // Transcript map: the segment list stands between the input and a result.
+  // Null means no transcript is in play, which is the ordinary case.
+  const [segments, setSegments] = useState<PickableSegment[] | null>(null);
+  const [segmentMeta, setSegmentMeta] = useState<{ title: string | null; excluded: { count: number; total: number } }>({ title: null, excluded: { count: 0, total: 0 } });
+  const [segmenting, setSegmenting] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   // Examples are the highest-leverage first-run comprehension aid, so show them
   // by default for a cold arrival (no deep-link prefill). They auto-collapse
@@ -232,6 +253,46 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     setSourceText('');
     setEditing(false);
     setSampleMode(false);
+    setSegments(null);
+    setSegmenting(false);
+  }
+
+  // Map a transcript into its argumentative passages. One Flash call: the
+  // reader then spends one ordinary audit on the passage they pick, instead of
+  // the twelve audits plus a Pro synthesis the old Transcript room ran.
+  async function runSegmentation(body: { kind: 'youtube'; url: string } | { kind: 'text'; text: string }) {
+    setSegmenting(true);
+    setError(null);
+    setResult(null);
+    setExtraction(null);
+    setSegments(null);
+    setSampleMode(false);
+    track('transcript_segment_started', { surface: 'reader', kind: body.kind });
+
+    try {
+      const res  = await fetch('/api/transcript-segments', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      });
+      const data = await res.json() as SegmentApiResponse;
+
+      if (!data.ok) {
+        // The server writes these: a captionless video and a spent quota need
+        // different responses from the reader, so pass its wording through
+        // rather than flattening both to "something went wrong".
+        setError(data.error.message);
+        return;
+      }
+
+      setSegments(data.segments);
+      setSegmentMeta({ title: data.title, excluded: data.excluded });
+      track('transcript_segment_done', { surface: 'reader', segments: data.segments.length });
+    } catch {
+      setError('Could not read that transcript. Check the connection and try again.');
+    } finally {
+      setSegmenting(false);
+    }
   }
 
   // Core audit runner, shared by the form submit and the example chips.
@@ -248,6 +309,10 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
     const isUrl     = !!urlMatch && remainder.length <= 20;
     const url       = isUrl ? urlMatch![0] : '';
     const isText    = !isUrl;
+    // A video is not an article. Sending a YouTube link to the article
+    // extractor returns a player shell, which the engine then dutifully audits
+    // as if it were prose.
+    if (isUrl && isYouTubeUrl(url)) { void runSegmentation({ kind: 'youtube', url }); return; }
     // Guard: text needs to clear the length bounds; URLs always pass.
     if (isText && !(raw.length >= MIN_CHARS && raw.length <= MAX_CHARS)) return;
 
@@ -318,6 +383,15 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
   function handleSubmit(e: Event) {
     e.preventDefault();
     runAudit(input);
+  }
+
+  // A picked segment is just text. Its verbatim words go through the ordinary
+  // audit, so what gets audited is what was actually said, not a summary of it.
+  function auditSegment(segment: PickableSegment) {
+    setInput(segment.text);
+    setSegments(null);
+    track('transcript_segment_picked', { surface: 'reader', words: segment.words });
+    void runAudit(segment.text);
   }
 
   // Example picker: load a PRE-CACHED sample (no API call). Honest UX: a
@@ -416,7 +490,12 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
         </div>
 
         {/* Contextual hint: character budget for text, fetch caveat for a URL. */}
-        {looksUrl ? (
+        {looksUrl && isYouTubeUrl(urlHit![0]) ? (
+          <p class="text-xs text-muted">
+            The captions are read and mapped into the passages where someone argues for something.
+            Nothing is audited until you pick one. Videos with captions turned off cannot be read.
+          </p>
+        ) : looksUrl ? (
           <p class="text-xs text-muted">
             The page must be publicly accessible. Paywalled articles can't be extracted. Paste the text directly instead.
           </p>
@@ -426,12 +505,32 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
               {charCount > 0 && charCount < MIN_CHARS
                 ? `${MIN_CHARS - charCount} more character${MIN_CHARS - charCount === 1 ? '' : 's'} needed`
                 : charCount > MAX_CHARS
-                ? 'Too long - please trim to 10,000 characters'
+                ? 'Too long for one audit'
                 : ''}
             </span>
             <span class={charCount > MAX_CHARS ? 'text-accent' : 'text-muted'}>
               {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
             </span>
+          </div>
+        )}
+
+        {/* Over the audit ceiling is where a transcript lands, so offer the
+            thing that handles length instead of only refusing. One Flash call
+            maps it; the reader then audits one passage. */}
+        {charCount > MAX_CHARS && !segmenting && (
+          <div class="rounded-lg border border-hairline bg-paper px-4 py-3">
+            <p class="text-[15px] text-ink leading-relaxed mb-2">
+              That is {charCount.toLocaleString()} characters, past the {MAX_CHARS.toLocaleString()} an audit reads
+              in one pass. If it is a transcript or a talk, map it into the passages where someone is
+              arguing for something, then audit the one you want.
+            </p>
+            <button
+              type="button"
+              onClick={() => runSegmentation({ kind: 'text', text: input })}
+              class="inline-flex items-center min-h-11 rounded-lg border border-accent-support/40 px-4 text-[15px] font-semibold text-accent-support hover:bg-accent-support/5 transition-colors"
+            >
+              Map it into passages
+            </button>
           </div>
         )}
 
@@ -489,6 +588,28 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       </div>
 
       {loading && (sampleMode ? <SampleLoading /> : <AuditLoading />)}
+
+      {/* Segmentation is one Flash call over the whole transcript, so it is
+         slower than a page fetch and faster than an audit. Say what it is
+         doing rather than showing the audit spinner, which promises findings. */}
+      {segmenting && (
+        <div class="rounded-xl border border-hairline bg-surface px-5 py-4">
+          <p class="text-[15px] text-ink leading-relaxed">
+            Reading the transcript for the passages where someone argues for something. No audit has
+            run yet, and nothing is charged against your audits until you pick one.
+          </p>
+        </div>
+      )}
+
+      {segments && !segmenting && !loading && (
+        <TranscriptSegments
+          segments={segments}
+          title={segmentMeta.title}
+          excluded={segmentMeta.excluded}
+          onPick={auditSegment}
+          onReset={newAudit}
+        />
+      )}
 
       {error && !loading && (
         <div class="rounded-xl bg-accent/5 border border-accent/30 p-4">

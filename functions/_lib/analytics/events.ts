@@ -38,6 +38,12 @@ export const ANALYTICS_EVENT_NAMES = [
   'counterargument_requested',
   'transcript_audit_started',
   'transcript_audit_completed',
+  // The segment-first transcript path in the Reader (2026-08-25), which
+  // replaced the whole-transcript room. Kept separate from the events above so
+  // the cost saving is measurable rather than assumed.
+  'transcript_segment_started',
+  'transcript_segment_done',
+  'transcript_segment_picked',
 
   // Subscription
   'pricing_viewed',
@@ -91,6 +97,9 @@ export const EVENT_DESCRIPTIONS: Record<AnalyticsEventName, string> = {
   counterargument_requested:    'User ran the counterargument generator',
   transcript_audit_started:     'User started a transcript audit',
   transcript_audit_completed:   'Transcript audit returned successfully',
+  transcript_segment_started:   'User asked for a transcript to be mapped into argument passages',
+  transcript_segment_done:      'The transcript map returned',
+  transcript_segment_picked:    'User chose one passage from the map and audited it',
   pricing_viewed:               'Pricing page was viewed',
   checkout_started:             'User clicked checkout in Stripe',
   subscription_started:         'Stripe webhook confirmed new subscription',
@@ -133,6 +142,9 @@ export const EVENT_METADATA_ALLOWLIST: Record<AnalyticsEventName, readonly strin
   counterargument_requested:  ['surface'] as const,
   transcript_audit_started:   ['kind'] as const,
   transcript_audit_completed: ['latency_ms', 'segment_count'] as const,
+  transcript_segment_started: ['surface', 'kind'] as const,
+  transcript_segment_done:    ['surface', 'segments'] as const,
+  transcript_segment_picked:  ['surface', 'words'] as const,
   pricing_viewed:             [],
   checkout_started:           ['tier'] as const,
   subscription_started:       ['tier'] as const,

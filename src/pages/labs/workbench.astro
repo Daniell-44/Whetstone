@@ -12,7 +12,6 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import Workbench from '../../components/labs/Workbench';
-import ToolNav from '../../components/tool/ToolNav.astro';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
 import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
@@ -52,7 +51,6 @@ const realPro = session
         The dev tier switcher (top right) still overrides the display gates.
       </p>
     </header>
-    <ToolNav isPro={realPro} />
     <Workbench client:load realSignedIn={realSignedIn} realPro={realPro} />
   </main>
 </Base>

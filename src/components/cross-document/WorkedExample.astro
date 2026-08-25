@@ -1,62 +1,11 @@
 ---
-export const prerender = false;
-
-import { env } from 'cloudflare:workers';
-import Base from '../../../layouts/Base.astro';
-import CrossDocumentForm from '../../../components/cross-document/CrossDocumentForm';
-import WorkedExampleTour, { BODY_ID, COLLAPSED_KEY } from '../../../components/cross-document/WorkedExampleTour';
-import StudioNav from '../../../components/studio/StudioNav.astro';
-import { makeAuthDb } from '../../../../functions/_lib/auth/db';
-import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
-
-const authDb  = makeAuthDb(env.DB);
-const session = await getSessionFromRequest(Astro.request, authDb);
-
-// Free tier, Daniel 2026-08-14: "all features should be in free tier, no sign
-// in needed for now but force sign in if one session has >3 uses." The
-// per-session cap is enforced at the API, not here: a page you can read costs
-// nothing, and the door should not be locked when the tool inside meters
-// itself. The old Pro upsell and its billing lookups are gone with the tier.
+// The cross-document worked example, lifted out of /creator/studio/cross-document
+// on 2026-08-25 so it could move with the form into the Ask tab of /audit.
+// Unchanged content: every quote in it has already been through the verbatim
+// quote gate against its source page, and a sample invented for prettiness
+// would be the exact sin this publication exists to catch.
+import WorkedExampleTour, { BODY_ID, COLLAPSED_KEY } from './WorkedExampleTour';
 ---
-<Base
-  title="Cross-Document Audit - Studio"
-  description="Audit 2-5 documents together and get a briefing: where each lands, and the premises they actually contest."
-  canonicalPath="/creator/studio/cross-document"
-  isLoggedIn={Boolean(session)}
->
-  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
-
-    <StudioNav current="cross-document" hasActiveSubscription={true} />
-
-    <header class="mb-8">
-      <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">
-        Cross-document audit
-      </h1>
-      <p class="text-base sm:text-lg text-muted leading-relaxed max-w-3xl">
-        Paste or link 2-5 documents on the same question. Each is audited on its own, then
-        compared: where each lands, which premises they actually contest, and the exact
-        wording each side uses. What comes out is a briefing, the same form this
-        publication writes by hand. If you have a question rather than documents,
-        <a href="/audit?mode=question" class="text-accent-support hover:underline">ask it on the Audit page</a>
-        and the engine goes and finds the sources itself.
-      </p>
-      <p class="text-xs text-muted mt-3">
-        Free to use. Documents take 60-120 seconds, because each one is fully audited before
-        the comparison.
-      </p>
-    </header>
-
-    {/* THE WORKED EXAMPLE. Prepared, not live, and labelled as such. Every
-        quote below comes from the nuclear costings briefing, where it has
-        already been through the verbatim quote gate against its source page.
-        A sample invented for prettiness would be the exact sin this
-        publication exists to catch.
-
-        The WorkedExampleTour island in the header walks a first-time visitor
-        through the four sections below (the data-tour-anchor attributes),
-        then collapses the example to this header row, with the chevron to
-        reopen. With JavaScript disabled the island renders nothing and the
-        full example simply stays visible. */}
     <section class="mb-10 rounded-lg border border-hairline bg-surface overflow-hidden">
       <div class="flex items-center justify-between gap-3 px-4 py-2.5 border-b border-hairline" data-xdoc-example-header>
         <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted m-0">
@@ -157,19 +106,3 @@ const session = await getSessionFromRequest(Astro.request, authDb);
       } catch (e) { /* Storage unavailable: leave the example expanded. */ }
     </script>
 
-    {/* THE QUESTION BOX WAS HERE, and moved to /audit?mode=question on
-        2026-08-17. It was only ever parked on this page as a first proposal.
-        /audit is now the single door to the tool, so a question belongs there
-        beside paste-a-draft and paste-a-URL as a third way in, where visitors
-        already arrive; a second live entrance on a satellite room would split
-        that door in two again. The worked example above stays, because its job
-        is teaching the output shape, not taking input, and the header links a
-        visitor who has a question rather than documents to the new home. */}
-
-    <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">
-      Audit your own documents
-    </p>
-    <CrossDocumentForm client:load />
-
-  </main>
-</Base>

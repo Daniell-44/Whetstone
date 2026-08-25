@@ -18,20 +18,18 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import AuditForm from '../../components/audit/AuditForm';
-import ToolNav from '../../components/tool/ToolNav.astro';
 import StudioEditor from '../../components/studio/StudioEditor';
 import QuestionBriefing from '../../components/premise/QuestionBriefing';
+import CrossDocumentForm from '../../components/cross-document/CrossDocumentForm';
+import CrossDocumentWorkedExample from '../../components/cross-document/WorkedExample.astro';
 import OnboardingTour from '../../components/onboarding/OnboardingTour';
 import { getAllBriefings } from '../../lib/briefings';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
-import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeFindingActionDb } from '../../../functions/_lib/documents/finding-actions';
-import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
 import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
@@ -39,14 +37,13 @@ import type { PhilosophicalCommitmentsResult } from '../../../functions/_lib/phi
 import type { CitationAuditResult } from '../../../functions/_lib/citation-audit/types';
 import type { DocumentVersion } from '../../../functions/_lib/documents/types';
 
-// The reserved URL contract (merge adjudication 2026-07-13). These params are
-// honoured at the tool's canonical address, so the remaining satellite rooms
-// can cut over later with a redirect flip, not a link-breaking migration.
-// Deliberately 302 (temporary): the destinations change at cutover and must
-// not be cached.
+// The cutover the reserved URL contract was reserving for (2026-08-25). Both
+// satellite rooms are gone: cross-document is an entrance inside Ask, and the
+// transcript room is replaced by segment-then-audit in Read. These params used
+// to bounce OUT to the rooms; now they land where the work happens.
 const typeParam = Astro.url.searchParams.get('type');
-if (typeParam === 'transcript') return Astro.redirect('/creator/studio/transcript', 302);
-if (Astro.url.searchParams.get('compare') === '1') return Astro.redirect('/creator/studio/cross-document', 302);
+if (typeParam === 'transcript') return Astro.redirect('/audit', 301);
+if (Astro.url.searchParams.get('compare') === '1') return Astro.redirect('/audit?mode=question&ask=documents', 301);
 
 // Server-side mode switch ("Workbench + satellites" adjudication, 2026-07-13):
 // ?mode=create renders the Create island (StudioEditor) in place of the Reader,
@@ -57,6 +54,13 @@ if (Astro.url.searchParams.get('compare') === '1') return Astro.redirect('/creat
 // (Until the 2026-08-16 cutover ?doc= bounced to /creator/studio; that page now
 // redirects HERE, so the document loads on this page and a redirect loop is
 // impossible.)
+// Ask holds two entrances to the same output. Both produce a briefing: one
+// starts from a question and the engine finds the sources, the other starts
+// from 2-5 documents you already have. Server-rendered like the mode switch
+// above, so only the island being viewed is ever shipped.
+const askParam = Astro.url.searchParams.get('ask');
+const ask: 'question' | 'documents' = askParam === 'documents' ? 'documents' : 'question';
+
 const docParam = Astro.url.searchParams.get('doc');
 const modeParam = Astro.url.searchParams.get('mode');
 const mode: 'read' | 'create' | 'question' =
@@ -107,12 +111,11 @@ const sharedText     = !auditUrl && auditTextParam.length >= 50 ? auditTextParam
 // pre-cached sample so the reader sees a worked result instantly, no API call.
 const auditSampleId = Astro.url.searchParams.get('sample') ?? '';
 
-// Deeper lenses show a subscription-aware teaser in the Reader, so detect it.
 const authDb  = makeAuthDb(env.DB);
 const session = await getSessionFromRequest(Astro.request, authDb);
-const isPro = session
-  ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
-  : false;
+// The billing lookup that used to sit here existed only to size the Deeper
+// read teaser in the Reader. That panel came off on 2026-08-25, so every
+// audit page load stops paying for a subscription query nothing reads.
 // Create mode labels findings to the signed-in user's terminology preference.
 // A signed-out visitor has no stored preference and gets the default ('plain',
 // matching what a fresh account starts with).
@@ -189,8 +192,6 @@ if (docParam && session) {
      strip + toggle sideways (the one-surface reading is the point of the merge).
      Inner sections apply their own narrower constraints. */}
   <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
-    <ToolNav current="audit" />
-
     {/* Read / Create / Ask mode control: a segmented PILL, deliberately a
        different shape from the ToolNav underline-tabs above it, because two
        stacked rows of the same tab grammar read as two competing navigation
@@ -254,32 +255,75 @@ if (docParam && session) {
         {/* 1200px: room for the empty-state specimen rail beside the input,
            and a less-cramped two-panel results view (was max-w-4xl / 896px). */}
         <section class="max-w-[1200px]">
-          <AuditForm isPro={isPro} initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
+          <AuditForm initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
         </section>
       </>
     )}
 
     {mode === 'question' && (
       <>
-        <header class="mb-8 max-w-3xl">
+        <header class="mb-6 max-w-3xl">
           <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit · Ask</p>
-          <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">Start from a question, not a document.</h1>
-          {/* About a minute, not the 40 seconds the research itself takes: the
-             second request re-reads the question server-side rather than
-             trusting a client-supplied outline, so the reader waits for both
-             halves. Name the wait they actually get. */}
+          <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">Map a contested question.</h1>
           <p class="mt-2 text-sm text-muted leading-relaxed">
-            Type a contested question and the engine names the claims an answer would rest on,
-            researches the first two, and quotes only what it can check word-for-word at the
-            source. It runs live and takes about a minute.
+            Both ways in end in the same thing: a briefing that says where each side lands and
+            which premises they actually contest. Start from the question and the engine finds the
+            sources. Start from documents you already have and it works with those.
           </p>
         </header>
 
-        {/* Narrower than the Reader's 1200px: this mode has no specimen rail
-           beside the field, and the result is continuous prose, which wants a
-           readable measure rather than the full width. */}
+        {/* The two entrances. Plain links like the mode pill above, in a
+           quieter grammar (underline, not a pill) because this is a choice
+           inside a mode, not a fourth mode. */}
+        <nav class="mb-8 flex items-center gap-5 border-b border-hairline" aria-label="Ask input">
+          <a
+            href="/audit?mode=question"
+            aria-current={ask === 'question' ? 'page' : undefined}
+            class={`inline-flex items-center min-h-11 border-b-2 text-sm transition-colors ${
+              ask === 'question' ? 'text-ink-strong font-semibold border-accent-support' : 'text-muted border-transparent hover:text-ink'
+            }`}
+          >I have a question</a>
+          <a
+            href="/audit?mode=question&ask=documents"
+            aria-current={ask === 'documents' ? 'page' : undefined}
+            class={`inline-flex items-center min-h-11 border-b-2 text-sm transition-colors ${
+              ask === 'documents' ? 'text-ink-strong font-semibold border-accent-support' : 'text-muted border-transparent hover:text-ink'
+            }`}
+          >I have the documents</a>
+        </nav>
+
+        {/* Narrower than the Reader's 1200px: neither entrance has a specimen
+           rail beside the field, and the result is continuous prose, which
+           wants a readable measure rather than the full width. */}
         <section class="max-w-3xl">
-          <QuestionBriefing client:load />
+          {ask === 'question' ? (
+            <>
+              {/* About a minute, not the 40 seconds the research itself takes:
+                 the second request re-reads the question server-side rather
+                 than trusting a client-supplied outline, so the reader waits
+                 for both halves. Name the wait they actually get. */}
+              <p class="mb-4 text-sm text-muted leading-relaxed">
+                Type a contested question and the engine names the claims an answer would rest on,
+                researches the first two, and quotes only what it can check word-for-word at the
+                source. It runs live and takes about a minute.
+              </p>
+              <QuestionBriefing client:load />
+            </>
+          ) : (
+            <>
+              <p class="mb-4 text-sm text-muted leading-relaxed">
+                Paste or link 2-5 documents on the same question. Each is audited on its own, then
+                compared: where each lands, which premises they actually contest, and the exact
+                wording each side uses. It takes 60 to 120 seconds, because every document is fully
+                audited before the comparison starts.
+              </p>
+              <CrossDocumentWorkedExample />
+              <p class="font-mono text-[11px] uppercase tracking-[0.08em] text-muted mb-3">
+                Audit your own documents
+              </p>
+              <CrossDocumentForm client:load />
+            </>
+          )}
         </section>
       </>
     )}
@@ -291,6 +335,12 @@ if (docParam && session) {
           <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">Strengthen your draft before it ships.</h1>
           <p class="mt-2 text-sm text-muted leading-relaxed">
             The same engine, turned on your own writing: claims, warrants, and the named reasoning patterns, before a reader finds them.
+          </p>
+          {/* The only door left to the saved-drafts library, which used to
+             hang off the suite strip above the mode pill. That strip is gone
+             (2026-08-25); the library belongs beside the editor that fills it. */}
+          <p class="mt-3 text-sm">
+            <a href="/creator/documents" class="text-accent-support hover:text-accent font-medium">Your saved drafts &rarr;</a>
           </p>
         </header>
 

@@ -39,6 +39,8 @@ declare namespace Cloudflare {
     PUBLIC_COUNTERARG_DAILY_CAP?:   string;
     LOGGEDIN_COUNTERARG_DAILY_CAP?: string;
     TRANSCRIPT_DAILY_CAP?:          string;
+    TRANSCRIPT_SEGMENT_USER_CAP?:   string;
+    TRANSCRIPT_SEGMENT_ANON_CAP?:   string;
     ALLOWED_ORIGINS?:      string;
     COST_TEST_SECRET?:    string;
     SITE_URL?:            string;

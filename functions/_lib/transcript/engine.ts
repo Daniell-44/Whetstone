@@ -25,14 +25,31 @@ export interface TranscriptAuditOutput {
   outputTokens: number;
 }
 
-export async function auditTranscript(
+// ---------------------------------------------------------------------------
+// Stage A on its own.
+//
+// Split out of auditTranscript on 2026-08-25 (owner call: "transcript pulls
+// cost money"). A whole-transcript run is one segmentation call plus up to
+// twelve per-segment audits plus a gemini-2.5-pro synthesis, roughly ten to
+// twenty times the cost of auditing one article. Segmentation alone is a
+// single Flash call, and it is the only genuinely transcript-shaped step:
+// once a segment is chosen its text is just text, and the ordinary audit
+// handles it. So the reader gets the map for a fraction of a cent and spends
+// a real audit only on the segment they actually care about.
+//
+// auditTranscript still calls this, so the whole-transcript path is unchanged.
+// ---------------------------------------------------------------------------
+export interface SegmentationOutput {
+  segmentation:     SegmentationResult;
+  argumentSegments: ArgumentSegment[];
+  inputTokens:      number;
+  outputTokens:     number;
+}
+
+export async function segmentTranscript(
   input: TranscriptInput,
   deps:  TranscriptAuditDeps,
-): Promise<TranscriptAuditOutput> {
-  let totalInputTokens  = 0;
-  let totalOutputTokens = 0;
-
-  // ===== Stage A — segmentation =====
+): Promise<SegmentationOutput> {
   const hasTimestamps = input.cues.some(c => c.endSec > 0);
   let transcriptText = cuesToText(input.cues, hasTimestamps);
   if (transcriptText.length > TRANSCRIPT_MAX_CHARS) {
@@ -57,15 +74,29 @@ export async function auditTranscript(
     deps.backoffDelaysMs,
   );
 
-  totalInputTokens  += segResult.inputTokens;
-  totalOutputTokens += segResult.outputTokens;
-
   const segmentation: SegmentationResult = segResult.output;
 
-  // Filter to argument segments and cap
-  const argumentSegments: ArgumentSegment[] = segmentation.segments
-    .filter(s => s.kind === 'argument')
-    .slice(0, MAX_SEGMENTS_PER_TRANSCRIPT);
+  return {
+    segmentation,
+    // Argument segments only, capped. The other kinds (sponsor reads, intros,
+    // listener mail) are what makes an hour of audio mostly not an argument.
+    argumentSegments: segmentation.segments
+      .filter(s => s.kind === 'argument')
+      .slice(0, MAX_SEGMENTS_PER_TRANSCRIPT),
+    inputTokens:  segResult.inputTokens,
+    outputTokens: segResult.outputTokens,
+  };
+}
+
+export async function auditTranscript(
+  input: TranscriptInput,
+  deps:  TranscriptAuditDeps,
+): Promise<TranscriptAuditOutput> {
+  // ===== Stage A - segmentation =====
+  const stageA = await segmentTranscript(input, deps);
+  const { segmentation, argumentSegments } = stageA;
+  let totalInputTokens  = stageA.inputTokens;
+  let totalOutputTokens = stageA.outputTokens;
 
   // ===== Stage B — per-segment audit (parallel, throttled) =====
   const segmentAudits: SegmentAudit[] = [];

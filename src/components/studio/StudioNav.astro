@@ -13,10 +13,10 @@ interface Props {
 const { current } = Astro.props;
 
 const tabs: { key: Props['current']; label: string; href: string }[] = [
-  { key: 'editor',         label: 'Editor',         href: '/audit?mode=create' },
-  { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript' },
-  { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document' },
-  { key: 'documents',      label: 'Documents',      href: '/creator/documents' },
+  // Transcript and Cross-document were removed on 2026-08-25 when both rooms
+  // folded into /audit. What is left is the editor and the library it fills.
+  { key: 'editor',    label: 'Editor',    href: '/audit?mode=create' },
+  { key: 'documents', label: 'Documents', href: '/creator/documents' },
 ];
 ---
 {/* Mobile: a single-row horizontal scroll strip with ~44px targets (the
