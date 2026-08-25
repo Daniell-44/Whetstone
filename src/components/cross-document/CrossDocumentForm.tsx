@@ -123,7 +123,7 @@ export default function CrossDocumentForm() {
           <span class="text-xs text-muted">
             {phase.title} · saved {new Date(phase.savedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
-          <a href="/creator/studio/cross-document" class="ml-auto text-xs text-accent-support hover:underline">
+          <a href="/audit?mode=question&ask=documents" class="ml-auto text-xs text-accent-support hover:underline">
             Run a new analysis →
           </a>
         </div>

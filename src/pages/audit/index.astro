@@ -193,9 +193,10 @@ if (docParam && session) {
      Inner sections apply their own narrower constraints. */}
   <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
     {/* Read / Create / Ask mode control: a segmented PILL, deliberately a
-       different shape from the ToolNav underline-tabs above it, because two
-       stacked rows of the same tab grammar read as two competing navigation
-       systems. Plain anchors, server-rendered active state.
+       different shape from the underline tabs inside Ask, because two rows of
+       the same tab grammar read as two competing navigation systems. (Until
+       2026-08-25 the competing row was ToolNav, sitting directly above this
+       pill; it is gone.) Plain anchors, server-rendered active state.
        Each tab names its INPUT in plain words underneath, which is how a
        visitor who arrived with a question rather than a document finds the
        third way in without the first screen having to explain itself twice.

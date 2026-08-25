@@ -147,16 +147,16 @@ function formatDate(epochMs: number): string {
           </>
         ) : activeKind === 'transcript' ? (
           <>
-            <p class="text-muted mb-4">No saved transcript audits yet. Successful runs are saved here automatically.</p>
-            <a href="/creator/studio/transcript" class="text-sm text-accent-support hover:opacity-80 underline">
-              Run a transcript audit →
+            <p class="text-muted mb-4">No saved transcript audits yet. The whole-transcript room was retired on 25 August 2026: drop a video link or paste a transcript at the Audit and it maps into passages you can audit one at a time.</p>
+            <a href="/audit" class="text-sm text-accent-support hover:opacity-80 underline">
+              Map a transcript →
             </a>
           </>
         ) : (
           <>
             <p class="text-muted mb-4">No saved cross-document analyses yet. Successful runs are saved here automatically.</p>
-            <a href="/creator/studio/cross-document" class="text-sm text-accent-support hover:opacity-80 underline">
-              Run a cross-document analysis →
+            <a href="/audit?mode=question&ask=documents" class="text-sm text-accent-support hover:opacity-80 underline">
+              Compare documents →
             </a>
           </>
         )}
