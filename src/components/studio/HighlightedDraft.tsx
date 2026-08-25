@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from 'preact/hooks';
+import { useState, useRef, useCallback, useMemo, useEffect, useLayoutEffect } from 'preact/hooks';
 import type { AuditResult } from '../../lib/audit';
 import {
   fallacyMatchKey,
@@ -9,6 +9,7 @@ import {
   modalScopeMatchKey,
 } from '../../lib/audit';
 import type { GroundednessSignal } from '../../../functions/_lib/grounded/types';
+import GroundednessChip from '../grounded/GroundednessChip';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -219,27 +220,69 @@ function resolveOverlaps(highlights: Highlight[]): Highlight[] {
 // Hover card
 // ---------------------------------------------------------------------------
 
-function HoverCard({ highlight, x, y }: { highlight: Highlight; x: number; y: number }) {
-  const severityColour: Record<string, string> = {
-    high:   'border-sev-high/40 bg-sev-high/5',
-    medium: 'border-sev-med/40 bg-sev-med/5',
-    low:    'border-sev-low/40 bg-sev-low/5',
-  };
+// Fixed width, so the horizontal clamp below is exact rather than a guess.
+// (The old card said max-w-sm, 384px, and clamped against 360.)
+const CARD_WIDTH = 344;
+
+const SEVERITY_RULE: Record<string, string> = {
+  high:   'border-l-sev-high',
+  medium: 'border-l-sev-med',
+  low:    'border-l-sev-low',
+};
+
+const SEVERITY_DOT: Record<string, string> = {
+  high:   'bg-sev-high',
+  medium: 'bg-sev-med',
+  low:    'bg-sev-low',
+};
+
+function HoverCard({ highlight, anchor }: { highlight: Highlight; anchor: DOMRect }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  // Measure, then place. Anchoring to the highlight's own box instead of the
+  // mouse point is what stops the card drifting as the pointer moves inside a
+  // long quote, and gives a real height to flip against at the foot of the
+  // viewport. Runs before paint, so the card is never seen in the wrong spot.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const margin = 8;
+    const height = el.offsetHeight;
+    const below     = anchor.bottom + margin;
+    const above     = anchor.top - height - margin;
+    const preferred = below + height + margin > window.innerHeight && above >= margin ? above : below;
+    // Last clamp: a card taller than the room on either side of the highlight
+    // still has to sit inside the viewport rather than run off it.
+    const top  = Math.max(margin, Math.min(preferred, window.innerHeight - height - margin));
+    const left = Math.max(margin, Math.min(anchor.left, window.innerWidth - CARD_WIDTH - margin));
+    setPos({ top, left });
+  }, [anchor, highlight]);
 
   return (
     <div
-      class={`fixed z-50 max-w-sm rounded-lg border shadow-lg p-3 text-xs leading-relaxed pointer-events-none ${severityColour[highlight.severity] ?? 'border-hairline bg-surface'}`}
-      style={{ left: `${Math.min(x, window.innerWidth - 360)}px`, top: `${y + 16}px` }}
+      ref={ref}
+      role="tooltip"
+      class={`fixed z-50 rounded-lg border border-hairline border-l-4 ${SEVERITY_RULE[highlight.severity] ?? 'border-l-hairline'} bg-surface shadow-xl p-3 leading-relaxed pointer-events-none`}
+      style={{
+        width:      `${CARD_WIDTH}px`,
+        left:       `${pos?.left ?? 0}px`,
+        top:        `${pos?.top ?? 0}px`,
+        // Hidden for the one frame before it has been measured.
+        visibility: pos ? 'visible' : 'hidden',
+      }}
     >
-      <p class="font-semibold text-ink-strong mb-1">{highlight.label}</p>
-      <p class="text-ink">{highlight.explanation}</p>
-      <div class="flex items-center gap-2 mt-2">
-        <span class={`px-1.5 py-0.5 rounded-[2px] font-mono text-xs font-medium ${
-          highlight.severity === 'high' ? 'bg-sev-high/10 text-sev-high' :
-          highlight.severity === 'medium' ? 'bg-sev-med/10 text-sev-med' :
-          'bg-sev-low/10 text-sev-low'
-        }`}>{highlight.severity}</span>
-        <span class="text-muted">structural</span>
+      <p class="text-[15px] font-semibold text-ink-strong mb-1">{highlight.label}</p>
+      <p class="text-[15px] text-ink">{highlight.explanation}</p>
+      <div class="flex items-center gap-2 mt-2 text-[13px]">
+        <span class="inline-flex items-center gap-1.5 text-muted">
+          <span class={`w-1.5 h-1.5 rounded-full ${SEVERITY_DOT[highlight.severity] ?? 'bg-muted'}`} />
+          {highlight.severity}
+        </span>
+        {/* Was hardcoded to the word "structural", which labelled every
+           interpretive and empirical finding as Logic. Same defect that was
+           fixed in HeatmapDraft on 2026-07-13 and missed in this file. */}
+        <GroundednessChip groundedness={highlight.groundedness} compact />
       </div>
     </div>
   );
@@ -250,9 +293,10 @@ function HoverCard({ highlight, x, y }: { highlight: Highlight; x: number; y: nu
 // ---------------------------------------------------------------------------
 
 export default function HighlightedDraft({ text, audit, activeFindingKey, flashKey, onHighlightClick }: Props) {
-  const [hoveredHighlight, setHoveredHighlight] = useState<Highlight | null>(null);
-  const [hoverPos, setHoverPos]                 = useState({ x: 0, y: 0 });
+  // What is held is the highlight's element rect, not the mouse point.
+  const [hovered, setHovered] = useState<{ h: Highlight; anchor: DOMRect } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const leaveTimer   = useRef<number | null>(null);
 
   const highlights = useMemo(
     () => resolveOverlaps(extractHighlights(text, audit)),
@@ -260,12 +304,36 @@ export default function HighlightedDraft({ text, audit, activeFindingKey, flashK
   );
 
   const handleMouseEnter = useCallback((h: Highlight, e: MouseEvent) => {
-    setHoveredHighlight(h);
-    setHoverPos({ x: e.clientX, y: e.clientY });
+    // Cancel a pending dismissal: crossing a word of plain text between two
+    // highlights used to blank the card and reopen it, which is the flicker.
+    if (leaveTimer.current !== null) { clearTimeout(leaveTimer.current); leaveTimer.current = null; }
+    setHovered({ h, anchor: (e.currentTarget as HTMLElement).getBoundingClientRect() });
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    setHoveredHighlight(null);
+    if (leaveTimer.current !== null) clearTimeout(leaveTimer.current);
+    leaveTimer.current = window.setTimeout(() => {
+      setHovered(null);
+      leaveTimer.current = null;
+    }, 80);
+  }, []);
+
+  // The card is placed in viewport coordinates and measured once, so a scroll
+  // or a resize would strand it beside the wrong words. Dismiss, don't chase.
+  useEffect(() => {
+    if (!hovered) return;
+    const dismiss = () => setHovered(null);
+    window.addEventListener('scroll', dismiss, true);
+    window.addEventListener('resize', dismiss);
+    return () => {
+      window.removeEventListener('scroll', dismiss, true);
+      window.removeEventListener('resize', dismiss);
+    };
+  }, [hovered]);
+
+  // Don't leave a dismissal timer running past unmount.
+  useEffect(() => () => {
+    if (leaveTimer.current !== null) clearTimeout(leaveTimer.current);
   }, []);
 
   // Build the rendered segments
@@ -347,8 +415,8 @@ export default function HighlightedDraft({ text, audit, activeFindingKey, flashK
       </div>
 
       {/* Hover card */}
-      {hoveredHighlight && (
-        <HoverCard highlight={hoveredHighlight} x={hoverPos.x} y={hoverPos.y} />
+      {hovered && (
+        <HoverCard highlight={hovered.h} anchor={hovered.anchor} />
       )}
     </div>
   );
