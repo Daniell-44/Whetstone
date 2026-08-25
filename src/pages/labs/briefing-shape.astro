@@ -1,0 +1,371 @@
+---
+// Rendered iterations of THE CONCISE BRIEFING (2026-08-25).
+//
+// Daniel's direction: briefings much more concise and readable, working as an
+// aggregator with a machine-drafted narrative he edits; a table and a brief
+// summary before the commentary; no opinion section at the end unless it is
+// actually written. His calls, taken in this page:
+//   - the table REPLACES the diverge apparatus entirely (rule 13: the two are
+//     two renderings of the same disagreement, so only one ships)
+//   - the summary is machine-drafted and hand-edited, so it carries no
+//     "machine-made" label: a human signs it
+//   - the editor's-view stub is gone in all three
+//
+// Everything below is real content from nuclear-costings-parent.md. Quotes are
+// the verbatim ones already through the quote gate. The summary prose is
+// written here as a machine draft would read after editing, which is the point
+// being judged. Noindex, unlinked, no ads. Nothing here ships.
+import Base from '../../layouts/Base.astro';
+
+const QUESTION = 'Why nobody actually knows if nuclear is cheaper';
+const HOOK     = "Australia's political economy: headlines were picked seven assumptions earlier.";
+
+// The seven method choices. This is what the retired ::matrix carried (it had
+// five) plus the two the diverge block added. Every cell is drawn from a
+// numbered premise in the current briefing.
+const ROWS = [
+  {
+    choice:   'What to measure',
+    frontier: 'Whole-system cost, nuclear included',
+    gencost:  'Per technology, plus a system-wide measure from 2025-26',
+    star:     '',
+    note:     'The two headlines answer different questions, so the numbers were never comparable.',
+  },
+  {
+    choice:   'Which demand future',
+    frontier: '25 per cent cheaper inside AEMO’s own Step Change scenario',
+    gencost:  'Ruled the cross-scenario comparison uninterpretable',
+    star:     '',
+    note:     'The campaign’s 44 per cent came from pairing a different demand future with the technology change.',
+  },
+  {
+    choice:   'How often a reactor runs',
+    frontier: '90 per cent of the time',
+    gencost:  '53 to 89 per cent, from coal’s own record',
+    star:     'frontier',
+    note:     'Neither side argues for its reference class. Each settles it by assumption, not evidence.',
+  },
+  {
+    choice:   'How long the asset lives',
+    frontier: 'Build cost spread over 50 years',
+    gencost:  'Recovered over 30 years',
+    star:     '',
+    note:     'Neither report argues for its window. Each asserts one, and the longer window makes nuclear look cheaper every year.',
+  },
+  {
+    choice:   'Timing',
+    frontier: 'Coal fleet extended, 65 per cent held open',
+    gencost:  'At least 15 years lead time',
+    star:     '',
+    note:     'Both premises are house forecasts, and the clock starts at repeal of a ban still in force.',
+  },
+  {
+    choice:   'What the first plant costs',
+    frontier: 'Equilibrium costs, first-of-a-kind premium removed',
+    gencost:  'A premium of over 100 per cent',
+    star:     '',
+    note:     'Whether the learning arrives before or after the bill does a large share of the work in both conclusions.',
+  },
+  {
+    choice:   'Opportunity cost',
+    frontier: 'Rate undisclosed; the footnote reads "Error! Reference source not found."',
+    gencost:  '7 per cent, disclosed, with the reason for the change',
+    star:     'frontier',
+    note:     'One side can be checked. The other has to be trusted.',
+  },
+];
+
+// The narrative. Four short paragraphs where seven gloss paragraphs used to
+// run, which is where most of the word count goes.
+const SUMMARY = [
+  'Two costings of the same question reached opposite answers, and almost none of the gap is arithmetic. Frontier Economics, commissioned by the Coalition, priced whole pathways and found a nuclear-inclusive system cheaper. CSIRO GenCost priced each technology on its own and found firmed renewables the least-cost new build. Their headline numbers answer different questions, so they were never comparable to begin with.',
+  'Seven method choices separate them, each defensible on its own, and they stack. The one that moves the most money is how often a reactor runs: Frontier assumes 90 per cent, GenCost prices a range taken from Australian coal. Neither argues for its reference class. Grattan, adjudicating from outside, calls the 90 per cent figure optimistic and lands with GenCost, but settles the question by proximity to the coal number rather than by evidence, which repeats the move it is auditing.',
+  'The 44 per cent that reached the campaign was not the like-for-like figure. Frontier’s run with nuclear inside the same demand future AEMO uses comes to 25 per cent. The larger number came from pairing a different demand future with the technology change, a pairing GenCost’s authors ruled uninterpretable. Nearly half the political claim lived in that one choice.',
+  'Underneath the fight, both camps share a premise neither report defends: that a cost model, fed the right numbers, is the right way to settle a national technology choice. Bruce Mountain rejects the whole exercise, and if he is right the argument between the models is a category error, a charge this briefing’s own decomposition inherits.',
+];
+
+const TAKES = [
+  {
+    source: 'Centre for Independent Studies',
+    label:  'The switch to the new cost measure withheld information from the public',
+    body:   'After the system-wide measure replaced the old headline, the CIS submission argues the change withheld information from the public and policymakers, shifting the fight from missing system costs to where the system boundary sits.',
+    quote:  '',
+    audit:  'Contested Warrant',
+    kind:   'Logic',
+    finding:'The objection assumes the pre-change presentation informed rather than misled, which is the very point in dispute. The inference holds. The premise is the fight.',
+  },
+  {
+    source: 'Grattan Institute',
+    label:  'One assumption, how often reactors run, explains the gap between the models',
+    body:   'Grattan sits between the models, agreeing both use similar capital costs and isolating the capacity factor as the parameter that separates them.',
+    quote:  'But assuming 90 per cent for a fleet of seven plants over a multi-decade lifetime looks overly optimistic.',
+    audit:  'Inherited Reference Class',
+    kind:   'Judgment call',
+    finding:'Isolating the load-bearing parameter is the piece’s real service. Ruling on it by proximity to the coal figure repeats the move under audit.',
+  },
+  {
+    source: 'AEMO',
+    label:  'Nuclear cannot arrive before the coal fleet exits, so the cost contest never starts',
+    body:   'AEMO’s chief executive moves the ground from cost to timing.',
+    quote:  "Even on the most optimistic outlook, nuclear power won't be ready in time for the exit of Australia's coal-fired power stations.",
+    audit:  'Interested Premise',
+    kind:   'Judgment call',
+    finding:'The inference is sound given the 15-year clock and the exit schedule, but both premises are house numbers, and Frontier’s model attacks the second directly.',
+  },
+];
+
+// The live page's rendered <main> text, measured in the browser rather than
+// estimated from the markdown (wc -w on the source file gives 3,334, which is
+// close but counts front matter and pipe-table plumbing that never renders).
+// The three counts below are measured client-side from the articles as drawn,
+// so headlines, kickers and section labels are counted on both sides.
+const CURRENT_WORDS = 3466;
+---
+<Base title="The concise briefing (labs) - The Whetstone" noAds={true}>
+  <Fragment slot="head"><meta name="robots" content="noindex" /></Fragment>
+
+  <main class="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24">
+    <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">The Whetstone · labs</p>
+    <h1 class="font-serif text-[34px] text-ink-strong leading-tight mb-4">The concise briefing</h1>
+
+    <div class="max-w-[42rem] space-y-4 mb-6">
+      <p class="text-[17px] text-ink leading-relaxed">
+        Three shapes for the same briefing, on the real nuclear costings content. In all three the
+        table replaces the diverge apparatus rather than joining it, the summary is a machine draft
+        after editing, and the "editor's view, to come" stub is gone.
+      </p>
+      <p class="text-[15px] text-muted leading-relaxed">
+        What changes between them is where the table sits and how much of the audit it carries. What
+        to judge: whether you know what the fight is about before you have read any prose, and
+        whether anything you actually needed went out with the diverge block.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-x-8 gap-y-2 mb-12 border-y border-hairline py-3">
+      <span class="font-mono text-[13px] text-muted">Live page <span class="text-ink font-semibold">{CURRENT_WORDS.toLocaleString()}</span> words</span>
+      <span class="font-mono text-[13px] text-muted">A <span class="text-ink font-semibold" data-wc="a">-</span></span>
+      <span class="font-mono text-[13px] text-muted">B <span class="text-ink font-semibold" data-wc="b">-</span></span>
+      <span class="font-mono text-[13px] text-muted">C <span class="text-ink font-semibold" data-wc="c">-</span></span>
+      <span class="font-mono text-[13px] text-muted">rendered text, source lists excluded on both sides</span>
+    </div>
+
+    <!-- ================================================================ A -->
+    <section class="mb-20">
+      <div class="flex items-baseline gap-3 mb-1">
+        <h2 class="font-serif text-[26px] text-ink-strong leading-snug">A · Table first</h2>
+        <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">the literal reading</span>
+      </div>
+      <hr class="border-0 border-t border-ink-strong mb-6" />
+      <p class="text-[15px] text-muted leading-relaxed max-w-[42rem] mb-8">
+        You meet the disagreement as a structure before you meet it as prose. Strongest if a reader
+        arrives wanting to know what is actually in dispute. Weakest if they arrive not yet knowing
+        why the question matters, because a table cannot supply that.
+      </p>
+
+      <article id="shape-a" class="max-w-[42rem] rounded-lg border border-hairline bg-surface p-6 sm:p-8">
+        <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Energy</p>
+        <h3 class="font-serif text-[34px] text-ink-strong leading-tight mb-3">{QUESTION}</h3>
+        <p class="font-serif text-[20px] text-muted leading-snug mb-8">{HOOK}</p>
+
+        <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-3">Where each side lands on the seven choices</p>
+        <div class="overflow-x-auto -mx-2 px-2 mb-2">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-ink-strong">
+                <th class="py-2 pr-4 font-mono text-[13px] uppercase tracking-[0.08em] text-muted font-normal align-bottom">The choice</th>
+                <th class="py-2 pr-4 font-mono text-[13px] uppercase tracking-[0.08em] text-ink-strong font-semibold align-bottom">Frontier</th>
+                <th class="py-2 font-mono text-[13px] uppercase tracking-[0.08em] text-ink-strong font-semibold align-bottom">GenCost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ROWS.map((r) => (
+                <tr class="border-b border-hairline align-top">
+                  <td class="py-2.5 pr-4 font-serif text-[15px] text-muted whitespace-nowrap">{r.choice}</td>
+                  <td class="py-2.5 pr-4 font-serif text-[15px] text-ink">{r.star === 'frontier' && <span class="text-muted" title="supplied: the report never says it, but the argument needs it">★ </span>}{r.frontier}</td>
+                  <td class="py-2.5 font-serif text-[15px] text-ink">{r.gencost}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="font-serif text-[13px] text-muted leading-relaxed mb-8">
+          ★ marks a premise the report never states but the argument needs.
+        </p>
+
+        {SUMMARY.map((p) => (
+          <p class="font-serif text-[17px] text-ink leading-relaxed mb-4">{p}</p>
+        ))}
+
+        <hr class="border-0 border-t border-ink-strong mt-8 mb-4" />
+        <h4 class="font-serif text-[26px] text-ink-strong leading-snug mb-1">The takes</h4>
+        <p class="font-serif text-[15px] text-muted leading-relaxed mb-6">Each one audited for how it argues, not for whether we agree with it.</p>
+
+        {TAKES.map((t) => (
+          <div class="mb-7">
+            <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">{t.source}</p>
+            <p class="font-serif text-[17px] font-semibold text-ink-strong leading-snug mb-2">{t.label}</p>
+            <p class="font-serif text-[17px] text-ink leading-relaxed mb-2">{t.body}</p>
+            {t.quote && <p class="font-serif text-[20px] text-ink-strong leading-snug border-l-2 border-hairline pl-4 my-3">{t.quote}</p>}
+            <div class="rounded border border-hairline bg-paper px-4 py-3">
+              <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">{t.audit} · {t.kind}</p>
+              <p class="font-serif text-[15px] text-ink leading-relaxed">{t.finding}</p>
+            </div>
+          </div>
+        ))}
+      </article>
+    </section>
+
+    <!-- ================================================================ B -->
+    <section class="mb-20">
+      <div class="flex items-baseline gap-3 mb-1">
+        <h2 class="font-serif text-[26px] text-ink-strong leading-snug">B · Summary first</h2>
+        <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">reads as an article</span>
+      </div>
+      <hr class="border-0 border-t border-ink-strong mb-6" />
+      <p class="text-[15px] text-muted leading-relaxed max-w-[42rem] mb-8">
+        Same parts, inverted. The narrative tells you why the question is contested and the table
+        arrives as the evidence for what it just said. Strongest for a reader who came from the feed
+        without knowing the topic. The risk is that a skimmer bounces before reaching the table,
+        which is the only part they could have scanned in ten seconds.
+      </p>
+
+      <article id="shape-b" class="max-w-[42rem] rounded-lg border border-hairline bg-surface p-6 sm:p-8">
+        <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Energy</p>
+        <h3 class="font-serif text-[34px] text-ink-strong leading-tight mb-3">{QUESTION}</h3>
+        <p class="font-serif text-[20px] text-muted leading-snug mb-8">{HOOK}</p>
+
+        {SUMMARY.map((p) => (
+          <p class="font-serif text-[17px] text-ink leading-relaxed mb-4">{p}</p>
+        ))}
+
+        <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mt-8 mb-3">The seven choices, side by side</p>
+        <div class="overflow-x-auto -mx-2 px-2 mb-2">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="border-b border-ink-strong">
+                <th class="py-2 pr-4 font-mono text-[13px] uppercase tracking-[0.08em] text-muted font-normal align-bottom">The choice</th>
+                <th class="py-2 pr-4 font-mono text-[13px] uppercase tracking-[0.08em] text-ink-strong font-semibold align-bottom">Frontier</th>
+                <th class="py-2 font-mono text-[13px] uppercase tracking-[0.08em] text-ink-strong font-semibold align-bottom">GenCost</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ROWS.map((r) => (
+                <tr class="border-b border-hairline align-top">
+                  <td class="py-2.5 pr-4 font-serif text-[15px] text-muted whitespace-nowrap">{r.choice}</td>
+                  <td class="py-2.5 pr-4 font-serif text-[15px] text-ink">{r.star === 'frontier' && <span class="text-muted" title="supplied: the report never says it, but the argument needs it">★ </span>}{r.frontier}</td>
+                  <td class="py-2.5 font-serif text-[15px] text-ink">{r.gencost}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="font-serif text-[13px] text-muted leading-relaxed mb-8">
+          ★ marks a premise the report never states but the argument needs.
+        </p>
+
+        <hr class="border-0 border-t border-ink-strong mt-8 mb-4" />
+        <h4 class="font-serif text-[26px] text-ink-strong leading-snug mb-1">The takes</h4>
+        <p class="font-serif text-[15px] text-muted leading-relaxed mb-6">Each one audited for how it argues, not for whether we agree with it.</p>
+
+        {TAKES.map((t) => (
+          <div class="mb-7">
+            <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">{t.source}</p>
+            <p class="font-serif text-[17px] font-semibold text-ink-strong leading-snug mb-2">{t.label}</p>
+            <p class="font-serif text-[17px] text-ink leading-relaxed mb-2">{t.body}</p>
+            {t.quote && <p class="font-serif text-[20px] text-ink-strong leading-snug border-l-2 border-hairline pl-4 my-3">{t.quote}</p>}
+            <div class="rounded border border-hairline bg-paper px-4 py-3">
+              <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">{t.audit} · {t.kind}</p>
+              <p class="font-serif text-[15px] text-ink leading-relaxed">{t.finding}</p>
+            </div>
+          </div>
+        ))}
+      </article>
+    </section>
+
+    <!-- ================================================================ C -->
+    <section class="mb-20">
+      <div class="flex items-baseline gap-3 mb-1">
+        <h2 class="font-serif text-[26px] text-ink-strong leading-snug">C · The table carries the audit</h2>
+        <span class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">the aggressive cut</span>
+      </div>
+      <hr class="border-0 border-t border-ink-strong mb-6" />
+      <p class="text-[15px] text-muted leading-relaxed max-w-[42rem] mb-8">
+        Each row gains the one sentence saying what is wrong with that choice, so the audit stops
+        being a separate stack of cards and the takes shrink to who said what. Roughly a third of
+        A and B. The risk is real and worth looking for: a third column of judgment inside a
+        comparison table is exactly the cramming rule 13 exists to stop.
+      </p>
+
+      <article id="shape-c" class="max-w-[42rem] rounded-lg border border-hairline bg-surface p-6 sm:p-8">
+        <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Energy</p>
+        <h3 class="font-serif text-[34px] text-ink-strong leading-tight mb-3">{QUESTION}</h3>
+        <p class="font-serif text-[20px] text-muted leading-snug mb-6">{HOOK}</p>
+        <p class="font-serif text-[17px] text-ink leading-relaxed mb-8">{SUMMARY[0]}</p>
+
+        <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-4">The seven choices, and what is wrong with each</p>
+        <div class="border-t border-ink-strong">
+          {ROWS.map((r) => (
+            <div class="border-b border-hairline py-4">
+              <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-ink-strong mb-2">{r.choice}</p>
+              <div class="grid sm:grid-cols-2 gap-x-6 gap-y-1 mb-2">
+                <p class="font-serif text-[15px] text-ink"><span class="text-muted">Frontier: </span>{r.star === 'frontier' && <span class="text-muted" title="supplied: the report never says it, but the argument needs it">★ </span>}{r.frontier}</p>
+                <p class="font-serif text-[15px] text-ink"><span class="text-muted">GenCost: </span>{r.gencost}</p>
+              </div>
+              <p class="font-serif text-[15px] text-muted leading-relaxed border-l-2 border-hairline pl-3">{r.note}</p>
+            </div>
+          ))}
+        </div>
+        <p class="font-serif text-[13px] text-muted leading-relaxed mt-2 mb-8">
+          ★ marks a premise the report never states but the argument needs.
+        </p>
+
+        <hr class="border-0 border-t border-ink-strong mt-8 mb-4" />
+        <h4 class="font-serif text-[26px] text-ink-strong leading-snug mb-1">Who is arguing what</h4>
+        <p class="font-serif text-[15px] text-muted leading-relaxed mb-5">The audit above applies to every take below. These are the positions themselves.</p>
+
+        {TAKES.map((t) => (
+          <div class="border-b border-hairline pb-4 mb-4">
+            <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-1">{t.source} · {t.audit}</p>
+            <p class="font-serif text-[17px] text-ink leading-snug">{t.label}</p>
+            {t.quote && <p class="font-serif text-[15px] text-muted leading-relaxed border-l-2 border-hairline pl-3 mt-2">{t.quote}</p>}
+          </div>
+        ))}
+      </article>
+    </section>
+
+    <div class="max-w-[42rem] border-t border-hairline pt-8 space-y-4">
+      <h2 class="font-serif text-[26px] text-ink-strong leading-snug">What went out, in all three</h2>
+      <p class="text-[15px] text-ink leading-relaxed">
+        The diverge apparatus: fourteen numbered premises in two aligned columns, the provenance
+        house rule, the shared-need line, three pins, three one-sided premise cards and seven gloss
+        paragraphs. The table carries where each side lands; the ★ carries the provenance mark that
+        mattered most; the summary carries the two gloss paragraphs that were doing real work.
+      </p>
+      <p class="text-[15px] text-ink leading-relaxed">
+        Also gone: the evidence block as a visible section, the common-ground list, the shared-frame
+        paragraph folded into the summary's last paragraph, and the "editor's view, written by hand,
+        to come" stub, which was a heading whose only content was the announcement of its own
+        absence.
+      </p>
+      <p class="text-[15px] text-ink leading-relaxed">
+        Deliberately not cut here, because it is a separate decision: the public poll strip, the
+        reader dial and the three contest prompts. That is a second apparatus below the commentary
+        and it would be the next thing to go if these are still too long.
+      </p>
+      <p class="text-[15px] text-muted leading-relaxed">
+        Nothing on this page is live. The source list and the fallibility line are omitted from all
+        three because they are unchanged, not because they are going.
+      </p>
+    </div>
+  </main>
+
+  <script is:inline>
+    for (const id of ['a', 'b', 'c']) {
+      const el = document.getElementById('shape-' + id);
+      const out = document.querySelector('[data-wc="' + id + '"]');
+      if (el && out) {
+        out.textContent = el.innerText.split(/\s+/).filter(Boolean).length.toLocaleString();
+      }
+    }
+  </script>
+</Base>
