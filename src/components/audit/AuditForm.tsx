@@ -79,7 +79,27 @@ function countFindings(r: AuditResult) {
 // ---------------------------------------------------------------------------
 
 export default function AuditForm({ initialText = '', initialUrl = '', initialSampleId = '' }: { initialText?: string; initialUrl?: string; initialSampleId?: string }) {
-  const [input, setInput]         = useState('');
+  /**
+   * Adopt whatever is already in the field, read at FIRST RENDER.
+   *
+   * The textarea below is controlled and this state starts empty, so a visitor
+   * who pastes a link before the JavaScript arrives has it WIPED the moment it
+   * does: Preact reconciles the field back to the empty string it believes in.
+   * On a fast connection the window is a couple of hundred milliseconds and
+   * nobody notices. On a slow one it eats the paste and the reader has no idea
+   * why. Same defect that was found in QuestionBriefing on 2026-08-18, and the
+   * Reader's field has always had it too.
+   *
+   * It has to be read in the useState initialiser, not in an effect. Measured
+   * here: an effect reads '' because Preact has already cleared the field by
+   * the time effects run. The initialiser runs during the first render, while
+   * the server-rendered DOM is still untouched, which is the only moment the
+   * pasted value still exists.
+   */
+  const [input, setInput]         = useState(() => {
+    if (typeof document === 'undefined') return '';
+    return (document.querySelector('textarea[data-audit-field]') as HTMLTextAreaElement | null)?.value ?? '';
+  });
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [result, setResult]       = useState<AuditResult | null>(null);
@@ -119,7 +139,8 @@ export default function AuditForm({ initialText = '', initialUrl = '', initialSa
   const [segments, setSegments] = useState<PickableSegment[] | null>(null);
   const [segmentMeta, setSegmentMeta] = useState<{ title: string | null; excluded: { count: number; total: number } }>({ title: null, excluded: { count: 0, total: 0 } });
   const [segmenting, setSegmenting] = useState(false);
-  const formRef = useRef<HTMLDivElement>(null);
+  const formRef  = useRef<HTMLDivElement>(null);
+
   // Examples are the highest-leverage first-run comprehension aid, so show them
   // by default for a cold arrival (no deep-link prefill). They auto-collapse
   // once the visitor commits real text (see the onInput handler).
@@ -129,6 +150,10 @@ export default function AuditForm({ initialText = '', initialUrl = '', initialSa
   // and bring it into view. We deliberately don't auto-run — the reader presses
   // the button — so a crawler or accidental prefetch can't burn audit quota.
   useEffect(() => {
+    // A paste that beat hydration beats a prefill: the person typing is more
+    // recent than the URL that brought them here. This closure holds the
+    // FIRST-RENDER value of `input`, which is exactly what was adopted.
+    if (input) return;
     // Home-feed launcher example chip → /audit?sample=<id>: load the pre-cached
     // sample immediately (worked result, no API call). Takes precedence over the
     // text/URL prefills, which are mutually exclusive with it in practice.
@@ -452,6 +477,7 @@ export default function AuditForm({ initialText = '', initialUrl = '', initialSa
             control is an inline arrow inside the field (no separate CTA, no tabs). */}
         <div class="relative">
           <textarea
+            data-audit-field
             value={input}
             onInput={e => {
               const v = (e.target as HTMLTextAreaElement).value;
