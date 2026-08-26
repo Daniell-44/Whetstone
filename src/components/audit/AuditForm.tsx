@@ -80,26 +80,42 @@ function countFindings(r: AuditResult) {
 
 export default function AuditForm({ initialText = '', initialUrl = '', initialSampleId = '' }: { initialText?: string; initialUrl?: string; initialSampleId?: string }) {
   /**
-   * Adopt whatever is already in the field, read at FIRST RENDER.
+   * Keep a paste that beat hydration. Two constraints pull against each other
+   * and BOTH have been measured, so do not collapse this into something
+   * shorter without re-measuring with a real pre-hydration window.
    *
-   * The textarea below is controlled and this state starts empty, so a visitor
-   * who pastes a link before the JavaScript arrives has it WIPED the moment it
-   * does: Preact reconciles the field back to the empty string it believes in.
-   * On a fast connection the window is a couple of hundred milliseconds and
-   * nobody notices. On a slow one it eats the paste and the reader has no idea
-   * why. Same defect that was found in QuestionBriefing on 2026-08-18, and the
-   * Reader's field has always had it too.
+   * Why it cannot be done in an effect alone. The textarea below is controlled
+   * and its state starts empty, so a visitor who pastes before the JavaScript
+   * arrives has it wiped when Preact reconciles the field to the empty string
+   * it believes in. Reading it back in a useEffect returns '' , because Preact
+   * has already cleared a <textarea> by the time effects run. (An <input>
+   * survives that window, which is why QuestionBriefing's effect-based version
+   * works and must be left alone.) So the value has to be captured DURING
+   * render, while the server DOM is still untouched.
    *
-   * It has to be read in the useState initialiser, not in an effect. Measured
-   * here: an effect reads '' because Preact has already cleared the field by
-   * the time effects run. The initialiser runs during the first render, while
-   * the server-rendered DOM is still untouched, which is the only moment the
-   * pasted value still exists.
+   * Why the captured value cannot go straight into state. Preact hydrates by
+   * reusing the server DOM without applying props to it, while recording those
+   * props as though it had. If the first render disagrees with the server,
+   * the DOM keeps the server's value and no later diff repairs it, because the
+   * recorded props already say what we want. Seeding `input` from the capture
+   * made the first render believe the submit button was enabled while the DOM
+   * kept `disabled`, and nothing short of a reload could free it. Measured on
+   * a 2.4 second window: the paste survived and the form would not send it,
+   * which is worse than losing the paste.
+   *
+   * So: capture during render, render as the server did, adopt in an effect.
+   * The effect is an ordinary state change, which Preact does apply.
+   * Structural changes are unaffected, which is why the URL hint below appears
+   * either way and an end-to-end test cannot see this bug.
    */
-  const [input, setInput]         = useState(() => {
-    if (typeof document === 'undefined') return '';
-    return (document.querySelector('textarea[data-audit-field]') as HTMLTextAreaElement | null)?.value ?? '';
-  });
+  const pastedBeforeHydration = useRef<string | null>(null);
+  if (pastedBeforeHydration.current === null) {
+    pastedBeforeHydration.current =
+      typeof document === 'undefined'
+        ? ''
+        : (document.querySelector('textarea[data-audit-field]') as HTMLTextAreaElement | null)?.value ?? '';
+  }
+  const [input, setInput]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [result, setResult]       = useState<AuditResult | null>(null);
@@ -151,9 +167,11 @@ export default function AuditForm({ initialText = '', initialUrl = '', initialSa
   // the button — so a crawler or accidental prefetch can't burn audit quota.
   useEffect(() => {
     // A paste that beat hydration beats a prefill: the person typing is more
-    // recent than the URL that brought them here. This closure holds the
-    // FIRST-RENDER value of `input`, which is exactly what was adopted.
-    if (input) return;
+    // recent than the URL that brought them here.
+    if (pastedBeforeHydration.current) {
+      setInput(pastedBeforeHydration.current);
+      return;
+    }
     // Home-feed launcher example chip → /audit?sample=<id>: load the pre-cached
     // sample immediately (worked result, no API call). Takes precedence over the
     // text/URL prefills, which are mutually exclusive with it in practice.
