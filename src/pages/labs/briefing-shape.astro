@@ -75,13 +75,17 @@ const ROWS = [
   },
 ];
 
-// The narrative. Four short paragraphs where seven gloss paragraphs used to
-// run, which is where most of the word count goes.
+// The narrative, rewritten 2026-08-26 on Daniel's note that it should be
+// context rather than a rehash of what the table is about to show. It now
+// carries only what the table cannot: who paid for which costing, how the
+// numbers reached the public, and why nothing has settled the question. No
+// cell below is restated. Every fact traces to the briefing's own ::context,
+// ::principals or ::evidence rows.
 const SUMMARY = [
-  'Two costings of the same question reached opposite answers, and almost none of the gap is arithmetic. Frontier Economics, commissioned by the Coalition, priced whole pathways and found a nuclear-inclusive system cheaper. CSIRO GenCost priced each technology on its own and found firmed renewables the least-cost new build. Their headline numbers answer different questions, so they were never comparable to begin with.',
-  'Seven method choices separate them, each defensible on its own, and they stack. The one that moves the most money is how often a reactor runs: Frontier assumes 90 per cent, GenCost prices a range taken from Australian coal. Neither argues for its reference class. Grattan, adjudicating from outside, calls the 90 per cent figure optimistic and lands with GenCost, but settles the question by proximity to the coal number rather than by evidence, which repeats the move it is auditing.',
-  'The 44 per cent that reached the campaign was not the like-for-like figure. Frontier’s run with nuclear inside the same demand future AEMO uses comes to 25 per cent. The larger number came from pairing a different demand future with the technology change, a pairing GenCost’s authors ruled uninterpretable. Nearly half the political claim lived in that one choice.',
-  'Underneath the fight, both camps share a premise neither report defends: that a cost model, fed the right numbers, is the right way to settle a national technology choice. Bruce Mountain rejects the whole exercise, and if he is right the argument between the models is a category error, a charge this briefing’s own decomposition inherits.',
+  'Australia has no nuclear power industry and, as of the Senate record of February 2026, no legal way to start one: generation is still prohibited under federal law. The New South Wales upper house passed a state repeal bill in May 2026 which is not yet law. Meanwhile the coal fleet is closing, and nobody in this argument disputes that.',
+  'Into that gap came two costings with different paymasters. CSIRO publishes GenCost annually, government-funded, with the market operator as co-publisher. Frontier Economics was commissioned by the Coalition to price its seven-site plan. The Coalition took the result to the 2025 election as a saving of $263 billion; the plan itself ended with that election, and current policy is to lift the ban without committing to a reactor.',
+  'Nothing since has settled it, and the reason is not that the evidence is thin. AAP FactCheck found in April 2025 that both major parties had overreached. CSIRO has kept publishing through the fight and changed its own headline measure in the 2025-26 edition, which its critics read as a concession and its defenders as a correction. There is no built Australian reactor to check any of it against, so the answer rests entirely on which assumptions each model chose.',
+  'That is what the table below sets out: the seven choices where the two reports part company, and what each one picked.',
 ];
 
 const TAKES = [
@@ -159,7 +163,8 @@ const CURRENT_WORDS = 3466;
       <p class="text-[15px] text-muted leading-relaxed max-w-[42rem] mb-8">
         You meet the disagreement as a structure before you meet it as prose. Strongest if a reader
         arrives wanting to know what is actually in dispute. Weakest if they arrive not yet knowing
-        why the question matters, because a table cannot supply that.
+        why the question matters, because a table cannot supply that and the context now sits
+        underneath it.
       </p>
 
       <article id="shape-a" class="max-w-[42rem] rounded-lg border border-hairline bg-surface p-6 sm:p-8">
@@ -223,10 +228,11 @@ const CURRENT_WORDS = 3466;
       </div>
       <hr class="border-0 border-t border-ink-strong mb-6" />
       <p class="text-[15px] text-muted leading-relaxed max-w-[42rem] mb-8">
-        Same parts, inverted. The narrative tells you why the question is contested and the table
-        arrives as the evidence for what it just said. Strongest for a reader who came from the feed
-        without knowing the topic. The risk is that a skimmer bounces before reaching the table,
-        which is the only part they could have scanned in ten seconds.
+        Same parts, inverted, and the shape Daniel picked. The narrative is now background rather
+        than a precis: who paid for which costing, how the numbers reached an election, and why
+        nothing has settled it. It restates no cell of the table, so the two halves do different
+        jobs. The remaining risk is that a skimmer bounces before reaching the table, which is the
+        only part they could have scanned in ten seconds.
       </p>
 
       <article id="shape-b" class="max-w-[42rem] rounded-lg border border-hairline bg-surface p-6 sm:p-8">
@@ -290,28 +296,40 @@ const CURRENT_WORDS = 3466;
       </div>
       <hr class="border-0 border-t border-ink-strong mb-6" />
       <p class="text-[15px] text-muted leading-relaxed max-w-[42rem] mb-8">
-        Each row gains the one sentence saying what is wrong with that choice, so the audit stops
-        being a separate stack of cards and the takes shrink to who said what. Roughly a third of
-        A and B. The risk is real and worth looking for: a third column of judgment inside a
-        comparison table is exactly the cramming rule 13 exists to stop.
+        Rebuilt 2026-08-26 for readability. The first version gave the choice, the two positions and
+        the finding roughly equal weight and printed the words Frontier and GenCost fourteen times,
+        so nothing led. Now the choice names the row, the finding is the reading matter, and the two
+        positions drop to a labelled data pair underneath. The standing objection is unchanged and
+        is the reason to look hard at this one: the finding here audits the two models' METHOD
+        CHOICES, not the arguments people made, and the takes below lose their audit cards to pay
+        for it.
       </p>
 
       <article id="shape-c" class="max-w-[42rem] rounded-lg border border-hairline bg-surface p-6 sm:p-8">
         <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-2">Energy</p>
         <h3 class="font-serif text-[34px] text-ink-strong leading-tight mb-3">{QUESTION}</h3>
         <p class="font-serif text-[20px] text-muted leading-snug mb-6">{HOOK}</p>
-        <p class="font-serif text-[17px] text-ink leading-relaxed mb-8">{SUMMARY[0]}</p>
+        <p class="font-serif text-[17px] text-ink leading-relaxed mb-8">{SUMMARY[1]}</p>
 
         <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted mb-4">The seven choices, and what is wrong with each</p>
         <div class="border-t border-ink-strong">
-          {ROWS.map((r) => (
-            <div class="border-b border-hairline py-4">
-              <p class="font-mono text-[13px] uppercase tracking-[0.08em] text-ink-strong mb-2">{r.choice}</p>
-              <div class="grid sm:grid-cols-2 gap-x-6 gap-y-1 mb-2">
-                <p class="font-serif text-[15px] text-ink"><span class="text-muted">Frontier: </span>{r.star === 'frontier' && <span class="text-muted" title="supplied: the report never says it, but the argument needs it">★ </span>}{r.frontier}</p>
-                <p class="font-serif text-[15px] text-ink"><span class="text-muted">GenCost: </span>{r.gencost}</p>
+          {ROWS.map((r, i) => (
+            <div class="border-b border-hairline py-5">
+              {/* Three ranks and only three: the choice names the row, the
+                 finding is the reading matter, the two positions are data.
+                 The first version gave all three the same weight and printed
+                 the words Frontier and GenCost fourteen times, so nothing led. */}
+              <div class="flex items-baseline gap-2.5 mb-1.5">
+                <span class="font-mono text-[13px] text-muted tabular-nums">{i + 1}</span>
+                <h5 class="font-serif text-[17px] font-semibold text-ink-strong leading-snug">{r.choice}</h5>
               </div>
-              <p class="font-serif text-[15px] text-muted leading-relaxed border-l-2 border-hairline pl-3">{r.note}</p>
+              <p class="font-serif text-[17px] text-ink leading-relaxed mb-3 pl-6">{r.note}</p>
+              <dl class="pl-6 grid grid-cols-[5.5rem_1fr] gap-x-3 gap-y-1">
+                <dt class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">Frontier</dt>
+                <dd class="font-serif text-[15px] text-ink">{r.star === 'frontier' && <span class="text-muted" title="supplied: the report never says it, but the argument needs it">★ </span>}{r.frontier}</dd>
+                <dt class="font-mono text-[13px] uppercase tracking-[0.08em] text-muted">GenCost</dt>
+                <dd class="font-serif text-[15px] text-ink">{r.gencost}</dd>
+              </dl>
             </div>
           ))}
         </div>

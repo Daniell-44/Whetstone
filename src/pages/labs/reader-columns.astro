@@ -15,7 +15,7 @@ import ReaderColumns from '../../components/labs/ReaderColumns';
 
     <div class="max-w-3xl space-y-4 mb-10">
       <p class="text-[17px] text-ink leading-relaxed">
-        Three geometries for the same result. Switch between them and scroll each one: the thing to
+        Four geometries for the same result. Switch between them and scroll each one: the thing to
         judge is what happens when you are 1,500 pixels down the findings, not what the top of the
         page looks like.
       </p>
@@ -27,7 +27,7 @@ import ReaderColumns from '../../components/labs/ReaderColumns';
         finding to see its quote feel broken.
       </p>
       <p class="text-[15px] text-muted leading-relaxed">
-        All three keep the two-way link, so click a highlight in the text or a card in the findings
+        All four keep the two-way link, so click a highlight in the text or a card in the findings
         and the other side responds. Below 1280 pixels every variant collapses to the same stack,
         which is unchanged and not the thing being decided here.
       </p>
@@ -64,6 +64,20 @@ import ReaderColumns from '../../components/labs/ReaderColumns';
           different shapes. The argument against is that 28 per cent of 1600 pixels is a narrow
           column for the argument skeleton, and the reading measure in the centre drops to about 44
           per cent. Worth checking on a 1280-wide laptop, not just here.
+        </p>
+      </div>
+      <div>
+        <h2 class="font-serif text-[26px] text-ink-strong leading-snug mb-2">D · Three columns, rails track the page</h2>
+        <p class="text-[15px] text-ink leading-relaxed">
+          C with the scroll behaviour you asked for. In C each rail owns a scrollbar, so scrolling
+          the page does nothing to it and the pointer has to be inside a rail to move it. Here the
+          page scroll drives both rails, each through its own overflow at the same rate, so a short
+          rail and a long one start together and finish together. The text holds still in the middle
+          with its own scrollbar for when you want to read it rather than check it. There is no CSS
+          for this: the standards issue asking sticky to scroll when taller than the viewport was
+          closed without a solution, and the CSS-only answer everyone reaches for is what C already
+          does. So it is a scroll listener, and the arithmetic behind it is unit-tested even though
+          the scrolling itself could not be verified in the pane it was written in.
         </p>
       </div>
       <p class="text-[15px] text-muted leading-relaxed">
