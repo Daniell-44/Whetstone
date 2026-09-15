@@ -1,10 +1,14 @@
 name: Build, Test & Deploy
 
+# Deploys the Worker on every push to the default branch.
+#
+# PRs are deliberately NOT built here: ci.yml already runs typecheck + tests on
+# every push and every PR, so duplicating that gate on this workflow would burn
+# Actions minutes for no extra signal. The verify steps below stay because they
+# gate the deploy itself — a red typecheck or test run must not reach production.
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   build-test-deploy:
@@ -15,27 +19,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Type-check
-        run: npx tsc --noEmit
+        run: pnpm run typecheck
 
       - name: Run tests
-        run: npm test
+        run: pnpm test
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
 
-      # Deploy only on push to main (not on PRs)
+      # The Cloudflare adapter emits the Worker config during `astro build`;
+      # deploy reads it from there rather than the repo-root wrangler.toml.
       - name: Deploy to Cloudflare Workers
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
