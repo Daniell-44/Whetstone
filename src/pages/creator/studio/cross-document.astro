@@ -6,31 +6,20 @@ import Base from '../../../layouts/Base.astro';
 import CrossDocumentForm from '../../../components/cross-document/CrossDocumentForm';
 import StudioNav from '../../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
-import { makeBillingDb } from '../../../../functions/_lib/billing/subscription';
-import { makeWorkspaceDb } from '../../../../functions/_lib/workspaces/db';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../../functions/_lib/workspaces/permissions';
 import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
 
 const authDb      = makeAuthDb(env.DB);
-const billingDb   = makeBillingDb(env.DB);
-const workspaceDb = makeWorkspaceDb(env.DB);
 const session     = await getSessionFromRequest(Astro.request, authDb);
-
-if (!session) {
-  return Astro.redirect('/login?returnTo=/creator/studio/cross-document');
-}
-
-const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, session.user_id);
 ---
 <Base
   title="Cross-Document Audit - Studio"
   description="Audit 2-5 documents together. Find self-contradictions, repeated unstated warrants, and position shifts across an author's work."
   canonicalPath="/creator/studio/cross-document"
-  isLoggedIn={true}
+  isLoggedIn={!!session}
 >
   <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
 
-    <StudioNav current="cross-document" hasActiveSubscription={hasActiveSubscription} />
+    <StudioNav current="cross-document" isSignedIn={!!session} />
 
     <header class="mb-8">
       <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">
@@ -43,25 +32,12 @@ const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(billin
         certainty that escalates without new evidence.
       </p>
       <p class="text-xs text-muted mt-3">
-        Studio-tier feature. Each document is fully audited before the cross-document pass -
+        Each document is fully audited before the cross-document pass -
         analysis takes 60-120 seconds.
       </p>
     </header>
 
-    {!hasActiveSubscription ? (
-      <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
-        <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
-        <p class="text-sm text-ink max-w-sm mx-auto leading-relaxed">
-          Cross-document audit runs the full audit suite on each document plus a cross-document
-          synthesis pass. Subscribe to unlock it.
-        </p>
-        <a href="/pricing" class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors">
-          See plans →
-        </a>
-      </div>
-    ) : (
-      <CrossDocumentForm client:load />
-    )}
+    <CrossDocumentForm client:load />
 
   </main>
 </Base>

@@ -81,42 +81,6 @@ const CITATION_ERROR_MESSAGES: Record<string, string> = {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function CitationUpsell() {
-  return (
-    <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
-      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
-      <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
-        Source Match fetches every cited URL in your draft and checks whether the source
-        actually supports the claim. Subscribe to unlock it.
-      </p>
-      <a
-        href="/pricing"
-        class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
-      >
-        See plans →
-      </a>
-    </div>
-  );
-}
-
-function CounterargUpsell() {
-  return (
-    <div class="rounded-xl border border-accent-support/30 bg-accent-support/5 p-6 text-center space-y-4">
-      <p class="text-xs font-mono font-semibold uppercase tracking-widest text-accent-support">Studio Pro feature</p>
-      <p class="text-sm text-ink leading-relaxed max-w-sm mx-auto">
-        The opposing-cases engine surfaces the strongest objections your draft fails
-        to engage with. Subscribe for $22/mo to unlock it.
-      </p>
-      <a
-        href="/pricing"
-        class="inline-block rounded-xl bg-accent-support px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
-      >
-        See plans →
-      </a>
-    </div>
-  );
-}
-
 function SectionError({ code, message }: { code: string; message: string }) {
   if (code === 'UNAUTHORIZED') {
     return (
@@ -194,7 +158,6 @@ function LensButton({
 // ---------------------------------------------------------------------------
 
 interface Props {
-  hasActiveSubscription:        boolean;
   initialDocId?:                string | null;
   initialTitle?:                string;
   initialContent?:              string;
@@ -210,7 +173,6 @@ interface Props {
 }
 
 export default function StudioEditor({
-  hasActiveSubscription,
   initialDocId                = null,
   initialTitle                = 'Untitled draft',
   initialContent              = '',
@@ -287,7 +249,7 @@ export default function StudioEditor({
 
   const charCount   = draft.length;
   const canSubmit   = !isRunning && charCount >= MIN_CHARS && charCount <= MAX_CHARS;
-  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || (hasActiveSubscription && (counterargState.status !== 'idle' || commitmentsState.status !== 'idle' || citationState.status !== 'idle'));
+  const showResults = auditState.status !== 'idle' || extractionState.status !== 'idle' || counterargState.status !== 'idle' || commitmentsState.status !== 'idle' || citationState.status !== 'idle';
 
   // Update tab title with finding count
   const findingCount = auditState.status === 'done'
@@ -366,11 +328,9 @@ export default function StudioEditor({
     // Reset any prior results
     setAuditState({ status: 'loading' });
     setExtractionState({ status: 'loading' });
-    if (hasActiveSubscription) {
-      setCounterargState({ status: 'idle' });
-      setCommitmentsState({ status: 'idle' });
-      setCitationState({ status: 'idle' });
-    }
+    setCounterargState({ status: 'idle' });
+    setCommitmentsState({ status: 'idle' });
+    setCitationState({ status: 'idle' });
 
     // Artificial delay so it feels like a real analysis (~2.4s)
     await new Promise(r => setTimeout(r, 2400));
@@ -379,7 +339,7 @@ export default function StudioEditor({
     setExtractionState({ status: 'done', data: sample.cached.extraction });
     setSamplePending(false);
     setIsEditing(false); // switch to highlighted-draft review mode
-  }, [hasActiveSubscription]);
+  }, []);
 
   // Has the user meaningfully edited the loaded sample?
   const isSampleDirty = (() => {
@@ -452,17 +412,15 @@ export default function StudioEditor({
     setAuditState({ status: 'loading' });
     setLastRunGoals({ audience, intent });  // record goals this run used
     setAnalyzedAt(Date.now());
-    if (hasActiveSubscription) {
-      setCounterargState({ status: 'loading' });
-      setCommitmentsState({ status: 'loading' });
-      setCitationState({ status: 'loading' });
-    }
+    setCounterargState({ status: 'loading' });
+    setCommitmentsState({ status: 'loading' });
+    setCitationState({ status: 'loading' });
 
     let extractionDone  = false;
     let auditDone       = false;
-    let counterargDone  = !hasActiveSubscription;
-    let commitmentsDone = !hasActiveSubscription;
-    let citationDone    = !hasActiveSubscription;
+    let counterargDone  = false;
+    let commitmentsDone = false;
+    let citationDone    = false;
 
     function checkDone() {
       if (extractionDone && auditDone && counterargDone && commitmentsDone && citationDone) {
@@ -479,8 +437,8 @@ export default function StudioEditor({
       pick:          d => d.extraction,
       errorMessages: EXTRACTION_ERROR_MESSAGES,
       onOk: (data) => {
-        // Fire evidence-weighted assessment for empirical claims (subscription only)
-        if (hasActiveSubscription) {
+        // Fire evidence-weighted assessment for empirical claims.
+        {
           const empiricalClaims = (data.extraction as ArgumentExtractionResult).statements
             .filter(s => s.claimType === 'empirical_contested' || s.claimType === 'empirical_uncontested')
             .map(s => ({ id: s.id, text: s.text, claimType: s.claimType }));
@@ -507,10 +465,10 @@ export default function StudioEditor({
       onSettled:     () => { auditDone = true; checkDone(); },
     });
 
-    // Counterargument, commitments + citation are Pro-tier (Pro-model / external
-    // fetch cost). They auto-fire only for subscribers; free users see the
-    // upsell panel pointing to Studio Pro.
-    if (hasActiveSubscription) {
+    // Counterargument, commitments and citation cost more to run (Pro model /
+    // external fetches), but they are part of the open tool now and auto-fire
+    // for every draft. The per-24h audit allowance is what bounds the spend.
+    {
       void runEngine<CounterargumentResult>({
         url:           `${versionPath}/counterargument`,
         setter:        setCounterargState,
@@ -544,7 +502,7 @@ export default function StudioEditor({
         onSettled:     () => { citationDone = true; checkDone(); },
       });
     }
-  }, [draft, docId, versionId, lastSavedContent, title, canSubmit, hasActiveSubscription]);
+  }, [draft, docId, versionId, lastSavedContent, title, canSubmit]);
 
   // ---------------------------------------------------------------------------
   // runLens - on-demand deeper-lens caller (shared plumbing in tool/engine.ts).
@@ -639,7 +597,7 @@ export default function StudioEditor({
             History
           </a>
         )}
-        {hasActiveSubscription && (
+        {(
           <button
             type="button"
             onClick={handleNewDraft}
@@ -827,7 +785,7 @@ export default function StudioEditor({
           {canSubmit && !isRunning && (
             <p class="text-xs text-muted text-center">⌘/Ctrl + Enter</p>
           )}
-          {isRunning && hasActiveSubscription && (
+          {isRunning && (
             <p class="text-xs text-center text-muted">
               ~60-90s - fetching cited sources and finding opposing cases takes longer than a simple audit.
               The analysis continues on our side, so you can leave and come back to this draft.
@@ -901,9 +859,7 @@ export default function StudioEditor({
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
       </h3>
-      {/* Pro-gated (Pro-model cost). Free users see the upsell instead of an
-         empty box; subscribers get the live result. */}
-      {!hasActiveSubscription ? <CounterargUpsell /> : (
+      {(
         <>
           {counterargState.status === 'loading' && <SectionLoading label="Finding opposing cases…" />}
           {counterargState.status === 'error' && <SectionError code={counterargState.code} message={counterargState.message} />}
@@ -1051,7 +1007,7 @@ export default function StudioEditor({
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
       </h3>
-      {!hasActiveSubscription ? <CitationUpsell /> : (
+      {(
         <>
           {citationState.status === 'idle' && (
             <p class="text-xs text-muted italic leading-relaxed">
@@ -1075,7 +1031,7 @@ export default function StudioEditor({
   );
 
   // Evidence check (RIGHT, Studio Pro).
-  const evidencePanel = hasActiveSubscription && evidenceState.status !== 'idle' ? (
+  const evidencePanel = evidenceState.status !== 'idle' ? (
     <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
         Evidence Check
@@ -1117,22 +1073,6 @@ export default function StudioEditor({
     return (
       <div class="max-w-3xl mx-auto space-y-6">
         {inputSection}
-        {!hasActiveSubscription && (
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div class="rounded-lg border border-hairline bg-surface p-4">
-              <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
-                <LabelWithTooltip label="counterarguments" preference={terminologyPreference} />
-              </h3>
-              <CounterargUpsell />
-            </div>
-            <div class="rounded-lg border border-hairline bg-surface p-4">
-              <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
-                <LabelWithTooltip label="citationAudit" preference={terminologyPreference} />
-              </h3>
-              <CitationUpsell />
-            </div>
-          </div>
-        )}
       </div>
     );
   }

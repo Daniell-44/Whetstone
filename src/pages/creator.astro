@@ -5,6 +5,8 @@ import Base from '../layouts/Base.astro';
 import { makeAuthDb } from '../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
 
+// The Studio runs signed out, so the CTA is the same either way; the session
+// only decides whether we also offer sign-in for saving drafts.
 // Session-aware so the CTA offers the right next step: a signed-in user opens
 // Studio; a signed-out user is invited to sign in (returning to Studio after) or
 // try the free Reader — instead of the old bare-/login dead-end.
@@ -37,23 +39,23 @@ const signedIn = !!session;
     <!-- CTA -->
     <section class="mb-14 flex flex-wrap items-center gap-4">
       <a
-        href={signedIn ? '/creator/studio' : '/login?returnTo=/creator/studio'}
+        href="/creator/studio"
         class="inline-flex items-center gap-2 px-6 py-3 bg-accent-support text-white text-sm font-semibold rounded-lg hover:bg-accent transition-colors"
       >
-        {signedIn ? 'Open the Studio' : 'Sign in to Studio'}
+        Open the Studio
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </a>
       <a
-        href="/pricing"
+        href="/audit"
         class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-ink border border-hairline rounded-lg hover:bg-paper transition-colors"
       >
-        View pricing →
+        Audit someone else's argument →
       </a>
       {!signedIn && (
-        <a href="/audit" class="text-sm text-muted hover:text-ink transition-colors">
-          Or try the free Reader →
+        <a href="/login?returnTo=/creator/studio" class="text-sm text-muted hover:text-ink transition-colors">
+          Sign in to keep your drafts →
         </a>
       )}
     </section>
@@ -155,16 +157,15 @@ const signedIn = !!session;
       <div class="rounded-xl border border-hairline p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <p class="text-sm font-semibold text-ink-strong mb-1">Ready to stress-test a draft?</p>
-          <p class="text-sm text-muted leading-relaxed">Sign in free; the paid engines unlock when you need them.</p>
+          <p class="text-sm text-muted leading-relaxed">No account needed — every engine runs signed out. Sign in only if you want the draft kept.</p>
         </div>
         <div class="shrink-0 flex items-center gap-3">
           <a
-            href={signedIn ? '/creator/studio' : '/login?returnTo=/creator/studio'}
+            href="/creator/studio"
             class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-accent-support text-white text-sm font-semibold hover:bg-accent-support/90 transition-colors"
           >
-            {signedIn ? 'Open the Studio' : 'Sign in to Studio'}
+            Open the Studio
           </a>
-          <a href="/pricing" class="text-sm font-medium text-ink hover:text-accent transition-colors">Pricing →</a>
         </div>
       </div>
     </section>

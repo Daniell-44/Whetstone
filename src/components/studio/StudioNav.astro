@@ -2,13 +2,21 @@
 // Shared Studio toolbar nav (Option 1 — unified tab strip). Replaces the bespoke
 // per-page nav that was copy-pasted across studio / transcript / cross-document /
 // documents. The "Studio" home (amber identity) links to the /creator overview;
-// the four modes are peer tabs with an active underline; Subscribe stays a
-// distinct action on the right for non-subscribers.
+// the four modes are peer tabs with an active underline. The right-hand slot
+// used to hold a Subscribe action; with the tool open it offers sign-in to
+// signed-out visitors instead, since saving a draft is the one thing that
+// still needs an account.
 interface Props {
   current: 'editor' | 'transcript' | 'cross-document' | 'documents';
-  hasActiveSubscription?: boolean;
+  isSignedIn?: boolean;
 }
-const { current, hasActiveSubscription = false } = Astro.props;
+const { current, isSignedIn = false } = Astro.props;
+const tabHref: Record<NonNullable<Props['current']>, string> = {
+  'editor':         '/creator/studio',
+  'transcript':     '/creator/studio/transcript',
+  'cross-document': '/creator/studio/cross-document',
+  'documents':      '/creator/documents',
+};
 
 const tabs: { key: Props['current']; label: string; href: string }[] = [
   { key: 'editor',         label: 'Editor',         href: '/creator/studio' },
@@ -47,13 +55,14 @@ const tabs: { key: Props['current']; label: string; href: string }[] = [
       ))}
     </div>
   </div>
-  {!hasActiveSubscription && (
+  {!isSignedIn && (
     <a
-      href="/pricing"
-      class="inline-flex items-center gap-1.5 rounded-lg border border-accent-support/30 bg-accent-support/5 px-2.5 py-1.5 text-xs font-medium text-accent-support hover:bg-accent-support/10 transition-colors shrink-0"
+      href={`/login?returnTo=${encodeURIComponent(tabHref[current])}`}
+      class="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-2.5 py-1.5 text-xs font-medium text-muted hover:text-ink hover:border-accent-support/40 transition-colors shrink-0"
+      title="Every tool works signed out — an account is only needed to keep a draft"
     >
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-      Subscribe
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+      Sign in to save
     </a>
   )}
 </nav>
