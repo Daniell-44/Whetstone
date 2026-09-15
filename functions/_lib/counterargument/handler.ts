@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { generateCounterarguments } from './engine';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
 
 // ---------------------------------------------------------------------------
@@ -25,7 +25,6 @@ export interface CounterargHandlerDeps {
   counterargDailyCap:  number;
   provider:            LlmProvider;
   getSession:          (request: Request) => Promise<{ userId: string } | null>;
-  checkSubscription:   (userId: string) => Promise<boolean>;
 }
 
 // ---------------------------------------------------------------------------
@@ -44,30 +43,14 @@ export async function handleCounterargRequest(
   deps:    CounterargHandlerDeps,
 ): Promise<Response> {
 
-  // Auth gate — session required.
+  // Open to anonymous callers; a session only changes how the quota is keyed.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({
-      ok:    false,
-      error: { code: 'UNAUTHORIZED', message: 'Sign in to use Studio' },
-    }, 401);
-  }
 
-  // Counterargument is a Pro feature (Pro-model cost). Gate on subscription
-  // to match the version-endpoint behaviour and prevent uncapped free use.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({
-      ok:    false,
-      error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Counterargument is a Studio Pro feature.' },
-    }, 402);
-  }
-
-  // Per-user rate limit keyed by user ID.
+  // Quota keyed by account when signed in, else by client IP.
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `counterarg:user:${session.userId}`,
+      `counterarg:${quotaIdentity(request, session?.userId)}`,
       deps.counterargDailyCap,
     );
     if (!quota.allowed) {

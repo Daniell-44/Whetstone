@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { detectTonePosture } from './engine';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
 
 const BodySchema = z.object({
@@ -30,15 +30,13 @@ export async function handleToneRequest(
   request: Request,
   deps:    ToneHandlerDeps,
 ): Promise<Response> {
+  // Open to anonymous callers; a session only changes how the quota is keyed.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-  }
 
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `tone:user:${session.userId}`,
+      `tone:${quotaIdentity(request, session?.userId)}`,
       deps.toneDailyCap,
     );
     if (!quota.allowed) {

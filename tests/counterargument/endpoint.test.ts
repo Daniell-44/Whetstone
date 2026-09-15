@@ -55,7 +55,6 @@ function makeDeps(overrides?: Partial<CounterargHandlerDeps>): CounterargHandler
     counterargDailyCap: 20,
     provider:           makeProvider(),
     getSession:         async () => ({ userId: 'user-test-123' }),
-    checkSubscription:  async () => true,
     ...overrides,
   };
 }
@@ -69,23 +68,21 @@ function makeRequest(body: unknown, method = 'POST'): Request {
 }
 
 // ---------------------------------------------------------------------------
-// Auth gate
+// Open access — no sign-in, no subscription
 // ---------------------------------------------------------------------------
 
-describe('POST /api/counterargument — auth gate', () => {
-  it('returns 401 UNAUTHORIZED when no session is present', async () => {
+describe('POST /api/counterargument — open access', () => {
+  it('runs for an anonymous caller with no session', async () => {
     const deps = makeDeps({ getSession: async () => null });
     const req  = makeRequest({ text: 'a'.repeat(50) });
     const res  = await handleCounterargRequest(req, deps);
     const data = await rj(res);
 
-    expect(res.status).toBe(401);
-    expect(data.ok).toBe(false);
-    expect(data.error.code).toBe('UNAUTHORIZED');
-    expect(data.error.message).toMatch(/sign in/i);
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
   });
 
-  it('allows an authenticated subscribed user through', async () => {
+  it('runs for a signed-in caller', async () => {
     const req  = makeRequest({ text: 'a'.repeat(50) });
     const res  = await handleCounterargRequest(req, makeDeps());
     const data = await rj(res);
@@ -93,45 +90,16 @@ describe('POST /api/counterargument — auth gate', () => {
     expect(res.status).toBe(200);
     expect(data.ok).toBe(true);
   });
-});
 
-// ---------------------------------------------------------------------------
-// Subscription gate
-// ---------------------------------------------------------------------------
-
-describe('POST /api/counterargument — subscription gate', () => {
-  it('returns 402 SUBSCRIPTION_REQUIRED when session exists but no active subscription', async () => {
-    const deps = makeDeps({ checkSubscription: async () => false });
-    const req  = makeRequest({ text: 'a'.repeat(50) });
-    const res  = await handleCounterargRequest(req, deps);
-    const data = await rj(res);
-
-    expect(res.status).toBe(402);
-    expect(data.ok).toBe(false);
-    expect(data.error.code).toBe('SUBSCRIPTION_REQUIRED');
-    expect(data.error.message).toMatch(/studio pro feature/i);
-  });
-
-  it('passes subscription check when checkSubscription returns true', async () => {
-    const deps = makeDeps({ checkSubscription: async () => true });
-    const req  = makeRequest({ text: 'a'.repeat(50) });
-    const res  = await handleCounterargRequest(req, deps);
-
-    expect(res.status).toBe(200);
-    expect((await rj(res)).ok).toBe(true);
-  });
-
-  it('checks subscription after auth (no subscription check if no session)', async () => {
-    let subscriptionChecked = false;
-    const deps = makeDeps({
-      getSession:        async () => null,
-      checkSubscription: async () => { subscriptionChecked = true; return false; },
-    });
-    const req = makeRequest({ text: 'a'.repeat(50) });
-    const res = await handleCounterargRequest(req, deps);
-
-    expect(res.status).toBe(401);
-    expect(subscriptionChecked).toBe(false);
+  it('never answers with the retired auth or subscription gates', async () => {
+    for (const getSession of [async () => null, async () => ({ userId: 'u1' })]) {
+      const res = await handleCounterargRequest(
+        makeRequest({ text: 'a'.repeat(50) }),
+        makeDeps({ getSession: getSession as never }),
+      );
+      expect(res.status).not.toBe(401);
+      expect(res.status).not.toBe(402);
+    }
   });
 });
 
@@ -222,6 +190,46 @@ describe('POST /api/counterargument — rate limiting', () => {
     // user2 is unaffected.
     const user2Res = await handleCounterargRequest(makeRequest({ text: 'a'.repeat(50) }), user2);
     expect((await rj(user2Res)).ok).toBe(true);
+  });
+
+  it('keys an anonymous caller by client IP, not globally', async () => {
+    const kv = new FakeKV();
+    const anon = () => makeDeps({
+      rateLimitKv:        kv,
+      counterargDailyCap: 1,
+      getSession:         async () => null,
+    });
+    const from = (ip: string) => new Request('https://test.example/api/counterargument', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': ip },
+      body:    JSON.stringify({ text: 'a'.repeat(50) }),
+    });
+
+    // Exhaust the allowance for one address.
+    await handleCounterargRequest(from('1.1.1.1'), anon());
+    const blocked = await handleCounterargRequest(from('1.1.1.1'), anon());
+    expect((await rj(blocked)).error.code).toBe('RATE_LIMITED');
+
+    // A different address is untouched by it.
+    const other = await handleCounterargRequest(from('2.2.2.2'), anon());
+    expect((await rj(other)).ok).toBe(true);
+  });
+
+  it('gives a signed-in caller a different bucket than their anonymous one', async () => {
+    const kv  = new FakeKV();
+    const ip  = { 'Content-Type': 'application/json', 'CF-Connecting-IP': '9.9.9.9' };
+    const req = () => new Request('https://test.example/api/counterargument', {
+      method: 'POST', headers: ip, body: JSON.stringify({ text: 'a'.repeat(50) }),
+    });
+
+    const anon   = makeDeps({ rateLimitKv: kv, counterargDailyCap: 1, getSession: async () => null });
+    const signed = makeDeps({ rateLimitKv: kv, counterargDailyCap: 1, getSession: async () => ({ userId: 'u9' }) });
+
+    await handleCounterargRequest(req(), anon);
+    expect((await rj(await handleCounterargRequest(req(), anon))).error.code).toBe('RATE_LIMITED');
+
+    // Signing in from the same address starts a fresh account-keyed allowance.
+    expect((await rj(await handleCounterargRequest(req(), signed))).ok).toBe(true);
   });
 
   it('skips rate limiting when rateLimitKv is undefined', async () => {

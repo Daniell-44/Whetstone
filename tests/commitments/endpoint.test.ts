@@ -32,7 +32,6 @@ function makeDeps(overrides: Partial<CommitmentsHandlerDeps> = {}): CommitmentsH
     commitmentsDailyCap: 15,
     provider:            makeProvider(),
     getSession:          async () => ({ userId: 'u-1' }),
-    checkSubscription:   async () => true,
     ...overrides,
   };
 }
@@ -50,20 +49,19 @@ function makeRequest(body: unknown): Request {
 // ---------------------------------------------------------------------------
 
 describe('handleCommitmentsRequest', () => {
-  it('returns 401 when not authenticated', async () => {
+  it('runs for an anonymous caller — no sign-in, no subscription', async () => {
     const text = 'a'.repeat(60);
     const res  = await handleCommitmentsRequest(makeRequest({ text }), makeDeps({ getSession: async () => null }));
-    const data = await res.json() as { ok: boolean; error: { code: string } };
-    expect(res.status).toBe(401);
-    expect(data.error.code).toBe('UNAUTHORIZED');
+    const data = await res.json() as { ok: boolean };
+    expect(res.status).toBe(200);
+    expect(data.ok).toBe(true);
   });
 
-  it('returns 402 when subscription is not active', async () => {
+  it('never answers with the retired auth or subscription gates', async () => {
     const text = 'a'.repeat(60);
-    const res  = await handleCommitmentsRequest(makeRequest({ text }), makeDeps({ checkSubscription: async () => false }));
-    const data = await res.json() as { ok: boolean; error: { code: string } };
-    expect(res.status).toBe(402);
-    expect(data.error.code).toBe('SUBSCRIPTION_REQUIRED');
+    const res  = await handleCommitmentsRequest(makeRequest({ text }), makeDeps({ getSession: async () => null }));
+    expect(res.status).not.toBe(401);
+    expect(res.status).not.toBe(402);
   });
 
   it('returns 400 on invalid JSON body', async () => {

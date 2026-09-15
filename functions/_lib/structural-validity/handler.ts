@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { assessValidity } from './engine';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
 
 const BodySchema = z.object({
@@ -17,7 +17,6 @@ export interface ValidityHandlerDeps {
   validityDailyCap:   number;
   provider:           LlmProvider;
   getSession:         (request: Request) => Promise<{ userId: string } | null>;
-  checkSubscription:  (userId: string) => Promise<boolean>;
 }
 
 function json(body: unknown, status = 200): Response {
@@ -32,20 +31,13 @@ export async function handleValidityRequest(
   deps:    ValidityHandlerDeps,
 ): Promise<Response> {
 
+  // Open to anonymous callers; a session only changes how the quota is keyed.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-  }
-
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active Studio subscription required.' } }, 402);
-  }
 
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `validity:user:${session.userId}`,
+      `validity:${quotaIdentity(request, session?.userId)}`,
       deps.validityDailyCap,
     );
     if (!quota.allowed) {

@@ -10,14 +10,11 @@ import { makeBillingDb }         from '../../../functions/_lib/billing/subscript
 import { makeDocumentDb }        from '../../../functions/_lib/documents/db';
 import { getSessionFromRequest }  from '../../../functions/_lib/auth/sessions';
 import { makeWorkspaceDb }       from '../../../functions/_lib/workspaces/db';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
 
 const provider = new GeminiProvider();
 
 export const POST: APIRoute = async ({ request }) => {
   const authDb      = makeAuthDb(env.DB);
-  const billingDb   = makeBillingDb(env.DB);
-  const workspaceDb = makeWorkspaceDb(env.DB);
   const docDb       = makeDocumentDb(env.DB);
 
   return handleCitationAuditRequest(request, {
@@ -27,7 +24,6 @@ export const POST: APIRoute = async ({ request }) => {
     provider,
     extractor:         fetchAndExtract,
     getSession:        (req) => getSessionFromRequest(req, authDb).then(s => s ? { userId: s.user_id } : null),
-    checkSubscription: (userId) => userHasActiveSubscriptionViaWorkspace(billingDb, workspaceDb, userId),
     // Server-side persistence (ownership-checked): a phone locking mid-run can
     // no longer lose Source Match — the result lands on the version here, and
     // the reopened draft rehydrates it.

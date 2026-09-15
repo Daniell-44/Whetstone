@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { auditCrossDocument } from './engine';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
 import type { ExtractResult } from '../extract/article';
 import type { DocumentInput } from './types';
@@ -27,7 +27,6 @@ export interface CrossDocumentHandlerDeps {
   provider:            LlmProvider;
   extractor:           (url: string) => Promise<ExtractResult>;
   getSession:          (request: Request) => Promise<{ userId: string } | null>;
-  checkSubscription:   (userId: string) => Promise<boolean>;
 }
 
 function json(body: unknown, status = 200): Response {
@@ -38,18 +37,11 @@ export async function handleCrossDocumentRequest(
   request: Request,
   deps:    CrossDocumentHandlerDeps,
 ): Promise<Response> {
+  // Open to anonymous callers; a session only changes how the quota is keyed.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-  }
-
-  const hasSub = await deps.checkSubscription(session.userId);
-  if (!hasSub) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Studio subscription required for cross-document analysis.' } }, 402);
-  }
 
   if (deps.rateLimitKv) {
-    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `crossdoc:user:${session.userId}`, deps.crossDocDailyCap);
+    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `crossdoc:${quotaIdentity(request, session?.userId)}`, deps.crossDocDailyCap);
     if (!quota.allowed) {
       return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily cross-document limit reached — try again tomorrow.' } });
     }

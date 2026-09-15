@@ -3,7 +3,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { auditTranscript } from './engine';
 import { fetchYouTubeTranscript, fromPlainText, fromSrt } from './youtube';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
 import type { TranscriptInput } from './types';
 
@@ -19,7 +19,6 @@ export interface TranscriptHandlerDeps {
   transcriptDailyCap: number;
   provider:           LlmProvider;
   getSession:         (request: Request) => Promise<{ userId: string } | null>;
-  checkSubscription:  (userId: string) => Promise<boolean>;
 }
 
 function json(body: unknown, status = 200): Response {
@@ -33,20 +32,13 @@ export async function handleTranscriptRequest(
   request: Request,
   deps:    TranscriptHandlerDeps,
 ): Promise<Response> {
+  // Open to anonymous callers; a session only changes how the quota is keyed.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-  }
-
-  const hasSub = await deps.checkSubscription(session.userId);
-  if (!hasSub) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Studio subscription required for transcript audits.' } }, 402);
-  }
 
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `transcript:user:${session.userId}`,
+      `transcript:${quotaIdentity(request, session?.userId)}`,
       deps.transcriptDailyCap,
     );
     if (!quota.allowed) {

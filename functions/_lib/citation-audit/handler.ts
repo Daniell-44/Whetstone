@@ -3,7 +3,7 @@ import type { LlmProvider }  from '../providers/types';
 import { ProviderError }     from '../providers/types';
 import type { ExtractResult } from '../extract/article';
 import type { RateLimitKV }  from '../rate-limit';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import { auditCitations }    from './engine';
 
 // ---------------------------------------------------------------------------
@@ -34,7 +34,6 @@ export interface CitationHandlerDeps {
   provider:          LlmProvider;
   extractor:         (url: string) => Promise<ExtractResult>;
   getSession:        (request: Request) => Promise<{ userId: string } | null>;
-  checkSubscription: (userId: string) => Promise<boolean>;
   /** Persist the result onto a document version, verifying the document
      belongs to userId. Must swallow nothing: throw or return false on any
      failure (the handler logs-and-continues; persistence never fails a run). */
@@ -64,26 +63,15 @@ export async function handleCitationAuditRequest(
     return json({ ok: false, error: { code: 'METHOD_NOT_ALLOWED', message: 'POST only' } }, 405);
   }
 
-  // Auth gate.
+  // Open to anonymous callers; a session only changes how the quota is keyed
+  // and whether the result can be saved against a document.
   const session = await deps.getSession(request);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in to use Studio' } }, 401);
-  }
 
-  // Subscription gate.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({
-      ok:    false,
-      error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Active Studio subscription required.' },
-    }, 402);
-  }
-
-  // Per-user rate limit.
+  // Quota keyed by account when signed in, else by client IP.
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `citation:user:${session.userId}`,
+      `citation:${quotaIdentity(request, session?.userId)}`,
       deps.citationDailyCap,
     );
     if (!quota.allowed) {
@@ -129,7 +117,7 @@ export async function handleCitationAuditRequest(
           extractor: deps.extractor,
         },
       );
-      if (documentId && versionId && deps.persistResult) {
+      if (session && documentId && versionId && deps.persistResult) {
         try {
           await deps.persistResult(session.userId, documentId, versionId, JSON.stringify(out.result));
         } catch {

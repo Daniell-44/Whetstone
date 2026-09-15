@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { detectDisagreementEngagement } from './engine';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
 
 const BodySchema = z.object({
@@ -15,7 +15,6 @@ export interface DisagreeHandlerDeps {
   disagreeDailyCap:  number;
   provider:          LlmProvider;
   getSession:        (request: Request) => Promise<{ userId: string } | null>;
-  checkSubscription: (userId: string) => Promise<boolean>;
 }
 
 function json(body: unknown, status = 200): Response {
@@ -24,10 +23,8 @@ function json(body: unknown, status = 200): Response {
 
 export async function handleDisagreeRequest(request: Request, deps: DisagreeHandlerDeps): Promise<Response> {
   const session = await deps.getSession(request);
-  if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-
   if (deps.rateLimitKv) {
-    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `disagree:user:${session.userId}`, deps.disagreeDailyCap);
+    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `disagree:${quotaIdentity(request, session?.userId)}`, deps.disagreeDailyCap);
     if (!quota.allowed) {
       return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily disagreement-engagement limit reached — try again tomorrow.' } });
     }

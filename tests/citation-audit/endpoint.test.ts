@@ -90,29 +90,27 @@ describe('handleCitationAuditRequest', () => {
       provider,
       extractor:         fakeExtractor(),
       getSession:        async () => ({ userId: 'u1' }),
-      checkSubscription: async () => true,
       ...overrides,
     };
   }
 
-  it('returns 401 when no session', async () => {
+  it('runs for an anonymous caller — no sign-in, no subscription', async () => {
     const res = await handleCitationAuditRequest(
       postReq({ text: DUMMY_TEXT }),
       deps({ getSession: async () => null }),
     );
-    expect(res.status).toBe(401);
-    const body = await res.json() as { ok: boolean; error: { code: string } };
-    expect(body.error.code).toBe('UNAUTHORIZED');
+    expect(res.status).toBe(200);
+    const body = await res.json() as { ok: boolean };
+    expect(body.ok).toBe(true);
   });
 
-  it('returns 402 when no active subscription', async () => {
+  it('never answers with the retired auth or subscription gates', async () => {
     const res = await handleCitationAuditRequest(
       postReq({ text: DUMMY_TEXT }),
-      deps({ checkSubscription: async () => false }),
+      deps({ getSession: async () => null }),
     );
-    expect(res.status).toBe(402);
-    const body = await res.json() as { ok: boolean; error: { code: string } };
-    expect(body.error.code).toBe('SUBSCRIPTION_REQUIRED');
+    expect(res.status).not.toBe(401);
+    expect(res.status).not.toBe(402);
   });
 
   it('returns 429 when rate limit exceeded', async () => {
