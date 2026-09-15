@@ -21,6 +21,7 @@ declare namespace Cloudflare {
     RESEND_API_KEY?:      string;
     LLM_PROVIDER?:        string;
     FREE_TIER_DAILY_CAP?: string;
+    AUDIT_FREE_USES?:      string;
     AUDIT_DAILY_CAP?:      string;
     AUDIT_USER_DAILY_CAP?: string;
     COUNTERARG_DAILY_CAP?:  string;

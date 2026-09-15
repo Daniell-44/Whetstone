@@ -6,7 +6,6 @@ import { auditText } from '../audit/engine';
 import { generateCounterarguments } from '../counterargument/engine';
 import { extractArgument } from '../argument-extraction/engine';
 import { detectCommitments } from '../philosophical-commitments/engine';
-import { ensureFreeUserCanCreateDocument } from './limits';
 
 // ---------------------------------------------------------------------------
 // Shared
@@ -26,7 +25,6 @@ function json(body: unknown, status = 200): Response {
 export interface CreateDocumentDeps {
   db:                DocumentDb;
   getSession:        (req: Request) => Promise<{ userId: string } | null>;
-  checkSubscription: (userId: string) => Promise<boolean>;
   newId:             () => string;
 }
 
@@ -52,8 +50,9 @@ export async function handleCreateDocument(
     return json({ ok: false, error: { code: 'INVALID_INPUT', message: parsed.error.issues[0]?.message ?? 'Invalid input' } }, 400);
   }
 
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  await ensureFreeUserCanCreateDocument(deps.db, session.userId, hasSubscription);
+  // No document cap: saving work is what an account is FOR under the open
+  // model, so a free account keeps every draft rather than having its oldest
+  // silently archived on the next save.
 
   const docId     = deps.newId();
   const versionId = deps.newId();
@@ -179,7 +178,6 @@ export interface VersionCounterargDeps {
   provider:          LlmProvider;
   geminiApiKey:      string | undefined;
   getSession:        (req: Request) => Promise<{ userId: string } | null>;
-  checkSubscription: (userId: string) => Promise<boolean>;
 }
 
 export async function handleVersionCounterarg(
@@ -192,10 +190,6 @@ export async function handleVersionCounterarg(
   if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
 
   // Counterargument (steelman) is a Pro feature — Pro-model cost.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Counterargument is a Studio Pro feature.' } }, 402);
-  }
 
   const doc = await deps.db.getDocumentById(docId);
   if (!doc || doc.user_id !== session.userId) {
@@ -286,7 +280,6 @@ export interface VersionCommitmentsDeps {
   provider:          LlmProvider;
   geminiApiKey:      string | undefined;
   getSession:        (req: Request) => Promise<{ userId: string } | null>;
-  checkSubscription: (userId: string) => Promise<boolean>;
 }
 
 export async function handleVersionCommitments(
@@ -299,10 +292,6 @@ export async function handleVersionCommitments(
   if (!session) return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
 
   // Philosophical commitments is a Pro feature — Pro-model cost.
-  const hasSubscription = await deps.checkSubscription(session.userId);
-  if (!hasSubscription) {
-    return json({ ok: false, error: { code: 'SUBSCRIPTION_REQUIRED', message: 'Framework analysis is a Studio Pro feature.' } }, 402);
-  }
 
   const doc = await deps.db.getDocumentById(docId);
   if (!doc || doc.user_id !== session.userId) {

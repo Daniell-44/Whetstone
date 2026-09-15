@@ -127,7 +127,12 @@ preview_database_id = "1485b1e6-f72c-4561-9865-84418976136b"
 
 [vars]
 LLM_PROVIDER          = "gemini"
+# Audits per visitor per rolling 24h window — the whole free allowance, for
+# everyone. Tunable here without a code change; see functions/_lib/billing/limits.ts.
+AUDIT_FREE_USES       = "3"
 FREE_TIER_DAILY_CAP   = "10"
+# AUDIT_DAILY_CAP / AUDIT_USER_DAILY_CAP no longer bound /api/audit (that is
+# AUDIT_FREE_USES now). They still cap /api/extract-argument — leave them set.
 AUDIT_DAILY_CAP       = "10"
 AUDIT_USER_DAILY_CAP  = "50"
 COUNTERARG_DAILY_CAP  = "20"

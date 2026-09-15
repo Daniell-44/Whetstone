@@ -3,9 +3,9 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import type { ExtractResult } from '../extract/article';
 import { auditText } from './engine';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
-import { resolveAuditQuota } from '../billing/limits';
+import { resolveAuditQuota, waitPhrase } from '../billing/limits';
 
 // ---------------------------------------------------------------------------
 // Input validation
@@ -32,13 +32,11 @@ const BodySchema = z.union([TextBodySchema, UrlBodySchema]);
 export interface AuditHandlerDeps {
   rateLimitKv:       RateLimitKV | undefined;
   geminiApiKey:      string | undefined;
-  auditDailyCap:     number;        // legacy — superseded by resolveAuditQuota; kept for compat
-  auditUserDailyCap?: number;       // legacy
+  /** Operator override for the free allowance (env AUDIT_FREE_USES). */
+  freeUseAllowance?: number;
   provider:          LlmProvider;
   extractor:         (url: string) => Promise<ExtractResult>;
   getSession?:       (request: Request) => Promise<{ userId: string } | null>;
-  /** Whether the user has an active subscription — drives the paid monthly cap. */
-  checkSubscription?: (userId: string) => Promise<boolean>;
 }
 
 // ---------------------------------------------------------------------------
@@ -72,29 +70,21 @@ export async function handleAuditRequest(
   const session = deps.getSession ? await deps.getSession(request) : null;
 
   if (deps.rateLimitKv) {
-    // Resolve the tier-aware quota: free users get a small daily cap, paid
-    // users get a larger monthly cap. The cap and period both come from the
-    // single source of truth in billing/limits.ts.
-    const hasSub = session && deps.checkSubscription
-      ? await deps.checkSubscription(session.userId)
-      : false;
-    const quota = resolveAuditQuota(Boolean(session), hasSub);
-
-    const key = session
-      ? `audit:user:${session.userId}:${quota.period}`
-      : `audit:ip:${request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? 'unknown'}`;
+    // One allowance for everyone, opening on the first audit and closing 24h
+    // later. The cap and period come from billing/limits.ts; signing in only
+    // moves the count from the client IP onto the account.
+    const quota = resolveAuditQuota(deps.freeUseAllowance);
+    const key   = `audit:${quotaIdentity(request, session?.userId)}`;
 
     const result = await checkAndIncrementQuota(deps.rateLimitKv, key, quota.cap, quota.period);
     if (!result.allowed) {
-      const when = quota.period === 'month' ? 'this month' : 'today';
-      const upsell = hasSub
-        ? 'You can add another usage block from your account, or it resets next month.'
-        : session
-          ? 'Subscribe for a much higher monthly limit, or it resets tomorrow.'
-          : 'Sign in for more daily audits, or subscribe for a monthly limit.';
       return json({
         ok:    false,
-        error: { code: 'RATE_LIMITED', message: `You've used all ${quota.cap} audits ${when}. ${upsell}` },
+        error: {
+          code:    'RATE_LIMITED',
+          message: `You've used all ${quota.cap} audits. The next one unlocks ${waitPhrase(result.resetAt)}.`,
+          resetAt: result.resetAt,
+        },
       });
     }
   }
@@ -139,7 +129,10 @@ export async function handleAuditRequest(
     const result = await auditText(inputText, {
       provider:       deps.provider,
       apiKey:         deps.geminiApiKey,
-      includePhase2:  session !== null,
+      // Phase 2 (key-term, referent and falsifiability lenses) used to be
+      // signed-in only. The tool is open now, so every audit gets the full
+      // lens suite; the 3-per-24h allowance is what bounds the extra cost.
+      includePhase2:  true,
     });
     return json({
       ok:    true,

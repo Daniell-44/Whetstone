@@ -156,7 +156,7 @@ const MINIMAL_AUDIT_JSON = JSON.stringify({
   falsifiabilityChecks: [],
 });
 
-describe('handleAuditRequest — Phase-2 gating via session', () => {
+describe('handleAuditRequest — Phase-2 runs for every caller', () => {
   function makeCapturingProvider(): LlmProvider & { readonly lastSystemInstruction: string } {
     let captured = '';
     return {
@@ -173,7 +173,6 @@ describe('handleAuditRequest — Phase-2 gating via session', () => {
     return {
       rateLimitKv:   undefined,
       geminiApiKey:  'test-key',
-      auditDailyCap: 10,
       provider,
       extractor:     async () => ({ ok: false, error: { code: 'FETCH_FAILED', message: 'N/A' } }),
       getSession,
@@ -190,7 +189,9 @@ describe('handleAuditRequest — Phase-2 gating via session', () => {
 
   const TEXT = 'a'.repeat(60);
 
-  it('sends Phase-2 prompt when user is logged in', async () => {
+  // Phase 2 used to be a signed-in privilege. The tool is open now, so the
+  // full lens suite must reach an anonymous caller identically.
+  it('sends the Phase-2 prompt when the user is signed in', async () => {
     const provider = makeCapturingProvider();
     const deps = makeDeps(provider, async () => ({ userId: 'u-1' }));
     await handleAuditRequest(makeRequest(TEXT), deps);
@@ -198,18 +199,28 @@ describe('handleAuditRequest — Phase-2 gating via session', () => {
     expect(provider.lastSystemInstruction).toContain('Wittgenstein');
   });
 
-  it('sends base-only prompt when user is anonymous', async () => {
+  it('sends the Phase-2 prompt to an anonymous caller too', async () => {
     const provider = makeCapturingProvider();
     const deps = makeDeps(provider, async () => null);
     await handleAuditRequest(makeRequest(TEXT), deps);
-    expect(provider.lastSystemInstruction).not.toContain('keyTermScrutiny');
-    expect(provider.lastSystemInstruction).not.toContain('Wittgenstein');
+    expect(provider.lastSystemInstruction).toContain('keyTermScrutiny');
+    expect(provider.lastSystemInstruction).toContain('Wittgenstein');
   });
 
-  it('sends base-only prompt when no getSession is provided', async () => {
+  it('sends the Phase-2 prompt when no getSession is wired at all', async () => {
     const provider = makeCapturingProvider();
     const deps = makeDeps(provider, undefined);
     await handleAuditRequest(makeRequest(TEXT), deps);
-    expect(provider.lastSystemInstruction).not.toContain('keyTermScrutiny');
+    expect(provider.lastSystemInstruction).toContain('keyTermScrutiny');
+  });
+
+  it('gives signed-in and anonymous callers byte-identical instructions', async () => {
+    const signedProvider = makeCapturingProvider();
+    await handleAuditRequest(makeRequest(TEXT), makeDeps(signedProvider, async () => ({ userId: 'u-1' })));
+
+    const anonProvider = makeCapturingProvider();
+    await handleAuditRequest(makeRequest(TEXT), makeDeps(anonProvider, async () => null));
+
+    expect(anonProvider.lastSystemInstruction).toBe(signedProvider.lastSystemInstruction);
   });
 });

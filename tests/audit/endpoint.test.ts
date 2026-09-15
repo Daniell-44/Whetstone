@@ -3,7 +3,7 @@ import { handleAuditRequest } from '../../functions/_lib/audit/handler';
 import type { AuditHandlerDeps } from '../../functions/_lib/audit/handler';
 import type { LlmProvider } from '../../functions/_lib/providers/types';
 import type { ExtractResult } from '../../functions/_lib/extract/article';
-import { FREE_ANON_DAILY_AUDIT_CAP, FREE_SIGNED_DAILY_AUDIT_CAP } from '../../functions/_lib/billing/limits';
+import { FREE_USE_ALLOWANCE } from '../../functions/_lib/billing/limits';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyData = any;
@@ -70,7 +70,6 @@ function makeDeps(overrides?: Partial<AuditHandlerDeps>): AuditHandlerDeps {
   return {
     rateLimitKv:   undefined,
     geminiApiKey:  'test-key',
-    auditDailyCap: 10,
     provider:      makeProvider(),
     extractor:     PASSING_EXTRACTOR,
     ...overrides,
@@ -207,111 +206,132 @@ describe('POST /api/audit — URL path', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Rate limiting
+// Usage allowance — one open allowance, no tiers
 // ---------------------------------------------------------------------------
 
-describe('POST /api/audit — rate limiting', () => {
-  it('allows requests up to the daily cap', async () => {
+describe('POST /api/audit — usage allowance', () => {
+  it('allows requests up to the allowance', async () => {
     const kv   = new FakeKV();
-    const deps = makeDeps({ rateLimitKv: kv, auditDailyCap: 3 });
+    const deps = makeDeps({ rateLimitKv: kv, freeUseAllowance: 3 });
 
     for (let i = 0; i < 3; i++) {
-      const req  = makeRequest({ text: 'a'.repeat(50) });
-      const res  = await handleAuditRequest(req, deps);
-      const data = await rj(res);
-      expect(data.ok).toBe(true);
+      const res = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+      expect((await rj(res)).ok).toBe(true);
     }
   });
 
-  it('returns RATE_LIMITED with HTTP 200 after the cap is exceeded', async () => {
+  it('returns RATE_LIMITED with HTTP 200 once the allowance is spent', async () => {
     const kv   = new FakeKV();
-    const deps = makeDeps({ rateLimitKv: kv }); // anonymous → FREE_ANON_DAILY_AUDIT_CAP
+    const deps = makeDeps({ rateLimitKv: kv });
 
-    // Use up the allowed anonymous requests.
-    for (let i = 0; i < FREE_ANON_DAILY_AUDIT_CAP; i++) {
+    for (let i = 0; i < FREE_USE_ALLOWANCE; i++) {
       await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
     }
 
-    // The next request should be blocked.
     const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
     const data = await rj(res);
     expect(res.status).toBe(200);
     expect(data.ok).toBe(false);
     expect(data.error.code).toBe('RATE_LIMITED');
-    expect(data.error.message).toMatch(/audits today/i);
+    expect(data.error.message).toMatch(/unlocks/i);
   });
 
-  it('skips rate limiting when rateLimitKv is undefined', async () => {
+  it('tells the caller when the allowance reopens', async () => {
+    const kv   = new FakeKV();
+    const deps = makeDeps({ rateLimitKv: kv, freeUseAllowance: 1 });
+
+    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    const data = await rj(await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps));
+
+    expect(data.error.message).toMatch(/next one unlocks in about 24 hours/i);
+    expect(Number.isNaN(Date.parse(data.error.resetAt))).toBe(false);
+  });
+
+  it('never points a blocked caller at signing in or subscribing', async () => {
+    const kv   = new FakeKV();
+    const deps = makeDeps({ rateLimitKv: kv, freeUseAllowance: 1 });
+
+    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    const data = await rj(await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps));
+
+    expect(data.error.message).not.toMatch(/sign in|subscribe|subscription|upgrade/i);
+  });
+
+  it('falls back to the built-in allowance when the override is malformed', async () => {
+    const kv   = new FakeKV();
+    // parseInt('') is NaN — a missing or junk env var must not mean "zero uses".
+    const deps = makeDeps({ rateLimitKv: kv, freeUseAllowance: NaN });
+
+    for (let i = 0; i < FREE_USE_ALLOWANCE; i++) {
+      expect((await rj(await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps))).ok).toBe(true);
+    }
+    expect((await rj(await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps))).ok).toBe(false);
+  });
+
+  it('skips the allowance entirely when rateLimitKv is undefined', async () => {
     const deps = makeDeps({ rateLimitKv: undefined });
-    const req  = makeRequest({ text: 'a'.repeat(50) });
-    const res  = await handleAuditRequest(req, deps);
+    const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
     expect((await rj(res)).ok).toBe(true);
   });
 });
 
 // ---------------------------------------------------------------------------
-// Session-aware rate limiting
+// Identity — signing in moves the count, it does not raise the cap
 // ---------------------------------------------------------------------------
 
-describe('POST /api/audit — session-aware rate limiting', () => {
-  it('uses per-user limit and bypasses IP limit for authenticated users', async () => {
+describe('POST /api/audit — allowance identity', () => {
+  it('counts a signed-in caller against their account', async () => {
     const kv   = new FakeKV();
     const deps = makeDeps({
-      rateLimitKv:       kv,
-      auditDailyCap:     0,      // IP cap = 0 — any anonymous request would be blocked
-      auditUserDailyCap: 10,     // user cap = 10 — should pass through
-      getSession: async () => ({ userId: 'user-abc' }),
+      rateLimitKv:      kv,
+      freeUseAllowance: 1,
+      getSession:       async () => ({ userId: 'user-xyz' }),
     });
 
-    const req  = makeRequest({ text: 'a'.repeat(50) });
-    const res  = await handleAuditRequest(req, deps);
-    expect((await rj(res)).ok).toBe(true);
-  });
-
-  it('returns RATE_LIMITED when authenticated user hits their per-user cap', async () => {
-    const kv   = new FakeKV();
-    const deps = makeDeps({
-      rateLimitKv: kv,
-      getSession: async () => ({ userId: 'user-xyz' }), // signed-in → FREE_SIGNED_DAILY_AUDIT_CAP
-    });
-
-    // Use up the allowed per-user requests.
-    for (let i = 0; i < FREE_SIGNED_DAILY_AUDIT_CAP; i++) {
-      await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
-    }
-
-    const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
-    const data = await rj(res);
-    expect(res.status).toBe(200);
-    expect(data.ok).toBe(false);
+    await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
+    const data = await rj(await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps));
     expect(data.error.code).toBe('RATE_LIMITED');
   });
 
-  it('falls back to IP rate limit when getSession returns null', async () => {
-    const kv   = new FakeKV();
-    const deps = makeDeps({ rateLimitKv: kv, getSession: async () => null }); // anon IP cap
+  it('gives a signed-in caller no more audits than an anonymous one', async () => {
+    const kv     = new FakeKV();
+    const anon   = makeDeps({ rateLimitKv: kv, getSession: async () => null });
+    const signed = makeDeps({ rateLimitKv: kv, getSession: async () => ({ userId: 'u-1' }) });
 
-    for (let i = 0; i < FREE_ANON_DAILY_AUDIT_CAP; i++) {
-      await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
-    }
+    const spend = async (deps: AuditHandlerDeps) => {
+      let allowed = 0;
+      for (let i = 0; i < FREE_USE_ALLOWANCE + 2; i++) {
+        if ((await rj(await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps))).ok) allowed++;
+      }
+      return allowed;
+    };
 
-    // Blocked by IP limit.
-    const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
-    const data = await rj(res);
-    expect(data.ok).toBe(false);
-    expect(data.error.code).toBe('RATE_LIMITED');
+    expect(await spend(anon)).toBe(FREE_USE_ALLOWANCE);
+    expect(await spend(signed)).toBe(FREE_USE_ALLOWANCE);
   });
 
-  it('anonymous behaviour is unchanged when getSession is not provided', async () => {
-    const kv   = new FakeKV();
-    const deps = makeDeps({ rateLimitKv: kv }); // no getSession → anon IP cap
+  it('keeps two anonymous callers on different IPs independent', async () => {
+    const kv  = new FakeKV();
+    const req = (ip: string) => new Request('https://test.example/api/audit', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': ip },
+      body:    JSON.stringify({ text: 'a'.repeat(50) }),
+    });
+    const deps = makeDeps({ rateLimitKv: kv, freeUseAllowance: 1, getSession: async () => null });
 
-    for (let i = 0; i < FREE_ANON_DAILY_AUDIT_CAP; i++) {
+    await handleAuditRequest(req('1.1.1.1'), deps);
+    expect((await rj(await handleAuditRequest(req('1.1.1.1'), deps))).ok).toBe(false);
+    expect((await rj(await handleAuditRequest(req('2.2.2.2'), deps))).ok).toBe(true);
+  });
+
+  it('applies the allowance with no getSession wired at all', async () => {
+    const kv   = new FakeKV();
+    const deps = makeDeps({ rateLimitKv: kv });
+
+    for (let i = 0; i < FREE_USE_ALLOWANCE; i++) {
       await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
     }
-
-    const res  = await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps);
-    const data = await rj(res);
+    const data = await rj(await handleAuditRequest(makeRequest({ text: 'a'.repeat(50) }), deps));
     expect(data.error.code).toBe('RATE_LIMITED');
   });
 });

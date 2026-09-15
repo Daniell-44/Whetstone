@@ -128,7 +128,6 @@ describe('handleCreateDocument', () => {
     return {
       db,
       getSession:        async () => ({ userId: 'user-1' }),
-      checkSubscription: async () => true,
       newId:             () => `id-${++counter}`,
       ...overrides,
     };
@@ -164,24 +163,22 @@ describe('handleCreateDocument', () => {
     expect((await rj(res)).error.code).toBe('INVALID_INPUT');
   });
 
-  it('auto-archives existing document for free users on second create', async () => {
+  it('keeps the first document active when a second is created', async () => {
     const db   = makeFakeDb();
-    const deps = makeDeps(db, { checkSubscription: async () => false });
+    const deps = makeDeps(db);
 
-    // Create first document
     await handleCreateDocument(makeRequest({ content: 'x'.repeat(50) }), deps);
     expect(db.docs.size).toBe(1);
     const firstId = [...db.docs.keys()][0]!;
 
-    // Create second document — should archive the first
     await handleCreateDocument(makeRequest({ content: 'y'.repeat(50) }), deps);
     expect(db.docs.size).toBe(2);
-    expect(db.docs.get(firstId)?.status).toBe('archived');
+    expect(db.docs.get(firstId)?.status).toBe('active');
   });
 
-  it('allows multiple active documents for subscribed users', async () => {
+  it('allows multiple active documents on any account', async () => {
     const db   = makeFakeDb();
-    const deps = makeDeps(db, { checkSubscription: async () => true });
+    const deps = makeDeps(db);
 
     await handleCreateDocument(makeRequest({ content: 'x'.repeat(50) }), deps);
     await handleCreateDocument(makeRequest({ content: 'y'.repeat(50) }), deps);
@@ -320,7 +317,6 @@ describe('handleVersionCounterarg', () => {
       provider:          makeCounterargProvider(),
       geminiApiKey:      'test-key',
       getSession:        async () => ({ userId: 'user-1' }),
-      checkSubscription: async () => true,
       ...overrides,
     };
   }
@@ -346,23 +342,23 @@ describe('handleVersionCounterarg', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 402 when subscription is not active', async () => {
+  it('does not gate on a subscription — it resolves the document instead', async () => {
     const db   = makeFakeDb();
-    const deps = makeDeps(db, { checkSubscription: async () => false });
+    const deps = makeDeps(db);
     const res  = await handleVersionCounterarg(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
-    expect(res.status).toBe(402);
-    expect((await rj(res)).error.code).toBe('SUBSCRIPTION_REQUIRED');
+    expect(res.status).not.toBe(402);
+    // With no such document the caller gets a real 404, not a paywall.
+    expect(res.status).toBe(404);
   });
 
-  it('checks subscription before ownership (subscription check before doc lookup)', async () => {
+  it('goes straight to the ownership check now that no paywall precedes it', async () => {
     let ownershipChecked = false;
     const db = makeFakeDb();
-    // Wrap getDocumentById to track calls
     const origGet = db.getDocumentById.bind(db);
     db.getDocumentById = async (id) => { ownershipChecked = true; return origGet(id); };
-    const deps = makeDeps(db, { checkSubscription: async () => false });
+    const deps = makeDeps(db);
     await handleVersionCounterarg(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
-    expect(ownershipChecked).toBe(false);
+    expect(ownershipChecked).toBe(true);
   });
 });
 
@@ -377,7 +373,6 @@ describe('handleVersionCommitments', () => {
       provider:          makeCommitmentsProvider(),
       geminiApiKey:      'test-key',
       getSession:        async () => ({ userId: 'user-1' }),
-      checkSubscription: async () => true,
       ...overrides,
     };
   }
@@ -403,12 +398,13 @@ describe('handleVersionCommitments', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 402 when subscription is not active', async () => {
+  it('does not gate on a subscription — it resolves the document instead', async () => {
     const db   = makeFakeDb();
-    const deps = makeDeps(db, { checkSubscription: async () => false });
+    const deps = makeDeps(db);
     const res  = await handleVersionCommitments(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
-    expect(res.status).toBe(402);
-    expect((await rj(res)).error.code).toBe('SUBSCRIPTION_REQUIRED');
+    expect(res.status).not.toBe(402);
+    // With no such document the caller gets a real 404, not a paywall.
+    expect(res.status).toBe(404);
   });
 
   it('returns 503 when geminiApiKey is not configured', async () => {
@@ -491,25 +487,25 @@ describe('handleRestoreVersion', () => {
 });
 
 // ---------------------------------------------------------------------------
-// ensureFreeUserCanCreateDocument (via handleCreateDocument)
+// Document retention — no free-tier cap
 // ---------------------------------------------------------------------------
 
-describe('limits — free user document cap', () => {
-  it('archives the oldest document when a free user creates a third', async () => {
+describe('limits — a free account keeps every document', () => {
+  it('does not archive anything when a free user saves several drafts', async () => {
     let counter = 0;
     const db   = makeFakeDb();
     const deps: CreateDocumentDeps = {
       db,
-      getSession:        async () => ({ userId: 'u1' }),
-      checkSubscription: async () => false,
-      newId:             () => `id-${++counter}`,
+      getSession: async () => ({ userId: 'u1' }),
+      newId:      () => `id-${++counter}`,
     };
 
-    await handleCreateDocument(makeRequest({ content: 'x'.repeat(50) }), deps);
-    await handleCreateDocument(makeRequest({ content: 'y'.repeat(50) }), deps);
+    for (const c of ['x', 'y', 'z']) {
+      await handleCreateDocument(makeRequest({ content: c.repeat(50) }), deps);
+    }
 
     const active = [...db.docs.values()].filter(d => d.status === 'active');
-    expect(active).toHaveLength(1);
-    expect(db.docs.size).toBe(2); // two docs total, one archived
+    expect(active).toHaveLength(3);
+    expect([...db.docs.values()].some(d => d.status === 'archived')).toBe(false);
   });
 });
