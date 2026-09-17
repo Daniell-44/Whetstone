@@ -58,7 +58,7 @@ function countFindings(r: AuditResult) {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function AuditForm({ isPro = false, initialText = '', initialUrl = '', initialSampleId = '' }: { isPro?: boolean; initialText?: string; initialUrl?: string; initialSampleId?: string }) {
+export default function AuditForm({ initialText = '', initialUrl = '', initialSampleId = '' }: { initialText?: string; initialUrl?: string; initialSampleId?: string }) {
   const [input, setInput]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
@@ -559,7 +559,7 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
       {/* Deeper lenses (free, on-demand) - works for both text and URL audits
          (URL audits use server-returned extracted text). */}
       {result && !loading && sourceText && (
-        <DeeperLensPanel text={sourceText} surface="reader" isPro={isPro} />
+        <DeeperLensPanel text={sourceText} surface="reader" />
       )}
 
       {/* Studio conversion panel - names the Pro features the Reader doesn't
@@ -582,7 +582,6 @@ export default function AuditForm({ isPro = false, initialText = '', initialUrl 
             <a href="/creator/studio" class="inline-block rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent/90 transition-colors">
               Open Studio →
             </a>
-            <a href="/pricing" class="text-xs text-muted hover:text-ink underline">See plans</a>
           </div>
         </div>
       )}

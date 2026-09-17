@@ -14,9 +14,9 @@ import Base from '../layouts/Base.astro';
       <p class="text-xs font-semibold tracking-widest text-accent uppercase mb-3">Developer</p>
       <h1 class="font-serif text-4xl text-ink-strong leading-tight mb-4">API reference</h1>
       <p class="text-lg text-muted leading-relaxed">
-        A Studio subscription gives you programmatic access to the same audit engine that
-        powers the web interface. Use it to integrate argument auditing into your CMS, editorial
-        pipeline, or research tooling.
+        The same audit engine that powers the web interface, available programmatically and
+        free. Use it to integrate argument auditing into your CMS, editorial pipeline, or
+        research tooling.
       </p>
     </header>
 
@@ -31,7 +31,7 @@ import Base from '../layouts/Base.astro';
       <div class="rounded-lg bg-ink-strong text-hairline px-5 py-4 text-sm font-mono overflow-x-auto">
         <span class="text-muted">Authorization:</span> Bearer wsk_live_&lt;your-key&gt;
       </div>
-      <p class="text-xs text-muted mt-3">Keys inherit the rate limits of your subscription tier (100 audits/month on Studio Solo; more with additional blocks).</p>
+      <p class="text-xs text-muted mt-3">Keys run on the same allowance as the web tool — three audits per rolling 24 hours, counted against your account.</p>
     </section>
 
     <!-- Endpoint: POST /api/audit -->
@@ -141,8 +141,8 @@ import Base from '../layouts/Base.astro';
     <!-- Footer CTA -->
     <div class="rounded-lg border border-accent/20 bg-accent/5 px-5 py-4">
       <p class="text-sm text-accent-support">
-        No subscription yet?{' '}
-        <a href="/pricing" class="font-semibold underline hover:text-accent">View pricing →</a>
+        The API is free and runs on the same allowance as the web tool.{' '}
+        <a href="/method" class="font-semibold underline hover:text-accent">How the audit works →</a>
       </p>
     </div>
 

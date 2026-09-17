@@ -1,24 +1,29 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
-import { env } from 'cloudflare:workers';
-import { makeAuthDb } from '../../../../functions/_lib/auth/db';
-import { makeBillingDb } from '../../../../functions/_lib/billing/subscription';
-import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
-import { handleCheckoutRequest } from '../../../../functions/_lib/billing/checkout-handler';
-import { createCustomer, createCheckoutSession } from '../../../../functions/_lib/billing/stripe-client';
 
-export const POST: APIRoute = async ({ request }) => {
-  const authDb    = makeAuthDb(env.DB);
-  const billingDb = makeBillingDb(env.DB);
+// ---------------------------------------------------------------------------
+// Checkout is closed.
+//
+// Paid tiers were retired in 2026-09: every engine is free and the usage
+// allowance is identical for everyone, so a subscription would buy nothing.
+// This route refuses rather than being deleted, because a live Stripe endpoint
+// that still takes money for a tier that grants nothing is worse than a 410 —
+// and because the rest of the billing surface (webhook, portal, schema) is
+// kept dormant so a future paid tier does not have to be rebuilt.
+//
+// To reopen: restore the handleCheckoutRequest wiring from git history and
+// point /pricing back at a real page.
+// ---------------------------------------------------------------------------
 
-  return handleCheckoutRequest(request, {
-    db:                   billingDb,
-    stripeApiKey:         env.STRIPE_SECRET_KEY,
-    stripePriceId:        env.STRIPE_PRICE_ID,
-    siteUrl:              env.SITE_URL ?? '',
-    getSession:           (req) => getSessionFromRequest(req, authDb).then(s => s ? { userId: s.user_id } : null),
-    createCustomer,
-    createCheckoutSession,
-  });
-};
+export const POST: APIRoute = async () =>
+  new Response(
+    JSON.stringify({
+      ok:    false,
+      error: {
+        code:    'CHECKOUT_CLOSED',
+        message: 'The Whetstone no longer sells subscriptions — every engine is free.',
+      },
+    }),
+    { status: 410, headers: { 'Content-Type': 'application/json' } },
+  );

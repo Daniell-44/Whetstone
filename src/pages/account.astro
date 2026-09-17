@@ -4,15 +4,12 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../layouts/Base.astro';
 import { makeAuthDb } from '../../functions/_lib/auth/db';
-import { makeBillingDb } from '../../functions/_lib/billing/subscription';
 import { getSessionFromRequest } from '../../functions/_lib/auth/sessions';
-import { getUserSubscription } from '../../functions/_lib/billing/subscription';
 import TerminologyPicker from '../components/account/TerminologyPicker';
 import ApiKeysManager from '../components/account/ApiKeysManager';
 import AnalyticsConsentPicker from '../components/account/AnalyticsConsentPicker';
 
 const authDb    = makeAuthDb(env.DB);
-const billingDb = makeBillingDb(env.DB);
 const session   = await getSessionFromRequest(Astro.request, authDb);
 
 if (!session) {
@@ -20,32 +17,16 @@ if (!session) {
 }
 
 const user        = await authDb.findUserById(session.user_id);
-const sub         = await getUserSubscription(billingDb, session.user_id);
 const terminology = await authDb.getTerminologyPreference(session.user_id);
 
 const loginDate = new Date(session.created_at).toLocaleDateString('en-GB', {
   day: 'numeric', month: 'long', year: 'numeric',
 });
 
-const checkoutSuccess = Astro.url.searchParams.get('checkout') === 'success';
-
-function formatPeriodEnd(ms: number | null | undefined): string {
-  if (!ms) return '-';
-  return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-const ACTIVE_STATUSES = new Set(['active', 'trialing']);
-const isActive = sub && ACTIVE_STATUSES.has(sub.status);
 ---
 <Base title="Account - The Whetstone" canonicalPath="/account" isLoggedIn={true}>
   <main class="max-w-md mx-auto px-6 py-16">
     <h1 class="text-2xl font-semibold text-ink-strong mb-8">Your account</h1>
-
-    {checkoutSuccess && (
-      <div class="mb-6 rounded-xl bg-green-50 border border-green-200 px-5 py-4">
-        <p class="text-sm font-medium text-green-800">Subscription activated - welcome to Studio Pro.</p>
-      </div>
-    )}
 
     <!-- Account details -->
     <div class="rounded-lg border border-hairline bg-surface divide-y divide-hairline">
@@ -59,63 +40,15 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
       </div>
     </div>
 
-    <!-- Subscription -->
+    <!-- Plan -->
     <div class="mt-8">
-      <h2 class="text-sm font-semibold text-ink mb-3">Studio subscription</h2>
-
-      <div class="rounded-lg border border-hairline bg-surface divide-y divide-hairline">
-        {!sub ? (
-          <!-- No subscription record at all -->
-          <div class="px-5 py-4">
-            <p class="text-sm text-muted mb-3">No active subscription.</p>
-            <a
-              href="/pricing"
-              class="inline-block rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors"
-            >
-              Subscribe to Studio - $22/mo
-            </a>
-          </div>
-        ) : isActive ? (
-          <!-- Active or trialing -->
-          <div class="px-5 py-4 space-y-3">
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 capitalize">
-                {sub.status}
-              </span>
-            </div>
-            <p class="text-sm text-ink">
-              {sub.status === 'trialing' ? 'Trial ends' : 'Renews'} on {formatPeriodEnd(sub.currentPeriodEnd)}
-            </p>
-            <button
-              id="account-portal-btn"
-              type="button"
-              class="rounded-md border border-hairline px-4 py-2 text-sm text-ink hover:bg-paper transition-colors"
-            >
-              Manage subscription →
-            </button>
-          </div>
-        ) : (
-          <!-- Past due / canceled / incomplete -->
-          <div class="px-5 py-4 space-y-3">
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 capitalize">
-                {sub.status}
-              </span>
-            </div>
-            <p class="text-sm text-ink">
-              {sub.status === 'past_due'
-                ? 'Your payment failed. Update your payment method to restore access.'
-                : 'Your subscription is no longer active.'}
-            </p>
-            <button
-              id="account-portal-btn"
-              type="button"
-              class="rounded-md border border-hairline px-4 py-2 text-sm text-ink hover:bg-paper transition-colors"
-            >
-              {sub.status === 'past_due' ? 'Update payment method →' : 'Reactivate or view billing →'}
-            </button>
-          </div>
-        )}
+      <h2 class="text-sm font-semibold text-ink mb-3">Plan</h2>
+      <div class="rounded-lg border border-hairline bg-surface px-5 py-4">
+        <p class="text-sm text-muted leading-relaxed">
+          Nothing to pay. Every engine is free and the usage allowance is the same for
+          everyone — three audits per rolling 24 hours. Your account is what keeps your
+          drafts and version history between visits.
+        </p>
       </div>
     </div>
 
@@ -133,17 +66,16 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
       <AnalyticsConsentPicker client:load />
     </div>
 
-    <!-- API keys (paid only) -->
-    {isActive && (
-      <div class="mt-8">
-        <h2 class="text-sm font-semibold text-ink mb-1">API access</h2>
-        <p class="text-xs text-muted mb-3">
-          Use your subscription programmatically - integrate The Whetstone into your CMS or editorial pipeline.{' '}
-          <a href="/developer" class="underline hover:text-ink">View API docs →</a>
-        </p>
-        <ApiKeysManager client:load />
-      </div>
-    )}
+    <!-- API keys -->
+    <div class="mt-8">
+      <h2 class="text-sm font-semibold text-ink mb-1">API access</h2>
+      <p class="text-xs text-muted mb-3">
+        Run the engine programmatically - integrate The Whetstone into your CMS or editorial
+        pipeline. Keys draw on the same allowance as the web tool.{' '}
+        <a href="/developer" class="underline hover:text-ink">View API docs →</a>
+      </p>
+      <ApiKeysManager client:load />
+    </div>
 
     <!-- Feedback acknowledgement -->
     <div class="mt-8 rounded-lg border border-hairline bg-paper px-5 py-4">
@@ -162,19 +94,3 @@ const isActive = sub && ACTIVE_STATUSES.has(sub.status);
     </form>
   </main>
 </Base>
-
-{sub && (
-  <script>
-    document.getElementById('account-portal-btn')?.addEventListener('click', async () => {
-      const btn = document.getElementById('account-portal-btn') as HTMLButtonElement | null;
-      if (btn) { btn.disabled = true; btn.textContent = 'Opening…'; }
-      try {
-        const res  = await fetch('/api/billing/portal', { method: 'POST' });
-        const data = await res.json() as { ok: boolean; url?: string };
-        if (data.ok && data.url) window.location.assign(data.url);
-      } catch {
-        if (btn) { btn.disabled = false; btn.textContent = 'Manage subscription →'; }
-      }
-    });
-  </script>
-)}

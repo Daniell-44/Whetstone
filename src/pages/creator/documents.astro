@@ -8,8 +8,6 @@ import StudioNav from '../../components/studio/StudioNav.astro';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
-import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
 import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 import type { Document } from '../../../functions/_lib/documents/types';
 
@@ -23,7 +21,6 @@ if (!session) {
 const workspaceDb       = makeWorkspaceDb(env.DB);
 const docDb             = makeDocumentDb(env.DB);
 const workspaceIdParam  = Astro.url.searchParams.get('workspace');
-const hasActiveSubscription = await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), workspaceDb, session.user_id);
 
 let documents: Document[];
 let workspaceName: string | null = null;

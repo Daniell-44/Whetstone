@@ -1,15 +1,13 @@
 // ---------------------------------------------------------------------------
 // DeeperLensPanel - on-demand lens runner.
 //
-// Used on both the Reader (free) and Studio (free + Pro). Renders four
-// lens buttons; each fires its endpoint on click and renders the result
-// inline below. The structural-incentive lens is visually separated and
-// always-on-caveat per its design.
+// Used on both the Reader and the Studio. Renders four lens buttons; each
+// fires its endpoint on click and renders the result inline below. The
+// structural-incentive lens is visually separated and always-on-caveat per
+// its design.
 //
-// Auth model:
-//   - Endpoints require sign-in (401 if not signed in)
-//   - We render the "Sign in to use" upsell when 401 is received
-//   - All lens endpoints are now free-tier (no SUBSCRIPTION_REQUIRED)
+// Auth model: none. Every lens endpoint is open — no sign-in, no tier. The
+// per-24h audit allowance is the only limit, and it is enforced server-side.
 // ---------------------------------------------------------------------------
 
 import { useState, useCallback } from 'preact/hooks';
@@ -34,7 +32,6 @@ interface Props {
   /** Terminology preference for lens labels (defaults to plain). */
   preference?: TerminologyPreference;
   /** Whether the viewer has Pro. The deeper lenses are Pro-only; non-Pro sees a teaser. */
-  isPro?: boolean;
 }
 
 type LensStatus = 'idle' | 'loading' | 'done' | 'error';
@@ -98,7 +95,7 @@ function SectionError({ code, message }: { code: string; message: string }) {
   );
 }
 
-export default function DeeperLensPanel({ text, surface, preference, isPro = false }: Props) {
+export default function DeeperLensPanel({ text, surface, preference }: Props) {
   const lensLabels = getDeeperLensLabels(preference);
   const [presupState,  setPresupState]   = useState<SectionState<PresuppositionResult>>({ status: 'idle' });
   const [rhetState,    setRhetState]     = useState<SectionState<RhetoricalModeResult>>({ status: 'idle' });
@@ -117,23 +114,9 @@ export default function DeeperLensPanel({ text, surface, preference, isPro = fal
     <div class="rounded-lg border border-hairline bg-surface p-4 space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-xs font-semibold uppercase tracking-widest text-muted">Deeper read</h3>
-        <span class="text-xs text-amber-600 font-medium">Pro</span>
       </div>
 
-      {!isPro ? (
-        /* Pro teaser - the deeper lenses are a Creator (Pro) feature. */
-        <div class="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
-          <p class="text-xs text-amber-800 mb-2">Go past the core audit with three Pro reads:</p>
-          <ul class="text-xs text-ink leading-relaxed space-y-1 mb-3">
-            <li>· <strong>How it's framed</strong>: what it assumes + how it persuades</li>
-            <li>· <strong>How honestly it argues</strong>: overclaiming + fairness to critics</li>
-            <li>· <strong>Whose interests it serves</strong>: who benefits from the framing</li>
-          </ul>
-          <a href="/creator" class="inline-block text-xs font-semibold rounded-md bg-amber-500 text-white px-3 py-1.5 hover:bg-amber-600 transition-colors">
-            Unlock with Studio Pro →
-          </a>
-        </div>
-      ) : (
+      {(
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <LensButton
             label="How it's framed"

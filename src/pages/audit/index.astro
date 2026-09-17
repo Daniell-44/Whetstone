@@ -10,11 +10,6 @@ import AuditForm from '../../components/audit/AuditForm';
 import { getAllBriefings } from '../../lib/briefings';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
 
-import { makeAuthDb } from '../../../functions/_lib/auth/db';
-import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
-import { makeBillingDb } from '../../../functions/_lib/billing/subscription';
-import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
-import { userHasActiveSubscriptionViaWorkspace } from '../../../functions/_lib/workspaces/permissions';
 
 // "Audit the full article" deep-link: /audit?audit=<slug> pre-loads the field
 // with the briefing's argumentative prose. (Moved from index.astro; / shims
@@ -59,11 +54,7 @@ const sharedText     = !auditUrl && auditTextParam.length >= 50 ? auditTextParam
 // pre-cached sample so the reader sees a worked result instantly, no API call.
 const auditSampleId = Astro.url.searchParams.get('sample') ?? '';
 
-// Deeper lenses are Pro-gated; detect subscription for the teaser.
-const session = await getSessionFromRequest(Astro.request, makeAuthDb(env.DB));
-const isPro = session
-  ? await userHasActiveSubscriptionViaWorkspace(makeBillingDb(env.DB), makeWorkspaceDb(env.DB), session.user_id)
-  : false;
+
 ---
 <Base
   title="The Audit — The Whetstone"
@@ -80,7 +71,7 @@ const isPro = session
     </header>
 
     <section class="max-w-4xl">
-      <AuditForm isPro={isPro} initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
+      <AuditForm initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
     </section>
   </main>
 </Base>

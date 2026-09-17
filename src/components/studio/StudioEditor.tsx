@@ -506,7 +506,7 @@ export default function StudioEditor({
 
   // ---------------------------------------------------------------------------
   // runLens - on-demand deeper-lens caller (shared plumbing in tool/engine.ts).
-  // Subscription and rate-limiting are enforced server-side; we just dispatch.
+  // Rate limiting is enforced server-side; we just dispatch.
   // ---------------------------------------------------------------------------
 
   const runLens = useCallback(async (
@@ -1030,7 +1030,7 @@ export default function StudioEditor({
     </div>
   );
 
-  // Evidence check (RIGHT, Studio Pro).
+  // Evidence check (RIGHT).
   const evidencePanel = evidenceState.status !== 'idle' ? (
     <div class="rounded-lg border border-hairline bg-surface p-4">
       <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
