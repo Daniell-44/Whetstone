@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { FeedbackDb, FeedbackFilters } from './db';
 import type { FeedbackType, TargetLens } from './types';
-import { checkAndIncrementQuota } from '../rate-limit';
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
 
 // ---------------------------------------------------------------------------
@@ -49,15 +49,15 @@ export async function handleSubmitFeedback(
     return json({ ok: false, error: { code: 'METHOD_NOT_ALLOWED', message: 'POST only' } }, 405);
   }
 
+  // Feedback is open. Most audits are run signed out now, so requiring an
+  // account here would have silenced the signal that tunes the engine for
+  // everyone but the minority who sign in. NULL user_id = anonymous.
   const session = await deps.getSession(req);
-  if (!session) {
-    return json({ ok: false, error: { code: 'UNAUTHORIZED', message: 'Sign in required' } }, 401);
-  }
 
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(
       deps.rateLimitKv,
-      `feedback:user:${session.userId}`,
+      `feedback:${quotaIdentity(req, session?.userId)}`,
       deps.feedbackDailyCap,
     );
     if (!quota.allowed) {
@@ -96,7 +96,12 @@ export async function handleSubmitFeedback(
   }
 
   // Ownership check when documentId is present
-  if (data.documentId && deps.getDocumentOwnerId) {
+  // Feedback tied to a saved document still has to come from its owner —
+  // anonymous callers have no documents, so they cannot pass a documentId.
+  if (data.documentId) {
+    if (!session || !deps.getDocumentOwnerId) {
+      return json({ ok: false, error: { code: 'NOT_FOUND', message: 'Document not found' } }, 404);
+    }
     const ownerId = await deps.getDocumentOwnerId(data.documentId);
     if (!ownerId || ownerId !== session.userId) {
       return json({ ok: false, error: { code: 'NOT_FOUND', message: 'Document not found' } }, 404);
@@ -105,7 +110,7 @@ export async function handleSubmitFeedback(
 
   await deps.db.recordFeedback({
     id:              deps.newId(),
-    userId:          session.userId,
+    userId:          session?.userId ?? null,
     feedbackType:    data.feedbackType as FeedbackType,
     documentId:      data.documentId  ?? null,
     versionId:       data.versionId   ?? null,

@@ -120,12 +120,24 @@ function makeDeps(db: FeedbackDb, opts: {
 // ---------------------------------------------------------------------------
 
 describe('handleSubmitFeedback — auth', () => {
-  it('returns 401 when not authenticated', async () => {
+  it('accepts feedback from a signed-out visitor, recorded with no user', async () => {
+    const db = makeFakeDb();
+    // No documentId: an anonymous audit has no saved document to attach to.
+    const { documentId, ...anonFeedback } = VALID_THUMBS_UP;
+    const res = await handleSubmitFeedback(postReq(anonFeedback), makeDeps(db, { authed: false }));
+
+    expect(res.status).toBe(200);
+    expect((await res.json() as { ok: boolean }).ok).toBe(true);
+    expect(db.rows).toHaveLength(1);
+    expect(db.rows[0]!.user_id).toBeNull();
+  });
+
+  it('refuses document-scoped feedback from a signed-out visitor', async () => {
     const db  = makeFakeDb();
+    // A documentId belongs to someone's account; anonymous callers have none.
     const res = await handleSubmitFeedback(postReq(VALID_THUMBS_UP), makeDeps(db, { authed: false }));
-    expect(res.status).toBe(401);
-    const body = await res.json() as { ok: boolean };
-    expect(body.ok).toBe(false);
+    expect(res.status).toBe(404);
+    expect(db.rows).toHaveLength(0);
   });
 
   it('rejects non-POST method', async () => {

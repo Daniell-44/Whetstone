@@ -3,7 +3,8 @@ export type TargetLens   = 'namedFallacies' | 'loadedLanguage' | 'unstatedWarran
 
 export interface FeedbackRow {
   id:               string;
-  user_id:          string;
+  /** NULL when the feedback came from a signed-out visitor. */
+  user_id:          string | null;
   document_id:      string | null;
   version_id:       string | null;
   feedback_type:    string;

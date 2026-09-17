@@ -8,7 +8,7 @@ export interface FeedbackFilters {
 
 export interface FeedbackDb {
   recordFeedback(
-    params: { id: string; userId: string } & FeedbackSubmission,
+    params: { id: string; userId: string | null } & FeedbackSubmission,
   ): Promise<void>;
 
   listFeedbackSince(sinceMs: number, filters?: FeedbackFilters): Promise<FeedbackRow[]>;
