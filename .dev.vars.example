@@ -1,0 +1,57 @@
+# Local development secrets for `astro dev` / `wrangler dev`.
+#
+# Copy to `.dev.vars` and fill in. `.dev.vars` is gitignored and must stay that
+# way — this file lists variable NAMES only and must never carry a real value.
+#
+# In production these are set in the Cloudflare dashboard:
+#   Workers & Pages → the worker → Settings → Variables.
+# Non-secret defaults live in wrangler.toml [vars]; only the secrets below need
+# to be set by hand.
+
+# ---------------------------------------------------------------------------
+# Model provider — required for any engine to run
+# ---------------------------------------------------------------------------
+# LLM_PROVIDER selects the client; "gemini" is the default set in wrangler.toml.
+GEMINI_API_KEY=
+# Only needed if LLM_PROVIDER=anthropic.
+ANTHROPIC_API_KEY=
+
+# ---------------------------------------------------------------------------
+# Optional integrations — each degrades gracefully when unset
+# ---------------------------------------------------------------------------
+# URL audits fall back to a plain fetch without this; sites that block bots
+# will fail extraction rather than the whole request.
+SCRAPINGBEE_API_KEY=
+# Magic-link sign-in email. Without it, sign-in links cannot be delivered —
+# set AUTH_DEBUG_LOG_CODES=1 in wrangler.toml to read codes from `wrangler tail`.
+RESEND_API_KEY=
+# Source retrieval in /api/retrieve.
+TAVILY_API_KEY=
+
+# ---------------------------------------------------------------------------
+# Admin endpoints — shared secrets, not user credentials
+# ---------------------------------------------------------------------------
+# Gates /api/analyse-debate and /api/admin/backfill-workspaces.
+ANALYSER_SECRET=
+# Gates the cost-reporting test endpoint.
+COST_TEST_SECRET=
+
+# ---------------------------------------------------------------------------
+# Billing — dormant
+# ---------------------------------------------------------------------------
+# Paid tiers were retired: /api/billing/checkout returns 410 and /pricing
+# redirects. The webhook and portal still read these, so set them only if you
+# are reviving a paid tier or servicing a historical subscription.
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# ---------------------------------------------------------------------------
+# Not secrets — set in wrangler.toml [vars], listed here so the full surface is
+# visible in one place. Override locally only to test different values.
+# ---------------------------------------------------------------------------
+# AUDIT_FREE_USES        audits per visitor per rolling 24h (default 3)
+# SITE_URL               absolute base URL used in emails and share links
+# ALLOWED_ORIGINS        comma-separated CORS allowlist for the browser extension
+# LLM_PROVIDER           "gemini" | "anthropic"
+# AUTH_DEBUG_LOG_CODES   "1" logs magic-link codes to `wrangler tail`
+# *_DAILY_CAP            per-endpoint abuse ceilings (see wrangler.toml)
