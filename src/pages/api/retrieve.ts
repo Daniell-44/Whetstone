@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
+import { checkAndIncrementQuota, quotaIdentity } from '../../../functions/_lib/rate-limit';
 import { GeminiClient } from '../../../functions/_lib/gemini';
 import { RetrieveRequestSchema, CitationResultSchema } from '../../../functions/_lib/schema';
 import type { RetrievedSource } from '../../../functions/_lib/schema';
@@ -15,26 +16,19 @@ const MAX_SOURCES = 4;
 const HEAD_TIMEOUT_MS = 3000;
 
 // ---------------------------------------------------------------------------
-// Per-IP rate limit - in-memory, acceptable for this stage.
+// Per-caller rate limit, 20/hour.
+//
+// This was a module-level Map. Worker isolates are per-colo and short-lived,
+// so that state was neither shared nor durable — in production it meant no
+// effective limit at all on an endpoint that spends model tokens. KV is shared
+// across isolates, so the cap is now real.
+//
+// If KV is unbound (local dev without the binding) the request proceeds rather
+// than failing closed: this endpoint has no in-repo caller left, and a hard
+// failure here would be a worse dev experience than an unmetered local call.
 // ---------------------------------------------------------------------------
 
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 20;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
-
-function checkRateLimit(ip: string): { allowed: boolean; retryAfterSeconds: number } {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, retryAfterSeconds: 0 };
-  }
-  if (entry.count >= RATE_LIMIT_MAX) {
-    return { allowed: false, retryAfterSeconds: Math.ceil((entry.resetAt - now) / 1000) };
-  }
-  entry.count++;
-  return { allowed: true, retryAfterSeconds: 0 };
-}
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -73,14 +67,19 @@ interface TavilyResult {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const ip =
-    request.headers.get('CF-Connecting-IP') ??
-    request.headers.get('X-Forwarded-For') ??
-    'unknown';
-
-  const rateCheck = checkRateLimit(ip);
-  if (!rateCheck.allowed) {
-    return json({ error: 'rate_limited', retryAfterSeconds: rateCheck.retryAfterSeconds }, 429);
+  if (env.RATE_LIMIT) {
+    const quota = await checkAndIncrementQuota(
+      env.RATE_LIMIT,
+      `retrieve:${quotaIdentity(request)}`,
+      RATE_LIMIT_MAX,
+      'rolling1h',
+    );
+    if (!quota.allowed) {
+      return json({
+        error:             'rate_limited',
+        retryAfterSeconds: Math.max(0, Math.ceil((Date.parse(quota.resetAt) - Date.now()) / 1000)),
+      }, 429);
+    }
   }
 
   let body: unknown;

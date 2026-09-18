@@ -5,15 +5,15 @@ export interface RateLimitKV {
   put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
 }
 
-export type QuotaPeriod = 'day' | 'month' | 'rolling24h';
+export type QuotaPeriod = 'day' | 'month' | 'rolling1h' | 'rolling24h';
 
 interface QuotaRecord {
   count:  number;
   /**
    * Identifies the window the count belongs to:
-   *   day        → 'YYYY-MM-DD'
-   *   month      → 'YYYY-MM'
-   *   rolling24h → epoch-ms of the window's FIRST use, as a string
+   *   day          → 'YYYY-MM-DD'
+   *   month        → 'YYYY-MM'
+   *   rolling1h/24h → epoch-ms of the window's FIRST use, as a string
    *
    * Reusing one field keeps every record shape-compatible, so a key can change
    * period without a migration — a record from the old period simply reads as
@@ -22,8 +22,23 @@ interface QuotaRecord {
   period: string;
 }
 
-/** Length of the rolling window: 24h from the first use, not from midnight. */
-export const ROLLING_WINDOW_MS = 24 * 60 * 60 * 1000;
+/**
+ * Rolling windows measure from the caller's first use, not from a calendar
+ * boundary — someone arriving at 11pm gets a full window, not an hour of one.
+ */
+const ROLLING_WINDOWS = {
+  rolling1h:  60 * 60 * 1000,
+  rolling24h: 24 * 60 * 60 * 1000,
+} as const;
+
+/** Length of the default (24h) rolling window. */
+export const ROLLING_WINDOW_MS = ROLLING_WINDOWS.rolling24h;
+
+function rollingWindowMs(period: QuotaPeriod): number | null {
+  return period in ROLLING_WINDOWS
+    ? ROLLING_WINDOWS[period as keyof typeof ROLLING_WINDOWS]
+    : null;
+}
 
 export function utcDateString(nowMs: number = Date.now()): string {
   return new Date(nowMs).toISOString().slice(0, 10);   // YYYY-MM-DD
@@ -52,27 +67,29 @@ export function quotaIdentity(request: Request, userId?: string | null): string 
 
 /** The window value a brand-new record should carry. */
 function freshPeriod(period: QuotaPeriod, nowMs: number): string {
-  if (period === 'rolling24h') return String(nowMs);
-  if (period === 'month')      return utcMonthString(nowMs);
+  if (rollingWindowMs(period) !== null) return String(nowMs);
+  if (period === 'month')               return utcMonthString(nowMs);
   return utcDateString(nowMs);
 }
 
 /** Has the stored window closed, so the count should start over? */
 function windowExpired(record: QuotaRecord, period: QuotaPeriod, nowMs: number): boolean {
-  if (period === 'rolling24h') {
+  const windowMs = rollingWindowMs(period);
+  if (windowMs !== null) {
     const startedAt = Number(record.period);
     // A non-numeric value means the key last ran under a calendar period.
     // Treat it as expired rather than trusting a meaningless window start.
     if (!Number.isFinite(startedAt)) return true;
-    return nowMs - startedAt >= ROLLING_WINDOW_MS;
+    return nowMs - startedAt >= windowMs;
   }
   return record.period !== freshPeriod(period, nowMs);
 }
 
 /** When the caller's allowance next frees up, as an ISO-8601 instant. */
 function resetAtFor(record: QuotaRecord, period: QuotaPeriod, nowMs: number): string {
-  if (period === 'rolling24h') {
-    return new Date(Number(record.period) + ROLLING_WINDOW_MS).toISOString();
+  const windowMs = rollingWindowMs(period);
+  if (windowMs !== null) {
+    return new Date(Number(record.period) + windowMs).toISOString();
   }
   if (period === 'month') {
     const [y, m] = utcMonthString(nowMs).split('-').map(Number) as [number, number];
@@ -81,16 +98,20 @@ function resetAtFor(record: QuotaRecord, period: QuotaPeriod, nowMs: number): st
   return `${utcDateString(nowMs)}T23:59:59Z`;
 }
 
-// TTL: a bit over the window length so stale keys expire naturally.
-// Day and rolling24h → ~25h. Month → ~32 days.
+// TTL: comfortably longer than the window so a key cannot expire mid-window,
+// but short enough that stale keys clear themselves. Cloudflare KV enforces a
+// 60s floor, which every value here clears.
 function periodTtl(period: QuotaPeriod): number {
-  return period === 'month' ? 32 * 24 * 60 * 60 : 90_000;
+  if (period === 'month') return 32 * 24 * 60 * 60;
+  const windowMs = rollingWindowMs(period);
+  if (windowMs !== null) return Math.ceil((windowMs * 2) / 1000);
+  return 90_000; // 'day' → ~25h
 }
 
 /**
  * Check and increment a usage quota. Defaults to a daily period (all existing
  * calendar callers rely on this). Pass period='month' for monthly caps, or
- * 'rolling24h' for a window that opens on the caller's first use.
+ * 'rolling1h'/'rolling24h' for a window that opens on the caller's first use.
  *
  * `nowMs` is injectable so tests can advance time without faking timers.
  */

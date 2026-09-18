@@ -83,6 +83,32 @@ describe('checkAndIncrementQuota — rolling24h', () => {
   });
 });
 
+describe('checkAndIncrementQuota — rolling1h', () => {
+  const HOUR = 60 * 60 * 1000;
+
+  it('reopens after an hour, not after a day', async () => {
+    const kv = new FakeKV();
+    for (let i = 0; i < 2; i++) await checkAndIncrementQuota(kv, 'k', 2, 'rolling1h', T0);
+    expect((await checkAndIncrementQuota(kv, 'k', 2, 'rolling1h', T0 + HOUR - 1)).allowed).toBe(false);
+    expect((await checkAndIncrementQuota(kv, 'k', 2, 'rolling1h', T0 + HOUR)).allowed).toBe(true);
+  });
+
+  it('reports resetAt one hour past the first use', async () => {
+    const kv = new FakeKV();
+    const r  = await checkAndIncrementQuota(kv, 'k', 2, 'rolling1h', T0);
+    expect(r.resetAt).toBe(new Date(T0 + HOUR).toISOString());
+  });
+
+  it('does not share a window with the 24h period on the same key', async () => {
+    const kv = new FakeKV();
+    await checkAndIncrementQuota(kv, 'k', 1, 'rolling1h', T0);
+    // Still inside the hour, so the 1h window is spent...
+    expect((await checkAndIncrementQuota(kv, 'k', 1, 'rolling1h', T0 + 60_000)).allowed).toBe(false);
+    // ...but past it, a fresh window opens.
+    expect((await checkAndIncrementQuota(kv, 'k', 1, 'rolling1h', T0 + HOUR + 1)).allowed).toBe(true);
+  });
+});
+
 describe('checkAndIncrementQuota — calendar periods still work', () => {
   it('day: resets when the UTC date rolls over', async () => {
     const kv = new FakeKV();
