@@ -2008,3 +2008,98 @@ curl -X POST \
 - `npx vitest run` — 548/548 passing (64 new + 484 existing)
 - `npx astro check` — 0 errors
 - `npm run build` — clean
+
+---
+
+## Record gap — CS-15 to 2026-09
+
+This file stops describing the codebase accurately after CS-15. Roughly fifty
+commits landed between that entry and 2026-09 without being recorded here:
+the v2 briefing source model, The Instrument brand pass, the mobile shell
+rework, the `/audit` rename from Reader, the retirement of the topic/scorecard
+system in favour of markdown briefings (Fork A), the eval harness and Engine
+Scorecard, and the Read/Create merge exploration now parked in `/labs`.
+
+`git log` is the real record for that period. Rather than reconstruct it from
+diffs after the fact, this note marks the gap so the file is not mistaken for
+complete, and the entry below resumes the practice.
+
+---
+
+## 2026-09 — Open tool: no sign-in, no tiers
+
+**Goal**: remove the account requirement from the product. Using The Whetstone
+should need nothing but the page; an account should buy persistence, not
+capability.
+
+### The allowance
+
+One quota for everyone: **3 audits per rolling 24h**, opening on the caller's
+first audit rather than at midnight UTC, so arriving at 11pm gives a full
+window. Tunable at runtime via `AUDIT_FREE_USES`.
+
+Signing in does not raise the cap. It moves the count from the client IP onto
+the account, so the allowance follows a person across devices instead of
+resetting with each new network. One audit is one use — the lenses that run off
+the back of it do not spend from the allowance, and carry their own far looser
+caps purely as cost backstops.
+
+`rate-limit.ts` gained rolling windows (`rolling1h`, `rolling24h`) storing the
+window's first-use epoch in the existing `period` field, so records stay
+shape-compatible and a key can change period with no migration. `quotaIdentity`
+centralises the user-id-else-client-IP key that five call sites each inlined.
+
+### What stopped gating
+
+| Was gated | Now |
+|---|---|
+| 13 engine handlers — 401 without a session | Open; session only keys the quota |
+| 8 of those — 402 without a subscription | Open; `checkSubscription` dep removed |
+| Phase-2 lenses — signed-in only | Every audit gets the full suite |
+| Studio, transcript, cross-document pages | Render for signed-out visitors |
+| Free accounts — 1 saved document, oldest auto-archived | Unlimited |
+| API keys — subscribers only | Any account |
+| Feedback — required a session | Anonymous accepted (migration 0020) |
+
+`/creator/documents` still requires an account: it lists the drafts saved to
+one, so it is meaningless without it.
+
+### Billing
+
+Paid tiers are retired. `/pricing` 301s to `/about`; `/api/billing/checkout`
+answers 410 rather than being deleted, so a live endpoint cannot take money for
+a tier that grants nothing. The webhook, portal, schema and their 22 tests are
+left dormant and intact — reviving a paid tier is rewiring, not rebuilding.
+Stripe was still in Test Mode and no charge was ever taken.
+
+`StudioEditor` lost the `hasActiveSubscription` prop outright rather than being
+passed `true`; hardcoding it would have left seventeen branches implying a tier
+that no longer exists.
+
+### Infrastructure fixed along the way
+
+- **The deploy workflow had never run.** It triggered on `main` (the default
+  branch is `master`), used `npm ci` with no lockfile in a pnpm repo, and
+  type-checked the wrong project graph.
+- **Half the codebase was unchecked in CI.** `pnpm run typecheck` covers only
+  `functions/**`; all of `src/` is covered by `astro check`, which no workflow
+  ran. Both now run in CI and in `verify`.
+- **Two endpoints had no real rate limit.** `/api/analyze` and `/api/retrieve`
+  capped by IP using a module-level `Map` — per-isolate and short-lived, so in
+  production it was no limit at all. Both are KV-backed now.
+
+### Tests
+
+684 passing. 20 rewritten from the retired contract rather than deleted, ~30
+added. Two guard the new model directly: a blocked caller is never pointed at
+signing in or subscribing, and signed-in and anonymous callers receive
+byte-identical audit instructions.
+
+### Daniel must apply before deploying
+
+```bash
+npx wrangler d1 execute whetstone-users --file=migrations/0020_feedback_anonymous.sql --remote
+```
+
+Without it, anonymous feedback fails the `NOT NULL` constraint on
+`feedback.user_id` at write time.
