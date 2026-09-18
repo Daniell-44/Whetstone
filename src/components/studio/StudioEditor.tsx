@@ -158,6 +158,8 @@ function LensButton({
 // ---------------------------------------------------------------------------
 
 interface Props {
+  /** Drafts can only be saved against an account; signed-out runs are transient. */
+  isSignedIn?:                  boolean;
   initialDocId?:                string | null;
   initialTitle?:                string;
   initialContent?:              string;
@@ -173,6 +175,7 @@ interface Props {
 }
 
 export default function StudioEditor({
+  isSignedIn                  = false,
   initialDocId                = null,
   initialTitle                = 'Untitled draft',
   initialContent              = '',
@@ -362,52 +365,58 @@ export default function StudioEditor({
 
     setIsRunning(true);
 
-    // --- ensure document + version exist ---
-    let currentDocId     = docId;
-    let currentVersionId = versionId;
+    // --- ensure document + version exist (signed-in only) ---
+    // A signed-out writer has nowhere to save a draft, so there is no document
+    // to scope the run to. Their engines run against the direct endpoints with
+    // the text in the body instead; the analysis is identical, it just is not
+    // persisted. Attempting the bootstrap anyway would 401 and, because the
+    // guard below bails silently, look to them like the button does nothing.
+    let currentDocId     = isSignedIn ? docId     : null;
+    let currentVersionId = isSignedIn ? versionId : null;
 
-    try {
-      if (!currentDocId) {
-        const res  = await fetch('/api/documents', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ title, content: text }),
-        });
-        const data = await res.json() as { ok: boolean; docId?: string; versionId?: string };
-        if (!data.ok || !data.docId) { setIsRunning(false); return; }
-        currentDocId     = data.docId;
-        currentVersionId = data.versionId ?? null;
-        setDocId(currentDocId);
-        setVersionId(currentVersionId);
-        setLastSavedContent(text);
-        setSavedTitle(title);
-        const url = new URL(window.location.href);
-        url.searchParams.set('doc', currentDocId);
-        window.history.replaceState({}, '', url.toString());
-      } else if (text !== lastSavedContent) {
-        const res  = await fetch(`/api/documents/${currentDocId}/versions`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ content: text }),
-        });
-        const data = await res.json() as { ok: boolean; versionId?: string };
-        if (!data.ok || !data.versionId) { setIsRunning(false); return; }
-        currentVersionId = data.versionId;
-        setVersionId(currentVersionId);
-        setLastSavedContent(text);
+    if (isSignedIn) {
+      try {
+        if (!currentDocId) {
+          const res  = await fetch('/api/documents', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ title, content: text }),
+          });
+          const data = await res.json() as { ok: boolean; docId?: string; versionId?: string };
+          if (!data.ok || !data.docId) { setIsRunning(false); return; }
+          currentDocId     = data.docId;
+          currentVersionId = data.versionId ?? null;
+          setDocId(currentDocId);
+          setVersionId(currentVersionId);
+          setLastSavedContent(text);
+          setSavedTitle(title);
+          const url = new URL(window.location.href);
+          url.searchParams.set('doc', currentDocId);
+          window.history.replaceState({}, '', url.toString());
+        } else if (text !== lastSavedContent) {
+          const res  = await fetch(`/api/documents/${currentDocId}/versions`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ content: text }),
+          });
+          const data = await res.json() as { ok: boolean; versionId?: string };
+          if (!data.ok || !data.versionId) { setIsRunning(false); return; }
+          currentVersionId = data.versionId;
+          setVersionId(currentVersionId);
+          setLastSavedContent(text);
+        }
+      } catch {
+        setIsRunning(false);
+        return;
       }
-    } catch {
-      setIsRunning(false);
-      return;
+
+      if (!currentDocId || !currentVersionId) { setIsRunning(false); return; }
     }
 
-    if (!currentDocId || !currentVersionId) { setIsRunning(false); return; }
-
     // --- run analysis ---
-    // Free tier: audit + extraction + the click-to-run deeper lenses.
-    // Pro tier auto-runs the expensive Pro-model engines (counterargument,
-    // commitments, citation). This keeps free-tier cost bounded - the Pro
-    // models only fire for paying users.
+    // Every engine fires for every writer. Saved drafts route through the
+    // version-scoped endpoints so results persist onto the version; signed-out
+    // runs route through the direct endpoints carrying the text.
     setExtractionState({ status: 'loading' });
     setAuditState({ status: 'loading' });
     setLastRunGoals({ audience, intent });  // record goals this run used
@@ -429,10 +438,12 @@ export default function StudioEditor({
       }
     }
 
+    const saved       = Boolean(currentDocId && currentVersionId);
     const versionPath = `/api/documents/${currentDocId}/versions/${currentVersionId}`;
 
     void runEngine<ArgumentExtractionResult>({
-      url:           `${versionPath}/extraction`,
+      url:           saved ? `${versionPath}/extraction` : '/api/extract-argument',
+      body:          saved ? undefined : { text },
       setter:        setExtractionState,
       pick:          d => d.extraction,
       errorMessages: EXTRACTION_ERROR_MESSAGES,
@@ -457,8 +468,8 @@ export default function StudioEditor({
     });
 
     void runEngine<AuditResult>({
-      url:           `${versionPath}/audit`,
-      body:          { audience, intent },
+      url:           saved ? `${versionPath}/audit` : '/api/audit',
+      body:          saved ? { audience, intent } : { text, audience, intent },
       setter:        setAuditState,
       pick:          d => d.audit,
       errorMessages: AUDIT_ERROR_MESSAGES,
@@ -470,7 +481,8 @@ export default function StudioEditor({
     // for every draft. The per-24h audit allowance is what bounds the spend.
     {
       void runEngine<CounterargumentResult>({
-        url:           `${versionPath}/counterargument`,
+        url:           saved ? `${versionPath}/counterargument` : '/api/counterargument',
+        body:          saved ? undefined : { text },
         setter:        setCounterargState,
         pick:          d => d.result,
         errorMessages: COUNTERARG_ERROR_MESSAGES,
@@ -478,7 +490,8 @@ export default function StudioEditor({
       });
 
       void runEngine<PhilosophicalCommitmentsResult>({
-        url:           `${versionPath}/commitments`,
+        url:           saved ? `${versionPath}/commitments` : '/api/philosophical-commitments',
+        body:          saved ? undefined : { text },
         setter:        setCommitmentsState,
         pick:          d => d.result,
         errorMessages: COMMITMENTS_ERROR_MESSAGES,
@@ -502,7 +515,7 @@ export default function StudioEditor({
         onSettled:     () => { citationDone = true; checkDone(); },
       });
     }
-  }, [draft, docId, versionId, lastSavedContent, title, canSubmit]);
+  }, [draft, docId, versionId, lastSavedContent, title, canSubmit, isSignedIn]);
 
   // ---------------------------------------------------------------------------
   // runLens - on-demand deeper-lens caller (shared plumbing in tool/engine.ts).
@@ -597,17 +610,30 @@ export default function StudioEditor({
             History
           </a>
         )}
-        {(
-          <button
-            type="button"
-            onClick={handleNewDraft}
-            disabled={isRunning}
-            class="shrink-0 rounded-xl border border-hairline bg-surface px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-muted hover:text-ink hover:border-hairline transition-colors disabled:opacity-40"
-          >
-            New draft
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleNewDraft}
+          disabled={isRunning}
+          class="shrink-0 rounded-xl border border-hairline bg-surface px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm text-muted hover:text-ink hover:border-hairline transition-colors disabled:opacity-40"
+        >
+          New draft
+        </button>
       </div>
+
+      {/* Signed-out writers get every engine, but nothing is kept. Say so
+          before they invest in a draft, not after they lose one. */}
+      {!isSignedIn && (
+        <p class="text-xs text-muted leading-relaxed">
+          Every engine runs without an account — this draft just isn't saved.{' '}
+          <a
+            href="/login?returnTo=/creator/studio"
+            class="text-accent hover:text-accent-support font-medium underline underline-offset-2"
+          >
+            Sign in
+          </a>{' '}
+          to keep it and its revision history.
+        </p>
+      )}
 
       {/* Cached sample banner */}
       {loadedSample && !isSampleDirty && (

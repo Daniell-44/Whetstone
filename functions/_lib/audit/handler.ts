@@ -6,21 +6,32 @@ import { auditText } from './engine';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
 import type { RateLimitKV } from '../rate-limit';
 import { resolveAuditQuota, waitPhrase } from '../billing/limits';
+import { AUDIENCES, INTENTS } from './goals';
 
 // ---------------------------------------------------------------------------
 // Input validation
 // ---------------------------------------------------------------------------
+
+const GoalsFields = {
+  // Optional draft goals, tuning audit emphasis. The version-scoped route has
+  // always accepted these; the direct endpoint needs them too now that the
+  // Studio runs against it for signed-out writers.
+  audience: z.enum(AUDIENCES).optional(),
+  intent:   z.enum(INTENTS).optional(),
+};
 
 const TextBodySchema = z.object({
   text: z.string()
     .min(50, 'Text must be at least 50 characters')
     .max(10_000, 'Text must be at most 10,000 characters'),
   url: z.undefined().optional(),
+  ...GoalsFields,
 });
 
 const UrlBodySchema = z.object({
   url: z.string().url(),
   text: z.undefined().optional(),
+  ...GoalsFields,
 });
 
 const BodySchema = z.union([TextBodySchema, UrlBodySchema]);
@@ -133,6 +144,10 @@ export async function handleAuditRequest(
       // signed-in only. The tool is open now, so every audit gets the full
       // lens suite; the 3-per-24h allowance is what bounds the extra cost.
       includePhase2:  true,
+      // Both fields or neither — a half-specified pair tunes nothing.
+      goals: parsed.data.audience && parsed.data.intent
+        ? { audience: parsed.data.audience, intent: parsed.data.intent }
+        : undefined,
     });
     return json({
       ok:    true,

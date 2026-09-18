@@ -214,6 +214,46 @@ describe('handleAuditRequest — Phase-2 runs for every caller', () => {
     expect(provider.lastSystemInstruction).toContain('keyTermScrutiny');
   });
 
+  // The Studio runs against this endpoint for signed-out writers, so the draft
+  // goals the goal selector sets have to reach the prompt here too — the
+  // version-scoped route has always supported them.
+  it('carries declared draft goals into the prompt', async () => {
+    const provider = makeCapturingProvider();
+    const req = new Request('https://test.example/api/audit', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ text: TEXT, audience: 'academic', intent: 'persuade' }),
+    });
+    await handleAuditRequest(req, makeDeps(provider));
+
+    expect(provider.lastSystemInstruction).toContain('Draft context');
+    expect(provider.lastSystemInstruction).toContain('**Audience:** academic');
+    expect(provider.lastSystemInstruction).toContain('**Intent:** persuade');
+  });
+
+  it('ignores a half-specified goal pair rather than tuning on it', async () => {
+    const provider = makeCapturingProvider();
+    const req = new Request('https://test.example/api/audit', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ text: TEXT, audience: 'legal' }),  // no intent
+    });
+    await handleAuditRequest(req, makeDeps(provider));
+
+    expect(provider.lastSystemInstruction).not.toContain('Draft context');
+  });
+
+  it('rejects an audience outside the declared set', async () => {
+    const provider = makeCapturingProvider();
+    const req = new Request('https://test.example/api/audit', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ text: TEXT, audience: 'martian', intent: 'persuade' }),
+    });
+    const res = await handleAuditRequest(req, makeDeps(provider));
+    expect(res.status).toBe(400);
+  });
+
   it('gives signed-in and anonymous callers byte-identical instructions', async () => {
     const signedProvider = makeCapturingProvider();
     await handleAuditRequest(makeRequest(TEXT), makeDeps(signedProvider, async () => ({ userId: 'u-1' })));
