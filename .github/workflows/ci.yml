@@ -18,8 +18,13 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # typecheck covers functions/** only (tsconfig.functions.json). Everything
+      # under src/ — pages, components and every API route — is checked by
+      # `astro check`, so both have to run or half the codebase goes unchecked.
       - run: pnpm run typecheck
+      - run: pnpm run check
       - run: pnpm test
       # e2e (pnpm test:e2e) is intentionally omitted: it boots `astro dev`, which
       # needs the Cloudflare bindings from .dev.vars (gitignored secrets). Run it
-      # locally as part of `pnpm run verify`. Unit tests + typecheck need no secrets.
+      # locally as part of `pnpm run verify`. Unit tests, typecheck and check
+      # need no secrets.
