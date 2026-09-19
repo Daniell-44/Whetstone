@@ -29,7 +29,6 @@ declare namespace Cloudflare {
     CITATION_DAILY_CAP?:    string;
     VALIDITY_DAILY_CAP?:    string;
     EVIDENCE_DAILY_CAP?:    string;
-    TONE_DAILY_CAP?:        string;
     PRESUP_DAILY_CAP?:      string;
     RHET_DAILY_CAP?:        string;
     HUMILITY_DAILY_CAP?:    string;

@@ -10,9 +10,12 @@ name = "devils-advocate-site"
 compatibility_date = "2025-01-01"
 
 # Deploy-routing settings.
-# workers_dev = true keeps the *.workers.dev URL as a fallback while transitioning
-# to the custom domain. Set to false once thewhetstone.net is fully verified in
-# production (~1 week of stable use).
+# Canonical domain is thewhetstone.review. The legacy thewhetstone.net (and its
+# www) 301 to it in src/middleware.ts, which deliberately skips /api/* so a POST
+# is not turned into a GET for clients still calling the old host.
+# workers_dev = true keeps the *.workers.dev URL as a dev/testing fallback; the
+# middleware leaves that host alone. Set to false once the custom domain has a
+# stable run in production.
 workers_dev = true
 # preview_urls = false disables per-deploy *.workers.dev preview URLs. We don't
 # use branch previews. Set to true if you start using `wrangler versions upload`.

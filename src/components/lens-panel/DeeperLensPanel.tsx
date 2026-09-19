@@ -16,11 +16,13 @@ import type { PresuppositionResult } from '../../../functions/_lib/presuppositio
 import type { RhetoricalModeResult } from '../../../functions/_lib/rhetorical-mode/types';
 import type { EpistemicHumilityResult } from '../../../functions/_lib/epistemic-humility/types';
 import type { DisagreementEngagementResult } from '../../../functions/_lib/disagreement-engagement/types';
+import type { StructuralValidityResult } from '../../../functions/_lib/structural-validity/types';
 import type { StructuralIncentiveResult } from '../../../functions/_lib/structural-incentive/types';
 import PresuppositionDisplay from '../presupposition/PresuppositionDisplay';
 import RhetoricalModeDisplay from '../rhetorical-mode/RhetoricalModeDisplay';
 import EpistemicHumilityDisplay from '../epistemic-humility/EpistemicHumilityDisplay';
 import DisagreementEngagementDisplay from '../disagreement-engagement/DisagreementEngagementDisplay';
+import StructuralValidityDisplay from '../validity/StructuralValidityDisplay';
 import StructuralIncentiveDisplay from '../structural-incentive/StructuralIncentiveDisplay';
 import { runLens as runLensShared, type SectionState, type LensName } from '../tool/engine';
 
@@ -102,6 +104,7 @@ export default function DeeperLensPanel({ text, surface, preference }: Props) {
   const [humilityState, setHumilityState] = useState<SectionState<EpistemicHumilityResult>>({ status: 'idle' });
   const [disagreeState, setDisagreeState] = useState<SectionState<DisagreementEngagementResult>>({ status: 'idle' });
   const [siState,       setSiState]       = useState<SectionState<StructuralIncentiveResult>>({ status: 'idle' });
+  const [validityState, setValidityState] = useState<SectionState<StructuralValidityResult>>({ status: 'idle' });
 
   const runLens = useCallback(async (
     lens:   LensName,
@@ -117,7 +120,7 @@ export default function DeeperLensPanel({ text, surface, preference }: Props) {
       </div>
 
       {(
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
           <LensButton
             label="How it's framed"
             status={combineStatus(presupState.status, rhetState.status)}
@@ -132,6 +135,11 @@ export default function DeeperLensPanel({ text, surface, preference }: Props) {
             label="Whose interests it serves"
             status={siState.status}
             onClick={() => void runLens('structural-incentive', setSiState)}
+          />
+          <LensButton
+            label="Does the conclusion follow?"
+            status={validityState.status}
+            onClick={() => void runLens('structural-validity', setValidityState)}
           />
         </div>
       )}
@@ -178,6 +186,15 @@ export default function DeeperLensPanel({ text, surface, preference }: Props) {
         <div>
           <h4 class="text-xs font-semibold uppercase tracking-widest text-amber-700 mb-2">{lensLabels.structuralIncentive}</h4>
           <StructuralIncentiveDisplay result={siState.data} />
+        </div>
+      )}
+
+      {validityState.status === 'loading' && <SectionLoading label="Testing whether the conclusion follows…" />}
+      {validityState.status === 'error' && <SectionError code={validityState.code} message={validityState.message} />}
+      {validityState.status === 'done' && (
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">{lensLabels.structuralValidity}</h4>
+          <StructuralValidityDisplay result={validityState.data} />
         </div>
       )}
     </div>

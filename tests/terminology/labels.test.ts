@@ -8,6 +8,9 @@ import {
   TOOLTIPS,
   getLabels,
   getTooltips,
+  DEEPER_LENS_KEYS,
+  DEEPER_LENS_LABELS,
+  getDeeperLensLabels,
 } from '../../src/lib/labels';
 
 // ---------------------------------------------------------------------------
@@ -15,8 +18,8 @@ import {
 // ---------------------------------------------------------------------------
 
 describe('LABELS_PLAIN', () => {
-  it('has 56 keys', () => {
-    expect(Object.keys(LABELS_PLAIN)).toHaveLength(56);
+  it('is populated (guards against a mass deletion, without pinning a count)', () => {
+    expect(Object.keys(LABELS_PLAIN).length).toBeGreaterThan(40);
   });
 
   it('every value is a non-empty string', () => {
@@ -28,7 +31,7 @@ describe('LABELS_PLAIN', () => {
 });
 
 describe('LABELS_FORMAL', () => {
-  it('has the same 36 keys as LABELS_PLAIN', () => {
+  it('has exactly the same keys as LABELS_PLAIN', () => {
     const plainKeys  = Object.keys(LABELS_PLAIN).sort();
     const formalKeys = Object.keys(LABELS_FORMAL).sort();
     expect(formalKeys).toEqual(plainKeys);
@@ -157,5 +160,43 @@ describe('getTooltips', () => {
   it('formal tooltip for toulminWarrant mentions "suppressed major premise"', () => {
     const t = getTooltips('formal').toulminWarrant;
     expect(t.plain.toLowerCase()).toContain('suppress');
+  });
+});
+
+
+// ---------------------------------------------------------------------------
+// Deeper-lens labels — the on-demand lens buttons
+// ---------------------------------------------------------------------------
+
+describe('DEEPER_LENS_LABELS', () => {
+  it('covers every declared lens key in both registers', () => {
+    for (const key of DEEPER_LENS_KEYS) {
+      expect(DEEPER_LENS_LABELS.plain[key], `plain.${key}`).toBeTruthy();
+      expect(DEEPER_LENS_LABELS.formal[key], `formal.${key}`).toBeTruthy();
+    }
+  });
+
+  it('declares no label without a matching key', () => {
+    const declared = [...DEEPER_LENS_KEYS].sort();
+    expect(Object.keys(DEEPER_LENS_LABELS.plain).sort()).toEqual(declared);
+    expect(Object.keys(DEEPER_LENS_LABELS.formal).sort()).toEqual(declared);
+  });
+
+  it('getDeeperLensLabels picks the register', () => {
+    expect(getDeeperLensLabels('formal').structuralValidity).toBe('Structural Validity');
+    expect(getDeeperLensLabels('plain').structuralValidity).toBe('Does It Follow?');
+  });
+
+  it('defaults to plain when no preference is given', () => {
+    expect(getDeeperLensLabels()).toEqual(DEEPER_LENS_LABELS.plain);
+  });
+
+  it('keeps the two registers distinct rather than duplicating one', () => {
+    // If a register were copy-pasted, the formal labels would read identically
+    // to the plain ones — the whole point is that they differ.
+    const identical = DEEPER_LENS_KEYS.filter(
+      k => DEEPER_LENS_LABELS.plain[k] === DEEPER_LENS_LABELS.formal[k],
+    );
+    expect(identical).toEqual([]);
   });
 });

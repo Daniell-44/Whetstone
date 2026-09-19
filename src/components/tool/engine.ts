@@ -25,7 +25,8 @@ export type LensName =
   | 'rhetorical-mode'
   | 'epistemic-humility'
   | 'disagreement-engagement'
-  | 'structural-incentive';
+  | 'structural-incentive'
+  | 'structural-validity';
 
 export const NETWORK_MESSAGE = 'Network error - check your connection.';
 
@@ -101,6 +102,7 @@ const LENS_EVENT: Record<LensName, string> = {
   'epistemic-humility':      'epistemic_humility_requested',
   'disagreement-engagement': 'disagreement_engagement_requested',
   'structural-incentive':    'structural_incentive_requested',
+  'structural-validity':     'structural_validity_requested',
 };
 
 export interface RunLensOpts {

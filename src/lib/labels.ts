@@ -12,6 +12,7 @@ export type TerminologyPreference = 'plain' | 'formal';
 
 export const DEEPER_LENS_KEYS = [
   'presupposition', 'rhetoricalMode', 'epistemicHumility', 'disagreementEngagement', 'structuralIncentive',
+  'structuralValidity',
 ] as const;
 export type DeeperLensKey = typeof DEEPER_LENS_KEYS[number];
 
@@ -22,6 +23,7 @@ export const DEEPER_LENS_LABELS: Record<TerminologyPreference, Record<DeeperLens
     epistemicHumility:      'Certainty Check',
     disagreementEngagement: 'Fairness to Critics',
     structuralIncentive:    'Who Benefits',
+    structuralValidity:     'Does It Follow?',
   },
   formal: {
     presupposition:         'Presuppositions',
@@ -29,6 +31,7 @@ export const DEEPER_LENS_LABELS: Record<TerminologyPreference, Record<DeeperLens
     epistemicHumility:      'Epistemic Humility',
     disagreementEngagement: 'Disagreement Engagement',
     structuralIncentive:    'Structural Incentive',
+    structuralValidity:     'Structural Validity',
   },
 };
 
@@ -105,7 +108,6 @@ export const LABELS_PLAIN = {
   citationVerdictUnfetchable: 'Source unreachable',
 
   // Tone and rhetorical posture
-  tonePosture:          'Tone & Posture',
   postureLabel:         'How the argument addresses you',
   registerLabel:        'Emotional temperature',
   tonalMovesLabel:      'Where tone does the work',
@@ -181,7 +183,6 @@ export const LABELS_FORMAL = {
   citationVerdictUnfetchable: 'Citation retrieval failed',
 
   // Tone and rhetorical posture
-  tonePosture:          'Rhetorical Posture & Tonal Register',
   postureLabel:         'Rhetorical posture',
   registerLabel:        'Tonal register',
   tonalMovesLabel:      'Tonal moves (rhetoric doing argumentative work)',
@@ -379,10 +380,6 @@ export const TOOLTIPS_PLAIN: Record<keyof typeof LABELS_PLAIN, { plain: string; 
   },
 
   // Tone and rhetorical posture
-  tonePosture: {
-    plain:    'How your writing addresses its audience — the stance you take (authoritative, conciliatory, adversarial, etc.) and the emotional temperature of the prose (measured, urgent, sardonic, etc.). This isn\'t about what you argue; it\'s about how you argue it.',
-    pedigree: 'Rhetorical analysis in the tradition of Aristotle\'s Rhetoric (ethos, pathos, logos) and Kenneth Burke\'s dramatistic pentad (A Grammar of Motives, 1945). The posture-register distinction maps to Wayne Booth\'s concept of the "implied author" (The Rhetoric of Fiction, 1961) — the persona the text constructs for its writer, which may differ from the writer\'s actual stance.',
-  },
   postureLabel: {
     plain:    'The implicit role you cast yourself and the reader in — are you the expert, the ally, the teacher, the prophet?',
     pedigree: 'Relates to Aristotle\'s ethos: the character the speaker constructs through the speech itself, not their pre-existing reputation.',
@@ -616,10 +613,6 @@ export const TOOLTIPS_FORMAL = {
   },
 
   // Tone and rhetorical posture
-  tonePosture: {
-    plain:    'Analysis of rhetorical posture (the stance the writer constructs through the text) and tonal register (the emotional temperature of the prose). Distinct from content analysis: posture and register describe HOW the argument addresses its audience, not WHAT it argues.',
-    pedigree: 'Aristotle\'s Rhetoric (c. 350 BCE) established the tripartite analysis of persuasive appeals: ethos (character of the speaker), pathos (emotional state of the audience), logos (the argument itself). Kenneth Burke\'s dramatistic pentad (A Grammar of Motives, 1945) extends this to the "attitude" — the manner of the act. The posture-register distinction maps to Wayne Booth\'s "implied author" (The Rhetoric of Fiction, 1961) and Halliday\'s register theory in systemic functional linguistics (Language as Social Semiotic, 1978).',
-  },
   postureLabel: {
     plain:    'Rhetorical posture: the implicit role the writer constructs for themselves and their audience through the text\'s structure, diction, and framing — authoritative, adversarial, conciliatory, pedagogical, confessional, ironic, prophetic, detached, or mixed.',
     pedigree: 'Aristotle\'s ethos in the Rhetoric is the character the speaker constructs through the speech itself. Perelman & Olbrechts-Tyteca (The New Rhetoric, 1958) extend this to the "universal audience" — the audience the speaker implicitly constructs as their ideal interlocutor.',
