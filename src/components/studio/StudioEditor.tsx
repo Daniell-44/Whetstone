@@ -86,7 +86,7 @@ function SectionError({ code, message }: { code: string; message: string }) {
     return (
       <div class="rounded-xl bg-accent/5 border-l-2 border-accent p-4 text-sm text-accent">
         Your session has expired.{' '}
-        <a href="/login?returnTo=/creator/studio" class="underline font-medium">
+        <a href="/login?returnTo=/audit%3Fmode%3Dcreate" class="underline font-medium">
           Sign in again →
         </a>
       </div>
@@ -626,7 +626,7 @@ export default function StudioEditor({
         <p class="text-xs text-muted leading-relaxed">
           Every engine runs without an account — this draft just isn't saved.{' '}
           <a
-            href="/login?returnTo=/creator/studio"
+            href="/login?returnTo=/audit%3Fmode%3Dcreate"
             class="text-accent hover:text-accent-support font-medium underline underline-offset-2"
           >
             Sign in

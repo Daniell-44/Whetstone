@@ -58,7 +58,18 @@ function countFindings(r: AuditResult) {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function AuditForm({ initialText = '', initialUrl = '', initialSampleId = '' }: { initialText?: string; initialUrl?: string; initialSampleId?: string }) {
+export default function AuditForm({
+  initialText = '',
+  initialUrl = '',
+  initialSampleId = '',
+  onSendToDraft,
+}: {
+  initialText?:     string;
+  initialUrl?:      string;
+  initialSampleId?: string;
+  /** Present when hosted in the merged tool surface: carry this text into CREATE. */
+  onSendToDraft?:   (text: string) => void;
+}) {
   const [input, setInput]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState<string | null>(null);
@@ -562,26 +573,38 @@ export default function AuditForm({ initialText = '', initialUrl = '', initialSa
         <DeeperLensPanel text={sourceText} surface="reader" />
       )}
 
-      {/* Studio conversion panel - names the Pro features the Reader doesn't
-         include. Naming the locked features is the upsell. */}
+      {/* Hand-off into CREATE. When hosted in the merged surface this is a mode
+         switch carrying the audited text across; standalone it is still a link
+         to the writing side. Either way it is the same next step: stop reading
+         someone else's argument and start working on your own. */}
       {result && !loading && (
         <div class="rounded-xl border border-hairline bg-paper p-5">
-          <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Go deeper in Studio</p>
+          <p class="text-xs font-semibold uppercase tracking-widest text-accent mb-2">Work on your own draft</p>
           <p class="text-sm text-ink leading-relaxed mb-3">
-            The Reader gives you the full structural audit free. Studio adds the tools for working on your own writing:
+            The writing side runs everything above, plus the tools that only make sense against your own text:
           </p>
           <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-1.5 text-xs text-ink mb-4">
             <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Counterargument (steelman the other side)</li>
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Citation audit - checks your sources</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Source Match - checks your citations</li>
             <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Evidence-weighted likelihood</li>
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Cross-document self-contradiction check</li>
-            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Save drafts with version history</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Philosophical commitments</li>
             <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Inline highlights as you edit</li>
+            <li class="flex items-start gap-1.5"><span class="text-accent">+</span> Version history (with an account)</li>
           </ul>
           <div class="flex flex-wrap items-center gap-3">
-            <a href="/creator/studio" class="inline-block rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent/90 transition-colors">
-              Open Studio →
-            </a>
+            {onSendToDraft && sourceText ? (
+              <button
+                type="button"
+                onClick={() => onSendToDraft(sourceText)}
+                class="inline-block rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent/90 transition-colors"
+              >
+                Open this text in Create →
+              </button>
+            ) : (
+              <a href="/audit?mode=create" class="inline-block rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-paper hover:bg-accent/90 transition-colors">
+                Switch to Create →
+              </a>
+            )}
           </div>
         </div>
       )}

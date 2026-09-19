@@ -1,5 +1,5 @@
 // Shared tool primitives — the audit input contract, identical for the Reader
-// (/audit, AuditForm) and Studio (/creator/studio, StudioEditor). Stage 2 of
+// (AuditForm) and Create (StudioEditor), both hosted by ToolSurface at /audit.
 // the audit/Studio merge: one source of truth so the two surfaces can't drift
 // on the basics (a bounds change or a URL-detection tweak lands in both).
 

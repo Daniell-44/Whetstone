@@ -40,7 +40,8 @@ test('reader audits pasted text (mocked engine) and renders a finding', async ({
 
   // The tool lives at /audit since 2026-07-07.
   await page.goto('/audit');
-  const textarea = page.locator('textarea').first();
+  // Scoped to the READ posture: both modes are mounted since the 2026-09 merge.
+  const textarea = page.locator('[data-tool-mode="read"] textarea').first();
   const submit = page.getByRole('button', { name: /Audit this argument/i });
 
   // The island hydrates after load; a fill before hydration is reset by the
@@ -56,4 +57,53 @@ test('reader audits pasted text (mocked engine) and renders a finding', async ({
 
   // exact match — the briefings feed below also contains "begging the question".
   await expect(page.getByText('Begging the Question', { exact: true })).toBeVisible({ timeout: 10_000 });
+});
+
+// ---------------------------------------------------------------------------
+// The READ/CREATE merge (2026-09)
+// ---------------------------------------------------------------------------
+
+test('the mode toggle swaps posture without clearing the other buffer', async ({ page }) => {
+  await page.goto('/audit');
+
+  const read   = page.locator('[data-tool-mode="read"]');
+  const create = page.locator('[data-tool-mode="create"]');
+  const toRead   = page.getByRole('tab', { name: 'READ' });
+  const toCreate = page.getByRole('tab', { name: 'CREATE' });
+
+  // READ is the default posture.
+  await expect(read).toBeVisible();
+  await expect(create).toBeHidden();
+
+  // Wait for hydration before interacting. The markup is server-rendered, so
+  // a click or a fill that lands first is simply lost: the click has no handler
+  // attached yet, and a fill sets the DOM value without Preact ever seeing it,
+  // so the first re-render resets the field to its (empty) state value. Astro
+  // drops the `ssr` attribute off the island once it has hydrated.
+  await expect(page.locator('astro-island[component-url*="ToolSurface"]'))
+    .not.toHaveAttribute('ssr', /.*/ , { timeout: 15_000 });
+
+  await read.locator('textarea').first().fill('a'.repeat(60));
+
+  await toCreate.click();
+  await expect(create).toBeVisible();
+  await expect(read).toBeHidden();
+
+  // The whole point of keeping both halves mounted: coming back must not have
+  // wiped what was typed on the other side.
+  await toRead.click();
+  await expect(read).toBeVisible();
+  await expect(read.locator('textarea').first()).toHaveValue('a'.repeat(60));
+});
+
+test('?mode=create opens straight into the writing posture', async ({ page }) => {
+  await page.goto('/audit?mode=create');
+  await expect(page.locator('[data-tool-mode="create"]')).toBeVisible();
+  await expect(page.locator('[data-tool-mode="read"]')).toBeHidden();
+});
+
+test('the retired Studio URL redirects into the writing posture', async ({ page }) => {
+  await page.goto('/creator/studio');
+  await expect(page).toHaveURL(/\/audit\?mode=create/);
+  await expect(page.locator('[data-tool-mode="create"]')).toBeVisible();
 });

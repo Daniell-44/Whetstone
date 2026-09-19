@@ -42,6 +42,7 @@ pnpm run typecheck   # tsc over functions/**
 pnpm run check       # astro check over src/** — pages, components, API routes
 pnpm test            # vitest, 684 tests, no secrets needed
 pnpm run test:e2e    # playwright; needs .dev.vars because it boots astro dev
+                     #   first run: npx playwright install chromium
 pnpm run verify      # all four
 ```
 

@@ -12,14 +12,14 @@ interface Props {
 }
 const { current, isSignedIn = false } = Astro.props;
 const tabHref: Record<NonNullable<Props['current']>, string> = {
-  'editor':         '/creator/studio',
+  'editor':         '/audit?mode=create',
   'transcript':     '/creator/studio/transcript',
   'cross-document': '/creator/studio/cross-document',
   'documents':      '/creator/documents',
 };
 
 const tabs: { key: Props['current']; label: string; href: string }[] = [
-  { key: 'editor',         label: 'Editor',         href: '/creator/studio' },
+  { key: 'editor',         label: 'Editor',         href: '/audit?mode=create' },
   { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript' },
   { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document' },
   { key: 'documents',      label: 'Documents',      href: '/creator/documents' },

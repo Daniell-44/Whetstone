@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'preact/hooks';
 
 // Shared single-audit loading state for the Reader-flavoured surfaces (AuditForm
-// and the /labs/workbench prototype, and the future merged Read mode): an eased
+// (both postures of the merged tool surface): an eased
 // progress bar (fast-then-slow toward ~90%, never completing until the result
 // lands) plus a skeleton of the result layout. Research: for 10s+ waits a bar +
 // skeleton beats a spinner — it reduces perceived wait and signals the structure

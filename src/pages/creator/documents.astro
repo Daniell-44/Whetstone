@@ -65,7 +65,7 @@ function formatDate(epochMs: number): string {
       <div class="mt-4 flex items-center gap-3">
         <WorkspaceSwitcher currentWorkspaceId={workspaceIdParam} client:load />
         <a
-          href="/creator/studio"
+          href="/audit?mode=create"
           class="shrink-0 rounded-xl bg-accent-support px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent transition-colors"
         >
           New draft
@@ -76,7 +76,7 @@ function formatDate(epochMs: number): string {
     {documents.length === 0 ? (
       <div class="rounded-xl border border-hairline bg-paper p-12 text-center">
         <p class="text-muted mb-4">No saved drafts yet.</p>
-        <a href="/creator/studio" class="text-sm text-accent-support hover:text-accent underline">
+        <a href="/audit?mode=create" class="text-sm text-accent-support hover:text-accent underline">
           Start your first draft →
         </a>
       </div>
@@ -86,7 +86,7 @@ function formatDate(epochMs: number): string {
           <li class="py-4 flex items-center justify-between gap-4">
             <div class="min-w-0">
               <a
-                href={`/creator/studio?doc=${doc.id}`}
+                href={`/audit?mode=create&doc=${doc.id}`}
                 class="block text-sm font-medium text-ink-strong hover:text-accent-support truncate transition-colors"
               >
                 {doc.title}
@@ -102,7 +102,7 @@ function formatDate(epochMs: number): string {
               </div>
             </div>
             <a
-              href={`/creator/studio?doc=${doc.id}`}
+              href={`/audit?mode=create&doc=${doc.id}`}
               class="shrink-0 text-xs text-muted hover:text-accent-support transition-colors"
             >
               Open →

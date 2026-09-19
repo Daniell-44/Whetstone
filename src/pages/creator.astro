@@ -39,7 +39,7 @@ const signedIn = !!session;
     <!-- CTA -->
     <section class="mb-14 flex flex-wrap items-center gap-4">
       <a
-        href="/creator/studio"
+        href="/audit?mode=create"
         class="inline-flex items-center gap-2 px-6 py-3 bg-accent-support text-white text-sm font-semibold rounded-lg hover:bg-accent transition-colors"
       >
         Open the Studio
@@ -54,7 +54,7 @@ const signedIn = !!session;
         Audit someone else's argument →
       </a>
       {!signedIn && (
-        <a href="/login?returnTo=/creator/studio" class="text-sm text-muted hover:text-ink transition-colors">
+        <a href="/login?returnTo=/audit%3Fmode%3Dcreate" class="text-sm text-muted hover:text-ink transition-colors">
           Sign in to keep your drafts →
         </a>
       )}
@@ -161,7 +161,7 @@ const signedIn = !!session;
         </div>
         <div class="shrink-0 flex items-center gap-3">
           <a
-            href="/creator/studio"
+            href="/audit?mode=create"
             class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-accent-support text-white text-sm font-semibold hover:bg-accent-support/90 transition-colors"
           >
             Open the Studio

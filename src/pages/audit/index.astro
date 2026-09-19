@@ -1,19 +1,39 @@
 ---
 export const prerender = false;
-// The Audit — the free engine's own page (D1 Option B, 2026-07-07). Previously
-// this route 301'd to / (when the tool WAS the homepage); the homepage is now
-// the publication and the tool lives here. Shareable audits stay at /audit/[id].
+// The tool — one page, two postures. READ audits someone else's argument,
+// CREATE audits your own draft (2026-09 merge). This absorbed /creator/studio,
+// which now 301s here; ?mode=create opens straight into the writing side.
+// Shareable audits stay at /audit/[id].
 
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
-import AuditForm from '../../components/audit/AuditForm';
+import ToolSurface from '../../components/tool/ToolSurface';
+import StudioNav from '../../components/studio/StudioNav.astro';
+import OnboardingTour from '../../components/onboarding/OnboardingTour';
+import { makeAuthDb } from '../../../functions/_lib/auth/db';
+import { makeDocumentDb } from '../../../functions/_lib/documents/db';
+import { makeFindingActionDb } from '../../../functions/_lib/documents/finding-actions';
+import { getSessionFromRequest } from '../../../functions/_lib/auth/sessions';
 import { getAllBriefings } from '../../lib/briefings';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
+import type { AuditResult } from '../../lib/audit';
+import type { CounterargumentResult } from '../../lib/counterargument';
+import type { ArgumentExtractionResult } from '../../lib/extraction';
+import type { PhilosophicalCommitmentsResult } from '../../../functions/_lib/philosophical-commitments/types';
+import type { CitationAuditResult } from '../../../functions/_lib/citation-audit/types';
+import type { DocumentVersion } from '../../../functions/_lib/documents/types';
 
+// Defensive: a corrupt stored JSON column shouldn't 500 the whole page.
+function safeJsonParse<T>(s: string | null | undefined): T | null {
+  if (!s) return null;
+  try { return JSON.parse(s) as T; } catch { return null; }
+}
 
-// "Audit the full article" deep-link: /audit?audit=<slug> pre-loads the field
-// with the briefing's argumentative prose. (Moved from index.astro; / shims
-// legacy /?audit=&url= links here.)
+// ---------------------------------------------------------------------------
+// READ deep-links
+// ---------------------------------------------------------------------------
+
+// "Audit the full article": /audit?audit=<slug> pre-loads a briefing's prose.
 function briefingPlainText(b: BriefingArticle): string {
   const parts: string[] = [];
   for (const bl of b.blocks) {
@@ -23,10 +43,9 @@ function briefingPlainText(b: BriefingArticle): string {
   return parts.join('\n\n').slice(0, 10_000);
 }
 // A `pos=<sourceId>` narrows the prefill to ONE position's argument text — the
-// exact text the briefing's audit card assessed. This is what a per-position
-// "Audit this argument" link carries, so the tool opens on the same words the
-// reader just saw audited (no re-fetching the remote source, which often fails
-// to extract). Falls back to the whole-briefing prose if the position is absent.
+// exact text the briefing's audit card assessed, so the tool opens on the same
+// words the reader just saw audited (no re-fetching the remote source, which
+// often fails to extract). Falls back to whole-briefing prose if absent.
 function positionText(b: BriefingArticle, sourceId: string): string {
   for (const bl of b.blocks) {
     if (bl.type === 'position' && bl.sourceId === sourceId) return bl.paragraph;
@@ -39,39 +58,122 @@ const auditTarget  = auditSlug ? getAllBriefings().find((b) => b.slug === auditS
 const auditPrefill = auditTarget
   ? ((auditPosId && positionText(auditTarget, auditPosId)) || briefingPlainText(auditTarget))
   : '';
-// /audit?url=<source> deep-link: audit the source article a briefing position quotes.
-// ALSO the Web Share Target landing (manifest.webmanifest share_target): many
-// Android apps put the shared link in the `text` field rather than `url`, so
-// fall back to extracting an http(s) URL from `text`; non-URL shared text is
-// treated as pasted argument text.
+// /audit?url=<source> deep-link, ALSO the Web Share Target landing (see
+// manifest.webmanifest): many Android apps put the shared link in `text` rather
+// than `url`, so fall back to extracting an http(s) URL from `text`; non-URL
+// shared text is treated as pasted argument text.
 const auditUrlParam  = Astro.url.searchParams.get('url') ?? '';
 const auditTextParam = Astro.url.searchParams.get('text') ?? '';
 const urlFromText    = auditTextParam.match(/https?:\/\/\S+/)?.[0] ?? '';
 const auditUrl       = auditUrlParam.startsWith('http') ? auditUrlParam : urlFromText;
-// Shared plain text (no URL in it) lands as the pasted argument.
 const sharedText     = !auditUrl && auditTextParam.length >= 50 ? auditTextParam.slice(0, 10_000) : '';
-// /audit?sample=<id> deep-link (home-feed launcher chips): auto-load a
-// pre-cached sample so the reader sees a worked result instantly, no API call.
+// /audit?sample=<id> (home-feed launcher chips): auto-load a pre-cached sample
+// so the reader sees a worked result instantly, no API call.
 const auditSampleId = Astro.url.searchParams.get('sample') ?? '';
 
+// ---------------------------------------------------------------------------
+// CREATE state
+// ---------------------------------------------------------------------------
 
+const authDb  = makeAuthDb(env.DB);
+const session = await getSessionFromRequest(Astro.request, authDb);
+
+// Signed-out visitors get the whole tool: every engine runs without an account.
+// A session only unlocks saving a draft and loading one back.
+const terminology = session
+  ? await authDb.getTerminologyPreference(session.user_id)
+  : 'plain';
+
+// Load document from ?doc= query param if provided.
+const docIdParam = Astro.url.searchParams.get('doc');
+let initialDocId:            string | null = null;
+let initialTitle:            string        = 'Untitled draft';
+let initialContent:          string        = '';
+let initialVersionId:        string | null = null;
+let initialAuditResult:      AuditResult | null = null;
+let initialCounterargResult: CounterargumentResult | null = null;
+let initialExtractionResult:  ArgumentExtractionResult | null = null;
+let initialCommitmentsResult: PhilosophicalCommitmentsResult | null = null;
+let initialCitationResult:    CitationAuditResult | null = null;
+let initialAnalyzedAt:        number | null = null;
+let initialActions:          Record<string, { id: string; action: string; reason?: string | null; updatedAt: number }> = {};
+
+if (docIdParam) {
+  const docDb      = makeDocumentDb(env.DB);
+  const actionDb   = makeFindingActionDb(env.DB);
+  const doc        = await docDb.getDocumentById(docIdParam);
+  if (doc && session && doc.user_id === session.user_id && doc.status === 'active') {
+    const latest: DocumentVersion | null = await docDb.getLatestVersion(docIdParam);
+    initialDocId    = doc.id;
+    initialTitle    = doc.title;
+    initialContent  = latest?.content ?? '';
+    initialVersionId = latest?.id ?? null;
+    initialAuditResult      = safeJsonParse<AuditResult>(latest?.audit_result);
+    initialCounterargResult = safeJsonParse<CounterargumentResult>(latest?.counterarg_result);
+    initialExtractionResult  = safeJsonParse<ArgumentExtractionResult>(latest?.extraction_json);
+    initialCommitmentsResult = safeJsonParse<PhilosophicalCommitmentsResult>(latest?.commitments_json);
+    initialCitationResult    = safeJsonParse<CitationAuditResult>(latest?.citation_audit_json);
+    // Only stamp "last analysed" when the loaded version actually has an audit.
+    initialAnalyzedAt        = initialAuditResult ? (latest?.created_at ?? null) : null;
+
+    const rows = await actionDb.listActionsForDocument(doc.id, session!.user_id);
+    for (const r of rows) {
+      initialActions[`${r.lens}:${r.match_key}`] = {
+        id:        r.id,
+        action:    r.action,
+        reason:    r.reason,
+        updatedAt: r.updated_at,
+      };
+    }
+  }
+}
+// Reopening a saved draft, or an explicit ?mode=create, opens the writing side.
+const initialMode = (Astro.url.searchParams.get('mode') === 'create' || initialDocId)
+  ? 'create'
+  : 'read';
 ---
 <Base
   title="The Audit — The Whetstone"
-  description="Paste any text or drop a URL. See the structure behind the argument: claims, evidence, where the logic breaks down, and the strongest opposing case. Free to try."
+  description="Paste any text or drop a URL to see where an argument's reasoning breaks down — or switch to Create and run the same engine against your own draft."
   canonicalPath="/audit"
+  isLoggedIn={!!session}
 >
-  <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-16 sm:pb-24">
-    <header class="mb-8 max-w-3xl">
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-16 sm:pb-24">
+
+    <StudioNav current="editor" isSignedIn={!!session} />
+
+    <header class="mb-6 max-w-3xl">
       <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit</p>
       <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">See where an argument's reasoning breaks down.</h1>
       <p class="mt-2 text-sm text-muted leading-relaxed">
-        Paste an argument or drop a link. The engine returns the structure — the claim, its warrants, and the named reasoning patterns inside it. Not a verdict on who's right.
+        Paste an argument or drop a link. The engine returns the structure — the claim, its warrants, and the
+        named reasoning patterns inside it. Not a verdict on who's right. Switch to Create to run it against
+        your own writing.
       </p>
     </header>
 
-    <section class="max-w-4xl">
-      <AuditForm initialText={auditPrefill || sharedText} initialUrl={auditUrl} initialSampleId={auditSampleId} client:load />
-    </section>
+    <ToolSurface
+      client:load
+      initialMode={initialMode}
+      isSignedIn={!!session}
+      initialText={auditPrefill || sharedText}
+      initialUrl={auditUrl}
+      initialSampleId={auditSampleId}
+      initialDocId={initialDocId}
+      initialTitle={initialTitle}
+      initialContent={initialContent}
+      initialVersionId={initialVersionId}
+      initialAuditResult={initialAuditResult}
+      initialCounterargResult={initialCounterargResult}
+      initialExtractionResult={initialExtractionResult}
+      initialCommitmentsResult={initialCommitmentsResult}
+      initialCitationAuditResult={initialCitationResult}
+      initialAnalyzedAt={initialAnalyzedAt}
+      initialActions={initialActions}
+      terminologyPreference={terminology}
+    />
+
+    <OnboardingTour client:load />
+
   </main>
 </Base>
