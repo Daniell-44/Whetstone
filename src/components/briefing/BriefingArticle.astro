@@ -1,4 +1,5 @@
 ---
+import { inlineMarkup } from '../../../functions/_lib/briefing/parse';
 import PopulatedSpectrum from './PopulatedSpectrum.astro';
 import BandedSpectrum from './BandedSpectrum.astro';
 import type { BriefingArticle } from '../../../functions/_lib/briefing/types';
@@ -59,12 +60,12 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
         return (
           <div>
             <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1.5">The landscape</span>
-            <p class="text-base text-ink leading-relaxed">{block.text}</p>
+            <p class="text-base text-ink leading-relaxed" set:html={inlineMarkup(block.text)} />
           </div>
         );
       }
       if (block.type === 'prose') {
-        return <p class="text-[0.9375rem] text-ink leading-[1.75]">{block.text}</p>;
+        return <p class="text-[0.9375rem] text-ink leading-[1.75]" set:html={inlineMarkup(block.text)} />;
       }
       if (block.type === 'position') {
         // Stance pole (drafting blue / oxide rust / grey) for migrated briefings;
@@ -79,7 +80,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
                `pos-<sourceId>`). Zero-height, no layout impact. */}
             {idx === firstPositionIdx && <span id="positions" class="block scroll-mt-24" aria-hidden="true"></span>}
             <div class="pl-4" style={`border-left:2px solid ${rule}`}>
-              <p class="text-[0.9375rem] text-ink leading-[1.75]">{block.paragraph}</p>
+              <p class="text-[0.9375rem] text-ink leading-[1.75]" set:html={inlineMarkup(block.paragraph)} />
             </div>
             {block.audit.name && (
               <details class="audit-disclosure mt-3 bg-surface border border-hairline" open={idx === firstPositionIdx}>
@@ -108,7 +109,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
         return (
           <div id="shared" class="pl-4 scroll-mt-24 border-l-2 border-accent-support">
             <span class="block font-mono text-[11px] uppercase tracking-[0.08em] text-accent-support mb-1.5">The shared assumption</span>
-            <p class="text-base text-ink leading-relaxed">{block.text}</p>
+            <p class="text-base text-ink leading-relaxed" set:html={inlineMarkup(block.text)} />
           </div>
         );
       }
@@ -116,7 +117,7 @@ const stanceById = new Map(posSrc.map((s) => [s.id, s.stance] as const));
         return (
           <div id="discussion" class="rounded-md bg-paper border border-hairline p-4 scroll-mt-24">
             <span class="block text-xs font-semibold uppercase tracking-[0.06em] text-muted mb-1.5">Editor's view · opinion</span>
-            <p class="text-[0.9375rem] text-ink leading-relaxed">{block.text}</p>
+            <p class="text-[0.9375rem] text-ink leading-relaxed" set:html={inlineMarkup(block.text)} />
             {block.whyWrong && (
               <p class="text-sm text-muted mt-2"><span class="font-medium">Why this might be wrong:</span> {block.whyWrong}</p>
             )}

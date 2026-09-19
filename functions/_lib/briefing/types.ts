@@ -76,3 +76,47 @@ export interface BriefingArticle {
   otherTakes?:   'none';
   blocks:        BriefingBlock[];
 }
+
+// ---------------------------------------------------------------------------
+// Every source a briefing cites, whichever table it came from.
+//
+// The v2 format split the single `::sources` table into `::positions` (plotted
+// and audited) and `::evidence` (bibliography, never plotted). Consumers that
+// still read the legacy `sources` array therefore see an empty list on every
+// current briefing — which is why the feed cards advertised "0 sources" on
+// pieces citing ten, and why the citation downloads came back empty.
+// ---------------------------------------------------------------------------
+
+export interface CitedSource {
+  id:           string;
+  label:        string;
+  publication?: string;
+  url:          string;
+  /** Plotted-and-audited, or bibliography-only. */
+  role:         'position' | 'evidence';
+}
+
+export function citedSources(b: BriefingArticle): CitedSource[] {
+  const out: CitedSource[] = [];
+  const seen = new Set<string>();
+  const push = (s: CitedSource) => {
+    // A url can legitimately appear in both tables; cite it once.
+    const key = s.url || s.id;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(s);
+  };
+
+  for (const s of b.positionSources ?? []) {
+    push({ id: s.id, label: s.label, publication: s.publication, url: s.url, role: 'position' });
+  }
+  for (const s of b.evidenceSources ?? []) {
+    push({ id: s.id, label: s.label, publication: s.publication, url: s.url, role: 'evidence' });
+  }
+  // Legacy briefings that still use the single table.
+  for (const s of b.sources ?? []) {
+    if (!s.url) continue;
+    push({ id: s.id, label: s.label ?? s.id, publication: s.publication, url: s.url, role: 'position' });
+  }
+  return out;
+}

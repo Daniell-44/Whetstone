@@ -1,4 +1,5 @@
 ---
+import { citedSources } from '../../../functions/_lib/briefing/types';
 // Single briefing/explainer card, used across the home feed at several sizes.
 // One source of truth for the card look so the featured band and the asymmetric
 // mosaic can't drift apart.
@@ -109,7 +110,7 @@ const headingCls = size === 'featured'
       <span class={eyebrowCls}>{isExplainer ? 'Explainer' : 'Briefing'}</span>
       {b.category && <span class="text-muted">· {b.category}</span>}
       {!isExplainer && (
-        <span class={`text-muted ${compact ? 'hidden sm:inline' : ''}`}>· {positions.length} positions · {b.sources.length} sources</span>
+        <span class={`text-muted ${compact ? 'hidden sm:inline' : ''}`}>· {positions.length} positions · {citedSources(b).length} sources</span>
       )}
     </div>
     <h3 class={`font-serif ${headingCls} text-ink-strong group-hover:text-accent transition-colors leading-snug ${isExplainer ? '' : 'mb-2'}`}>

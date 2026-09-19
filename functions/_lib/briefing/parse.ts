@@ -264,3 +264,28 @@ export function validateBriefing(b: BriefingArticle): string[] {
   }
   return issues;
 }
+
+// ---------------------------------------------------------------------------
+// Inline emphasis for briefing prose.
+//
+// Briefing blocks are printed as plain text, so an author writing *petitio
+// principii* — as they naturally will, and as five published sentences already
+// do — puts literal asterisks in front of readers.
+//
+// This converts emphasis and nothing else. It escapes the text FIRST, so the
+// output is safe to render as HTML even though briefings are authored in-repo:
+// a format that silently accepted markup would be a trap waiting for the first
+// briefing that quotes an angle bracket.
+// ---------------------------------------------------------------------------
+
+export function inlineMarkup(text: string): string {
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  return escaped
+    // **strong** before *em*, so the double form is not eaten by the single.
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*\w])\*([^*\n]+)\*(?![*\w])/g, '$1<em>$2</em>');
+}

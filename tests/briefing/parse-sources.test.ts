@@ -101,3 +101,74 @@ p1 | P | X | https://e.org | -2 | high
     expect(validateBriefing(b).some((i) => i.includes('finish the migration'))).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Inline emphasis + the unified source list
+// ---------------------------------------------------------------------------
+
+import { inlineMarkup } from '../../functions/_lib/briefing/parse';
+import { citedSources } from '../../functions/_lib/briefing/types';
+
+describe('inlineMarkup', () => {
+  it('renders the emphasis authors actually write', () => {
+    // Five published sentences currently show these asterisks to readers.
+    expect(inlineMarkup('Latin rendered it *petitio principii*, "assuming"'))
+      .toBe('Latin rendered it <em>petitio principii</em>, "assuming"');
+  });
+
+  it('handles strong, and does not let it be eaten by emphasis', () => {
+    expect(inlineMarkup('a **hard** rule')).toBe('a <strong>hard</strong> rule');
+    expect(inlineMarkup('**both** and *one*')).toBe('<strong>both</strong> and <em>one</em>');
+  });
+
+  it('escapes markup before converting, so prose cannot inject HTML', () => {
+    expect(inlineMarkup('if x < y and <script>alert(1)</script>'))
+      .toBe('if x &lt; y and &lt;script&gt;alert(1)&lt;/script&gt;');
+  });
+
+  it('leaves a lone asterisk and mid-word asterisks alone', () => {
+    expect(inlineMarkup('a * b')).toBe('a * b');
+    expect(inlineMarkup('2*3*4')).toBe('2*3*4');
+  });
+
+  it('does not run emphasis across a line break', () => {
+    expect(inlineMarkup('open *here\nand closed* there')).toBe('open *here\nand closed* there');
+  });
+
+  it('leaves ordinary prose untouched', () => {
+    const plain = 'No emphasis in this sentence at all.';
+    expect(inlineMarkup(plain)).toBe(plain);
+  });
+});
+
+describe('citedSources', () => {
+  const base = { slug: 's', question: 'q', publishedDate: '2026-01-01', blocks: [], sources: [] } as any;
+
+  it('counts both v2 tables — the feed card read only the empty legacy one', () => {
+    const b = { ...base,
+      positionSources: [{ id: 'a', label: 'A', url: 'https://a.example', stance: 0, confidence: 'med' }],
+      evidenceSources: [{ id: 'b', label: 'B', url: 'https://b.example', note: 'n' }],
+    };
+    expect(citedSources(b)).toHaveLength(2);
+    expect(citedSources(b).map(s => s.role)).toEqual(['position', 'evidence']);
+  });
+
+  it('cites a url appearing in both tables once', () => {
+    const b = { ...base,
+      positionSources: [{ id: 'a', label: 'A', url: 'https://same.example', stance: 0, confidence: 'med' }],
+      evidenceSources: [{ id: 'b', label: 'A again', url: 'https://same.example', note: 'n' }],
+    };
+    expect(citedSources(b)).toHaveLength(1);
+    expect(citedSources(b)[0]!.role).toBe('position');
+  });
+
+  it('still reads a legacy single-table briefing', () => {
+    const b = { ...base, sources: [{ id: 'l', label: 'Legacy', url: 'https://l.example', side: 'left', leaning: 0 }] };
+    expect(citedSources(b)).toHaveLength(1);
+  });
+
+  it('skips a legacy row with no url, which cannot be cited', () => {
+    const b = { ...base, sources: [{ id: 'l', label: 'Legacy', side: 'left', leaning: 0 }] };
+    expect(citedSources(b)).toHaveLength(0);
+  });
+});
