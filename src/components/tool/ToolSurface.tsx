@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'preact/hooks';
 import AuditForm from '../audit/AuditForm';
 import StudioEditor from '../studio/StudioEditor';
+import OnboardingTour from '../onboarding/OnboardingTour';
 import type { AuditResult } from '../../lib/audit';
 import type { CounterargumentResult } from '../../lib/counterargument';
 import type { ArgumentExtractionResult } from '../../lib/extraction';
@@ -182,6 +183,11 @@ export default function ToolSurface({
           onSendToDraft={sendToDraft}
         />
       </div>
+
+      {/* The tour's anchors all live in the editor below, so it runs only while
+          CREATE is actually showing. Mounted on the page unconditionally it
+          described a screen READ visitors were not looking at. */}
+      {mode === 'create' && <OnboardingTour />}
 
       <div hidden={mode !== 'create'} data-tool-mode="create">
         <StudioEditor

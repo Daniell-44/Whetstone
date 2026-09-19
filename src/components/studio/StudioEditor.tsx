@@ -36,6 +36,7 @@ import LabelWithTooltip from '../ui/LabelWithTooltip';
 import type { TerminologyPreference } from '../../lib/labels';
 import SummaryToolbar from '../audit/SummaryToolbar';
 import { MIN_CHARS, MAX_CHARS } from '../tool/constants';
+import AllowanceNote from '../tool/AllowanceNote';
 import { runEngine, runLens as runLensShared, type SectionState, type LensName } from '../tool/engine';
 
 // ---------------------------------------------------------------------------
@@ -803,6 +804,7 @@ export default function StudioEditor({
               <SamplePicker onPick={(s) => { void handleLoadSample(s); }} disabled={isRunning || samplePending} />
             )}
           </div>
+          <div class="text-center"><AllowanceNote /></div>
           {canSubmit && !isRunning && (
             <p class="text-xs text-muted text-center">⌘/Ctrl + Enter</p>
           )}

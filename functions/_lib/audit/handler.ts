@@ -80,6 +80,12 @@ export async function handleAuditRequest(
   // Session check — authenticated users get a per-user rate limit instead of IP-based.
   const session = deps.getSession ? await deps.getSession(request) : null;
 
+  // Reported back on success so the tool can show what is left BEFORE someone
+  // runs out. An unannounced wall feels like a trick; an announced one is just
+  // a rule. Null when no KV is bound (local dev) — the UI then shows nothing
+  // rather than inventing a number.
+  let allowance: { remaining: number; cap: number; resetAt: string } | null = null;
+
   if (deps.rateLimitKv) {
     // One allowance for everyone, opening on the first audit and closing 24h
     // later. The cap and period come from billing/limits.ts; signing in only
@@ -98,6 +104,7 @@ export async function handleAuditRequest(
         },
       });
     }
+    allowance = { remaining: result.remaining, cap: quota.cap, resetAt: result.resetAt };
   }
 
   // Parse and validate body.
@@ -158,6 +165,7 @@ export async function handleAuditRequest(
       // can be long.
       sourceText: inputText.slice(0, 10_000),
       usage: { inputTokens: result.inputTokens, outputTokens: result.outputTokens },
+      allowance,
     });
   } catch (err) {
     if (err instanceof ProviderError && !err.retryable) {

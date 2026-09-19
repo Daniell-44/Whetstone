@@ -1,8 +1,15 @@
 // ---------------------------------------------------------------------------
-// OnboardingTour - 5-step floating walkthrough for first-time Studio users.
+// OnboardingTour - 5-step floating walkthrough for first-time writers.
+//
+// SCOPE: every anchor below lives in StudioEditor — the CREATE posture. The
+// tour must therefore only run while CREATE is showing. ToolSurface enforces
+// that by mounting it conditionally; it used to be mounted unconditionally on
+// the page, so a first-time visitor arriving in READ (which is where the menu,
+// the homepage and every briefing send them) got a confident five-step tour
+// describing a screen they were not looking at.
 //
 // Behaviour:
-//   - Shows automatically on first /creator/studio visit (localStorage-gated)
+//   - Shows automatically on a first-time writer's first visit (localStorage-gated)
 //   - Dismissable at any step; never reappears once user clicks "Got it"
 //   - Skip button on every step
 //   - No external dependencies; pure Preact + CSS
@@ -15,7 +22,10 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { track } from '../../lib/analytics/track';
 
-const TOUR_VERSION    = 'studio-v1';
+// v2: the v1 copy described buttons that were not on screen and promised
+// saving without mentioning it needs an account. Anyone who 'completed' v1
+// learned things that were not true, so they are shown the corrected tour.
+const TOUR_VERSION    = 'studio-v2';
 const STORAGE_KEY     = `whetstone.onboarding.${TOUR_VERSION}.completed`;
 
 interface Step {
@@ -33,23 +43,23 @@ const STEPS: Step[] = [
   },
   {
     anchor: 'studio-analyse',
-    title:  'Click Analyse',
+    title:  'Run the audit',
     body:   'Takes 15-30 seconds. The engine maps the argument with the Toulmin framework, surfaces 26 named fallacy patterns, finds loaded language, and identifies unstated warrants.',
   },
   {
     anchor: 'studio-findings',
     title:  'Read the findings',
-    body:   'Each finding cites the exact passage. Click to jump to it in the text. Accept, dismiss, or mark as addressed - your responses persist with the document.',
+    body:   'Each finding cites the exact passage. Click to jump to it in the text. Accept, dismiss, or mark as addressed - and if you are signed in, your responses are kept with the draft.',
   },
   {
     anchor: 'studio-deeper-lenses',
     title:  'Run a deeper lens',
-    body:   'On demand: presuppositions (what the argument assumes without arguing), rhetorical mode (ethos/pathos/logos balance), engagement quality (steelman vs strawman of opposition), structural incentive (whose positions the framing serves). All free.',
+    body:   'On demand: what it takes for granted, how it persuades, how honestly it argues, whose interests the framing serves, and whether the conclusion actually follows. All free, and none of them need an account.',
   },
   {
     anchor: 'studio-share',
-    title:  'Share or save',
-    body:   "Share the audit as a permalink - the link includes the source text and findings. Save documents for later; versions are tracked automatically.",
+    title:  'Share, or keep it',
+    body:   "Share the audit as a permalink - the link carries the source text and the findings. Everything here works signed out; an account is only needed to keep the draft and its revision history.",
   },
 ];
 
@@ -75,7 +85,11 @@ export default function OnboardingTour() {
     if (!step) return;
     const measure = () => {
       const el = document.querySelector(`[data-tour-anchor="${step.anchor}"]`);
-      setAnchorRect(el instanceof HTMLElement ? el.getBoundingClientRect() : null);
+      const r  = el instanceof HTMLElement ? el.getBoundingClientRect() : null;
+      // A hidden anchor measures as a zero rect rather than null, which slipped
+      // past the "anchor missing" fallback and drew the highlight around
+      // nothing. Treat no area as no anchor.
+      setAnchorRect(r && r.width > 0 && r.height > 0 ? r : null);
     };
     measure();
     // Recompute when layout settles (sticky elements, etc.)

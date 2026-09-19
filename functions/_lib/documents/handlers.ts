@@ -1,3 +1,5 @@
+import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { resolveAuditQuota, waitPhrase } from '../billing/limits';
 import { z } from 'zod';
 import type { DocumentDb } from './types';
 import type { LlmProvider } from '../providers/types';
@@ -112,12 +114,21 @@ export async function handleCreateVersion(
 // ---------------------------------------------------------------------------
 
 export interface VersionAuditDeps {
+  /** Shared with /api/audit: a saved-draft audit spends the same allowance. */
+  rateLimitKv?:      import('../rate-limit').RateLimitKV;
+  freeUseAllowance?: number;
   db:           DocumentDb;
   provider:     LlmProvider;
   geminiApiKey: string | undefined;
   getSession:   (req: Request) => Promise<{ userId: string } | null>;
 }
 
+// A saved-draft audit is the SAME audit, and must spend from the same
+// allowance. It previously spent nothing: the path was gated on an active
+// subscription instead, and when paid tiers were retired that gate went
+// without anything replacing it — leaving signed-in writers with an unmetered
+// route to the most expensive engine run in the product, while the site told
+// everyone they get three.
 export async function handleVersionAudit(
   req:       Request,
   docId:     string,
@@ -139,6 +150,27 @@ export async function handleVersionAudit(
 
   if (!deps.geminiApiKey) {
     return json({ ok: false, error: { code: 'AUDIT_FAILED', message: 'Service unavailable' } }, 503);
+  }
+
+  // Same allowance as every other audit, keyed to the account.
+  if (deps.rateLimitKv) {
+    const quota  = resolveAuditQuota(deps.freeUseAllowance);
+    const result = await checkAndIncrementQuota(
+      deps.rateLimitKv,
+      `audit:${quotaIdentity(req, session.userId)}`,
+      quota.cap,
+      quota.period,
+    );
+    if (!result.allowed) {
+      return json({
+        ok:    false,
+        error: {
+          code:    'RATE_LIMITED',
+          message: `You've used all ${quota.cap} audits. The next one unlocks ${waitPhrase(result.resetAt)}.`,
+          resetAt: result.resetAt,
+        },
+      });
+    }
   }
 
   // Parse optional goals from request body

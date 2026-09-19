@@ -9,7 +9,6 @@ import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import ToolSurface from '../../components/tool/ToolSurface';
 import StudioNav from '../../components/studio/StudioNav.astro';
-import OnboardingTour from '../../components/onboarding/OnboardingTour';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeFindingActionDb } from '../../../functions/_lib/documents/finding-actions';
@@ -172,8 +171,6 @@ const initialMode = (Astro.url.searchParams.get('mode') === 'create' || initialD
       initialActions={initialActions}
       terminologyPreference={terminology}
     />
-
-    <OnboardingTour client:load />
 
   </main>
 </Base>

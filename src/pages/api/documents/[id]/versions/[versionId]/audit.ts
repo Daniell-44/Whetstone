@@ -18,6 +18,9 @@ export const POST: APIRoute = async ({ request, params }) => {
     db:           docDb,
     provider,
     geminiApiKey: env.GEMINI_API_KEY,
+    // Same allowance as /api/audit — a saved-draft audit is still an audit.
+    rateLimitKv:      env.RATE_LIMIT,
+    freeUseAllowance: parseInt(env.AUDIT_FREE_USES ?? '3', 10),
     getSession:   (req) => getSessionFromRequest(req, authDb).then(s => s ? { userId: s.user_id } : null),
   });
 };

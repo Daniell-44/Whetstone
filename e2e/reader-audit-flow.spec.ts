@@ -107,3 +107,12 @@ test('the retired Studio URL redirects into the writing posture', async ({ page 
   await expect(page).toHaveURL(/\/audit\?mode=create/);
   await expect(page.locator('[data-tool-mode="create"]')).toBeVisible();
 });
+
+test('the first-run tour stays quiet in READ, where none of it applies', async ({ page }) => {
+  // Every tour anchor lives in the editor, so running it alongside READ meant
+  // five confident steps describing buttons that were not on screen.
+  await page.context().clearCookies();
+  await page.goto('/audit');
+  await expect(page.locator('[data-tool-mode="read"]')).toBeVisible();
+  await expect(page.getByText(/Tour ·|Paste your draft here/i)).toHaveCount(0);
+});

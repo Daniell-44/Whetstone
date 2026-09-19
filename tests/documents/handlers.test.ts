@@ -245,6 +245,12 @@ describe('handleCreateVersion', () => {
 // handleVersionAudit
 // ---------------------------------------------------------------------------
 
+class FakeKV {
+  store = new Map<string, string>();
+  async get(k: string) { return this.store.get(k) ?? null; }
+  async put(k: string, v: string) { this.store.set(k, v); }
+}
+
 describe('handleVersionAudit', () => {
   function makeDeps(db: ReturnType<typeof makeFakeDb>, overrides?: Partial<VersionAuditDeps>): VersionAuditDeps {
     return {
@@ -268,6 +274,49 @@ describe('handleVersionAudit', () => {
     expect(data.ok).toBe(true);
     expect(data.audit).toBeDefined();
     expect(db.versions.get('v1')?.audit_result).toBeDefined();
+  });
+
+  // A saved-draft audit is the same audit and must spend the same allowance.
+  // This path was gated on a subscription; when paid tiers were retired the
+  // gate went and nothing replaced it, leaving signed-in writers an unmetered
+  // route to the most expensive run in the product.
+  it('spends the shared audit allowance', async () => {
+    const kv = new FakeKV();
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'Draft');
+    await db.createVersion('v1', 'doc-1', 'x'.repeat(50), 1);
+    const deps = makeDeps(db, { rateLimitKv: kv, freeUseAllowance: 1 });
+    const req  = () => new Request('https://t.example', { method: 'POST' });
+
+    expect((await rj(await handleVersionAudit(req(), 'doc-1', 'v1', deps))).ok).toBe(true);
+
+    const blocked = await rj(await handleVersionAudit(req(), 'doc-1', 'v1', deps));
+    expect(blocked.ok).toBe(false);
+    expect(blocked.error.code).toBe('RATE_LIMITED');
+    expect(Number.isNaN(Date.parse(blocked.error.resetAt))).toBe(false);
+  });
+
+  it('shares one allowance with /api/audit rather than holding its own', async () => {
+    // Both paths key on `audit:<identity>`, so exhausting one exhausts the other.
+    const kv = new FakeKV();
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'Draft');
+    await db.createVersion('v1', 'doc-1', 'x'.repeat(50), 1);
+    const deps = makeDeps(db, { rateLimitKv: kv, freeUseAllowance: 1 });
+
+    await handleVersionAudit(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps);
+    const stored = [...kv.store.keys()];
+    expect(stored).toEqual(['audit:user:user-1']);
+  });
+
+  it('runs unmetered when no rate-limit store is bound', async () => {
+    const db = makeFakeDb();
+    await db.createDocument('doc-1', 'user-1', 'Draft');
+    await db.createVersion('v1', 'doc-1', 'x'.repeat(50), 1);
+    const deps = makeDeps(db);  // no rateLimitKv — local dev
+    for (let i = 0; i < 3; i++) {
+      expect((await rj(await handleVersionAudit(new Request('https://t.example', { method: 'POST' }), 'doc-1', 'v1', deps))).ok).toBe(true);
+    }
   });
 
   it('returns 401 when not authenticated', async () => {

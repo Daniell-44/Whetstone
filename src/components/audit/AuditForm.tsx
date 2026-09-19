@@ -14,13 +14,14 @@ import { track } from '../../lib/analytics/track';
 import { SAMPLES, type Sample } from '../../data/samples';
 import { MIN_CHARS, MAX_CHARS, URL_RE, READER_AUDIT_ERROR_MESSAGES as ERROR_MESSAGES } from '../tool/constants';
 import AuditLoading from '../tool/AuditLoading';
+import AllowanceNote, { type Allowance } from '../tool/AllowanceNote';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 type AuditApiResponse =
-  | { ok: true;  audit: AuditResult; sourceText?: string; usage: { inputTokens: number; outputTokens: number } }
+  | { ok: true;  audit: AuditResult; sourceText?: string; usage: { inputTokens: number; outputTokens: number }; allowance?: Allowance | null }
   | { ok: false; error: { code: string; message: string } };
 
 type ExtractionApiResponse =
@@ -80,6 +81,8 @@ export default function AuditForm({
   // highlighted draft. For text audits it's the pasted text; for URL audits it's
   // the server-extracted article body.
   const [sourceText, setSourceText] = useState<string>('');
+  // What the server says is left. Null until the first real audit reports it.
+  const [allowance, setAllowance] = useState<Allowance | null>(null);
   // Which mode the *last completed* audit ran in — decides whether the left
   // highlighted-draft panel appears. Not derived from `input`, which can change
   // after results render.
@@ -227,6 +230,7 @@ export default function AuditForm({
         const data = auditData.value as AuditApiResponse;
         if (data.ok) {
           setResult(data.audit);
+          setAllowance(data.allowance ?? null);
           setSourceText(data.sourceText ?? (isText ? raw : ''));
           setAuditedMode(isText ? 'text' : 'url');
           track('audit_completed', {
@@ -312,7 +316,7 @@ export default function AuditForm({
             placeholder="Paste an argument, or drop a link to audit…"
             aria-label="Argument text or URL to audit"
             rows={loadedFromLink ? 6 : 2}
-            class="w-full rounded-xl border border-hairline bg-surface pl-4 pr-16 py-3 text-base sm:text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+            class="w-full rounded-xl border border-hairline bg-surface pl-4 pr-28 py-3 text-base sm:text-sm text-ink placeholder-muted leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
             style={`min-height:${loadedFromLink ? 180 : 64}px;`}
           />
           <button
@@ -320,7 +324,7 @@ export default function AuditForm({
             disabled={!canSubmit}
             aria-label="Audit this argument"
             title="Audit this argument"
-            class={`absolute right-2.5 bottom-2.5 w-11 h-11 rounded-full flex items-center justify-center transition-colors ${
+            class={`absolute right-2.5 bottom-2.5 h-11 rounded-full flex items-center justify-center gap-1.5 px-4 transition-colors ${
               canSubmit ? 'bg-accent text-paper hover:bg-accent/90' : 'bg-hairline/50 text-muted cursor-not-allowed'
             }`}
           >
@@ -330,12 +334,17 @@ export default function AuditForm({
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             ) : (
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              <>
+                <span class="text-sm font-semibold">Audit</span>
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </>
             )}
           </button>
         </div>
+
+        <AllowanceNote allowance={allowance} />
 
         {/* Contextual hint: character budget for text, fetch caveat for a URL. */}
         {looksUrl ? (
