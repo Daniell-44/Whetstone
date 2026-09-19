@@ -1,5 +1,9 @@
 # Frontier diffs — production engine vs a gold-standard frontier audit
 
+> **Acting on this?** The seven improvement targets below are written up in
+> plain English, with priority order and the cost of verifying each, in
+> [`ENGINE_FIXES.md`](./ENGINE_FIXES.md).
+
 > Generated 2026-07-09 by the `frontier-diffs` workflow (`wf_12edae20-de1`). Method: for each item, a **blind frontier audit** (Claude Opus 4.8, high effort, raw text only, the engine's 7-lens taxonomy) → a **diff** against the committed production output in `eval/outputs/<id>.run1.json` → one **synthesis memo**. No Gemini spend (engine outputs already existed); Claude tokens only (~321k, 9 agents).
 >
 > This is the *calibration + marketing* read the scorecard's aggregate metrics can't give: on real, uncontrolled prose, **where does the production engine (Gemini Flash) fall short of a frontier model, and where does it hold?** The 4 items are the residue the 2026-07-07 assessment left open (`real-oped-1/2/3` + `unfalsifiable-mottebailey`). Grounded in the raw diffs below — treat the frontier audit as a strong-but-fallible gold standard, not ground truth.
