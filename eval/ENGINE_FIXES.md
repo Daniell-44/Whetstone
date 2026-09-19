@@ -48,6 +48,57 @@ which one moved the numbers.
 
 ---
 
+## Fix zero — the engine is working half-blind
+
+**Found 2026-09. Not one of the seven below. Probably worth more than all of them.**
+
+The production prompt hands the model the 26 fallacy names as **bare labels** and
+nothing else:
+
+```
+- "Abductive Closure"
+- "Gish Gallop"
+- "Base-Rate Neglect"
+```
+
+No definition. No example. No test for when it applies. For roughly half the
+list, the engine is relying on whatever the model happens to believe those
+phrases mean — and "whatever the model happens to believe", asked twice, is
+not the same answer twice. That is a strong candidate cause of both weak
+numbers in the scorecard: exact fallacy naming at 31.8%, and run-to-run
+consistency at 0.26.
+
+**The material to fix it is already written, already tested, and one flag
+away.** `functions/_lib/audit/examples.ts` holds a worked example, a one-line
+reason and a reference for all 26 — `tests/audit/examples.test.ts` checks none
+is missing. `taxonomy.ts` holds a definition for each. Both are assembled into
+`FEW_SHOT_LIBRARY` in `prompts.ts` and then gated:
+
+```ts
+// prompts.ts
+${FALLACY_NAMES.map(f => `- "${f}"`).join('\n')}   // names only — this is what ships
+${opts?.fewShot ? FEW_SHOT_LIBRARY : ''}          // definitions + examples — gated
+
+// engine.ts
+fewShot: deps.promptVariant?.fewShot ?? false     // A/B-pending, off by default
+```
+
+The comment says "A/B-pending". The A/B was apparently never run.
+
+**What it costs:** about 2,200 extra input tokens per audit (~8,700 characters).
+Against the ~$0.01 an audit already costs, that is a rounding error.
+
+**What to do:** flip `fewShot` to true, run the corpus, compare. The
+`promptVariant` machinery and its tests already exist, so this is one eval run,
+not a build.
+
+**Why it might not work:** a longer prompt can dilute attention, and more
+vocabulary can mean more false positives on clean controls — currently a
+perfect 0. Watch clean-control FPs as closely as the naming numbers. This is a
+hypothesis with unusually good odds, not a certainty.
+
+---
+
 ## The two worth doing regardless of budget
 
 These are not polish. They are the engine saying something untrue, which is the
