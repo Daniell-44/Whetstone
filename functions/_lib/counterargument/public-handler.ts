@@ -3,6 +3,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { generateCounterarguments } from './engine';
 import { checkAndIncrementQuota } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 // ---------------------------------------------------------------------------
@@ -48,9 +49,10 @@ export async function handlePublicCounterargRequest(
         deps.rateLimitKv,
         `counterarg-public:user:${session.userId}`,
         deps.loggedInCounterargDailyCap,
+      'rolling24h',
       );
       if (!quota.allowed) {
-        return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily limit reached — try again tomorrow.' } });
+        return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the counterargument limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
       }
     } else {
       const ip =
@@ -61,6 +63,7 @@ export async function handlePublicCounterargRequest(
         deps.rateLimitKv,
         `counterarg-public:ip:${ip}`,
         deps.publicCounterargDailyCap,
+      'rolling24h',
       );
       if (!quota.allowed) {
         return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'You\'ve hit today\'s free limit. Sign in for more, or come back tomorrow.' } });

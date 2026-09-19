@@ -133,8 +133,10 @@ import Base from '../layouts/Base.astro';
     <section class="mb-12">
       <h2 class="text-xl font-semibold text-ink-strong mb-4">Rate limits</h2>
       <p class="text-sm text-ink leading-relaxed">
-        API key requests share the same quota pool as your browser session (100 audits/month on Studio Solo).
-        The quota resets monthly. If you need a higher limit, add usage blocks from your account or contact us.
+        API key requests draw on the same allowance as the browser tool — three audits per rolling
+        24 hours, counted against your account. The window opens on your first audit, not at midnight,
+        and the error response carries a <code class="font-mono text-xs">resetAt</code> timestamp saying
+        exactly when it reopens.
       </p>
     </section>
 

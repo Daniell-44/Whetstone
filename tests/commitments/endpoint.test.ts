@@ -102,11 +102,13 @@ describe('handleCommitmentsRequest', () => {
   });
 
   it('applies per-user rate limit when cap is reached', async () => {
-    const today = new Date().toISOString().slice(0, 10);
     const text  = 'a'.repeat(60);
     const deps  = makeDeps({
       rateLimitKv: {
-        get: async () => JSON.stringify({ count: 15, period: today }),
+        // A rolling-window record: `period` is the window's first-use epoch, not
+        // a calendar date. A date string here would correctly read as a CLOSED
+        // window and reset the count, which is the migration path, not the cap.
+        get: async () => JSON.stringify({ count: 15, period: String(Date.now()) }),
         put: async () => {},
       } as unknown as CommitmentsHandlerDeps['rateLimitKv'],
       commitmentsDailyCap: 15,

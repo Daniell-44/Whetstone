@@ -174,7 +174,9 @@ describe('POST /api/counterargument — rate limiting', () => {
     expect(res.status).toBe(200);
     expect(data.ok).toBe(false);
     expect(data.error.code).toBe('RATE_LIMITED');
-    expect(data.error.message).toMatch(/try again tomorrow/i);
+    // Every engine now reports the real reopening time rather than guessing.
+    expect(data.error.message).toMatch(/it reopens in/i);
+    expect(Number.isNaN(Date.parse(data.error.resetAt))).toBe(false);
   });
 
   it('rate limits per user ID, not globally', async () => {

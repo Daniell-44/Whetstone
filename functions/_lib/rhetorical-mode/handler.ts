@@ -3,6 +3,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { detectRhetoricalMode } from './engine';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 const BodySchema = z.object({
@@ -24,9 +25,9 @@ function json(body: unknown, status = 200): Response {
 export async function handleRhetRequest(request: Request, deps: RhetHandlerDeps): Promise<Response> {
   const session = await deps.getSession(request);
   if (deps.rateLimitKv) {
-    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `rhet:${quotaIdentity(request, session?.userId)}`, deps.rhetDailyCap);
+    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `rhet:${quotaIdentity(request, session?.userId)}`, deps.rhetDailyCap, 'rolling24h');
     if (!quota.allowed) {
-      return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily rhetorical-mode analysis limit reached — try again tomorrow.' } });
+      return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the rhetorical-mode analysis limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
     }
   }
 

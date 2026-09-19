@@ -3,6 +3,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { detectDisagreementEngagement } from './engine';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 const BodySchema = z.object({
@@ -24,9 +25,9 @@ function json(body: unknown, status = 200): Response {
 export async function handleDisagreeRequest(request: Request, deps: DisagreeHandlerDeps): Promise<Response> {
   const session = await deps.getSession(request);
   if (deps.rateLimitKv) {
-    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `disagree:${quotaIdentity(request, session?.userId)}`, deps.disagreeDailyCap);
+    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `disagree:${quotaIdentity(request, session?.userId)}`, deps.disagreeDailyCap, 'rolling24h');
     if (!quota.allowed) {
-      return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily disagreement-engagement limit reached — try again tomorrow.' } });
+      return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the disagreement-engagement limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
     }
   }
 

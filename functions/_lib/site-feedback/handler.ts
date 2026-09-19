@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { checkAndIncrementQuota } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 // Global qualitative site feedback (the /feedback page). Kept separate from the
@@ -46,7 +47,7 @@ export async function handleSiteFeedback(req: Request, deps: SiteFeedbackDeps): 
   if (deps.rateLimitKv) {
     const quota = await checkAndIncrementQuota(deps.rateLimitKv, deps.rateKey, deps.dailyCap);
     if (!quota.allowed) {
-      return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Too many submissions — try again tomorrow.' } }, 429);
+      return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've sent a lot of feedback — thank you. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } }, 429);
     }
   }
 

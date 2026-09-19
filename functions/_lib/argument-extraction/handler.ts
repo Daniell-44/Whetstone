@@ -3,6 +3,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { extractArgument } from './engine';
 import { checkAndIncrementQuota } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 const BodySchema = z.object({
@@ -42,7 +43,7 @@ export async function handleExtractionRequest(
         deps.extractionUserDailyCap ?? 50,
       );
       if (!quota.allowed) {
-        return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily extraction limit reached — try again tomorrow.' } });
+        return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the extraction limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
       }
     } else {
       const ip =
@@ -53,9 +54,10 @@ export async function handleExtractionRequest(
         deps.rateLimitKv,
         `extract:ip:${ip}`,
         deps.extractionDailyCap,
+      'rolling24h',
       );
       if (!quota.allowed) {
-        return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily extraction limit reached — try again tomorrow.' } });
+        return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the extraction limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
       }
     }
   }

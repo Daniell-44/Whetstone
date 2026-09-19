@@ -3,6 +3,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { generateCounterarguments } from './engine';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 // ---------------------------------------------------------------------------
@@ -52,11 +53,12 @@ export async function handleCounterargRequest(
       deps.rateLimitKv,
       `counterarg:${quotaIdentity(request, session?.userId)}`,
       deps.counterargDailyCap,
+      'rolling24h',
     );
     if (!quota.allowed) {
       return json({
         ok:    false,
-        error: { code: 'RATE_LIMITED', message: 'Daily Studio limit reached — try again tomorrow.' },
+        error: { code: 'RATE_LIMITED', message: `You've reached the counterargument limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt },
       });
     }
   }

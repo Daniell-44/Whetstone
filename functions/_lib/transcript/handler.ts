@@ -4,6 +4,7 @@ import { ProviderError } from '../providers/types';
 import { auditTranscript } from './engine';
 import { fetchYouTubeTranscript, fromPlainText, fromSrt } from './youtube';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 import type { TranscriptInput } from './types';
 
@@ -40,9 +41,10 @@ export async function handleTranscriptRequest(
       deps.rateLimitKv,
       `transcript:${quotaIdentity(request, session?.userId)}`,
       deps.transcriptDailyCap,
+      'rolling24h',
     );
     if (!quota.allowed) {
-      return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily transcript audit limit reached — try again tomorrow.' } });
+      return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the transcript audit limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
     }
   }
 

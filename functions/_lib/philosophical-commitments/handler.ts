@@ -3,6 +3,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { detectCommitments } from './engine';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 const BodySchema = z.object({
@@ -42,9 +43,10 @@ export async function handleCommitmentsRequest(
       deps.rateLimitKv,
       `commitments:${quotaIdentity(request, session?.userId)}`,
       deps.commitmentsDailyCap,
+      'rolling24h',
     );
     if (!quota.allowed) {
-      return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily commitments limit reached — try again tomorrow.' } });
+      return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the commitments limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
     }
   }
 

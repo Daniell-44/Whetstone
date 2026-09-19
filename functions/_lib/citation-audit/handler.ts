@@ -4,6 +4,7 @@ import { ProviderError }     from '../providers/types';
 import type { ExtractResult } from '../extract/article';
 import type { RateLimitKV }  from '../rate-limit';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import { auditCitations }    from './engine';
 
 // ---------------------------------------------------------------------------
@@ -73,11 +74,12 @@ export async function handleCitationAuditRequest(
       deps.rateLimitKv,
       `citation:${quotaIdentity(request, session?.userId)}`,
       deps.citationDailyCap,
+      'rolling24h',
     );
     if (!quota.allowed) {
       return json({
         ok:    false,
-        error: { code: 'RATE_LIMITED', message: 'Daily citation-audit limit reached — try again tomorrow.' },
+        error: { code: 'RATE_LIMITED', message: `You've reached the Source Match limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt },
       }, 429);
     }
   }

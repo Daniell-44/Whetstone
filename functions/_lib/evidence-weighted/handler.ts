@@ -4,6 +4,7 @@ import { ProviderError } from '../providers/types';
 import { assessEvidenceWeighted } from './engine';
 import type { ClaimInput } from './engine';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 // ---------------------------------------------------------------------------
@@ -64,9 +65,10 @@ export async function handleEvidenceRequest(
       deps.rateLimitKv,
       `evidence:${quotaIdentity(request, session?.userId)}`,
       deps.evidenceDailyCap,
+      'rolling24h',
     );
     if (!quota.allowed) {
-      return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily evidence check limit reached — try again tomorrow.' } });
+      return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the evidence check limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
     }
   }
 

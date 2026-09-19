@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { FeedbackDb, FeedbackFilters } from './db';
 import type { FeedbackType, TargetLens } from './types';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 
 // ---------------------------------------------------------------------------
@@ -59,9 +60,10 @@ export async function handleSubmitFeedback(
       deps.rateLimitKv,
       `feedback:${quotaIdentity(req, session?.userId)}`,
       deps.feedbackDailyCap,
+      'rolling24h',
     );
     if (!quota.allowed) {
-      return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Feedback limit reached — try again tomorrow.' } }, 429);
+      return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've sent a lot of feedback — thank you. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } }, 429);
     }
   }
 

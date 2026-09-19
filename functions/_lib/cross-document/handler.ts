@@ -3,6 +3,7 @@ import type { LlmProvider } from '../providers/types';
 import { ProviderError } from '../providers/types';
 import { auditCrossDocument } from './engine';
 import { checkAndIncrementQuota, quotaIdentity } from '../rate-limit';
+import { waitPhrase } from '../billing/limits';
 import type { RateLimitKV } from '../rate-limit';
 import type { ExtractResult } from '../extract/article';
 import type { DocumentInput } from './types';
@@ -41,9 +42,9 @@ export async function handleCrossDocumentRequest(
   const session = await deps.getSession(request);
 
   if (deps.rateLimitKv) {
-    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `crossdoc:${quotaIdentity(request, session?.userId)}`, deps.crossDocDailyCap);
+    const quota = await checkAndIncrementQuota(deps.rateLimitKv, `crossdoc:${quotaIdentity(request, session?.userId)}`, deps.crossDocDailyCap, 'rolling24h');
     if (!quota.allowed) {
-      return json({ ok: false, error: { code: 'RATE_LIMITED', message: 'Daily cross-document limit reached — try again tomorrow.' } });
+      return json({ ok: false, error: { code: 'RATE_LIMITED', message: `You've reached the cross-document limit. It reopens ${waitPhrase(quota.resetAt)}.`, resetAt: quota.resetAt } });
     }
   }
 
