@@ -60,6 +60,16 @@ export async function callEngine<T>(opts: CallEngineOpts<T>): Promise<EngineOutc
       | ({ ok: true } & Record<string, unknown>)
       | { ok: false; error: { code: string; message: string } };
     if (data.ok) return { ok: true, data: pick(data), envelope: data };
+
+    // Hitting the allowance is the event worth knowing about: it is the only
+    // moment the open-tool model asks anything of a visitor, and how often it
+    // fires against how many audits run is what says whether the cap is set
+    // right. Recorded here because every engine call funnels through this
+    // function, so no caller can forget to.
+    if (data.error.code === 'RATE_LIMITED') {
+      track('usage_limit_reached' as any, { url });
+    }
+
     return { ok: false, code: data.error.code, message: errorMessages?.[data.error.code] ?? data.error.message };
   } catch {
     return { ok: false, code: 'NETWORK', message: networkMessage ?? NETWORK_MESSAGE };

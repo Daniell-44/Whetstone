@@ -25,8 +25,12 @@ export function wordCount(text: string): number {
  * which also owns the URL-fetch failure modes). Shared by the Reader and the
  * workbench so the two can't drift on error wording.
  */
+// NB: no RATE_LIMITED override anywhere in this file. The server computes the
+// real reset time for the caller's rolling window and says it ("the next one
+// unlocks in about 5 hours"); a client-side string cannot know that number and
+// the old one ("come back tomorrow") was wrong by up to 24 hours for anyone who
+// spent their allowance mid-evening. Let the server message through.
 export const READER_AUDIT_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:      "You've reached the daily audit limit. Come back tomorrow to run more audits.",
   EXTRACTION_FAILED: "Couldn't extract the article text from that URL. Try pasting the text directly instead.",
   TOO_SHORT:         'The extracted text was too short to audit. Try pasting the full article text directly.',
   NOT_HTML:          "That URL doesn't point to an HTML page. Try pasting the text directly instead.",

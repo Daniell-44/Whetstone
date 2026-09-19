@@ -48,31 +48,26 @@ import { runEngine, runLens as runLensShared, type SectionState, type LensName }
 const SAMPLE_DIRTY_CHAR_THRESHOLD = 50;
 
 const AUDIT_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:  "You've reached the daily audit limit. Come back tomorrow.",
   INVALID_INPUT: 'Please check your input and try again.',
   // AUDIT_FAILED intentionally omitted - fall through to show the server's actual error message
 };
 
 const COUNTERARG_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:  "You've reached the daily Studio limit. Come back tomorrow.",
   AUDIT_FAILED:  'The counterargument engine failed. Please try again in a moment.',
   INVALID_INPUT: 'Please check your input and try again.',
 };
 
 const EXTRACTION_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:      "You've reached the daily limit. Come back tomorrow.",
   EXTRACTION_FAILED: 'The argument extraction failed. Please try again in a moment.',
   INVALID_INPUT:     'Please check your input and try again.',
 };
 
 const COMMITMENTS_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:        "You've reached the daily Framework Check limit. Come back tomorrow.",
   COMMITMENTS_FAILED:  'The framework analysis failed. Please try again in a moment.',
   INVALID_INPUT:       'Please check your input and try again.',
 };
 
 const CITATION_ERROR_MESSAGES: Record<string, string> = {
-  RATE_LIMITED:            "You've reached the daily Source Match limit. Come back tomorrow.",
   CITATION_AUDIT_FAILED:   'The citation audit failed. Please try again in a moment.',
   INVALID_INPUT:           'Please check your input and try again.',
 };
