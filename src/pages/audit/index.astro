@@ -8,7 +8,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import ToolSurface from '../../components/tool/ToolSurface';
-import StudioNav from '../../components/studio/StudioNav.astro';
+import ToolLinks from '../../components/tool/ToolLinks.astro';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeFindingActionDb } from '../../../functions/_lib/documents/finding-actions';
@@ -139,8 +139,6 @@ const initialMode = (Astro.url.searchParams.get('mode') === 'create' || initialD
 >
   <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-16 sm:pb-24">
 
-    <StudioNav current="editor" isSignedIn={!!session} />
-
     <header class="mb-6 max-w-3xl">
       <p class="text-xs font-semibold uppercase tracking-widest font-mono text-muted mb-2">The Audit</p>
       <h1 class="font-serif text-2xl sm:text-3xl text-ink-strong leading-snug">See where an argument's reasoning breaks down.</h1>
@@ -171,6 +169,10 @@ const initialMode = (Astro.url.searchParams.get('mode') === 'create' || initialD
       initialActions={initialActions}
       terminologyPreference={terminology}
     />
+
+    <div class="mt-8 pt-5 border-t border-hairline">
+      <ToolLinks current="audit" isSignedIn={!!session} />
+    </div>
 
   </main>
 </Base>

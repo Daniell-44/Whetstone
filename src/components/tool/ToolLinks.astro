@@ -1,0 +1,57 @@
+---
+// ---------------------------------------------------------------------------
+// The sibling tools, as a quiet line.
+//
+// This replaces the Studio tab strip. That strip presented four destinations as
+// peers of each other AND sat directly above the READ/CREATE toggle, so the
+// page carried two navigation mechanisms for overlapping jobs — and its first
+// tab, "Editor", pointed at the page you were already on, in a mode the toggle
+// already controlled. A visitor arriving at the tool was told simultaneously
+// that they were in the Studio, in the Editor, on The Audit, and in READ.
+//
+// Transcript and Cross-document are specialist and occasional; drafts are a
+// list, not a posture. None of them is a peer of a mode, so none of them gets
+// tab furniture. The mode toggle is the only control that switches what you
+// are doing.
+// ---------------------------------------------------------------------------
+interface Props {
+  current:     'audit' | 'transcript' | 'cross-document' | 'documents';
+  isSignedIn?: boolean;
+}
+const { current, isSignedIn = false } = Astro.props;
+
+const LINKS: { key: Props['current']; label: string; href: string }[] = [
+  { key: 'audit',          label: 'The Audit',      href: '/audit' },
+  { key: 'transcript',     label: 'Transcript',     href: '/creator/studio/transcript' },
+  { key: 'cross-document', label: 'Cross-document', href: '/creator/studio/cross-document' },
+  { key: 'documents',      label: 'Your drafts',    href: '/creator/documents' },
+];
+const others = LINKS.filter((l) => l.key !== current);
+---
+<p class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.6875rem] text-muted">
+  {current !== 'audit' && (
+    <a href="/audit" class="inline-flex items-center gap-1 text-accent-support hover:text-accent transition-colors">
+      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+      The Audit
+    </a>
+  )}
+  <span class="text-muted/70">Also:</span>
+  {others.filter((l) => l.key !== 'audit').map((l, i) => (
+    <>
+      {i > 0 && <span class="text-hairline" aria-hidden="true">·</span>}
+      <a href={l.href} class="hover:text-ink transition-colors underline decoration-hairline underline-offset-4">{l.label}</a>
+    </>
+  ))}
+  {!isSignedIn && (
+    <>
+      <span class="text-hairline" aria-hidden="true">·</span>
+      <a
+        href={`/login?returnTo=${encodeURIComponent(LINKS.find((l) => l.key === current)?.href ?? '/audit')}`}
+        class="hover:text-ink transition-colors underline decoration-hairline underline-offset-4"
+        title="Every tool works signed out — an account only keeps your drafts"
+      >Sign in to save</a>
+    </>
+  )}
+</p>

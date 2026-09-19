@@ -4,7 +4,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../layouts/Base.astro';
 import WorkspaceSwitcher from '../../components/layout/WorkspaceSwitcher';
-import StudioNav from '../../components/studio/StudioNav.astro';
+import ToolLinks from '../../components/tool/ToolLinks.astro';
 import { makeAuthDb } from '../../../functions/_lib/auth/db';
 import { makeDocumentDb } from '../../../functions/_lib/documents/db';
 import { makeWorkspaceDb } from '../../../functions/_lib/workspaces/db';
@@ -54,7 +54,7 @@ function formatDate(epochMs: number): string {
 >
   <main class="max-w-3xl mx-auto px-6 pt-20 pb-16">
 
-    <StudioNav current="documents" isSignedIn={true} />
+    <ToolLinks current="documents" isSignedIn={true} />
 
     <header class="mb-10 flex items-start justify-between">
       <div>

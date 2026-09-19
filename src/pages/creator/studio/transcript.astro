@@ -4,7 +4,7 @@ export const prerender = false;
 import { env } from 'cloudflare:workers';
 import Base from '../../../layouts/Base.astro';
 import TranscriptStudio from '../../../components/transcript/TranscriptStudio';
-import StudioNav from '../../../components/studio/StudioNav.astro';
+import ToolLinks from '../../../components/tool/ToolLinks.astro';
 import { makeAuthDb } from '../../../../functions/_lib/auth/db';
 import { getSessionFromRequest } from '../../../../functions/_lib/auth/sessions';
 
@@ -19,7 +19,7 @@ const session     = await getSessionFromRequest(Astro.request, authDb);
 >
   <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-16 sm:pb-24">
 
-    <StudioNav current="transcript" isSignedIn={!!session} />
+    <ToolLinks current="transcript" isSignedIn={!!session} />
 
     <header class="mb-8">
       <h1 class="font-serif text-3xl sm:text-4xl text-ink-strong leading-tight mb-3">
