@@ -178,6 +178,31 @@ function allFindings(a: Audit): Finding[] {
 }
 
 /** Every verbatim span the engine surfaced, across every lens. */
+/**
+ * Spans grouped by the lens that reported them.
+ *
+ * `allSpans` deliberately flattens these, which is right for recall (a defect
+ * counts as caught whichever lens caught it) but hides the thing that matters
+ * for consistency: whether two runs disagree about WHICH PASSAGES are defective,
+ * or merely about WHICH LENS owns a passage they both found. Those are different
+ * faults with different fixes, and one flattened Jaccard cannot tell them apart.
+ */
+export function spansByLens(a: Audit): Record<string, Set<string>> {
+  const out: Record<string, Set<string>> = {};
+  for (const k of LENS_KEYS) {
+    const arr = a[k];
+    if (!Array.isArray(arr)) continue;
+    const set = new Set<string>();
+    for (const f of arr as Finding[]) for (const sp of findingSpans(f)) set.add(norm(sp));
+    out[k] = set;
+  }
+  const w = a.toulmin?.unstatedWarrants;
+  const warrantSet = new Set<string>();
+  if (Array.isArray(w)) for (const f of w) if (typeof f.warrant === 'string') warrantSet.add(norm(f.warrant));
+  out.unstatedWarrants = warrantSet;
+  return out;
+}
+
 function allSpans(a: Audit): string[] {
   const out: string[] = [];
   for (const k of LENS_KEYS) {
@@ -214,6 +239,53 @@ export interface ItemScore {
   severity: { high: number; medium: number; low: number };
   contestability: { high: number; medium: number; low: number };
   consistency: number | null;    // mean pairwise Jaccard of span sets across runs
+  /** Where that (in)consistency lives — null unless the item was run repeatedly. */
+  consistencyDetail: ConsistencyDetail | null;
+}
+
+export interface ConsistencyDetail {
+  /** Do two runs flag the same PASSAGES at all? (== `consistency`.) */
+  detection: number;
+  /**
+   * Of the passages both runs found, how often do they land in the same lens?
+   * High detection with low routing means the engine sees the same defects and
+   * disagrees about what to call them — a labelling problem, not a reading one.
+   */
+  routing: number | null;
+  /** Per-lens Jaccard, so an unstable lens can be named rather than guessed at. */
+  perLens: Record<string, number | null>;
+}
+
+/** Mean pairwise Jaccard over a list of sets; null when there is no pair. */
+export function meanPairwiseJaccard(sets: Set<string>[]): number | null {
+  let sum = 0, pairs = 0;
+  for (let i = 0; i < sets.length; i++)
+    for (let j = i + 1; j < sets.length; j++) { sum += jaccard(sets[i], sets[j]); pairs++; }
+  return pairs ? sum / pairs : null;
+}
+
+/**
+ * For every span both runs reported, do they agree on the owning lens?
+ * Returns null when the two runs share no spans at all — with nothing in
+ * common there is no routing question to answer, and reporting 0 there would
+ * read as "always misfiled" when the truth is "never both found it".
+ */
+export function routingAgreement(a: Record<string, Set<string>>, b: Record<string, Set<string>>): number | null {
+  const lensOf = (m: Record<string, Set<string>>) => {
+    const owner = new Map<string, Set<string>>();
+    for (const [lens, spans] of Object.entries(m))
+      for (const sp of spans) (owner.get(sp) ?? owner.set(sp, new Set()).get(sp)!).add(lens);
+    return owner;
+  };
+  const oa = lensOf(a), ob = lensOf(b);
+  let shared = 0, agreed = 0;
+  for (const [span, lensesA] of oa) {
+    const lensesB = ob.get(span);
+    if (!lensesB) continue;
+    shared++;
+    for (const l of lensesA) if (lensesB.has(l)) { agreed++; break; }
+  }
+  return shared ? agreed / shared : null;
 }
 
 function countGroundedness(findings: Finding[]) {
@@ -280,6 +352,7 @@ export function scoreItem(item: CorpusItem, runsForItem: RunFile[]): ItemScore {
   const contest = { high: 0, medium: 0, low: 0 };
   const latencyMs: number[] = [];
   const spanSets: Set<string>[] = [];
+  const lensSets: Record<string, Set<string>>[] = [];
 
   const ni = norm(item.text);
 
@@ -309,6 +382,7 @@ export function scoreItem(item: CorpusItem, runsForItem: RunFile[]): ItemScore {
     // Wide span set drives lens-agnostic recall + run-to-run consistency.
     const spans = allSpans(audit);
     spanSets.push(new Set(spans.map(norm)));
+    lensSets.push(spansByLens(audit));
 
     // Lens-agnostic location recall.
     for (const [lens, plist] of Object.entries(planted)) {
@@ -339,11 +413,29 @@ export function scoreItem(item: CorpusItem, runsForItem: RunFile[]): ItemScore {
 
   // Consistency: mean pairwise Jaccard of span sets (only when repeated).
   let consistency: number | null = null;
+  let consistencyDetail: ConsistencyDetail | null = null;
   if (spanSets.length >= 2) {
-    let sum = 0, pairs = 0;
-    for (let i = 0; i < spanSets.length; i++)
-      for (let j = i + 1; j < spanSets.length; j++) { sum += jaccard(spanSets[i], spanSets[j]); pairs++; }
-    consistency = pairs ? sum / pairs : null;
+    consistency = meanPairwiseJaccard(spanSets);
+
+    // Same pairs, decomposed: which passages, then which lens owns them.
+    const perLens: Record<string, number | null> = {};
+    const lensKeys = new Set(lensSets.flatMap((m) => Object.keys(m)));
+    for (const k of lensKeys) {
+      perLens[k] = meanPairwiseJaccard(lensSets.map((m) => m[k] ?? new Set<string>()));
+    }
+
+    let rSum = 0, rPairs = 0;
+    for (let i = 0; i < lensSets.length; i++)
+      for (let j = i + 1; j < lensSets.length; j++) {
+        const r = routingAgreement(lensSets[i]!, lensSets[j]!);
+        if (r !== null) { rSum += r; rPairs++; }
+      }
+
+    consistencyDetail = {
+      detection: consistency ?? 0,
+      routing:   rPairs ? rSum / rPairs : null,
+      perLens,
+    };
   }
 
   return {
@@ -364,6 +456,7 @@ export function scoreItem(item: CorpusItem, runsForItem: RunFile[]): ItemScore {
     severity,
     contestability: contest,
     consistency,
+    consistencyDetail,
   };
 }
 
@@ -389,7 +482,14 @@ export interface Aggregate {
   severity: { high: number; medium: number; low: number };
   contestability: { high: number; medium: number; low: number };
   latency: { meanMs: number; p50Ms: number; p95Ms: number };
-  consistency: { items: number; meanJaccard: number } | null;
+  consistency: {
+    items: number;
+    meanJaccard: number;
+    /** Mean routing agreement over items where the runs shared any span. */
+    meanRouting: number | null;
+    /** Mean per-lens Jaccard, so the least stable lens can be named. */
+    perLens: Record<string, number>;
+  } | null;
 }
 
 function pct(n: number, d: number): number {
@@ -443,8 +543,30 @@ export function aggregate(label: string, scores: ItemScore[]): Aggregate {
   const meanMs = lat.length ? Math.round(lat.reduce((a, b) => a + b, 0) / lat.length) : 0;
 
   const consItems = scores.filter((s) => s.consistency !== null);
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+
+  // Mean per-lens stability across items, so the report can point at the lens
+  // that actually moves rather than at the aggregate.
+  const lensAcc: Record<string, { sum: number; n: number }> = {};
+  for (const sc of consItems) {
+    for (const [lens, v] of Object.entries(sc.consistencyDetail?.perLens ?? {})) {
+      if (v === null) continue;
+      const a = lensAcc[lens] ?? { sum: 0, n: 0 };
+      a.sum += v; a.n++; lensAcc[lens] = a;
+    }
+  }
+  const consPerLens: Record<string, number> = {};
+  for (const [lens, a] of Object.entries(lensAcc)) consPerLens[lens] = r2(a.sum / a.n);
+
+  const routed = consItems.map((sc) => sc.consistencyDetail?.routing).filter((v): v is number => v !== null && v !== undefined);
+
   const consistency = consItems.length
-    ? { items: consItems.length, meanJaccard: Math.round((consItems.reduce((a, s) => a + (s.consistency ?? 0), 0) / consItems.length) * 100) / 100 }
+    ? {
+        items:       consItems.length,
+        meanJaccard: r2(consItems.reduce((a, s) => a + (s.consistency ?? 0), 0) / consItems.length),
+        meanRouting: routed.length ? r2(routed.reduce((a, v) => a + v, 0) / routed.length) : null,
+        perLens: consPerLens,
+      }
     : null;
 
   const nRuns = scores.reduce((a, s) => a + s.runs, 0);

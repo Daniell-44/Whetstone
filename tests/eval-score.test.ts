@@ -231,3 +231,92 @@ describe('score lib matching', () => {
     expect(t.has('will')).toBe(false);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Consistency decomposition
+//
+// The headline consistency number flattens every lens into one span set, which
+// cannot separate two different faults: the engine flagging DIFFERENT PASSAGES
+// between runs, versus flagging the same passages and FILING THEM DIFFERENTLY.
+// Those need different fixes, so the scorer reports them apart.
+// ---------------------------------------------------------------------------
+
+import { spansByLens, routingAgreement, meanPairwiseJaccard } from '../eval/lib/score';
+
+function audit(lenses: Record<string, string[]>, warrants: string[] = []) {
+  const a: any = { toulmin: { unstatedWarrants: warrants.map(w => ({ warrant: w })) } };
+  for (const [lens, quotes] of Object.entries(lenses)) a[lens] = quotes.map(q => ({ quote: q }));
+  return a;
+}
+
+describe('spansByLens', () => {
+  it('keeps each lens’s spans separate instead of flattening them', () => {
+    const m = spansByLens(audit({ namedFallacies: ['alpha'], loadedLanguage: ['beta'] }));
+    expect([...m.namedFallacies!]).toEqual(['alpha']);
+    expect([...m.loadedLanguage!]).toEqual(['beta']);
+  });
+
+  it('carries unstated warrants, which live off the toulmin block', () => {
+    const m = spansByLens(audit({}, ['a hidden premise']));
+    expect(m.unstatedWarrants!.size).toBe(1);
+  });
+
+  it('normalises spans so punctuation differences do not read as disagreement', () => {
+    const a = spansByLens(audit({ namedFallacies: ['the “scare” quote'] }));
+    const b = spansByLens(audit({ namedFallacies: ['the "scare" quote'] }));
+    expect([...a.namedFallacies!]).toEqual([...b.namedFallacies!]);
+  });
+});
+
+describe('routingAgreement', () => {
+  it('is 1 when both runs file every shared span under the same lens', () => {
+    const a = spansByLens(audit({ namedFallacies: ['alpha', 'beta'] }));
+    const b = spansByLens(audit({ namedFallacies: ['alpha', 'beta'] }));
+    expect(routingAgreement(a, b)).toBe(1);
+  });
+
+  it('is 0 when the same spans are found but filed under different lenses', () => {
+    // The diagnostic case: perfect detection, total routing disagreement.
+    const a = spansByLens(audit({ namedFallacies: ['alpha'] }));
+    const b = spansByLens(audit({ loadedLanguage: ['alpha'] }));
+    expect(routingAgreement(a, b)).toBe(0);
+  });
+
+  it('scores only the shared spans, ignoring ones only one run found', () => {
+    const a = spansByLens(audit({ namedFallacies: ['alpha'], loadedLanguage: ['only-in-a'] }));
+    const b = spansByLens(audit({ namedFallacies: ['alpha'], loadedLanguage: ['only-in-b'] }));
+    expect(routingAgreement(a, b)).toBe(1);
+  });
+
+  it('is null when the runs share no span at all', () => {
+    // Nothing in common means there is no routing question; reporting 0 here
+    // would read as "always misfiled" when the truth is "never both found it".
+    const a = spansByLens(audit({ namedFallacies: ['alpha'] }));
+    const b = spansByLens(audit({ namedFallacies: ['gamma'] }));
+    expect(routingAgreement(a, b)).toBeNull();
+  });
+
+  it('counts a span reported by several lenses as agreeing on any overlap', () => {
+    const a = spansByLens(audit({ namedFallacies: ['alpha'], loadedLanguage: ['alpha'] }));
+    const b = spansByLens(audit({ loadedLanguage: ['alpha'] }));
+    expect(routingAgreement(a, b)).toBe(1);
+  });
+});
+
+describe('meanPairwiseJaccard', () => {
+  it('is 1 for identical sets and 0 for disjoint ones', () => {
+    expect(meanPairwiseJaccard([new Set(['a']), new Set(['a'])])).toBe(1);
+    expect(meanPairwiseJaccard([new Set(['a']), new Set(['b'])])).toBe(0);
+  });
+
+  it('averages over every pair, not just consecutive runs', () => {
+    // a/b agree, c shares nothing: pairs are 1, 0, 0 → 1/3.
+    const v = meanPairwiseJaccard([new Set(['x']), new Set(['x']), new Set(['y'])]);
+    expect(v).toBeCloseTo(1 / 3, 5);
+  });
+
+  it('is null without a pair to compare', () => {
+    expect(meanPairwiseJaccard([new Set(['a'])])).toBeNull();
+    expect(meanPairwiseJaccard([])).toBeNull();
+  });
+});

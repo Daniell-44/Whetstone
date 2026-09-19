@@ -135,7 +135,21 @@ function renderScorecard(reports: Report[]): string {
     lines.push(`- **Judgment recall (graded):** ${n(cur.graded.recall.rate, '%')} · **Groundedness-KIND accuracy:** ${n(cur.graded.groundednessKind.rate, '%')} · **Name accuracy:** ${n(cur.graded.nameAccuracy.rate, '%')} · **Trap-resistance:** ${n(cur.graded.trapResistance.rate, '%')}`);
   }
   lines.push(`- **Latency:** mean ${a.latency.meanMs} ms · p95 ${a.latency.p95Ms} ms`);
-  if (a.consistency) lines.push(`- **Run-to-run consistency:** ${a.consistency.meanJaccard} mean Jaccard over ${a.consistency.items} repeated items`);
+  if (a.consistency) {
+    lines.push(`- **Run-to-run consistency:** ${a.consistency.meanJaccard} mean Jaccard over ${a.consistency.items} repeated items`);
+    // The headline number alone cannot distinguish "found different passages"
+    // from "found the same passages and filed them differently" — and those
+    // have nothing in common as fixes. Break it out so the next run diagnoses
+    // rather than just scores.
+    if (a.consistency.meanRouting !== null) {
+      lines.push(`  - **Detection** (same passages flagged at all): ${a.consistency.meanJaccard} · **Routing** (shared passages landing in the same lens): ${a.consistency.meanRouting}`);
+    }
+    const byLens = Object.entries(a.consistency.perLens).sort((x, y) => x[1] - y[1]);
+    if (byLens.length) {
+      lines.push(`  - **Least stable lens:** ${byLens[0]![0]} (${byLens[0]![1]}) · most stable: ${byLens[byLens.length - 1]![0]} (${byLens[byLens.length - 1]![1]})`);
+      lines.push(`  - Per lens: ${byLens.map(([k, v]) => `${k} ${v}`).join(' · ')}`);
+    }
+  }
   lines.push('');
 
   lines.push('## Trend');

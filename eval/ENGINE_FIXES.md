@@ -149,6 +149,32 @@ number there is not a regression.
 
 ---
 
+## Before the paid work: find out where the inconsistency lives
+
+`SCORECARD.md` reports run-to-run consistency as one number (0.26 at E4). That
+number is computed over every lens flattened together, so it cannot tell apart
+two faults that need completely different fixes:
+
+- **Detection drift** — the engine flags *different passages* on each run. The
+  text didn't change, so this is the serious one.
+- **Routing drift** — it flags the *same passages* and files them under
+  different lenses. Partly expected, since the one-finding-per-defect rule
+  deliberately routes a defect into whichever lens best implies it.
+
+The scorer now reports these separately, plus a per-lens breakdown naming the
+least stable lens. Re-running it is **free** — it reads the raw outputs already
+on disk and makes no model calls:
+
+```bash
+pnpm eval:score
+```
+
+Read the new lines under the headline consistency figure before spending
+anything on the fixes below. If routing is the problem, most of these are
+aimed at the wrong target.
+
+---
+
 ## Suggested order
 
 1. Fix #1 (invented position) and #2 (misattributed quote) — correctness, and
