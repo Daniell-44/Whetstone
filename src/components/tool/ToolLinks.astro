@@ -27,6 +27,18 @@ const LINKS: { key: Props['current']; label: string; href: string }[] = [
   { key: 'documents',      label: 'Your drafts',    href: '/creator/documents' },
 ];
 const others = LINKS.filter((l) => l.key !== current);
+
+// Only the audit page can save anything — a draft, with its revision history.
+// Transcript and cross-document produce a one-off reading and keep nothing, so
+// offering "sign in to save" there promises something that does not exist, and
+// spends the one piece of goodwill an account request gets on a lie.
+const canSave = current === 'audit';
+
+// A signed-out visitor has no drafts, so "Your drafts" sends them through the
+// longest path on the site — sign-in page, email, six-digit code — to arrive at
+// "No saved drafts yet." They get the sign-in link below instead, which is the
+// same destination described by what it actually gets them.
+const visible = others.filter((l) => l.key !== 'audit' && (l.key !== 'documents' || isSignedIn));
 ---
 <p class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.6875rem] text-muted">
   {current !== 'audit' && (
@@ -38,20 +50,20 @@ const others = LINKS.filter((l) => l.key !== current);
     </a>
   )}
   <span class="text-muted/70">Also:</span>
-  {others.filter((l) => l.key !== 'audit').map((l, i) => (
+  {visible.map((l, i) => (
     <>
       {i > 0 && <span class="text-hairline" aria-hidden="true">·</span>}
       <a href={l.href} class="hover:text-ink transition-colors underline decoration-hairline underline-offset-4">{l.label}</a>
     </>
   ))}
-  {!isSignedIn && (
+  {!isSignedIn && canSave && (
     <>
       <span class="text-hairline" aria-hidden="true">·</span>
       <a
         href={`/login?returnTo=${encodeURIComponent(LINKS.find((l) => l.key === current)?.href ?? '/audit')}`}
         class="hover:text-ink transition-colors underline decoration-hairline underline-offset-4"
         title="Every tool works signed out — an account only keeps your drafts"
-      >Sign in to save</a>
+      >Sign in to keep your drafts</a>
     </>
   )}
 </p>
