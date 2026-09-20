@@ -1,7 +1,9 @@
 # Engine fixes — parked, in plain English
 
-**Status:** not started. Shelved deliberately in 2026-09 because verifying any
-of it costs money in API calls. This file exists so it can be picked up cold.
+**Status:** not started. Shelved in 2026-09 on cost grounds — see "Cost,
+corrected" below, because that reasoning was based on an estimate of mine that
+was wrong by two orders of magnitude. The harness now supports running a
+variant without destroying the baseline; it did not when this was shelved.
 
 **Where this came from:** `eval/FRONTIER_DIFFS.md`. Four real published opinion
 pieces were analysed twice — once by the production engine, once by a much
@@ -36,12 +38,30 @@ and quietly break another, and the only way to know is to re-run the engine
 across the whole test set and compare the before and after:
 
 ```bash
-RUN_EVAL=1 pnpm eval:grounded     # re-runs the corpus — this is the part that costs money
-pnpm eval:score                   # recomputes the metrics into eval/SCORECARD.md
+# 1. Run the corpus with the change, writing somewhere NEW so the current
+#    baseline survives for comparison. Needs GEMINI_API_KEY in .dev.vars.
+RUN_EVAL=1 EVAL_FEWSHOT=1 EVAL_OUT=outputs-e7 \
+  pnpm exec vitest run tests/eval-harness.test.ts
+
+# 2. Uncomment the e7 row in scripts/score-engine.ts, then:
+pnpm eval:score                   # rewrites eval/SCORECARD.md with both columns
 ```
 
-Order of magnitude: tens of dollars per full run, not hundreds. Budget for two
-or three runs, because the first attempt at a wording change often overshoots.
+**Cost, corrected.** An earlier draft of this file said "tens of dollars per
+full run". That was wrong by roughly two orders of magnitude, and it is
+probably why this work got shelved.
+
+The arithmetic, from this repo's own numbers: the engine runs on
+`gemini-2.5-flash` (`audit/constants.ts`), the corpus is 15 items, and the
+existing baseline is 19 runs (two items repeated three times for the
+consistency measurement). `billing/limits.ts` records the observed cost as
+"a core audit + extraction ≈ $0.01". Nineteen of those is about **twenty
+cents**. Shipping the definitions adds ~2,200 input tokens per run, which does
+not change the order of magnitude.
+
+So a full comparison run is **well under a dollar** — budget a few dollars for
+three or four attempts. The real cost of this work is your attention, not the
+API bill.
 
 **Change one thing at a time.** Two prompt edits in one run and you cannot tell
 which one moved the numbers.
@@ -88,9 +108,9 @@ The comment says "A/B-pending". The A/B was apparently never run.
 **What it costs:** about 2,200 extra input tokens per audit (~8,700 characters).
 Against the ~$0.01 an audit already costs, that is a rounding error.
 
-**What to do:** flip `fewShot` to true, run the corpus, compare. The
-`promptVariant` machinery and its tests already exist, so this is one eval run,
-not a build.
+**What to do:** the two commands at the top of this file. `EVAL_FEWSHOT=1`
+ships the definitions; `EVAL_OUT=outputs-e7` keeps the current baseline intact
+so the scorer can put both columns side by side.
 
 **Why it might not work:** a longer prompt can dilute attention, and more
 vocabulary can mean more false positives on clean controls — currently a

@@ -35,7 +35,16 @@ const SNAPSHOTS: Array<{ version: string; label: string; dir: string; stamp: str
   { version: 'e2',       label: 'E1+E2 (exhaustiveness + earned-emphasis)',     dir: 'outputs-e2',                stamp: '2026-07-07' },
   { version: 'e3',       label: 'E3 (one-finding-per-defect dedup)',            dir: 'outputs-e3',                stamp: '2026-07-08' },
   { version: 'e4',       label: 'E4+E6 (model-emitted groundedness, temp 0.2)', dir: 'outputs',                   stamp: '2026-07-08' },
+  // Uncomment after running:
+  //   RUN_EVAL=1 EVAL_FEWSHOT=1 EVAL_OUT=outputs-e7 pnpm exec vitest run tests/eval-harness.test.ts
+  // See ENGINE_FIXES.md "fix zero" — production ships 26 bare fallacy names
+  // with no definitions; this ships the definitions and worked examples.
+  // { version: 'e7',       label: 'E7 (fallacy definitions + examples shipped)',  dir: 'outputs-e7',                stamp: 'TODO' },
 ];
+
+// A snapshot row whose directory is absent is skipped rather than crashing the
+// scorer, so the commented row above can be uncommented before the run exists.
+
 
 function loadCorpus(): CorpusItem[] {
   return readdirSync(CORPUS_DIR)

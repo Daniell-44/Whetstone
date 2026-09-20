@@ -6,6 +6,12 @@
 //   RUN_EVAL=1 pnpm exec vitest run tests/eval-harness.test.ts
 //   RUN_EVAL=1 EVAL_ONLY=<id> ...      run a single corpus item
 //   RUN_EVAL=1 EVAL_REPEATS=3 ...      repeat runs (consistency measurement)
+//   RUN_EVAL=1 EVAL_FEWSHOT=1 ...      ship the fallacy definitions + worked
+//                                      examples with the prompt (see ENGINE_FIXES
+//                                      "fix zero" — production sends bare names)
+//   RUN_EVAL=1 EVAL_OUT=outputs-e7 ... write somewhere other than eval/outputs,
+//                                      so a variant run does not overwrite the
+//                                      baseline you are comparing it against
 //
 // Corpus:  eval/corpus/*.json  ({ id, category, targetLenses, text, answerKey })
 // Output:  eval/outputs/<id>.run<N>.json
@@ -19,7 +25,9 @@ import { GeminiProvider } from '../functions/_lib/providers/gemini';
 
 const ROOT       = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS_DIR = join(ROOT, 'eval', 'corpus');
-const OUT_DIR    = join(ROOT, 'eval', 'outputs');
+// A variant run MUST be able to write elsewhere: without this the only way to
+// try a prompt change was to destroy the snapshot you wanted to compare to.
+const OUT_DIR    = join(ROOT, 'eval', process.env.EVAL_OUT || 'outputs');
 
 function readDevVar(name: string): string | undefined {
   try {
@@ -64,6 +72,10 @@ describe.runIf(process.env.RUN_EVAL === '1')('audit engine eval harness', () => 
           provider,
           apiKey: apiKey!,
           includePhase2: true,
+          // Off in production: the model is handed 26 bare fallacy names with
+          // no definition and no example. Setting EVAL_FEWSHOT=1 ships them,
+          // which is the comparison recorded as "fix zero" in ENGINE_FIXES.md.
+          ...(process.env.EVAL_FEWSHOT === '1' ? { promptVariant: { fewShot: true } } : {}),
         });
         const latencyMs = Date.now() - started;
 
