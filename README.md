@@ -55,6 +55,20 @@ CI runs everything except e2e, which needs the Cloudflare bindings.
 **Astro 6** (SSR) + **Preact** islands + **Tailwind v4**, deployed as a single
 **Cloudflare Worker** via `@astrojs/cloudflare`.
 
+### Publishing
+
+```bash
+pnpm new:explainer <slug> "What X actually means"   # 4 fields + prose
+pnpm new:briefing  <slug> "The contested question?" # the full sourced format
+pnpm verify:quotes <slug>                           # once a briefing's quotes are real
+```
+
+Two formats, deliberately. A briefing carries the sourcing apparatus — plotted
+positions, verbatim quotes a script can verify, per-source notes — and costs a
+day or two. An explainer is an essay: four fields, no sources, no map. Reach
+for the explainer when the piece corrects something rather than adjudicating
+between positions.
+
 ```
 src/
   pages/            39 routes + 61 API endpoints
